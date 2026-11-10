@@ -1,0 +1,30 @@
+# Servizio systemd per Date Spreader.
+# Installazione:  sudo cp deploy/datespreader.service /etc/systemd/system/ && sudo systemctl daemon-reload
+#                 sudo systemctl enable --now datespreader
+[Unit]
+Description=Date Spreader - pianificazione migrazioni e upgrade server
+Documentation=file:///var/www/html/DateSpreader/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=datespreader
+Group=datespreader
+WorkingDirectory=/var/www/html/DateSpreader
+Environment=PYTHONUNBUFFERED=1
+# Applica eventuali migrazioni nuove prima di partire (non fa nulla se lo schema è già aggiornato).
+ExecStartPre=/var/www/html/DateSpreader/.venv/bin/python -m app.cli migrate
+ExecStart=/var/www/html/DateSpreader/.venv/bin/python -m app.main
+Restart=on-failure
+RestartSec=5
+
+# Protezioni: il servizio può scrivere solo nella cartella del database.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/html/DateSpreader/data
+
+[Install]
+WantedBy=multi-user.target

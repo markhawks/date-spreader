@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+# database e backup con dati reali dei clienti: mai nel repository
+data/*
+!data/.gitkeep
+# impostazioni locali di Claude Code (permessi di questa macchina)
+.claude/settings.local.json
+# note di questa installazione (indirizzi, dati reali): restano sulla macchina
+CLAUDE.local.md

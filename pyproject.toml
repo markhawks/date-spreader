@@ -1,0 +1,13 @@
+[project]
+name = "datespreader"
+version = "0.21.0"
+description = "Multi-user web portal to plan server migrations and upgrades"
+readme = "README.en.md"
+requires-python = ">=3.11"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Mark Hawks" }]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
