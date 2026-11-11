@@ -34,8 +34,14 @@
         <span>Oggi</span>
       </button>
       <div class="view-switch" role="group" aria-label="Vista del calendario">
-        <button type="button" class="view-switch-btn" data-view="month" aria-pressed="true" title="Vista mensile">Mese</button>
-        <button type="button" class="view-switch-btn" data-view="week" aria-pressed="false" title="Vista settimanale: ogni intervento in dettaglio">Settimana</button>
+        <button type="button" class="btn btn-today view-switch-btn" data-view="month" aria-pressed="true" title="Vista mensile">
+          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.3" width="12.4" height="11.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.8 6h12.4M1.8 9.8h12.4M6 6v7.7M10 6v7.7" stroke="currentColor" stroke-width="1.2"/></svg>
+          <span>Mese</span>
+        </button>
+        <button type="button" class="btn btn-today view-switch-btn" data-view="week" aria-pressed="false" title="Vista settimanale: ogni intervento in dettaglio">
+          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.3" width="12.4" height="11.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.9 2.3v11.4M10.1 2.3v11.4" stroke="currentColor" stroke-width="1.2"/></svg>
+          <span>Settimana</span>
+        </button>
       </div>
     </div>
     <div class="topbar-actions" id="topbar-actions">

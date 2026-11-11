@@ -766,15 +766,17 @@ tr.added td { animation: cell-saved 1.6s ease-out; }
    ========================================================================= */
 .topbar-actions { display: flex; gap: 8px; justify-self: end; }
 .topbar-center { justify-self: center; display: flex; align-items: center; gap: 10px; }
-/* Mese | Settimana */
-.view-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--panel); }
-.view-switch-btn {
-  border: 0; background: transparent; color: var(--muted); padding: 6px 13px; font: inherit; font-size: 0.85rem; cursor: pointer;
+/* Mese | Settimana: due pulsanti come «Oggi»; quello della vista attiva è blu pieno,
+   l'altro ha solo il bordo blu */
+.view-switch { display: inline-flex; gap: 8px; }
+.btn-today.view-switch-btn[aria-pressed="false"] {
+  background: var(--panel); color: var(--accent); box-shadow: none;
 }
-.view-switch-btn + .view-switch-btn { border-left: 1px solid var(--border); }
-.view-switch-btn:hover { color: var(--text); }
-.view-switch-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); color: var(--accent); font-weight: 600; }
-.view-switch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.btn-today.view-switch-btn[aria-pressed="false"]:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel)); color: var(--accent); filter: none;
+}
+:root[data-theme="dark"] .btn-today.view-switch-btn[aria-pressed="false"] { color: var(--accent); }
+.view-switch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* «Oggi»: blu pieno come il mese corrente, ben riconoscibile */
 .btn-today {
   display: inline-flex; align-items: center; gap: 7px;
@@ -1915,5 +1917,6 @@ body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
     background: color-mix(in srgb, var(--c) 16%, var(--panel));
   }
   .calendar-scroll[data-view="week"] .chip > * { display: block; }
-  .view-switch-btn { padding: 5px 9px; }
+  .view-switch-btn { padding: 6px 10px; }
+  .view-switch-btn span { display: none; }  /* su telefono solo l'icona */
 }
