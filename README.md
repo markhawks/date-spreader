@@ -205,6 +205,10 @@ to **recover access** if the administrator forgets the password.
   "7 days / Mon–Fri" switch at the bottom right of the calendar and Settings → Appearance; personal preference). With **Mon–Fri**, Saturday and Sunday are hidden and come back only where
   they are needed: in the weeks (week and Technicians views) or months (month view) that have interventions on a
   weekend, so exceptions are never missed.
+- **Smartphones**: the portal is meant for a desktop. On a phone it opens a **read-only recap** for technicians and
+  coordinators away from the office: interventions still to close (last 14 days), today's and the next 7 days',
+  "Mine" or "All", with status, progress, conflicts and technicians; a tap shows the servers and lets you change the
+  intervention status. "Full version" opens the normal portal anyway; its "Recap" button goes back.
 - **Scheduling conflicts**: the portal warns when the **same server** is in two interventions on the **same day**, or
   a **technician** (participant or assigned to a server row) is in two interventions whose times **overlap** (an
   intervention without a time counts as the whole day; cancelled interventions are ignored). The calendar marks

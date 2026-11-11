@@ -28,7 +28,7 @@ def test_frontend_served(client):
 
 def test_js_modules_served_as_javascript(client):
     """I moduli ES vengono rifiutati dal browser se il MIME type non è JavaScript."""
-    for name in ("main", "api", "calendar", "sidebar", "dates", "colors", "labels", "chooser", "detail", "sheet", "resize", "filters", "eventstatus", "projectform", "people", "inventory", "auth", "projectdialog", "osdialog", "prefs", "settings", "customers", "confirm", "session", "timepick", "contextmenu", "share", "transfer", "backups", "i18n", "clock"):
+    for name in ("main", "api", "calendar", "sidebar", "dates", "colors", "labels", "chooser", "detail", "sheet", "resize", "filters", "eventstatus", "projectform", "people", "inventory", "auth", "projectdialog", "osdialog", "prefs", "settings", "customers", "confirm", "session", "timepick", "contextmenu", "share", "transfer", "backups", "i18n", "clock", "conflicts", "workload", "serverimport", "recap"):
         res = client.get(f"/js/{name}.js")
         assert res.status_code == 200, name
         assert "javascript" in res.headers["content-type"], name

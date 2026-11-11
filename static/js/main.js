@@ -23,6 +23,7 @@ import { Sidebar, attachSidebarResizer } from "./sidebar.js";
 import { showImportDialog } from "./transfer.js";
 import { showBackupsDialog } from "./backups.js";
 import { Workload } from "./workload.js";
+import { isSmallScreen, startRecap, switchToRecap, wantsRecap } from "./recap.js";
 import { adoptLanguagePreference, t, translateStatic } from "./i18n.js";
 
 const $ = (id) => document.getElementById(id);
@@ -106,6 +107,16 @@ async function main() {
   await prefs.load(); // tema e posizione dell'anteprima prima di disegnare
   // The user's language (saved preference) differs from the one the page was built with: reload once
   if (adoptLanguagePreference(prefs.get().language)) return;
+  // Smartphone: read-only recap instead of the full portal (which is meant for a desktop)
+  if (wantsRecap()) {
+    await startRecap({ me, toast });
+    return;
+  }
+  if (isSmallScreen()) {
+    const back = $("btn-recap");
+    back.hidden = false;
+    back.addEventListener("click", switchToRecap);
+  }
   document.body.classList.add("signed-in");
   let projects = [];
 

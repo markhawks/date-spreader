@@ -2119,3 +2119,44 @@ body.view-team .zoom-ctl { display: none; }
   .view-switch-btn span, .days-toggle span { display: none; }
   .view-switch-btn, .days-toggle { padding: 7px 12px; }
 }
+
+/* ---------- Riepilogo per smartphone (sola lettura) ------------------------------------ */
+body.recap-mode > :not(.recap):not(#toast):not(dialog):not(script) { display: none !important; }
+body.recap-mode { overflow: auto; height: auto; }
+.recap { max-width: 640px; margin: 0 auto; padding: 12px 14px 28px; font-size: 1rem; }
+.rc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rc-brand { display: grid; }
+.rc-brand strong { font-size: 1.2rem; }
+.rc-icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: var(--panel); color: var(--accent); cursor: pointer; display: grid; place-items: center; }
+.rc-icon-btn:disabled svg { opacity: 0.4; }
+.rc-sub { margin: 4px 0 10px; font-size: 0.9rem; }
+.rc-tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--panel); }
+.rc-tab { font: inherit; border: 0; background: none; padding: 10px; color: var(--muted); cursor: pointer; }
+.rc-tab[aria-selected="true"] { background: var(--accent); color: #fff; font-weight: 700; }
+.rc-section h2 { font-size: 1.05rem; margin: 18px 0 8px; }
+.rc-day { font-size: 0.9rem; color: var(--muted); margin: 12px 0 6px; font-weight: 600; }
+.rc-empty { margin: 0; }
+.rc-card { border: 1px solid var(--border); border-left: 5px solid var(--c); border-radius: 10px; background: var(--panel); margin-bottom: 10px; overflow: hidden; }
+.rc-card.status-completato { opacity: 0.75; }
+.rc-card-top { display: grid; gap: 4px; width: 100%; text-align: left; font: inherit; color: var(--text); background: none; border: 0; padding: 12px 14px; cursor: pointer; }
+.rc-line1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rc-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rc-warn { font-size: 0.8rem; font-weight: 700; color: var(--warn-fg); background: var(--warn-bg); padding: 1px 8px; border-radius: 999px; }
+.rc-title { font-size: 1.1rem; font-weight: 700; }
+.rc-meta, .rc-people { font-size: 0.88rem; }
+.rc-progress { display: flex; align-items: center; gap: 10px; }
+.rc-count { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rc-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--border); position: relative; overflow: hidden; }
+.rc-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); background: var(--c); }
+.rc-details { padding: 0 14px 12px; border-top: 1px solid var(--border); }
+.rc-status { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-weight: 600; }
+.rc-status select { font-size: 1rem; padding: 6px 8px; }
+.rc-notes { white-space: pre-wrap; background: var(--bg); padding: 8px 10px; border-radius: 8px; font-size: 0.9rem; }
+.rc-conflicts { color: var(--warn-fg); background: var(--warn-bg); border-radius: 8px; padding: 8px 10px 8px 26px; font-size: 0.88rem; }
+.rc-servers-head { margin: 10px 0 4px; font-size: 0.88rem; }
+.rc-servers { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rc-servers li { border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; }
+.rc-srv1 { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-size: 0.9rem; overflow-wrap: anywhere; }
+.rc-srv-notes { white-space: pre-wrap; margin-top: 2px; }
+.rc-foot { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
+.rc-foot .btn { padding: 10px 16px; }

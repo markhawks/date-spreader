@@ -49,7 +49,9 @@ export default {
     "index.days_all": "7 days",
     "index.days_all_title": "Show the whole week",
     "index.days_workweek": "Mon–Fri",
-    "index.days_workweek_title": "Monday to Friday: Saturday and Sunday appear only where there are interventions"
+    "index.days_workweek_title": "Monday to Friday: Saturday and Sunday appear only where there are interventions",
+    "index.recap": "Recap",
+    "index.recap_title": "Recap for smartphones"
   },
   "it": {
     "index.version_title": "Novità del portale (changelog)",
@@ -101,6 +103,8 @@ export default {
     "index.days_all": "7 giorni",
     "index.days_all_title": "Mostra tutta la settimana",
     "index.days_workweek": "Lun–Ven",
-    "index.days_workweek_title": "Da lunedì a venerdì: sabato e domenica compaiono solo dove ci sono interventi"
+    "index.days_workweek_title": "Da lunedì a venerdì: sabato e domenica compaiono solo dove ci sono interventi",
+    "index.recap": "Riepilogo",
+    "index.recap_title": "Riepilogo per smartphone"
   }
 };
