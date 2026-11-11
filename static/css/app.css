@@ -1933,3 +1933,19 @@ body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
 .empty-day-title { margin: 0; font-weight: 600; }
 .empty-day-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .empty-day .muted.small { margin: 0; }
+
+/* Data e ora nella barra in alto */
+.topbar-clock {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  margin-left: 6px; padding-left: 12px; border-left: 1px solid var(--border);
+  color: var(--muted); font-size: 0.85rem; white-space: nowrap;
+}
+.topbar-clock[hidden] { display: none; }
+.clock-time { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.clock-date:not([hidden]) + .clock-time:not([hidden])::before { content: "·"; color: var(--muted); font-weight: 400; margin-right: 8px; }
+/* Schermi medi: solo l'ora; telefono: niente (resta il pulsante Oggi) */
+@media (max-width: 1180px) {
+  .topbar-clock:not([data-mode="date"]) .clock-date { display: none; }
+  .topbar-clock .clock-date:not([hidden]) + .clock-time:not([hidden])::before { display: none; }
+}
+@media (max-width: 760px) { .topbar-clock { display: none; } }

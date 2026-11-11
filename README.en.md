@@ -13,6 +13,7 @@ this job with:
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
 - **duplicate an intervention** to another date (e.g. when it must be run again): same type, title, notes,
   technicians and server table, with every status reset;
+- **today's date and a clock** in the top bar, configurable per user (date and time, with seconds, date only, time only, hidden);
 - **month or week view**: **Month** and **Week** buttons next to "Today"; the week view shows seven tall columns with every intervention in full (name, progress, customer, title and time, type, technicians), never "+N";
 - **calendar zoom**, Blender style: hold the **middle mouse button and move forward/back** (or pinch on a
   touchpad, or use the − % + control); zooming in shows more interventions and details per day;

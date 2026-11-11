@@ -52,6 +52,7 @@ export const WEEKDAYS = Array.from({ length: 7 }, (_, i) => fmtWeekday.format(ne
 // Formato degli orari (preferenza dell'utente): "24h" europeo (default) o "12h" con AM/PM.
 let timeFormat = "24h";
 export const setTimeFormat = (fmt) => { timeFormat = fmt === "12h" ? "12h" : "24h"; };
+export const getTimeFormat = () => timeFormat;
 
 /** "21:00:00" → "21:00" (24h) oppure "9:00 PM" (12h). */
 export function formatTime(t) {

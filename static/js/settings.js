@@ -128,6 +128,18 @@ export function showSettings({ me, toast, adminActions = [] }) {
         ["12h", "12 ore (AM/PM)", "9:00 AM, 2:30 PM, 6:00 PM."],
       ], (v) => update({ time_format: v }, "Formato degli orari aggiornato.")),
     );
+    const clockField = el("div", "settings-field");
+    clockField.append(
+      el("h4", null, "Data e ora nella barra in alto"),
+      el("p", "muted small", "Accanto al nome del portale. L'ora segue il formato degli orari scelto sopra."),
+      choice("topbar_clock", p.topbar_clock, [
+        ["date_time", "Data e ora", "Mer 11 novembre 2026 · 14:32"],
+        ["date_time_seconds", "Data e ora con i secondi", "Mer 11 novembre 2026 · 14:32:07"],
+        ["date", "Solo la data", null],
+        ["time", "Solo l'ora", null],
+        ["off", "Nascondi", null],
+      ], (v) => update({ topbar_clock: v }, v === "off" ? "Data e ora nascoste." : "Data e ora aggiornate.")),
+    );
     const mailField = el("div", "settings-field");
     const accForm = el("form", "settings-inline settings-mail");
     accForm.noValidate = true;
@@ -156,7 +168,7 @@ export function showSettings({ me, toast, adminActions = [] }) {
       accForm, chooseLbl,
     );
     const note = el("p", "muted small settings-note", "Le impostazioni sono personali e ti seguono su qualsiasi computer da cui accedi.");
-    return [posField, sideField, timeField, themeField, mailField, note];
+    return [posField, sideField, timeField, clockField, themeField, mailField, note];
   }
 
   function renderAdmin() {

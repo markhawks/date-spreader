@@ -11,6 +11,7 @@ import { PeopleDialog, people } from "./people.js";
 import { ProjectDialog, duplicateEventFlow, editEvent, newEventOnDate } from "./projectdialog.js";
 import { showContextMenu } from "./contextmenu.js";
 import { formatMediumDate } from "./dates.js";
+import { TopbarClock } from "./clock.js";
 import { ProjectForm } from "./projectform.js";
 import { showOsDialog } from "./osdialog.js";
 import { prefs } from "./prefs.js";
@@ -390,6 +391,14 @@ async function main() {
     }
   });
   $("version-link").textContent = `v${me.version}`;
+
+  // Data e orologio nella barra in alto (preferenza personale)
+  const clock = new TopbarClock($("topbar-clock"));
+  clock.setMode(prefs.get().topbar_clock);
+  prefs.onChange((p, changes) => {
+    if ("topbar_clock" in changes) clock.setMode(p.topbar_clock);
+    if ("time_format" in changes) clock.refresh();
+  });
   $("version-link").addEventListener("click", () => showChangelog());
   $("topbar-actions").append(userMenu(me, {
     onLogout: () => location.reload(),
