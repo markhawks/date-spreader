@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import StaleDataError
 
@@ -18,7 +18,9 @@ from app.repositories import users as repo
 from app.repositories.servers import Conflict, ValidationProblem
 from app.schemas.calendar import UserRef
 from app.auth import AuthUser, require_admin, require_user
-from app.schemas.edit import ParticipantsUpdate, TemporaryPassword, UserCreate, UserOut, UserPatch
+from app.schemas.edit import (
+    ParticipantsUpdate, TechnicianQuickCreate, TemporaryPassword, UserCreate, UserOut, UserPatch,
+)
 
 router = APIRouter(tags=["tecnici"])
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -41,6 +43,23 @@ def create_user(session: SessionDep, data: UserCreate) -> UserOut:
     except Conflict as exc:
         session.rollback()
         raise HTTPException(409, {"message": str(exc), "current": None}) from None
+    return UserOut.from_user(user)
+
+
+@router.post("/users/technicians", response_model=UserOut)
+def add_technician(session: SessionDep, data: TechnicianQuickCreate, response: Response) -> UserOut:
+    """Tecnico al volo (tutti gli utenti): riusa quello con lo stesso nome, altrimenti lo crea (201).
+
+    Crea solo un nome con ruolo «tecnico», senza email né accesso al portale: ruoli e accessi
+    restano agli amministratori (pulsante Utenti).
+    """
+    try:
+        user, created = repo.find_or_create_technician(session, data.display_name)
+        session.commit()
+    except Conflict as exc:
+        session.rollback()
+        raise HTTPException(409, {"message": str(exc), "current": None}) from None
+    response.status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
     return UserOut.from_user(user)
 
 

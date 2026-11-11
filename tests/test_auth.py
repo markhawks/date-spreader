@@ -139,6 +139,9 @@ def test_technician_can_edit_data_but_not_users(anon, accounts):
     me = uid(accounts, "Tito Tecnico")
     assert anon.patch(f"/api/users/{me}", json={"version": 1, "role": "admin"}).status_code == 403
     assert anon.post(f"/api/users/{me}/temporary-password").status_code == 403
+    # ma può aggiungere al volo un tecnico (solo nome, ruolo tecnico, nessun accesso)
+    added = anon.post("/api/users/technicians", json={"display_name": "Tecnico Esterno"})
+    assert added.status_code == 201 and added.json()["role"] == "tecnico" and added.json()["has_password"] is False
 
 
 # --- password ----------------------------------------------------------------------

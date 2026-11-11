@@ -1022,6 +1022,13 @@ body.col-resizing, body.col-resizing * { cursor: col-resize !important; user-sel
 }
 .picker-select:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .picker-select option { color: var(--text); background: var(--panel); }
+.picker-new { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.picker-new-input {
+  font: inherit; font-size: 0.85rem; padding: 4px 8px; width: 13rem; max-width: 100%;
+  border: 1px solid var(--accent); border-radius: 999px; background: var(--panel); color: var(--text);
+}
+.picker-new-msg:empty { display: none; }
+.picker-new-msg { font-size: 0.8rem; }
 .pf-people { min-height: 34px; display: flex; align-items: center; }
 
 .people-dialog { width: min(760px, calc(100vw - 24px)); }

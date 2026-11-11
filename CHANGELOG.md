@@ -7,6 +7,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 ### Aggiunto
 - **Nuovo tipo di intervento «Configurazione»**. La tabella server mostra solo hostname, IP, SO, ambiente, «eseguito il» e tecnico; sotto ogni server c'è una **riga di note a tutta larghezza**, alta due righe e che cresce con il testo (Invio va a capo, si salva uscendo dal campo). Vale nella tabella a tutto schermo, nell'anteprima in basso, nella scheda compatta (note con gli a capo) e nell'email di condivisione. Il riepilogo indica i server eseguiti («eseguiti 1/2»). Cambiando il tipo di un intervento la tabella cambia colonne, i dati restano.
 - Pulsante **«+ Intervento»** nella barra dell'anteprima (accanto a sposta-anteprima e ✕, in basso e a destra): crea un intervento nel giorno mostrato, scegliendo il progetto; il modulo ha la data già compilata, come dal tasto destro sul calendario.
+- **Tecnico nuovo direttamente dai partecipanti**: in fondo al menu «+ Aggiungi tecnico…» c'è **«+ Nuovo tecnico…»**, che apre un campo per il nome (Invio aggiunge, Esc annulla). Il tecnico viene salvato nel database e compare subito in tutti i menu; se il nome esiste già (anche con maiuscole o spazi diversi) si usa quello, senza doppioni. Funziona nella scheda dell'intervento, nel «Nuovo progetto» e nel modulo dell'intervento, per tutti gli utenti: crea solo il nome, con ruolo tecnico e senza accesso al portale. API: `POST /api/users/technicians`.
 ### Modificato
 - Le note di una riga server accettano fino a 20.000 caratteri (prima 2.000).
 

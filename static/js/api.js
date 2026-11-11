@@ -70,6 +70,8 @@ export const fetchDay = (iso) => getJSON(`/api/days/${q(iso)}`);
 /** Tecnici; con `all` anche quelli disattivati. */
 export const fetchUsers = (all = false) => getJSON(all ? "/api/users?all=true" : "/api/users");
 export const createUser = (data) => request("POST", "/api/users", data);
+/** Tecnico al volo (tutti gli utenti): riusa quello con lo stesso nome o lo crea. */
+export const addTechnician = (displayName) => request("POST", "/api/users/technicians", { display_name: displayName });
 export const patchUser = (id, changes) => request("PATCH", `/api/users/${q(id)}`, changes);
 export const setParticipants = (eventId, userIds) =>
   request("PUT", `/api/events/${q(eventId)}/participants`, { user_ids: userIds });

@@ -148,3 +148,34 @@ def test_changes_feed_signals_users(api):
     res = api.get("/api/changes", params={"since": since}).json()
     assert res["users_changed"] is False
     assert [e["event_date"] for e in res["events"]] == ["2026-11-26"]
+
+
+# --- tecnico al volo dal menu dei partecipanti ------------------------------------------
+
+
+def test_add_technician_creates_or_reuses(api):
+    res = api.post("/api/users/technicians", json={"display_name": "  Elena   Conti "})
+    assert res.status_code == 201, res.text
+    new = res.json()
+    assert (new["display_name"], new["role"], new["email"], new["is_active"]) == ("Elena Conti", "tecnico", None, True)
+    assert "Elena Conti" in names(api)
+    # stesso nome (maiuscole e spazi diversi): riusa quello esistente, niente doppioni
+    again = api.post("/api/users/technicians", json={"display_name": "elena conti"})
+    assert again.status_code == 200 and again.json()["id"] == new["id"]
+    assert names(api, all=True).count("Elena Conti") == 1
+    # un tecnico già presente nei dati di esempio
+    assert api.post("/api/users/technicians", json={"display_name": "Marco Neri"}).status_code == 200
+    # il nuovo tecnico si può subito aggiungere ai partecipanti
+    ev = event_on(api, "2026-11-26")
+    ids = [p["id"] for p in ev["participants"]] + [new["id"]]
+    res = api.put(f"/api/events/{ev['id']}/participants", json={"user_ids": ids})
+    assert res.status_code == 200, res.text
+
+
+def test_add_technician_validation_and_inactive(api):
+    assert api.post("/api/users/technicians", json={"display_name": "   "}).status_code == 422
+    assert api.post("/api/users/technicians", json={"display_name": "X", "role": "admin"}).status_code == 422
+    u = api.post("/api/users/technicians", json={"display_name": "Ugo Ferri"}).json()
+    api.patch(f"/api/users/{u['id']}", json={"version": u["version"], "is_active": False})
+    res = api.post("/api/users/technicians", json={"display_name": "UGO FERRI"})
+    assert res.status_code == 409 and "disattivato" in res.json()["detail"]["message"]

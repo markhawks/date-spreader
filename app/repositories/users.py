@@ -61,6 +61,16 @@ def create_user(session: Session, data: UserCreate) -> User:
     return user
 
 
+def find_or_create_technician(session: Session, name: str) -> tuple[User, bool]:
+    """Tecnico con questo nome (maiuscole ignorate), creato se manca. Restituisce (tecnico, creato)."""
+    existing = session.scalar(select(User).where(func.lower(User.display_name) == name.lower()))
+    if existing is not None:
+        if not existing.is_active:
+            raise Conflict(f"«{existing.display_name}» esiste ma è disattivato: un amministratore può riattivarlo da Utenti.")
+        return existing, False
+    return create_user(session, UserCreate(display_name=name, role="tecnico")), True
+
+
 def update_user(session: Session, user: User, values: dict[str, Any]) -> None:
     if "display_name" in values and values["display_name"] is None:
         raise ValidationProblem("Il nome è obbligatorio.")

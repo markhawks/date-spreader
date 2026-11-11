@@ -1,6 +1,8 @@
 // Tecnici: elenco condiviso, selettore dei partecipanti, finestra di gestione.
 
-import { createUser, fetchUsers, patchUser, temporaryPassword } from "./api.js";
+import { addTechnician, createUser, fetchUsers, patchUser, temporaryPassword } from "./api.js";
+
+const NEW_TECH = "__new__";
 
 const fmtDateTime = (iso) =>
   new Date(iso.endsWith("Z") ? iso : `${iso}Z`).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
@@ -91,14 +93,55 @@ export function participantPicker(selectedIds, { onChange = () => {}, label = "P
     const select = el("select", "picker-select");
     select.setAttribute("aria-label", `Aggiungi a ${label.toLowerCase()}`);
     const available = people.active().filter((u) => !ids.includes(u.id));
-    select.append(new Option(available.length ? "+ Aggiungi tecnico…" : "Nessun altro tecnico", ""));
+    select.append(new Option("+ Aggiungi tecnico…", ""));
     for (const u of available) select.append(new Option(u.display_name, String(u.id)));
-    select.disabled = !available.length;
+    select.append(new Option("+ Nuovo tecnico…", NEW_TECH));
     select.addEventListener("change", () => {
-      if (select.value) commit([...ids, Number(select.value)]);
+      if (select.value === NEW_TECH) showNewForm();
+      else if (select.value) commit([...ids, Number(select.value)]);
     });
 
     root.replaceChildren(...chips, select);
+  }
+
+  /** Campo per un tecnico non ancora in elenco: se il nome esiste già si usa quello, altrimenti va nel database. */
+  function showNewForm() {
+    const box = el("span", "picker-new");
+    const input = el("input", "picker-new-input");
+    Object.assign(input, { type: "text", maxLength: 200, placeholder: "Nome e cognome", autocomplete: "off" });
+    input.setAttribute("aria-label", "Nome del nuovo tecnico");
+    const ok = el("button", "btn btn-small btn-primary", "Aggiungi");
+    ok.type = "button";
+    const cancel = el("button", "btn btn-small", "Annulla");
+    cancel.type = "button";
+    const msg = el("span", "picker-new-msg error-text");
+    msg.setAttribute("role", "alert");
+    box.append(input, ok, cancel, msg);
+    root.replaceChildren(...root.querySelectorAll(".chip-person"), box);
+    input.focus();
+
+    async function submit() {
+      const name = input.value.trim().replace(/\s+/g, " ");
+      if (!name) { msg.textContent = "Scrivi il nome."; input.focus(); return; }
+      ok.disabled = input.disabled = true;
+      msg.textContent = "";
+      try {
+        const user = await addTechnician(name);
+        await people.load(true); // il nuovo tecnico compare in tutti i menu
+        if (ids.includes(user.id)) { render(); return; }
+        await commit([...ids, user.id]);
+      } catch (err) {
+        ok.disabled = input.disabled = false;
+        msg.textContent = err.message;
+        input.focus();
+      }
+    }
+    ok.addEventListener("click", submit);
+    cancel.addEventListener("click", () => render());
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); submit(); }
+      else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); render(); }
+    });
   }
 
   render();

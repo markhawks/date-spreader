@@ -193,6 +193,16 @@ class UserCreate(BaseModel):
     _email = field_validator("email", mode="before")(classmethod(lambda cls, v: _valid_email(v)))
 
 
+class TechnicianQuickCreate(BaseModel):
+    """Tecnico aggiunto al volo dal menu dei partecipanti: solo il nome (ruolo tecnico, senza accesso)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    display_name: str = Field(max_length=200)
+
+    _name = field_validator("display_name", mode="before")(classmethod(lambda cls, v: _valid_name(v)))
+
+
 class UserPatch(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

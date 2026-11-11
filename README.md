@@ -154,6 +154,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 
 ### Tecnici
 - Le persone stanno nel database (tabella `users`) e si gestiscono dal pulsante **Tecnici** in alto: nome, email aziendale (facoltativa), ruolo (tecnico, coordinatore, amministratore) e **Attivo**. Le modifiche si salvano da sole.
+- **Tecnico nuovo al volo**: nei menu dei partecipanti, «**+ Nuovo tecnico…**» (in fondo all'elenco) apre un campo per il nome. Il tecnico viene salvato nel database e aggiunto all'intervento; se esiste già un tecnico con quel nome (maiuscole e spazi ignorati) si usa quello. È permesso a tutti gli utenti, ma crea solo il nome: ruolo *tecnico*, nessuna email, nessun accesso. Se il nome è di un tecnico disattivato compare un avviso: va riattivato da un amministratore.
 - **Aggiungere**: modulo "Aggiungi tecnico" in fondo alla finestra. Nome ed email sono unici, senza distinguere maiuscole.
 - **Non si cancella, si disattiva**: un tecnico disattivato sparisce dai menu di scelta, ma resta dove era già assegnato (indicato come "(disattivato)"), nella cronologia e nel filtro del calendario, così si possono rivedere gli interventi passati.
 - **Menu a tendina** con i tecnici attivi in:
@@ -302,6 +303,7 @@ Da 1300 px circa le colonne sono tutte visibili; sotto, la tabella scorre in ori
 | `DELETE /api/event-servers/{id}?version=N` | Toglie il server dall'intervento (resta in anagrafica). 409 se la riga è cambiata |
 | `GET /api/users[?all=true]` | Tecnici attivi (con `all=true` anche i disattivati) |
 | `POST /api/users` | Nuovo tecnico (`display_name`, `email`, `role`). 409 se nome o email esistono già |
+| `POST /api/users/technicians` | Tecnico al volo, per tutti gli utenti (`display_name`): restituisce quello con lo stesso nome (200) o lo crea con ruolo tecnico (201); 409 se è disattivato |
 | `PATCH /api/users/{id}` | Modifica nome, email, ruolo, `is_active` (con `version`, 409 se cambiato) |
 | `PUT /api/events/{id}/participants` | Sostituisce i partecipanti (`user_ids`). Un tecnico disattivato può restare ma non essere aggiunto |
 | `GET /api/options` | Valori ammessi per le colonne a scelta |
