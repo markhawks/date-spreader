@@ -1,13 +1,13 @@
 // Scheda progetto (nome, descrizione, stato, elenco interventi) e modulo intervento (nuovo / modifica).
 
 import {
-  addEvent, deleteEvent, deleteProject, exportCustomer, exportProject, fetchEvent, patchEvent, patchProject,
+  addEvent, deleteEvent, deleteProject, duplicateEvent, exportCustomer, exportProject, fetchEvent, patchEvent, patchProject,
 } from "./api.js";
 import { confirmDanger } from "./confirm.js";
 import { session } from "./session.js";
 import { colorFor } from "./colors.js";
-import { formatMediumDate, todayIso } from "./dates.js";
-import { EVENT_STATUS, EVENT_TYPE, PROJECT_STATUS, badge } from "./labels.js";
+import { addDays, formatMediumDate, todayIso } from "./dates.js";
+import { EVENT_STATUS, EVENT_TYPE, PROJECT_STATUS, badge, isConfigEvent, stageLabel } from "./labels.js";
 import { customerSelect, customers } from "./customers.js";
 import { participantPicker, people } from "./people.js";
 import { linkTimes, timeSelect } from "./timepick.js";
@@ -403,6 +403,76 @@ export async function editEvent(eventId) {
   return openEventForm({ project: event.project, event });
 }
 
+/**
+ * Duplica un intervento in un'altra data dello stesso progetto (es. da rieseguire).
+ * Si copiano titolo, tipo, note, tecnici e, se scelto, la tabella server con gli stati azzerati.
+ * @returns {Promise<object|null>} il nuovo intervento
+ */
+export async function duplicateEventFlow(eventId) {
+  const ev = await fetchEvent(eventId);
+  return new Promise((resolve) => {
+    let result = null;
+    const d = makeDialog("Duplica intervento", colorFor(ev.project.id));
+    d.dialog.addEventListener("close", () => resolve(result));
+    const what = [ev.project.customer_name, ev.project.name, ev.title].filter(Boolean).join(" · ");
+    const intro = el("p", "pf-wide dup-intro");
+    intro.append("Copia di ", el("strong", null, what), ` del ${formatMediumDate(ev.event_date)} in un'altra data.`);
+
+    const date = Object.assign(el("input"), { type: "date", required: true, value: addDays(ev.event_date, 7) });
+    const start = timeSelect(ev.start_time ?? "", { label: "Ora inizio" });
+    const end = timeSelect(ev.end_time ?? "", { label: "Ora fine" });
+    start.addEventListener("change", () => {
+      if (start.value && end.value && end.value <= start.value) end.setValue("");
+    });
+    const grid = el("div", "pf-grid");
+    grid.append(intro, labeled("Nuova data", date, { required: true }), el("span"),
+      labeled("Ora inizio", start), labeled("Ora fine", end));
+
+    const n = ev.servers.length;
+    const withServers = Object.assign(el("input"), { type: "checkbox", checked: n > 0, disabled: n === 0 });
+    const check = el("label", "pf-wide dup-check");
+    check.append(withServers, el("span", null, n
+      ? `Copia anche la tabella server (${n} server)`
+      : "L'intervento non ha server da copiare"));
+    grid.append(check);
+    // i tecnici disattivati non vengono copiati
+    const names = ev.participants.filter((p) => people.byId(p.id)?.is_active !== false).map((p) => p.display_name);
+    const notes = el("ul", "pf-wide muted small dup-notes");
+    notes.append(
+      el("li", null, `Si copiano tipo, titolo, note${names.length ? ` e tecnici (${names.join(", ")})` : ""}; il nuovo intervento è «Pianificato».`),
+      el("li", null, isConfigEvent(ev)
+        ? "Nella tabella server restano tecnico e note di ogni riga; la data di esecuzione si azzera."
+        : `Nella tabella server restano target, tecnico e note di ogni riga; gli stati ripartono da capo: check «Da fare», ${stageLabel(ev).toLowerCase()} «Pianificata», nessuna data di esecuzione.`),
+    );
+    grid.append(notes);
+    d.body.append(grid, d.error);
+
+    const cancel = button("Annulla");
+    cancel.addEventListener("click", () => d.dialog.close());
+    const save = button("Duplica", "btn btn-primary", "submit");
+    d.foot.append(cancel, save);
+    d.form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!date.value) return d.showError("Indica la nuova data.", date);
+      if (start.value && end.value && end.value <= start.value) {
+        return d.showError("L'ora di fine deve essere successiva all'ora di inizio.", end);
+      }
+      save.disabled = true;
+      try {
+        result = await duplicateEvent(ev.id, {
+          event_date: date.value, keep_times: false, start_time: start.value, end_time: end.value,
+          include_servers: withServers.checked,
+        });
+        d.dialog.close();
+      } catch (err) {
+        save.disabled = false;
+        d.showError(err.message);
+      }
+    });
+    d.dialog.showModal();
+    date.focus();
+  });
+}
 
 /**
  * Sceglie un progetto esistente e apre il modulo «Nuovo intervento» nella data indicata.

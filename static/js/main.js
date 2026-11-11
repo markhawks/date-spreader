@@ -8,7 +8,7 @@ import { customers, showCustomersDialog } from "./customers.js";
 import { FilterBar } from "./filters.js";
 import { Inventory } from "./inventory.js";
 import { PeopleDialog, people } from "./people.js";
-import { ProjectDialog, editEvent, newEventOnDate } from "./projectdialog.js";
+import { ProjectDialog, duplicateEventFlow, editEvent, newEventOnDate } from "./projectdialog.js";
 import { showContextMenu } from "./contextmenu.js";
 import { formatMediumDate } from "./dates.js";
 import { ProjectForm } from "./projectform.js";
@@ -163,6 +163,19 @@ async function main() {
     toast,
     // Stato dell'intervento cambiato dalla scheda: aggiorna il calendario (stile della chip).
     onEventChanged: (ev) => calendar.refreshDate(ev.event_date),
+    onDuplicate: async (ev) => {
+      let copy;
+      try {
+        copy = await duplicateEventFlow(ev.id);
+      } catch (err) {
+        return toast(err.message);
+      }
+      if (!copy) return;
+      await reloadProjects();
+      await calendar.refreshDate(copy.event_date);
+      await showProjectEvent(copy);
+      toast(`Intervento duplicato al ${formatMediumDate(copy.event_date)}.`);
+    },
     onEditEvent: async (ev) => {
       const res = await editEvent(ev.id);
       if (!res) return;

@@ -1777,7 +1777,7 @@ body.detail-bottom #btn-detail-position .ico-to-right { display: block; }
 body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 
 /* Condivisione via email */
-.share-btn { display: inline-flex; align-items: center; gap: 6px; }
+.share-btn, .duplicate-btn { display: inline-flex; align-items: center; gap: 6px; }
 .share-dialog { width: min(1080px, calc(100vw - 24px)); }
 .share-how { margin: 0; }
 .settings-mail input {
@@ -1798,7 +1798,7 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
   background: #ffffff;   /* come la vedrà chi riceve: sempre su fondo chiaro */
   color: #1d2330;
 }
-@media (max-width: 760px) { .share-btn span { display: none; } }
+@media (max-width: 760px) { .share-btn span, .duplicate-btn span { display: none; } }
 
 /* Tabella compatta di un intervento di configurazione */
 .server-table tr.has-notes td { border-bottom-style: dashed; }
@@ -1920,3 +1920,9 @@ body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
   .view-switch-btn { padding: 6px 10px; }
   .view-switch-btn span { display: none; }  /* su telefono solo l'icona */
 }
+
+/* Duplica intervento */
+.dup-intro { margin: 0 0 4px; }
+.dup-check { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
+.dup-check input { width: 16px; height: 16px; }
+.dup-notes { margin: 0; padding-left: 18px; display: grid; gap: 4px; line-height: 1.4; }

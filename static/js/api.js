@@ -133,6 +133,7 @@ export const fetchChangelog = () => getJSON("/api/changelog");
 export const temporaryPassword = (userId) => request("POST", `/api/users/${q(userId)}/temporary-password`);
 export const patchProject = (projectId, changes) => request("PATCH", `/api/projects/${q(projectId)}`, changes);
 export const addEvent = (projectId, data) => request("POST", `/api/projects/${q(projectId)}/events`, data);
+export const duplicateEvent = (eventId, data) => request("POST", `/api/events/${q(eventId)}/duplicate`, data);
 export const deleteEvent = (eventId, version) => request("DELETE", `/api/events/${q(eventId)}?version=${q(version)}`);
 // --- elenco sistemi operativi -----------------------------------------------------------
 export const fetchOperatingSystems = (all = false) => getJSON(all ? "/api/operating-systems?all=true" : "/api/operating-systems");

@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app import audit
-from app.models import Event, EventServer, Project, Server, User
+from app.models import Event, EventServer, EventUser, Project, Server, User, statuses
 from app.schemas.edit import ROW_FIELDS, SERVER_FIELDS, ProjectCreate, ServerRowCreate
 
 
@@ -178,6 +178,52 @@ def add_event(session: Session, project: Project, data) -> Event:
         add_participants_to_new_event(session, event, data.participant_ids)
     session.flush()
     audit.record(session, "create", "events", event.id, {"event_date": (None, event.event_date)}, event_id=event.id)
+    return event
+
+
+def duplicate_event(session: Session, source: Event, data) -> Event:
+    """Copia un intervento in un'altra data dello stesso progetto (data: EventDuplicate).
+
+    Si copiano titolo, tipo, orario, note e partecipanti attivi; con `include_servers` anche
+    la tabella server: stessi server, target, tecnico e note di riga, ma con gli stati azzerati
+    (check «da fare», migrazione «pianificata», senza data di esecuzione). Il nuovo intervento
+    è «pianificato».
+    """
+    start, end = (source.start_time, source.end_time) if data.keep_times else (data.start_time, data.end_time)
+    if start and end and end <= start:
+        raise ValidationProblem("L'ora di fine deve essere successiva all'ora di inizio.")
+    event = Event(
+        project=source.project, event_date=data.event_date, title=source.title, event_type=source.event_type,
+        status=statuses.EVENT_STATUSES[0], start_time=start, end_time=end, notes=source.notes,
+    )
+    session.add(event)
+    for p in source.participants:
+        if p.user.is_active:
+            event.participants.append(EventUser(user=p.user))
+    session.flush()
+    copied = 0
+    if data.include_servers:
+        for link in sorted(source.server_links, key=lambda link: link.position):
+            session.add(EventServer(
+                event=event,
+                server=link.server,
+                position=link.position,
+                target_kernel=link.target_kernel,
+                target_operating_system=link.target_operating_system,
+                check_status=statuses.CHECK_STATUSES[0],
+                migration_status=statuses.MIGRATION_STATUSES[0],
+                planned_date=event.event_date,
+                executed_date=None,
+                assigned_user=link.assigned_user if link.assigned_user and link.assigned_user.is_active else None,
+                notes=link.notes,
+            ))
+            copied += 1
+        session.flush()
+    audit.record(
+        session, "create", "events", event.id,
+        {"event_date": (None, event.event_date), "copiato_da": (None, source.id), "server": (None, copied)},
+        event_id=event.id,
+    )
     return event
 
 

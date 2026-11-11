@@ -88,6 +88,7 @@ export class DetailPanel {
     this.onEditEvent = opts.onEditEvent ?? null;
     this.onEditProject = opts.onEditProject ?? null;
     this.onShare = opts.onShare ?? null;
+    this.onDuplicate = opts.onDuplicate ?? null;
     this.toast = opts.toast ?? (() => {});
     this.onRowsChanged = opts.onRowsChanged ?? (() => {});
     this.onResizeEnd = opts.onResizeEnd ?? (() => {});
@@ -306,6 +307,14 @@ export class DetailPanel {
       b.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2.5 4.5h11v8h-11z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2.8 4.8 8 9l5.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Condividi</span>';
       b.title = "Condividi l'intervento via email (Gmail), con la tabella server";
       b.addEventListener("click", () => this.onShare(ev.id));
+      tools.append(b);
+    }
+    if (this.onDuplicate) {
+      const b = el("button", "btn btn-small duplicate-btn");
+      b.type = "button";
+      b.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="5.2" y="5.2" width="8.6" height="8.6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.8 5.2V3.6c0-.8-.6-1.4-1.4-1.4H3.6c-.8 0-1.4.6-1.4 1.4v5.8c0 .8.6 1.4 1.4 1.4h1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span>Duplica</span>';
+      b.title = "Copia l'intervento in un'altra data (es. da rieseguire), con la tabella server";
+      b.addEventListener("click", () => this.onDuplicate(ev));
       tools.append(b);
     }
     if (this.onEditEvent) {

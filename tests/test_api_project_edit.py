@@ -162,3 +162,43 @@ def test_configuration_event_with_long_multiline_notes(api):
     # il tipo si può cambiare anche dopo (la tabella cambia colonne, i dati restano)
     patched = api.patch(f"/api/events/{ev['id']}", json={"version": ev["version"], "event_type": "migrazione"})
     assert patched.status_code == 200 and patched.json()["event_type"] == "migrazione"
+
+
+# --- duplicazione di un intervento ----------------------------------------------------------
+
+
+def test_duplicate_event_copies_rows_with_reset_statuses(api):
+    src = event_on(api, "2026-10-18")  # Alfa, prima finestra: righe completate e con data di esecuzione
+    since = api.get("/api/changes").json()["last_id"]
+    res = api.post(f"/api/events/{src['id']}/duplicate", json={"event_date": "2027-01-20"})
+    assert res.status_code == 201, res.text
+    dup = res.json()
+    assert dup["id"] != src["id"] and dup["event_date"] == "2027-01-20"
+    assert dup["project"]["id"] == src["project"]["id"]
+    assert (dup["title"], dup["event_type"], dup["start_time"], dup["end_time"], dup["notes"]) == (
+        src["title"], src["event_type"], src["start_time"], src["end_time"], src["notes"])
+    assert dup["status"] == "pianificato"
+    assert [p["id"] for p in dup["participants"]] == [p["id"] for p in src["participants"]]
+    assert [s["hostname"] for s in dup["servers"]] == [s["hostname"] for s in src["servers"]]
+    for old, new in zip(src["servers"], dup["servers"]):
+        assert (new["target_kernel"], new["notes"]) == (old["target_kernel"], old["notes"])
+        assert new["assigned_user"] == old["assigned_user"]
+        assert (new["check_status"], new["migration_status"], new["executed_date"]) == ("da_fare", "pianificata", None)
+        assert new["planned_date"] == "2027-01-20"
+    # l'originale non cambia; il feed segnala il nuovo intervento
+    assert event_on(api, "2026-10-18")["servers"] == src["servers"]
+    res = api.get("/api/changes", params={"since": since}).json()
+    assert res["projects_changed"] is True and dup["id"] in [e["id"] for e in res["events"]]
+
+
+def test_duplicate_event_without_servers_and_new_times(api):
+    src = event_on(api, "2026-11-26")
+    dup = api.post(f"/api/events/{src['id']}/duplicate", json={
+        "event_date": "2026-11-27", "include_servers": False, "keep_times": False,
+        "start_time": "08:00", "end_time": "10:00",
+    }).json()
+    assert dup["servers"] == [] and (dup["start_time"], dup["end_time"]) == ("08:00:00", "10:00:00")
+    bad = api.post(f"/api/events/{src['id']}/duplicate", json={
+        "event_date": "2026-11-27", "keep_times": False, "start_time": "10:00", "end_time": "08:00"})
+    assert bad.status_code == 422
+    assert api.post("/api/events/999999/duplicate", json={"event_date": "2026-11-27"}).status_code == 404

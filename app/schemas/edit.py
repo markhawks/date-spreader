@@ -275,6 +275,24 @@ class EventPatch(BaseModel):
 ProjectStatus = Literal[statuses.PROJECT_STATUSES]  # type: ignore[valid-type]
 
 
+class EventDuplicate(BaseModel):
+    """Copia di un intervento in un'altra data (stesso progetto)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    event_date: date
+    # Orario: se non inviato si copia quello dell'originale; null = senza orario
+    start_time: time | None = None
+    end_time: time | None = None
+    keep_times: bool = True
+    include_servers: bool = True   # copia anche la tabella server (stati azzerati)
+
+    @field_validator("start_time", "end_time", mode="before")
+    @classmethod
+    def _empty_time(cls, v):
+        return None if v == "" else v
+
+
 class EventCreate(BaseModel):
     """Intervento da creare (per ora: il primo intervento di un nuovo progetto)."""
 

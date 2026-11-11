@@ -26,6 +26,7 @@ from app.schemas.calendar import EventDetail, ProjectSummary, ServerRow, project
 from app.schemas.edit import (
     SERVER_FIELDS,
     EventCreate,
+    EventDuplicate,
     EventPatch,
     ProjectCreate,
     ProjectPatch,
@@ -219,6 +220,21 @@ def add_event(session: SessionDep, project_id: int, data: EventCreate) -> EventD
         raise HTTPException(404, "Progetto non trovato.")
     try:
         event = repo.add_event(session, project, data)
+        session.commit()
+    except repo.ValidationProblem as exc:
+        session.rollback()
+        raise HTTPException(422, str(exc)) from None
+    return EventDetail.from_event(calendar_repo.get_event_detail(session, event.id))
+
+
+@router.post("/events/{event_id}/duplicate", response_model=EventDetail, status_code=status.HTTP_201_CREATED)
+def duplicate_event(session: SessionDep, event_id: int, data: EventDuplicate) -> EventDetail:
+    """Copia l'intervento in un'altra data, con la tabella server (stati azzerati) se richiesto."""
+    source = calendar_repo.get_event_detail(session, event_id)
+    if source is None:
+        raise HTTPException(404, "Intervento non trovato.")
+    try:
+        event = repo.duplicate_event(session, source, data)
         session.commit()
     except repo.ValidationProblem as exc:
         session.rollback()
