@@ -1,6 +1,6 @@
 import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, fetchMe, fetchProjects } from "./api.js";
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
-import { Calendar } from "./calendar.js";
+import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
 import { assignColors } from "./colors.js";
 import { DetailPanel } from "./detail.js";
@@ -236,6 +236,25 @@ async function main() {
   });
 
   $("btn-today").addEventListener("click", () => calendar.scrollToToday());
+
+  // Zoom del calendario: tasto centrale + mouse avanti/indietro, pizzico sul touchpad, pulsanti − % +.
+  // Il livello è una preferenza personale.
+  const zoomValue = $("zoom-reset");
+  const showZoom = (z) => {
+    zoomValue.textContent = `${Math.round(z * 100)}%`;
+    $("zoom-out").disabled = z <= ZOOM_MIN;
+    $("zoom-in").disabled = z >= ZOOM_MAX;
+  };
+  const saveZoom = (z) => {
+    if (z !== prefs.get().calendar_zoom) prefs.set({ calendar_zoom: z }).catch(() => {});
+  };
+  calendar.onZoom = showZoom;
+  calendar.onZoomEnd = saveZoom;
+  const stepZoom = (factor) => { calendar.setZoom(calendar.zoom * factor); saveZoom(calendar.zoom); };
+  $("zoom-in").addEventListener("click", () => stepZoom(1.25));
+  $("zoom-out").addEventListener("click", () => stepZoom(1 / 1.25));
+  zoomValue.addEventListener("click", () => stepZoom(1 / calendar.zoom));
+  calendar.setZoom(prefs.get().calendar_zoom);
 
   // Colonna progetti: vista (quadrati/rettangoli), ordinamento, larghezza — preferenze personali.
   const viewBtns = [...document.querySelectorAll(".view-btn")];

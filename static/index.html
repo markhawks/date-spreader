@@ -83,6 +83,12 @@
 
     <main id="calendar-scroll" class="calendar-scroll" aria-label="Calendario" tabindex="-1">
       <div id="months" class="months"></div>
+      <div class="zoom-ctl" role="group" aria-label="Zoom del calendario"
+           title="Zoom del calendario: tasto centrale del mouse premuto e mouse avanti/indietro, oppure pizzico sul touchpad">
+        <button type="button" id="zoom-out" class="zoom-btn" aria-label="Rimpicciolisci il calendario">−</button>
+        <button type="button" id="zoom-reset" class="zoom-value" title="Torna al 100%">100%</button>
+        <button type="button" id="zoom-in" class="zoom-btn" aria-label="Ingrandisci il calendario">+</button>
+      </div>
     </main>
 
     <aside id="detail" class="detail" aria-labelledby="detail-title" hidden>

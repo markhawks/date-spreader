@@ -124,7 +124,11 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 
 ## Interfaccia (home)
 - **Calendario verticale**: un blocco per mese, dall'alto in basso, settimana da lunedì. All'apertura mostra mese precedente, corrente e successivo, con il **mese corrente centrato** nella vista. Scorrendo vicino al bordo superiore o inferiore si caricano altri mesi senza che la vista salti. Il pulsante blu **Oggi**, al centro della barra in alto, riporta al mese corrente.
-- **Giorni con interventi**: sono evidenziati e mostrano, nel colore del progetto, nome, ora e numero di server (al massimo 2 eventi per cella, poi "+N"). Passando il mouse si vedono i dettagli. Un intervento completato è attenuato, uno rinviato ha il bordo tratteggiato, uno annullato è barrato.
+- **Zoom del calendario** (come in Blender): **tasto centrale del mouse premuto e mouse avanti/indietro**; avanti ingrandisce, indietro rimpicciolisce, dal 50% al 250%. Il giorno sotto il cursore resta fermo. In alternativa il **pizzico** sul touchpad o il controllo **− % +** in basso a destra nel calendario; un clic sulla percentuale torna al 100%. Il livello è una preferenza personale. Ctrl + rotellina del mouse resta lo zoom della pagina del browser.
+  - Rimpicciolendo si vedono più mesi e gli interventi diventano barrette colorate.
+  - Ingrandendo ogni giorno mostra più interventi; dove c'è spazio compaiono anche titolo e orario completo.
+  - Ogni giorno sceglie da solo come disegnare i suoi interventi (dettagliato, due righe, solo il nome) senza mai tagliare il testo; quelli che non entrano diventano «+N».
+- **Giorni con interventi**: sono evidenziati e mostrano, nel colore del progetto, nome, ora e numero di server (quanti ne stanno nella cella, poi "+N"). Passando il mouse si vedono i dettagli. Un intervento completato è attenuato, uno rinviato ha il bordo tratteggiato, uno annullato è barrato.
 - **Sidebar dei progetti**: riquadri con «**Prossimo**: data» (il prossimo intervento in programma) oppure, se il progetto ha solo interventi passati, «**Ultimo**: data» (il più recente); «Nessun intervento» se non ne ha. Le date hanno sempre l'anno. L'etichetta "N date" indica più interventi. La ricerca istantanea non distingue maiuscole e accenti.
 - **Telefono** (sotto 760 px): i progetti diventano una riga scorrevole e gli eventi delle barre colorate.
 - **Tema scuro**: segue l'impostazione del sistema operativo.

@@ -34,6 +34,8 @@ class Preferences(BaseModel):
     # e se far scegliere l'account a Google a ogni invio
     gmail_account: str = Field(default="", max_length=254, pattern=GMAIL_ACCOUNT)
     gmail_choose_account: bool = False
+    # Zoom del calendario (altezza dei giorni): 1 = normale, da 0.5 a 2.5
+    calendar_zoom: float = Field(default=1.0, ge=0.5, le=2.5)
 
 
 class PreferencesPatch(BaseModel):
@@ -51,3 +53,4 @@ class PreferencesPatch(BaseModel):
     time_format: Literal["24h", "12h"] | None = None
     gmail_account: str | None = Field(default=None, max_length=254, pattern=GMAIL_ACCOUNT)
     gmail_choose_account: bool | None = None
+    calendar_zoom: float | None = Field(default=None, ge=0.5, le=2.5)

@@ -11,7 +11,19 @@ import {
 import { EVENT_STATUS } from "./labels.js";
 
 const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
-const MAX_CHIPS = 2;        // oltre, la cella mostra "+N"
+const MAX_CHIPS = 2;        // interventi per giorno a zoom normale; oltre, la cella mostra "+N"
+export const ZOOM_MIN = 0.5;
+export const ZOOM_MAX = 2.5;
+const COMPACT_BELOW = 78;   // px di altezza del giorno: sotto, gli interventi diventano barrette colorate
+const DETAILED_FROM = 166;  // px: da qui un giorno con spazio mostra anche titolo e orario completo
+// Altezze (px) di un intervento nei vari modi, più lo spazio fisso del giorno (margini + numero)
+const CHIP_H = { detailed: 54, normal: 37, slim: 21 };
+const CHIP_GAP = 3;
+const DAY_FIXED = 39;       // padding 12 + numero del giorno 24 + spazio 3
+const MORE_H = 16;          // riga «+N»
+const BAR_H = 6;            // barretta nel modo compatto
+const BAR_GAP = 2;
+const clampZoom = (z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
 const AUTO_SCROLL_MS = 1200; // limite massimo di uno scorrimento animato
 
 const ymFromIso = (iso) => ({ year: Number(iso.slice(0, 4)), month: Number(iso.slice(5, 7)) });
@@ -38,6 +50,10 @@ export class Calendar {
     this.autoScrolling = false; // durante uno scorrimento animato non si aggiungono mesi
     this.selected = null;
     this.filter = null;         // filtro attivo sugli eventi (null = tutti)
+    this.zoom = 1;              // altezza dei giorni rispetto al normale
+    this.onZoomEnd = opts.onZoomEnd ?? (() => {}); // fine di un gesto di zoom (per salvare la preferenza)
+    this.onZoom = opts.onZoom ?? (() => {});       // ogni cambio di zoom (per l'indicatore)
+    this.layout = this.#layout();
 
     this.scrollEl.addEventListener("scroll", () => this.#onScroll(), { passive: true });
     this.monthsEl.addEventListener("click", (e) => this.#onClick(e));
@@ -54,6 +70,121 @@ export class Calendar {
       }
     });
     this.#setupContextMenu();
+    this.#setupZoomGestures();
+    addEventListener("resize", () => this.#relayout());
+  }
+
+  // --- zoom ---------------------------------------------------------------------
+
+  /** Altezza attuale di un giorno e conseguente modo di disegno degli interventi. */
+  #layout() {
+    const base = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cell-h")) || 104;
+    const h = base * this.zoom;
+    const narrow = matchMedia("(max-width: 760px)").matches; // su telefono sono già barrette
+    const mode = narrow || h < COMPACT_BELOW ? "compact" : h >= DETAILED_FROM ? "detailed" : "normal";
+    return { h, mode, key: `${mode}:${Math.round(h)}` };
+  }
+
+  /**
+   * Come disegnare `n` interventi in un giorno: il modo più ricco in cui stanno tutti,
+   * altrimenti righe sottili più «+N». Niente testo tagliato.
+   * @returns {{ fit: string, shown: number }}
+   */
+  #fit(n) {
+    const { h, mode } = this.layout;
+    if (mode === "compact") {
+      const avail = h - 30;
+      const all = Math.floor((avail + BAR_GAP) / (BAR_H + BAR_GAP));
+      return { fit: "bars", shown: n <= all ? n : Math.max(1, Math.floor((avail - 10) / (BAR_H + BAR_GAP))) };
+    }
+    const avail = h - DAY_FIXED;
+    const fits = (kind) => n * (CHIP_H[kind] + CHIP_GAP) - CHIP_GAP <= avail;
+    if (h >= DETAILED_FROM && fits("detailed")) return { fit: "detailed", shown: n };
+    if (fits("normal")) return { fit: "normal", shown: n };
+    if (fits("slim")) return { fit: "slim", shown: n };
+    return { fit: "slim", shown: Math.max(1, Math.floor((avail - MORE_H) / (CHIP_H.slim + CHIP_GAP))) };
+  }
+
+  /** Ridisegna gli interventi quando cambia l'altezza dei giorni (zoom o dimensione della finestra). */
+  #relayout() {
+    const next = this.#layout();
+    const changed = next.key !== this.layout.key;
+    this.layout = next;
+    this.scrollEl.dataset.zoomMode = next.mode;
+    if (changed) this.setFilter(this.filter);
+  }
+
+  /**
+   * Imposta lo zoom tenendo fermo il punto (clientX, clientY): il giorno lì sotto resta sotto il cursore.
+   * Senza punto, si tiene fermo il centro della vista.
+   */
+  setZoom(z, { x = null, y = null } = {}) {
+    z = clampZoom(z);
+    if (z === this.zoom && this.scrollEl.style.getPropertyValue("--zoom")) return;
+    const box = this.scrollEl.getBoundingClientRect();
+    const px = x ?? box.left + box.width / 2;
+    const py = y ?? box.top + box.height / 2;
+    const cell = document.elementsFromPoint(px, py).find((n) => n.matches?.(".day"));
+    let anchor = null;
+    if (cell) {
+      const r = cell.getBoundingClientRect();
+      anchor = { cell, frac: (py - r.top) / r.height };
+    }
+    this.zoom = z;
+    this.scrollEl.style.setProperty("--zoom", String(z));
+    this.#relayout();
+    if (anchor) {
+      const r = anchor.cell.getBoundingClientRect();
+      this.scrollEl.scrollTop += r.top + anchor.frac * r.height - py;
+    }
+    this.onZoom(z);
+    this.#onScroll(); // rimpicciolendo può servire un mese in più
+  }
+
+  /**
+   * Gesti di zoom sul calendario:
+   * - tasto centrale premuto e mouse avanti/indietro (come in Blender): avanti ingrandisce;
+   * - pizzico sul touchpad (arriva come rotellina con Ctrl, a scatti piccoli e frazionari).
+   * Ctrl + rotellina di un mouse vero resta lo zoom della pagina del browser.
+   */
+  #setupZoomGestures() {
+    let drag = null;
+    this.scrollEl.addEventListener("mousedown", (e) => {
+      if (e.button !== 1) return;
+      e.preventDefault(); // niente scorrimento automatico del browser
+      drag = { y: e.clientY, x: e.clientX, z: this.zoom };
+      this.scrollEl.classList.add("zooming");
+    });
+    addEventListener("mousemove", (e) => {
+      if (!drag) return;
+      e.preventDefault();
+      const z = drag.z * Math.exp((drag.y - e.clientY) / 180);
+      if (!this.zoomFrame) {
+        this.zoomFrame = requestAnimationFrame(() => {
+          this.zoomFrame = null;
+          if (drag) this.setZoom(z, { x: drag.x, y: drag.y });
+        });
+      }
+    });
+    addEventListener("mouseup", (e) => {
+      if (!drag || e.button !== 1) return;
+      drag = null;
+      this.scrollEl.classList.remove("zooming");
+      this.onZoomEnd(this.zoom);
+    });
+    // Il clic centrale non deve aprire nulla (né incollare, su Linux)
+    this.scrollEl.addEventListener("auxclick", (e) => { if (e.button === 1) e.preventDefault(); });
+
+    let wheelTimer = null;
+    this.scrollEl.addEventListener("wheel", (e) => {
+      if (!e.ctrlKey) return;
+      const pinch = e.deltaMode === 0 && (!Number.isInteger(e.deltaY) || Math.abs(e.deltaY) < 50);
+      if (!pinch) return; // Ctrl + rotellina del mouse: zoom della pagina, come sempre
+      e.preventDefault();
+      this.setZoom(this.zoom * Math.exp(-e.deltaY / 100), { x: e.clientX, y: e.clientY });
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => this.onZoomEnd(this.zoom), 400);
+    }, { passive: false });
   }
 
   #openContext(cell, x, y) {
@@ -250,6 +381,7 @@ export class Calendar {
         this.#renderDay(cell, shown);
       } else if (cell.classList.contains("has-events")) {
         cell.classList.remove("has-events");
+        delete cell.dataset.fit;
         cell.removeAttribute("tabindex");
         cell.removeAttribute("role");
         cell.removeAttribute("aria-label");
@@ -274,11 +406,13 @@ export class Calendar {
     cell.setAttribute("role", "button");
     const ul = cell.querySelector(".chips");
     ul.replaceChildren();
-    events.slice(0, MAX_CHIPS).forEach((ev) => ul.append(this.#chip(ev)));
-    if (events.length > MAX_CHIPS) {
+    const { fit, shown: max } = this.#fit(events.length);
+    cell.dataset.fit = fit;
+    events.slice(0, max).forEach((ev) => ul.append(this.#chip(ev)));
+    if (events.length > max) {
       const more = document.createElement("li");
       more.className = "chip more";
-      more.textContent = `+${events.length - MAX_CHIPS}`;
+      more.textContent = `+${events.length - max}`;
       ul.append(more);
     }
     const label = events.map((e) => e.project_name).join(", ");
@@ -300,6 +434,10 @@ export class Calendar {
     // Seconda riga: cliente (se c'è), ora, numero di server
     meta.textContent = [ev.customer_name, formatTime(ev.start_time), `${ev.server_count} srv`].filter(Boolean).join(" · ");
     li.append(name, meta);
+    // Terza riga, visibile solo con lo zoom grande: titolo e orario completo
+    const extra = [ev.title, ev.start_time && `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`]
+      .filter(Boolean).join(" · ");
+    if (extra) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: extra }));
 
     li.title = [
       ev.customer_name,

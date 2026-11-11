@@ -13,7 +13,7 @@ def test_defaults_and_partial_update(anon, accounts):  # noqa: F811
     assert anon.get("/api/me/preferences").json() == {
         "detail_position": "right", "bottom_panel_height": 45, "theme": "system",
         "sidebar_width": 280, "project_view": "grid", "project_sort": "name", "project_group": "none",
-        "time_format": "24h", "gmail_account": "", "gmail_choose_account": False,
+        "time_format": "24h", "gmail_account": "", "gmail_choose_account": False, "calendar_zoom": 1.0,
     }
     res = anon.patch("/api/me/preferences", json={"detail_position": "bottom"})
     assert res.status_code == 200 and res.json()["detail_position"] == "bottom" and res.json()["theme"] == "system"
@@ -29,7 +29,8 @@ def test_validation(anon, accounts):  # noqa: F811
     login(anon, "tecnico1", TECH_PW)
     for bad in ({"detail_position": "left"}, {"theme": "viola"}, {"bottom_panel_height": 5}, {"sconosciuta": 1},
                 {"sidebar_width": 100}, {"sidebar_width": 2000}, {"project_view": "tabella"}, {"project_sort": "colore"},
-                {"time_format": "ampm"}, {"gmail_account": "non-una-email"}, {"gmail_account": "a b@c.it"}):
+                {"time_format": "ampm"}, {"gmail_account": "non-una-email"}, {"gmail_account": "a b@c.it"},
+                {"calendar_zoom": 0.2}, {"calendar_zoom": 5}):
         assert anon.patch("/api/me/preferences", json=bad).status_code == 422, bad
 
 
@@ -60,3 +61,9 @@ def test_gmail_account(anon, accounts):  # noqa: F811
     assert (got["gmail_account"], got["gmail_choose_account"]) == ("mario@azienda.it", True)
     got = anon.patch("/api/me/preferences", json={"gmail_account": ""}).json()  # vuoto = email del profilo
     assert (got["gmail_account"], got["gmail_choose_account"]) == ("", True)
+
+
+def test_calendar_zoom(anon, accounts):  # noqa: F811
+    login(anon, "tecnico1", TECH_PW)
+    assert anon.patch("/api/me/preferences", json={"calendar_zoom": 1.75}).json()["calendar_zoom"] == 1.75
+    assert anon.get("/api/me/preferences").json()["calendar_zoom"] == 1.75

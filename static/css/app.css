@@ -211,7 +211,7 @@ h1, h2 { margin: 0; }
 }
 
 .day {
-  height: var(--cell-h);
+  height: calc(var(--cell-h) * var(--zoom, 1));
   padding: 6px;
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -1787,3 +1787,39 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 
 /* «+ Intervento» nella barra dell'anteprima */
 #btn-detail-new-event { white-space: nowrap; }
+
+/* ---------- Zoom del calendario -------------------------------------------- */
+.calendar-scroll.zooming, .calendar-scroll.zooming * { cursor: ns-resize !important; user-select: none; }
+/* Giorni bassi (zoom ridotto): gli interventi diventano barrette colorate, come su telefono */
+.calendar-scroll[data-zoom-mode="compact"] .day { padding: 3px; gap: 2px; }
+.calendar-scroll[data-zoom-mode="compact"] .day-num { width: 20px; height: 20px; font-size: 0.75rem; }
+.calendar-scroll[data-zoom-mode="compact"] .chips { gap: 2px; }
+.calendar-scroll[data-zoom-mode="compact"] .chip { height: 6px; padding: 0; border-left: 0; background: var(--c); }
+.calendar-scroll[data-zoom-mode="compact"] .chip > * { display: none; }
+.calendar-scroll[data-zoom-mode="compact"] .chip.more { height: auto; background: none; font-size: 0.68rem; line-height: 1; }
+/* Giorni alti (zoom grande): ogni intervento mostra anche titolo e orario completo */
+/* Ogni giorno sceglie il modo in cui stanno tutti i suoi interventi (calendar.js, #fit):
+   dettagliato (3 righe) → normale (2 righe) → sottile (solo il nome) + «+N». Mai testo tagliato. */
+.day .chip { flex-shrink: 0; }
+.chip-extra { display: none; font-size: 0.72rem; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; }
+.day[data-fit="detailed"] .chip-extra { display: block; }
+.day[data-fit="detailed"] .chip { padding: 3px 7px; }
+.day[data-fit="slim"] .chip-meta { display: none; }
+.chip.more { line-height: 1.2; padding-top: 0; padding-bottom: 0; }
+
+/* Controllo − % + nell'angolo in basso a destra del calendario */
+.zoom-ctl {
+  position: sticky; bottom: 12px; z-index: 4;
+  width: fit-content; margin: 8px 0 0 auto;
+  display: flex; align-items: center;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); overflow: hidden;
+}
+.zoom-btn, .zoom-value {
+  font: inherit; border: 0; background: none; color: var(--text); cursor: pointer;
+}
+.zoom-btn { width: 32px; height: 30px; font-size: 1.1rem; line-height: 1; }
+.zoom-value { min-width: 52px; height: 30px; font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+.zoom-btn:hover:not(:disabled), .zoom-value:hover { background: var(--panel-2); color: var(--accent); }
+.zoom-btn:disabled { opacity: 0.35; cursor: default; }

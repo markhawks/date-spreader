@@ -11,6 +11,8 @@ this job with:
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
+- **calendar zoom**, Blender style: hold the **middle mouse button and move forward/back** (or pinch on a
+  touchpad, or use the − % + control); zooming in shows more interventions and details per day;
 - **real multi-user editing**: optimistic locking (no silent overwrites), live updates from colleagues every
   10 seconds, and an **audit log** of every change with its author;
 - **configuration interventions** (type «Configurazione»): a reduced table (hostname, IP, OS, environment,
