@@ -1,7 +1,7 @@
 [project]
 name = "datespreader"
 version = "0.22.0"
-description = "Multi-user web portal to plan server migrations and upgrades"
+description = "Self-hosted multi-user web portal to plan and track technical interventions (migrations, upgrades, patching, configuration, maintenance) on servers with any operating system"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "AGPL-3.0-only"

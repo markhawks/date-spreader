@@ -2,9 +2,15 @@
 
 [English](README.md) · Licenza: [GNU AGPL-3.0-only](LICENSE)
 
-Portale web multiutente per pianificare migrazioni e upgrade di server (pensato per Red Hat Enterprise Linux):
-calendario verticale, progetti per cliente, tabella server modificabile per ogni intervento, anagrafica server
-con storico, più utenti in contemporanea con controllo dei conflitti e cronologia delle modifiche.
+Portale web multiutente, da installare sui propri server, per pianificare e seguire **interventi tecnici**:
+migrazioni, upgrade, patching, configurazioni o qualsiasi altra attività di manutenzione programmata, su sistemi con
+**qualsiasi sistema operativo** (l'elenco dei sistemi operativi e delle versioni lo decidi tu). Al posto del foglio
+condiviso che i team usano spesso per questo lavoro: calendario verticale, progetti per cliente, tabella modificabile
+dei server coinvolti in ogni intervento, anagrafica server con storico, più utenti in contemporanea con controllo dei
+conflitti e cronologia delle modifiche.
+
+È nato per i team che gestiscono infrastrutture IT, ma nulla vieta di usarlo ovunque si debbano programmare lavori
+tecnici su un elenco di macchine o apparati.
 L'interfaccia è disponibile in **inglese** e **italiano**: ogni utente sceglie la sua lingua (vedi «Impostazioni»).
 Specifica iniziale: [DateWeaver.md](DateWeaver.md) (documento originale, scritto quando il progetto si chiamava ancora "Time Dot").
 

@@ -1,4 +1,4 @@
-"""Date Spreader: pianificazione di migrazioni e upgrade di server."""
+"""Date Spreader: planning and tracking of technical interventions on servers (any OS, any kind of work)."""
 
 # Versione del portale (semantic versioning). Aggiornare insieme a CHANGELOG.md e pyproject.toml.
 __version__ = "0.22.0"

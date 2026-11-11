@@ -2,11 +2,15 @@
 
 [Italiano](README.it.md) · License: [GNU AGPL-3.0-only](LICENSE)
 
-**Date Spreader** is a self-hosted, multi-user web portal for planning and tracking **server migrations and
-upgrades** (designed around Red Hat Enterprise Linux). It replaces the shared spreadsheet that teams often use for
-this job with a vertical calendar, projects per customer, an editable server table for every intervention
-(maintenance window), a server inventory with full history, and several users working at the same time with
-conflict detection and an audit log of every change.
+**Date Spreader** is a self-hosted, multi-user web portal for planning and tracking **technical interventions**:
+migrations, upgrades, patching, configuration changes or any other scheduled maintenance work, on systems running
+**any operating system** (the list of operating systems and versions is yours to define). It replaces the shared
+spreadsheet that teams often use for this job with a vertical calendar, projects per customer, an editable table of
+the servers involved in every intervention (maintenance window), a server inventory with full history, and several
+users working at the same time with conflict detection and an audit log of every change.
+
+It was born for IT operations teams, but nothing prevents using it wherever technical work has to be scheduled on a
+list of machines or assets.
 Original specification: [DateWeaver.md](DateWeaver.md) (the original document, written when the project was still
 called "Time Dot").
 
