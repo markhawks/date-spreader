@@ -1,5 +1,7 @@
 // Chiamate al backend. Gli errori sono ApiError con `status` e il corpo della risposta.
 
+import { getLanguage, t } from "./i18n.js";
+
 export class ApiError extends Error {
   constructor(message, status, body) {
     super(message);
@@ -38,12 +40,14 @@ async function request(method, url, body) {
         Accept: "application/json",
         // Intestazione anti-CSRF: richiesta dal server per ogni modifica.
         "X-Requested-With": "datespreader",
+        // Language of the server's messages (errors, changelog)
+        "Accept-Language": getLanguage(),
         ...(body !== undefined && { "Content-Type": "application/json" }),
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError("Server non raggiungibile.", 0, null);
+    throw new ApiError(t("api.unreachable"), 0, null);
   }
   if (res.status === 204) return null;
   let data = null;
@@ -65,9 +69,12 @@ const getJSON = (url) => request("GET", url);
 async function downloadFile(url) {
   let res;
   try {
-    res = await fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "datespreader" } });
+    res = await fetch(url, {
+      credentials: "same-origin",
+      headers: { "X-Requested-With": "datespreader", "Accept-Language": getLanguage() },
+    });
   } catch {
-    throw new ApiError("Server non raggiungibile.", 0, null);
+    throw new ApiError(t("api.unreachable"), 0, null);
   }
   if (!res.ok) {
     let data = null;

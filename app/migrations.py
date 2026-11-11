@@ -40,7 +40,7 @@ def foreign_keys_off(conn: Connection) -> Iterator[None]:
         problems = conn.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
         conn.commit()
         if problems:
-            raise RuntimeError(f"Integrità violata dopo la migrazione: {problems[:5]}")
+            raise RuntimeError(f"Integrity violated after the migration: {problems[:5]}")
     finally:
         conn.exec_driver_sql("PRAGMA foreign_keys=ON")
         conn.commit()

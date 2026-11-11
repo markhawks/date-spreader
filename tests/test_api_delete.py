@@ -44,7 +44,7 @@ def test_technician_deletes_only_empty_events(settings, engine, world):
     c = client_as(settings, "tecnico1", TECH_PW)
     ev = event_on(c, "2026-11-26")  # con server
     res = c.delete(f"/api/events/{ev['id']}", params={"version": ev["version"]})
-    assert res.status_code == 403 and "coordinatori" in res.json()["detail"]["message"]
+    assert res.status_code == 403 and "coordinators" in res.json()["detail"]["message"]
     p = project(c, "Beta Assicurazioni")
     empty = c.post(f"/api/projects/{p['id']}/events", json={"event_date": "2027-02-01"}).json()
     assert c.delete(f"/api/events/{empty['id']}", params={"version": empty["version"]}).status_code == 204

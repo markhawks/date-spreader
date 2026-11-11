@@ -9,6 +9,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app import audit
+from app.i18n import tr
 from app.models import AuthSession, Event, EventUser, User
 from app.security import hash_password, temporary_password
 from app.repositories.servers import Conflict, ValidationProblem
@@ -30,19 +31,19 @@ def _check_unique(
         if exclude_id:
             q = q.where(User.id != exclude_id)
         if session.scalar(q) is not None:
-            raise Conflict("Questo nome utente è già usato.")
+            raise Conflict(tr("users.username_taken"))
     if name is not None:
         q = select(User.id).where(func.lower(User.display_name) == name.lower())
         if exclude_id:
             q = q.where(User.id != exclude_id)
         if session.scalar(q) is not None:
-            raise Conflict("Esiste già un tecnico con questo nome.")
+            raise Conflict(tr("users.name_taken"))
     if email is not None:
         q = select(User.id).where(func.lower(User.external_id) == email.lower())
         if exclude_id:
             q = q.where(User.id != exclude_id)
         if session.scalar(q) is not None:
-            raise Conflict("Questa email è già usata da un altro tecnico.")
+            raise Conflict(tr("users.email_taken"))
 
 
 def create_user(session: Session, data: UserCreate) -> User:
@@ -66,18 +67,18 @@ def find_or_create_technician(session: Session, name: str) -> tuple[User, bool]:
     existing = session.scalar(select(User).where(func.lower(User.display_name) == name.lower()))
     if existing is not None:
         if not existing.is_active:
-            raise Conflict(f"«{existing.display_name}» esiste ma è disattivato: un amministratore può riattivarlo da Utenti.")
+            raise Conflict(tr("users.exists_inactive", name=existing.display_name))
         return existing, False
     return create_user(session, UserCreate(display_name=name, role="tecnico")), True
 
 
 def update_user(session: Session, user: User, values: dict[str, Any]) -> None:
     if "display_name" in values and values["display_name"] is None:
-        raise ValidationProblem("Il nome è obbligatorio.")
+        raise ValidationProblem(tr("users.name_required"))
     if "role" in values and values["role"] is None:
-        raise ValidationProblem("Il ruolo è obbligatorio.")
+        raise ValidationProblem(tr("users.role_required"))
     if "is_active" in values and values["is_active"] is None:
-        raise ValidationProblem("Indica se il tecnico è attivo.")
+        raise ValidationProblem(tr("users.active_required"))
     _check_unique(session, values.get("display_name"), values.get("email"), exclude_id=user.id,
                   username=values.get("username"))
     _protect_last_admin(session, user, values)
@@ -119,7 +120,7 @@ def _protect_last_admin(session: Session, user: User, values: dict[str, Any]) ->
         )
     )
     if not others:
-        raise Conflict("Deve restare almeno un amministratore attivo con accesso al portale.")
+        raise Conflict(tr("users.last_admin"))
 
 
 def revoke_sessions(session: Session, user_id: int) -> None:
@@ -129,7 +130,7 @@ def revoke_sessions(session: Session, user_id: int) -> None:
 def set_temporary_password(session: Session, user: User) -> str:
     """Nuova password casuale da cambiare al primo accesso; chiude le sessioni aperte."""
     if not user.is_active:
-        raise ValidationProblem("L'utente è disattivato: riattivalo prima di dargli una password.")
+        raise ValidationProblem(tr("users.inactive_no_password"))
     password = temporary_password()
     user.password_hash = hash_password(password)
     user.must_change_password = True
@@ -145,7 +146,7 @@ def _resolve(session: Session, user_ids: list[int], allowed_inactive: set[int] =
     for uid in ids:
         u = users.get(uid)
         if u is None or (not u.is_active and uid not in allowed_inactive):
-            raise ValidationProblem("Tecnico non valido o disattivato.")
+            raise ValidationProblem(tr("users.invalid_or_inactive"))
     return [users[i] for i in ids]
 
 

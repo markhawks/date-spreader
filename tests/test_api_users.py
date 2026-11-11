@@ -178,4 +178,4 @@ def test_add_technician_validation_and_inactive(api):
     u = api.post("/api/users/technicians", json={"display_name": "Ugo Ferri"}).json()
     api.patch(f"/api/users/{u['id']}", json={"version": u["version"], "is_active": False})
     res = api.post("/api/users/technicians", json={"display_name": "UGO FERRI"})
-    assert res.status_code == 409 and "disattivato" in res.json()["detail"]["message"]
+    assert res.status_code == 409 and "deactivated" in res.json()["detail"]["message"]

@@ -1,6 +1,7 @@
 // Accesso: schermata di login, cambio password, menu utente, changelog.
 
 import { changePassword, fetchChangelog, login, logout } from "./api.js";
+import { t } from "./i18n.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -45,7 +46,7 @@ function screen(title, subtitle) {
 
 /** Login. `onSuccess(me)` dopo l'accesso (di solito: ricarica la pagina). */
 export function showLogin({ onSuccess, message = null, version = "", source = "" } = {}) {
-  const card = screen("Accedi", message ?? "Usa la tua email o il nome utente.");
+  const card = screen(t("auth.login_title"), message ?? t("auth.login_sub"));
   const form = el("form", "auth-form");
   form.noValidate = true;
   const user = input("login", "text", { autocomplete: "username", autocapitalize: "none", spellcheck: false });
@@ -53,12 +54,12 @@ export function showLogin({ onSuccess, message = null, version = "", source = ""
   const err = el("p", "pf-error");
   err.hidden = true;
   err.setAttribute("role", "alert");
-  const btn = el("button", "btn btn-primary auth-submit", "Accedi");
+  const btn = el("button", "btn btn-primary auth-submit", t("auth.login_button"));
   btn.type = "submit";
-  form.append(field("Email o nome utente", user), field("Password", pw), err, btn);
+  form.append(field(t("auth.login_user"), user), field(t("auth.password"), pw), err, btn);
   card.append(form);
   if (version) {
-    const v = el("p", "muted auth-version", `Versione ${version}`);
+    const v = el("p", "muted auth-version", t("auth.version", { version }));
     if (source) v.append(" · ", sourceLink(source));
     card.append(v);
   }
@@ -67,12 +68,12 @@ export function showLogin({ onSuccess, message = null, version = "", source = ""
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!user.value.trim() || !pw.value) {
-      err.textContent = "Inserisci nome utente (o email) e password.";
+      err.textContent = t("auth.login_missing");
       err.hidden = false;
       return;
     }
     btn.disabled = true;
-    btn.textContent = "Accesso…";
+    btn.textContent = t("auth.logging_in");
     try {
       const me = await login(user.value.trim(), pw.value);
       onSuccess?.(me);
@@ -83,7 +84,7 @@ export function showLogin({ onSuccess, message = null, version = "", source = ""
       pw.focus();
     } finally {
       btn.disabled = false;
-      btn.textContent = "Accedi";
+      btn.textContent = t("auth.login_button");
     }
   });
 }
@@ -97,13 +98,13 @@ export function showChangePassword({ forced = false } = {}) {
     let container;
     let close;
     if (forced) {
-      container = screen("Scegli una nuova password", "Stai usando una password temporanea: per continuare scegline una tua.");
+      container = screen(t("auth.forced_title"), t("auth.forced_sub"));
       close = () => {};
     } else {
       const dialog = el("dialog", "pf-dialog");
-      dialog.setAttribute("aria-label", "Cambia password");
+      dialog.setAttribute("aria-label", t("auth.change_password"));
       container = el("div", "pf-body pw-body");
-      container.append(el("h2", null, "Cambia password"));
+      container.append(el("h2", null, t("auth.change_password")));
       dialog.append(container);
       document.body.append(dialog);
       dialog.addEventListener("close", () => { dialog.remove(); resolve(false); });
@@ -119,28 +120,28 @@ export function showChangePassword({ forced = false } = {}) {
     const err = el("p", "pf-error");
     err.hidden = true;
     err.setAttribute("role", "alert");
-    const hint = el("p", "muted small", "Almeno 10 caratteri; non deve contenere il tuo nome utente o la tua email.");
+    const hint = el("p", "muted small", t("auth.password_hint"));
     const actions = el("div", "pf-foot auth-actions");
     if (!forced) {
-      const cancel = el("button", "btn", "Annulla");
+      const cancel = el("button", "btn", t("auth.cancel"));
       cancel.type = "button";
       cancel.addEventListener("click", close);
       actions.append(cancel);
     }
-    const ok = el("button", "btn btn-primary", "Salva password");
+    const ok = el("button", "btn btn-primary", t("auth.save_password"));
     ok.type = "submit";
     actions.append(ok);
-    form.append(field(forced ? "Password temporanea" : "Password attuale", cur), field("Nuova password", pw1),
-      field("Ripeti la nuova password", pw2), hint, err, actions);
+    form.append(field(forced ? t("auth.temporary_password") : t("auth.current_password"), cur), field(t("auth.new_password"), pw1),
+      field(t("auth.repeat_password"), pw2), hint, err, actions);
     container.append(form);
     cur.focus();
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fail = (m, f) => { err.textContent = m; err.hidden = false; f?.focus(); };
-      if (!cur.value) return fail("Inserisci la password attuale.", cur);
-      if (pw1.value.length < 10) return fail("La nuova password deve avere almeno 10 caratteri.", pw1);
-      if (pw1.value !== pw2.value) return fail("Le due password non coincidono.", pw2);
+      if (!cur.value) return fail(t("auth.current_missing"), cur);
+      if (pw1.value.length < 10) return fail(t("auth.too_short"), pw1);
+      if (pw1.value !== pw2.value) return fail(t("auth.mismatch"), pw2);
       ok.disabled = true;
       try {
         await changePassword(cur.value, pw1.value);
@@ -151,7 +152,7 @@ export function showChangePassword({ forced = false } = {}) {
           resolve(true);
         }
       } catch (ex) {
-        fail(ex.message, ex.message.includes("attuale") ? cur : pw1);
+        fail(ex.message, /attuale|current/i.test(ex.message) ? cur : pw1);
       } finally {
         ok.disabled = false;
       }
@@ -194,7 +195,7 @@ export function renderMarkdown(md) {
 
 /** Link al codice sorgente (licenza AGPL-3.0: va offerto a chi usa il portale). */
 function sourceLink(url) {
-  const a = el("a", null, "Codice sorgente (AGPL-3.0)");
+  const a = el("a", null, t("auth.source_code"));
   Object.assign(a, { href: url, target: "_blank", rel: "noopener" });
   return a;
 }
@@ -203,18 +204,18 @@ export async function showChangelog() {
   const dialog = el("dialog", "pf-dialog changelog-dialog");
   dialog.setAttribute("aria-labelledby", "cl-title");
   const head = el("header", "pf-head");
-  const h = el("h2", null, "Novità del portale");
+  const h = el("h2", null, t("auth.changelog_title"));
   h.id = "cl-title";
   const x = el("button", "icon-btn");
   x.type = "button";
-  x.setAttribute("aria-label", "Chiudi");
+  x.setAttribute("aria-label", t("auth.close"));
   x.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   x.addEventListener("click", () => dialog.close());
   head.append(h, x);
   const body = el("div", "pf-body changelog");
-  body.append(el("p", "muted", "Caricamento…"));
+  body.append(el("p", "muted", t("auth.loading")));
   const foot = el("p", "muted small changelog-license");
-  foot.append("Date Spreader è software libero, rilasciato sotto licenza GNU AGPL-3.0-only.");
+  foot.append(t("auth.license"));
   dialog.append(head, body, foot);
   fetch("/api/version").then((r) => r.json()).then((info) => {
     if (info.source_url) foot.append(" ", sourceLink(info.source_url));
@@ -227,14 +228,14 @@ export async function showChangelog() {
     const { markdown } = await fetchChangelog();
     body.innerHTML = renderMarkdown(markdown);
   } catch (err) {
-    body.replaceChildren(el("p", "error", `Impossibile caricare il changelog: ${err.message}`));
+    body.replaceChildren(el("p", "error", t("auth.changelog_error", { message: err.message })));
   }
 }
 
 // ---------------------------------------------------------------------------
 // Menu utente (in alto a destra)
 // ---------------------------------------------------------------------------
-const ROLE_LABEL = { tecnico: "Tecnico", coordinatore: "Coordinatore", admin: "Amministratore" };
+const ROLE_LABEL = { tecnico: t("auth.role.tecnico"), coordinatore: t("auth.role.coordinatore"), admin: t("auth.role.admin") };
 
 export function userMenu(me, { onLogout, adminItems = [] }) {
   const wrap = el("div", "user-menu");
@@ -259,9 +260,9 @@ export function userMenu(me, { onLogout, adminItems = [] }) {
   menu.append(
     who,
     ...(me.is_admin ? adminItems.map(([label, fn]) => item(label, fn)) : []),
-    item("Cambia password", () => showChangePassword()),
-    item(`Novità · versione ${me.version}`, () => showChangelog()),
-    item("Esci", async () => {
+    item(t("auth.change_password"), () => showChangePassword()),
+    item(t("auth.whats_new", { version: me.version }), () => showChangelog()),
+    item(t("auth.logout"), async () => {
       try { await logout(); } finally { onLogout(); }
     }),
   );

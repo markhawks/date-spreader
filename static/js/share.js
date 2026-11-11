@@ -7,6 +7,7 @@
 // selezione del documento (execCommand), che porta con sé la formattazione.
 
 import { fetchEvent } from "./api.js";
+import { t } from "./i18n.js";
 import { colorFor, textOn } from "./colors.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import {
@@ -47,47 +48,52 @@ export function buildEmail(ev) {
   const color = colorFor(ev.project.id);
   const customer = ev.project.customer_name;
   const when = [formatLongDate(ev.event_date), timeRange(ev)].filter(Boolean).join(", ");
-  const subject = ["Intervento", customer, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`,
-    EVENT_STATUS[ev.status] ?? ev.status]
-    .filter(Boolean).join(" · ").replace("Intervento · ", "Intervento: ");
+  const subject = t("share.subject", {
+    details: [customer, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`,
+      EVENT_STATUS[ev.status] ?? ev.status].filter(Boolean).join(" · "),
+  });
 
   const config = isConfigEvent(ev);
   const n = ev.servers.length;
   const count = (k, v) => ev.servers.filter((s) => s[k] === v).length;
-  const summary = !n ? "Nessun server associato"
-    : config ? `${n} server · eseguiti ${ev.servers.filter((s) => s.executed_date).length}/${n}`
-    : `${n} server · check OK ${count("check_status", "ok")}/${n}${count("check_status", "ko") ? ` · check KO ${count("check_status", "ko")}` : ""} · ${stageDone(ev)} ${count("migration_status", "completata")}/${n}`
+  const ko = count("check_status", "ko");
+  const summary = !n ? t("share.no_servers")
+    : config ? [t("share.server_count", { n }), t("share.summary_executed", { done: ev.servers.filter((s) => s.executed_date).length, n })].join(" · ")
+    : [t("share.server_count", { n }), t("share.summary_check_ok", { ok: count("check_status", "ok"), n }),
+      ...(ko ? [t("share.summary_check_ko", { ko })] : []),
+      t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ");
 
   const td = "padding:6px 8px;border-bottom:1px solid #e3e6eb;vertical-align:top;font-size:13px";
   const mono = "font-family:Consolas,Menlo,monospace;font-size:12px";
+  // [column id, header, cell]
   const allCols = [
-    ["Hostname", (s) => `<span style="${mono};font-weight:bold">${esc(s.hostname)}</span>`],
-    ["IP", (s) => `<span style="${mono}">${esc(s.ip_address ?? "")}</span>`],
-    ["SO", (s) => esc(shortOs(s.operating_system))],
-    ["Amb.", (s) => esc(s.environment ?? "")],
-    ["Kernel attuale", (s) => `<span style="${mono}">${esc(s.current_kernel ?? "")}</span>`],
-    ["SO target", (s) => esc(shortOs(s.target_operating_system))],
-    ["Kernel target", (s) => `<span style="${mono}">${esc(s.target_kernel ?? "")}</span>`],
-    ["Check", (s) => badgeHtml(s.check_status, CHECK_STATUS)],
-    [stageLabel(ev), (s) => badgeHtml(s.migration_status, MIGRATION_STATUS)],
-    ["Eseguito il", (s) => esc(s.executed_date ? formatShortDate(s.executed_date) : "")],
-    ["Tecnico", (s) => esc(s.assigned_user?.display_name ?? "")],
-    ["Note", (s) => esc(s.notes ?? "")],
+    ["hostname", t("share.col_hostname"), (s) => `<span style="${mono};font-weight:bold">${esc(s.hostname)}</span>`],
+    ["ip", t("share.col_ip"), (s) => `<span style="${mono}">${esc(s.ip_address ?? "")}</span>`],
+    ["os", t("share.col_os"), (s) => esc(shortOs(s.operating_system))],
+    ["env", t("share.col_env"), (s) => esc(s.environment ?? "")],
+    ["kernel", t("share.col_kernel"), (s) => `<span style="${mono}">${esc(s.current_kernel ?? "")}</span>`],
+    ["target_os", t("share.col_target_os"), (s) => esc(shortOs(s.target_operating_system))],
+    ["target_kernel", t("share.col_target_kernel"), (s) => `<span style="${mono}">${esc(s.target_kernel ?? "")}</span>`],
+    ["check", t("share.col_check"), (s) => badgeHtml(s.check_status, CHECK_STATUS)],
+    ["stage", stageLabel(ev), (s) => badgeHtml(s.migration_status, MIGRATION_STATUS)],
+    ["executed", t("share.col_executed"), (s) => esc(s.executed_date ? formatShortDate(s.executed_date) : "")],
+    ["technician", t("share.col_technician"), (s) => esc(s.assigned_user?.display_name ?? "")],
+    ["notes", t("share.col_notes"), (s) => esc(s.notes ?? "")],
   ];
   // Configurazione: colonne ridotte e note in una riga a tutta larghezza sotto ogni server
-  const CONFIG_HEADS = ["Hostname", "IP", "SO", "Amb.", "Eseguito il", "Tecnico"];
-  const cols = config ? allCols.filter(([h]) => CONFIG_HEADS.includes(h)) : allCols;
+  const CONFIG_COLS = ["hostname", "ip", "os", "env", "executed", "technician"];
+  const cols = config ? allCols.filter(([id]) => CONFIG_COLS.includes(id)) : allCols;
   const notesRow = (s) => (config
     ? `<tr><td colspan="${cols.length}" style="padding:6px 10px 10px;border-bottom:2px solid #d5d9e0;background:#f8f9fb;font-size:13px;white-space:pre-wrap">${
-      s.notes ? esc(s.notes).replace(/\n/g, "<br>") : '<span style="color:#9ca3af">Nessuna nota.</span>'}</td></tr>`
+      s.notes ? esc(s.notes).replace(/\n/g, "<br>") : `<span style="color:#9ca3af">${esc(t("share.no_notes"))}</span>`}</td></tr>`
     : "");
   const facts = [
-    ["Data", esc(when)],
-    ["Tipo", esc(EVENT_TYPE[ev.event_type] ?? ev.event_type)],
-    ["Stato", badgeHtml(ev.status, EVENT_STATUS)],
-    ...(ev.title ? [["Titolo", esc(ev.title)]] : []),
-    ...(ev.participants.length ? [["Partecipanti", esc(ev.participants.map((p) => p.display_name).join(", "))]] : []),
-    ...(ev.notes ? [["Note", esc(ev.notes).replace(/\n/g, "<br>")]] : []),
+    [t("share.fact_date"), esc(when)],
+    [t("share.fact_type"), esc(EVENT_TYPE[ev.event_type] ?? ev.event_type)],
+    [t("share.fact_status"), badgeHtml(ev.status, EVENT_STATUS)],
+    ...(ev.title ? [[t("share.fact_title"), esc(ev.title)]] : []),
+    ...(ev.participants.length ? [[t("share.fact_participants"), esc(ev.participants.map((p) => p.display_name).join(", "))]] : []),
+    ...(ev.notes ? [[t("share.fact_notes"), esc(ev.notes).replace(/\n/g, "<br>")]] : []),
   ];
 
   const html = `
@@ -100,43 +106,43 @@ export function buildEmail(ev) {
     </td></tr>
   </table>
   <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:12px 0">
-    ${facts.map(([k, v]) => `<tr><td style="padding:3px 14px 3px 0;color:#6b7280;font-size:13px;white-space:nowrap;vertical-align:top">${k}</td><td style="padding:3px 0;font-size:13px">${v}</td></tr>`).join("")}
+    ${facts.map(([k, v]) => `<tr><td style="padding:3px 14px 3px 0;color:#6b7280;font-size:13px;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:3px 0;font-size:13px">${v}</td></tr>`).join("")}
   </table>
   <div style="margin:8px 0;color:#4b5563;font-size:13px">${esc(summary)}</div>
   ${n ? `
   <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #e3e6eb">
-    <thead><tr>${cols.map(([h]) => `<th style="padding:7px 8px;background:#f1f3f6;border-bottom:1px solid #e3e6eb;text-align:left;font-size:12px;color:#4b5563;white-space:nowrap">${h}</th>`).join("")}</tr></thead>
-    <tbody>${ev.servers.map((s) => `<tr>${cols.map(([h, f]) => `<td style="${td};${h === "Note" ? "min-width:160px" : "white-space:nowrap"}${config ? ";border-bottom:1px dashed #e3e6eb" : ""}">${f(s)}</td>`).join("")}</tr>${notesRow(s)}`).join("")}</tbody>
+    <thead><tr>${cols.map(([, h]) => `<th style="padding:7px 8px;background:#f1f3f6;border-bottom:1px solid #e3e6eb;text-align:left;font-size:12px;color:#4b5563;white-space:nowrap">${esc(h)}</th>`).join("")}</tr></thead>
+    <tbody>${ev.servers.map((s) => `<tr>${cols.map(([id, , f]) => `<td style="${td};${id === "notes" ? "min-width:160px" : "white-space:nowrap"}${config ? ";border-bottom:1px dashed #e3e6eb" : ""}">${f(s)}</td>`).join("")}</tr>${notesRow(s)}`).join("")}</tbody>
   </table>` : ""}
   <p style="margin:16px 0 0;font-size:12px;color:#6b7280">
-    Apri l'intervento nel portale: <a href="${esc(eventLink(ev.id))}" style="color:#2563eb">${esc(eventLink(ev.id))}</a><br>
-    Inviato da Date Spreader
+    ${esc(t("share.open_in_portal"))} <a href="${esc(eventLink(ev.id))}" style="color:#2563eb">${esc(eventLink(ev.id))}</a><br>
+    ${esc(t("share.sent_by"))}
   </p>
 </div>`;
 
   const lines = [
     subject, "",
-    ...(customer ? [`Cliente: ${customer}`] : []),
-    `Progetto: ${ev.project.name}`,
-    `Data: ${when}`,
-    `Tipo: ${EVENT_TYPE[ev.event_type] ?? ev.event_type}`,
-    `Stato: ${EVENT_STATUS[ev.status] ?? ev.status}`,
-    ...(ev.title ? [`Titolo: ${ev.title}`] : []),
-    ...(ev.participants.length ? [`Partecipanti: ${ev.participants.map((p) => p.display_name).join(", ")}`] : []),
-    ...(ev.notes ? [`Note: ${ev.notes}`] : []),
+    ...(customer ? [t("share.text_customer", { value: customer })] : []),
+    t("share.text_project", { value: ev.project.name }),
+    t("share.text_date", { value: when }),
+    t("share.text_type", { value: EVENT_TYPE[ev.event_type] ?? ev.event_type }),
+    t("share.text_status", { value: EVENT_STATUS[ev.status] ?? ev.status }),
+    ...(ev.title ? [t("share.text_title", { value: ev.title })] : []),
+    ...(ev.participants.length ? [t("share.text_participants", { value: ev.participants.map((p) => p.display_name).join(", ") })] : []),
+    ...(ev.notes ? [t("share.text_notes", { value: ev.notes })] : []),
     "", summary, "",
     ...ev.servers.map((s) => (config ? [
       [s.hostname, s.ip_address, shortOs(s.operating_system), s.environment,
-        s.executed_date && `eseguito il ${formatShortDate(s.executed_date)}`, s.assigned_user?.display_name].filter(Boolean).join(" | "),
+        s.executed_date && t("share.text_executed", { date: formatShortDate(s.executed_date) }), s.assigned_user?.display_name].filter(Boolean).join(" | "),
       ...(s.notes ? s.notes.split("\n").map((l) => `    ${l}`) : []),
       "",
     ].join("\n") : [
       s.hostname, s.ip_address, shortOs(s.operating_system), s.environment,
       `${s.current_kernel ?? "?"} → ${shortOs(s.target_operating_system) || ""} ${s.target_kernel ?? ""}`.trim(),
-      `check ${CHECK_STATUS[s.check_status] ?? s.check_status}`, `${stageLabel(ev).toLowerCase()} ${MIGRATION_STATUS[s.migration_status] ?? s.migration_status}`,
+      t("share.text_check", { status: CHECK_STATUS[s.check_status] ?? s.check_status }), t("share.text_stage", { stage: stageLabel(ev).toLowerCase(), status: MIGRATION_STATUS[s.migration_status] ?? s.migration_status }),
       s.assigned_user?.display_name, s.notes,
     ].filter(Boolean).join(" | "))),
-    "", `Apri nel portale: ${eventLink(ev.id)}`,
+    "", t("share.text_open", { url: eventLink(ev.id) }),
   ];
   return { subject, html, text: lines.join("\n"), accent: color };
 }
@@ -201,11 +207,11 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
   const form = el("form", "pf");
   form.noValidate = true;
   const head = el("header", "pf-head");
-  const h = el("h2", null, "Condividi intervento via email");
+  const h = el("h2", null, t("share.dialog_title"));
   h.id = "share-title";
   const x = el("button", "icon-btn");
   x.type = "button";
-  x.setAttribute("aria-label", "Chiudi");
+  x.setAttribute("aria-label", t("share.close"));
   x.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   x.addEventListener("click", () => dialog.close());
   head.append(h, x);
@@ -215,35 +221,35 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
     .map((p) => people.byId(p.id)?.email)
     .filter((e) => e && e !== me?.email);
   const toLabel = el("label", "pf-field");
-  toLabel.append(el("span", null, "Destinatari"));
+  toLabel.append(el("span", null, t("share.recipients")));
   const to = el("input");
-  Object.assign(to, { type: "text", value: emails.join(", "), placeholder: "nome@azienda.it, altro@azienda.it", autocomplete: "off" });
+  Object.assign(to, { type: "text", value: emails.join(", "), placeholder: t("share.recipients_placeholder"), autocomplete: "off" });
   toLabel.append(to);
   const subjLabel = el("label", "pf-field");
-  subjLabel.append(el("span", null, "Oggetto"));
+  subjLabel.append(el("span", null, t("share.subject_label")));
   const subject = el("input");
   Object.assign(subject, { type: "text", value: mail.subject });
   subjLabel.append(subject);
 
   const how = el("p", "muted small share-how");
-  how.innerHTML = "<strong>Copia e apri Gmail</strong>: si apre un nuovo messaggio con destinatari e oggetto; nel corpo premi <kbd>Ctrl</kbd>+<kbd>V</kbd> per incollare l'email formattata qui sotto.";
+  how.innerHTML = t("share.how_html");
 
-  const previewLabel = el("p", "confirm-label", "Anteprima dell'email");
+  const previewLabel = el("p", "confirm-label", t("share.preview"));
   // Account Gmail: quello salvato nelle preferenze, altrimenti l'email del profilo nel portale
   const saved = prefs.get();
   const accLabel = el("label", "pf-field");
-  accLabel.append(el("span", null, "Account Gmail (mittente)"));
+  accLabel.append(el("span", null, t("share.account")));
   const account = el("input");
   Object.assign(account, {
-    type: "email", value: saved.gmail_account || me?.email || "", placeholder: "nome@azienda.it", autocomplete: "email",
-    title: "L'account Google con cui aprire Gmail: deve essere collegato nel browser (anche insieme a quello personale)",
+    type: "email", value: saved.gmail_account || me?.email || "", placeholder: t("share.account_placeholder"), autocomplete: "email",
+    title: t("share.account_title"),
   });
   accLabel.append(account);
   const chooseLabel = el("label", "share-choose");
   const choose = el("input");
   Object.assign(choose, { type: "checkbox", checked: saved.gmail_choose_account });
-  chooseLabel.append(choose, " Fammi scegliere l'account Google a ogni invio");
-  chooseLabel.title = "Prima di Gmail si apre la scelta dell'account di Google: utile se l'account aziendale non è ancora collegato nel browser";
+  chooseLabel.append(choose, ` ${t("share.choose_account")}`);
+  chooseLabel.title = t("share.choose_account_title");
   const accRow = el("div", "share-account");
   accRow.append(accLabel, chooseLabel);
 
@@ -254,12 +260,12 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
   body.append(toLabel, subjLabel, accRow, how, previewLabel, preview);
 
   const foot = el("footer", "pf-foot");
-  const plain = el("button", "btn", "Copia come testo semplice");
+  const plain = el("button", "btn", t("share.copy_plain"));
   plain.type = "button";
-  plain.title = "Per programmi che non accettano il testo formattato";
-  const copyOnly = el("button", "btn", "Copia email");
+  plain.title = t("share.copy_plain_title");
+  const copyOnly = el("button", "btn", t("share.copy_email"));
   copyOnly.type = "button";
-  const go = el("button", "btn btn-primary", "Copia e apri Gmail");
+  const go = el("button", "btn btn-primary", t("share.copy_open"));
   go.type = "submit";
   foot.append(plain, el("span", "spacer"), copyOnly, go);
   form.append(head, body, foot);
@@ -271,10 +277,10 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
   const recipients = () => to.value.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
   plain.addEventListener("click", () => {
     toast(copyText(`${subject.value}\n\n${mail.text.split("\n").slice(2).join("\n")}`)
-      ? "Testo copiato." : "Copia non riuscita: seleziona l'anteprima e copiala a mano.");
+      ? t("share.text_copied") : t("share.copy_failed"));
   });
   copyOnly.addEventListener("click", () => {
-    toast(copyRich(preview) ? "Email copiata: incollala nel corpo del messaggio con Ctrl+V." : "Copia non riuscita: seleziona l'anteprima e copiala a mano.");
+    toast(copyRich(preview) ? t("share.email_copied") : t("share.copy_failed"));
   });
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -282,7 +288,7 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
     if (acc && !EMAIL_RE.test(acc)) {
       account.classList.add("invalid");
       account.focus();
-      toast("Account Gmail: scrivi un indirizzo email valido (oppure lascia vuoto).");
+      toast(t("share.account_invalid"));
       return;
     }
     account.classList.remove("invalid");
@@ -293,7 +299,7 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
     }
     const ok = copyRich(preview);
     window.open(gmailComposeUrl({ to: recipients(), subject: subject.value, account: acc, choose: choose.checked }), "_blank", "noopener");
-    toast(ok ? "Email copiata: nel nuovo messaggio di Gmail premi Ctrl+V nel corpo." : "Gmail aperto, ma la copia non è riuscita: copia l'anteprima a mano.");
+    toast(ok ? t("share.email_copied_gmail") : t("share.gmail_copy_failed"));
   });
 
   dialog.showModal();

@@ -3,7 +3,7 @@
 #
 # Testato su: Fedora Linux 44 (Server Edition), x86_64.
 # Altre distribuzioni (RHEL 10.2, Fedora 45) sono previste ma non ancora verificate:
-# lo script le accetta solo con --force. Guida completa: docs/INSTALLAZIONE.md
+# lo script le accetta solo con --force. Guida completa: docs/INSTALL.md (in italiano: docs/INSTALLAZIONE.md)
 #
 # Uso tipico (come root):
 #   sudo ./deploy/install.sh --admin-name "Mario Rossi" --admin-email mario.rossi@azienda.it
@@ -300,7 +300,7 @@ step "6/7 Servizio systemd"
 UNIT="/etc/systemd/system/$SERVICE.service"
 sed -e "s#/var/www/html/DateSpreader#$INSTALL_DIR#g" \
     -e "s#^User=.*#User=$SVC_USER#" -e "s#^Group=.*#Group=$SVC_USER#" \
-    -e "s#^Documentation=.*#Documentation=file://$INSTALL_DIR/docs/INSTALLAZIONE.md#" \
+    -e "s#^Documentation=.*#Documentation=file://$INSTALL_DIR/docs/INSTALL.md#" \
     "$INSTALL_DIR/deploy/datespreader.service" > "$UNIT"
 chmod 644 "$UNIT"
 systemctl daemon-reload

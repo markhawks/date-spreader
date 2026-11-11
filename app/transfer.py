@@ -19,6 +19,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app import __version__, audit
+from app.i18n import current_language, tr
 from app.models import (
     Customer, Event, EventServer, EventUser, OperatingSystem, Project, Server, User,
 )
@@ -129,7 +130,7 @@ def export_projects(session: Session, projects: list[Project], scope: dict[str, 
 
 def _unique_project_name(session: Session, name: str) -> str:
     taken = lambda n: session.scalar(select(Project.id).where(func.lower(Project.name) == n.lower())) is not None  # noqa: E731
-    base = f"{name} (importato)"[:200]
+    base = tr("transfer.copy_name", name=name)[:200]  # "… (imported)" / "… (importato)"
     candidate, i = base, 2
     while taken(candidate):
         suffix = f" {i}"
@@ -191,7 +192,7 @@ def import_file(session: Session, data: ExportFile, on_conflict: str = "skip") -
         if key is None:
             return None
         if key not in tech_by_key:
-            warn(f"{where}: tecnico «{key}» non presente nel file, ignorato.")
+            warn(tr("transfer.unknown_technician", where=where, key=key))
             return None
         return tech_by_key[key]
 
@@ -269,10 +270,11 @@ def _import_project(session, xp: XProject, on_conflict, report, customer, server
     report["totals"]["projects"] += 1
 
     for xe in xp.events:
-        where = f"{name}, {xe.event_date.strftime('%d/%m/%Y')}"
+        day = xe.event_date.isoformat() if current_language() == "en" else xe.event_date.strftime("%d/%m/%Y")
+        where = f"{name}, {day}"
         end = xe.end_time
         if xe.start_time and end and end <= xe.start_time:
-            warn(f"{where}: ora di fine non successiva all'inizio, tolta.")
+            warn(tr("transfer.end_time_dropped", where=where))
             end = None
         event = Event(project=project, event_date=xe.event_date, start_time=xe.start_time, end_time=end,
                       event_type=xe.event_type, status=xe.status, title=xe.title, notes=xe.notes)
@@ -291,7 +293,7 @@ def _import_project(session, xp: XProject, on_conflict, report, customer, server
         seen_hosts: set[str] = set()
         for position, xr in enumerate(xe.servers):
             if xr.hostname in seen_hosts:
-                warn(f"{where}: {xr.hostname} compare due volte, tenuta la prima riga.")
+                warn(tr("transfer.duplicate_host", where=where, hostname=xr.hostname))
                 continue
             seen_hosts.add(xr.hostname)
             srv = server(xr.hostname)

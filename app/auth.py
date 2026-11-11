@@ -17,6 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
+from app.i18n import tr
 from app.models import AuthSession, User
 from app.security import token_hash
 
@@ -53,8 +54,8 @@ class AuthUser:
         return cls(u.id, u.display_name, u.role, u.must_change_password, u.username, email)
 
 
-def _unauthorized(message: str = "Accesso richiesto.") -> HTTPException:
-    return HTTPException(401, {"message": message, "code": "auth_required"})
+def _unauthorized(message: str | None = None) -> HTTPException:
+    return HTTPException(401, {"message": message or tr("auth.login_required"), "code": "auth_required"})
 
 
 def find_session(db: Session, token: str | None) -> AuthSession | None:
@@ -72,7 +73,7 @@ def get_current_user(request: Request, db: Session = Depends(get_session)) -> Au
     if sess.expires_at <= now or not sess.user.can_login:
         db.delete(sess)
         db.commit()
-        raise _unauthorized("Sessione scaduta: accedi di nuovo.")
+        raise _unauthorized(tr("auth.session_expired"))
     if now - sess.last_seen_at >= TOUCH_EVERY:
         hours = request.app.state.settings.session_hours
         sess.last_seen_at = now
@@ -87,17 +88,17 @@ def require_user(user: AuthUser = Depends(get_current_user)) -> AuthUser:
     """Utente autenticato e senza cambio password in sospeso."""
     if user.must_change_password:
         raise HTTPException(
-            403, {"message": "Devi cambiare la password prima di continuare.", "code": "password_change_required"}
+            403, {"message": tr("auth.password_change_required"), "code": "password_change_required"}
         )
     return user
 
 
 def require_admin(user: AuthUser = Depends(require_user)) -> AuthUser:
     if not user.is_admin:
-        raise HTTPException(403, {"message": "Operazione riservata agli amministratori.", "code": "admin_required"})
+        raise HTTPException(403, {"message": tr("auth.admin_required"), "code": "admin_required"})
     return user
 
 
 def csrf_protect(request: Request) -> None:
     if request.method not in SAFE_METHODS and request.headers.get(CSRF_HEADER) != CSRF_VALUE:
-        raise HTTPException(403, {"message": "Richiesta non valida (manca l'intestazione di sicurezza).", "code": "csrf"})
+        raise HTTPException(403, {"message": tr("auth.csrf"), "code": "csrf"})

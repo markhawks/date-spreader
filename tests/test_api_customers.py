@@ -70,7 +70,7 @@ def test_rename_and_delete(api):
     assert api.patch(f"/api/customers/{gid['id']}", json={"version": gid["version"], "name": "Altro"}).status_code == 409
     assert api.patch(f"/api/customers/{empty['id']}", json={"version": empty["version"], "name": "gruppo ag"}).status_code == 409
     used = api.delete(f"/api/customers/{gid['id']}")
-    assert used.status_code == 409 and "progetti" in used.json()["detail"]["message"]
+    assert used.status_code == 409 and "projects" in used.json()["detail"]["message"]
     assert api.delete(f"/api/customers/{empty['id']}").status_code == 204
     assert api.delete("/api/customers/9999").status_code == 404
 

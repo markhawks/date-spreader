@@ -4,6 +4,7 @@ import { search } from "./api.js";
 import { colorFor, paint } from "./colors.js";
 import { formatShortDate, todayIso } from "./dates.js";
 import { CHECK_STATUS, MIGRATION_STATUS, badge } from "./labels.js";
+import { locale, t } from "./i18n.js";
 
 const SEARCH_DELAY_MS = 250;
 const MAX_HITS = 30;
@@ -86,7 +87,7 @@ export class Sidebar {
    * poi quelli con soli interventi passati (dal più recente), infine quelli senza interventi.
    */
   #sorted(projects, today) {
-    const byName = (a, b) => a.name.localeCompare(b.name, "it", { sensitivity: "base" });
+    const byName = (a, b) => a.name.localeCompare(b.name, locale(), { sensitivity: "base" });
     if (this.sort !== "date") return [...projects].sort(byName);
     const key = (p) => {
       const next = p.events.find((e) => e.event_date >= today);
@@ -117,7 +118,7 @@ export class Sidebar {
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(p);
       }
-      const keys = [...groups.keys()].sort((a, b) => (a === "") - (b === "") || a.localeCompare(b, "it", { sensitivity: "base" }));
+      const keys = [...groups.keys()].sort((a, b) => (a === "") - (b === "") || a.localeCompare(b, locale(), { sensitivity: "base" }));
       tiles = keys.flatMap((key) => [this.#groupHead(key, groups.get(key)), ...groups.get(key).map((p) => this.#tile(p, today))]);
     } else {
       tiles = sorted.map((p) => this.#tile(p, today));
@@ -143,7 +144,7 @@ export class Sidebar {
     li.dataset.group = name;
     const title = document.createElement("span");
     title.className = "group-name";
-    title.textContent = name || "Senza cliente";
+    title.textContent = name || t("sidebar.no_customer");
     const count = document.createElement("span");
     count.className = "group-count";
     count.textContent = projects.length;
@@ -158,11 +159,11 @@ export class Sidebar {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "project-tile add-tile";
-    btn.title = "Crea un nuovo progetto";
+    btn.title = t("sidebar.add_title");
     btn.innerHTML =
       '<svg class="add-icon" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">' +
       '<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>' +
-      '<span class="add-label">Nuovo progetto</span>';
+      `<span class="add-label">${t("sidebar.add_label")}</span>`;
     li.append(btn);
     return li;
   }
@@ -193,14 +194,13 @@ export class Sidebar {
     meta.className = "tile-meta";
     const ref = referenceEvent(project, today);
     const n = project.events.length;
+    const date = ref ? formatShortDate(ref.event.event_date) : "";
     meta.textContent = ref
-      ? `${ref.upcoming ? "Prossimo" : "Ultimo"}: ${formatShortDate(ref.event.event_date)}`
-      : "Nessun intervento";
+      ? t(ref.upcoming ? "sidebar.meta_next" : "sidebar.meta_last", { date })
+      : t("sidebar.meta_none");
     meta.title = ref
-      ? (ref.upcoming
-        ? `Prossimo intervento in programma: ${formatShortDate(ref.event.event_date)}`
-        : `Nessun intervento in programma; l'ultimo è stato il ${formatShortDate(ref.event.event_date)}`)
-      : "Il progetto non ha ancora interventi: aprilo con la matita per aggiungerne uno";
+      ? t(ref.upcoming ? "sidebar.meta_next_title" : "sidebar.meta_last_title", { date })
+      : t("sidebar.meta_none_title");
 
     btn.title = [project.customer_name, project.name, project.description].filter(Boolean).join(" · ");
     btn.append(badge, name, meta);
@@ -215,14 +215,14 @@ export class Sidebar {
     if (n > 1) {
       const count = document.createElement("span");
       count.className = "tile-count";
-      count.textContent = `${n} date`;
+      count.textContent = t("sidebar.dates_count", { n });
       tags.append(count);
     }
     if (project.is_demo) {
       const demo = document.createElement("span");
       demo.className = "tag-demo";
-      demo.textContent = "esempio";
-      demo.title = "Progetto di esempio: si toglie con «python -m app.cli demo remove»";
+      demo.textContent = t("sidebar.demo_tag");
+      demo.title = t("sidebar.demo_title");
       tags.append(demo);
       btn.classList.add("is-demo");
     }
@@ -234,8 +234,8 @@ export class Sidebar {
       edit.type = "button";
       edit.className = "tile-edit";
       edit.dataset.projectId = project.id;
-      edit.title = "Modifica progetto e interventi";
-      edit.setAttribute("aria-label", `Modifica ${project.name}`);
+      edit.title = t("sidebar.edit_title");
+      edit.setAttribute("aria-label", t("sidebar.edit_label", { name: project.name }));
       edit.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3 7.5-7.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
       li.append(edit);
     }
@@ -256,7 +256,7 @@ export class Sidebar {
       result = await search(q);
     } catch (err) {
       if (token !== this.searchToken) return;
-      this.serversEl.replaceChildren(Object.assign(document.createElement("p"), { className: "muted", textContent: `Ricerca non riuscita: ${err.message}` }));
+      this.serversEl.replaceChildren(Object.assign(document.createElement("p"), { className: "muted", textContent: t("sidebar.search_failed", { error: err.message }) }));
       this.serversEl.hidden = false;
       return;
     }
@@ -264,7 +264,7 @@ export class Sidebar {
 
     const head = document.createElement("h3");
     head.className = "hits-title";
-    head.textContent = `Server (${result.servers.length}${result.servers.length >= 50 ? "+" : ""})`;
+    head.textContent = t("sidebar.servers_title", { count: `${result.servers.length}${result.servers.length >= 50 ? "+" : ""}` });
     const list = document.createElement("ul");
     list.className = "hits";
     for (const hit of result.servers.slice(0, MAX_HITS)) {
@@ -289,9 +289,9 @@ export class Sidebar {
     }
     const children = [head];
     if (result.servers.length) children.push(list);
-    else children.push(Object.assign(document.createElement("p"), { className: "muted", textContent: "Nessun server trovato." }));
+    else children.push(Object.assign(document.createElement("p"), { className: "muted", textContent: t("sidebar.no_servers") }));
     if (result.servers.length > MAX_HITS) {
-      children.push(Object.assign(document.createElement("p"), { className: "muted small", textContent: `Mostrati i primi ${MAX_HITS}: affina la ricerca.` }));
+      children.push(Object.assign(document.createElement("p"), { className: "muted small", textContent: t("sidebar.too_many", { n: MAX_HITS }) }));
     }
     this.serversEl.replaceChildren(...children);
     this.serversEl.hidden = false;

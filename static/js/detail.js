@@ -8,6 +8,7 @@ import { participantPicker } from "./people.js";
 import { makeResizable } from "./resize.js";
 import { Sheet } from "./sheet.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
+import { t } from "./i18n.js";
 import {
   CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent, stageDone, stageLabel,
 } from "./labels.js";
@@ -32,6 +33,18 @@ const stack = (main, sub) => {
   return wrap;
 };
 
+// Visible column headers; the first element of each COLUMNS entry is the stable column key (saved widths).
+const COLUMN_LABELS = {
+  "Server": t("detail.col_server"),
+  "Amb.": t("detail.col_env"),
+  "SO · kernel": t("detail.col_os_kernel"),
+  "Check": t("detail.col_check"),
+  "Tecnico": t("detail.col_technician"),
+  "Note": t("detail.col_notes"),
+  "SO": t("detail.col_os"),
+  "Eseguito il": t("detail.col_executed"),
+};
+
 // Vista compatta in sola lettura: le informazioni secondarie stanno sotto quelle principali.
 const COLUMNS = [
   ["Server", (s) => stack(el("span", "mono strong", s.hostname), el("span", "mono sub", s.ip_address ?? ""))],
@@ -42,15 +55,15 @@ const COLUMNS = [
     const target = [shortOs(s.target_operating_system), shortKernel(s.target_kernel)].filter(Boolean).join(" · ");
     wrap.append(el("span", "mono sub target", `→ ${target || "—"}`));
     wrap.title = [
-      `SO attuale: ${s.operating_system ?? "-"}`, `Kernel attuale: ${s.current_kernel ?? "-"}`,
-      `SO target: ${s.target_operating_system ?? "-"}`, `Kernel target: ${s.target_kernel ?? "-"}`,
+      t("detail.os_current", { value: s.operating_system ?? "-" }), t("detail.kernel_current", { value: s.current_kernel ?? "-" }),
+      t("detail.os_target", { value: s.target_operating_system ?? "-" }), t("detail.kernel_target", { value: s.target_kernel ?? "-" }),
     ].join("\n");
     return wrap;
   }],
   ["Check", (s) => badge(s.check_status, CHECK_STATUS)],
   ["Migrazione", (s) => stack(
     badge(s.migration_status, MIGRATION_STATUS),
-    s.executed_date ? `eseguita ${formatShortDate(s.executed_date)}` : null,
+    s.executed_date ? t("detail.executed_on", { date: formatShortDate(s.executed_date) }) : null,
   )],
   ["Tecnico", (s) => s.assigned_user?.display_name ?? el("span", "muted", "—")],
   ["Note", (s) => s.notes ?? ""],
@@ -149,7 +162,7 @@ export class DetailPanel {
     try {
       const events = await fetchDay(iso);
       if (req !== this.request) return;
-      this.subEl.textContent = !events.length ? "Nessun intervento" : events.length === 1 ? "1 intervento" : `${events.length} interventi`;
+      this.subEl.textContent = !events.length ? t("detail.no_events") : t("detail.events_count", { n: events.length });
       this.bodyEl.replaceChildren(
         ...(events.length ? events.map((ev) => this.#eventCard(ev, false)) : [this.#emptyDay(iso)]),
       );
@@ -163,7 +176,7 @@ export class DetailPanel {
   /** Un singolo intervento, con i collegamenti alle altre date dello stesso progetto. */
   async openEvent(eventId, { highlightRowId = null } = {}) {
     this.last = () => this.openEvent(eventId);
-    this.#show("Caricamento…", "");
+    this.#show(t("detail.loading"), "");
     const req = ++this.request;
     try {
       const ev = await fetchEvent(eventId);
@@ -262,12 +275,12 @@ export class DetailPanel {
     document.body.classList.add("detail-open");
     this.titleEl.textContent = title;
     this.subEl.textContent = sub;
-    this.bodyEl.replaceChildren(el("p", "muted", "Caricamento…"));
+    this.bodyEl.replaceChildren(el("p", "muted", t("detail.loading")));
     this.root.querySelector("[data-close]").focus({ preventScroll: true });
   }
 
   #error(err) {
-    this.bodyEl.replaceChildren(el("p", "error", `Impossibile caricare il dettaglio: ${err.message}`));
+    this.bodyEl.replaceChildren(el("p", "error", t("detail.load_error", { message: err.message })));
   }
 
   #focusEvent(eventId) {
@@ -283,22 +296,22 @@ export class DetailPanel {
   /** Anteprima di un giorno senza interventi: messaggio e pulsanti per crearne uno. */
   #emptyDay(iso) {
     const box = el("div", "empty-day");
-    box.append(el("p", "empty-day-title", "Nessun intervento in questa data."));
+    box.append(el("p", "empty-day-title", t("detail.empty_day")));
     const actions = el("div", "empty-day-actions");
     if (this.onNewEvent) {
-      const b = el("button", "btn btn-primary btn-small", "+ Intervento in un progetto esistente");
+      const b = el("button", "btn btn-primary btn-small", t("detail.new_event_existing"));
       b.type = "button";
       b.addEventListener("click", () => this.onNewEvent(iso));
       actions.append(b);
     }
     if (this.onNewProject) {
-      const b = el("button", "btn btn-small", "Nuovo progetto in questa data");
+      const b = el("button", "btn btn-small", t("detail.new_project_here"));
       b.type = "button";
       b.addEventListener("click", () => this.onNewProject(iso));
       actions.append(b);
     }
     if (actions.childElementCount) box.append(actions);
-    box.append(el("p", "muted small", "Puoi anche usare il tasto destro su un giorno del calendario."));
+    box.append(el("p", "muted small", t("detail.empty_day_hint")));
     return box;
   }
 
@@ -313,8 +326,9 @@ export class DetailPanel {
     const titleRow = el("div", "event-title-row");
     const expand = el("button", "btn btn-small expand-btn");
     expand.type = "button";
-    expand.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Tutto schermo · modifica</span>';
-    expand.title = "Apri la tabella completa (11 colonne) per modificarla";
+    expand.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5 9 7M6.5 13.5h-4v-4M2.5 13.5 7 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span></span>';
+    expand.querySelector("span").textContent = t("detail.fullscreen_edit");
+    expand.title = t("detail.fullscreen_edit_title");
     expand.addEventListener("click", () => this.onExpand(ev.id));
     const status = eventStatusControl(ev, {
       onSaved: (updated) => this.onEventChanged(updated),
@@ -322,36 +336,38 @@ export class DetailPanel {
         this.toast(message);
         this.onEventChanged(current);
       },
-      onError: (message) => this.toast(`Stato non salvato: ${message}`),
+      onError: (message) => this.toast(t("detail.status_not_saved", { message })),
     });
     const tools = el("div", "event-tools");
     if (this.onShare) {
       const b = el("button", "btn btn-small share-btn");
       b.type = "button";
-      b.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2.5 4.5h11v8h-11z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2.8 4.8 8 9l5.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Condividi</span>';
-      b.title = "Condividi l'intervento via email (Gmail), con la tabella server";
+      b.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2.5 4.5h11v8h-11z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2.8 4.8 8 9l5.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span></span>';
+      b.querySelector("span").textContent = t("detail.share");
+      b.title = t("detail.share_title");
       b.addEventListener("click", () => this.onShare(ev.id));
       tools.append(b);
     }
     if (this.onDuplicate) {
       const b = el("button", "btn btn-small duplicate-btn");
       b.type = "button";
-      b.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="5.2" y="5.2" width="8.6" height="8.6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.8 5.2V3.6c0-.8-.6-1.4-1.4-1.4H3.6c-.8 0-1.4.6-1.4 1.4v5.8c0 .8.6 1.4 1.4 1.4h1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span>Duplica</span>';
-      b.title = "Copia l'intervento in un'altra data (es. da rieseguire), con la tabella server";
+      b.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="5.2" y="5.2" width="8.6" height="8.6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.8 5.2V3.6c0-.8-.6-1.4-1.4-1.4H3.6c-.8 0-1.4.6-1.4 1.4v5.8c0 .8.6 1.4 1.4 1.4h1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><span></span>';
+      b.querySelector("span").textContent = t("detail.duplicate");
+      b.title = t("detail.duplicate_title");
       b.addEventListener("click", () => this.onDuplicate(ev));
       tools.append(b);
     }
     if (this.onEditEvent) {
-      const b = el("button", "btn btn-small", "Modifica");
+      const b = el("button", "btn btn-small", t("detail.edit"));
       b.type = "button";
-      b.title = "Data, tipo, titolo, orari e note dell'intervento";
+      b.title = t("detail.edit_title");
       b.addEventListener("click", () => this.onEditEvent(ev));
       tools.append(b);
     }
     if (this.onEditProject) {
-      const b = el("button", "btn btn-small", "Progetto");
+      const b = el("button", "btn btn-small", t("detail.project"));
       b.type = "button";
-      b.title = "Dati del progetto e suoi interventi (anche nuovi)";
+      b.title = t("detail.project_title");
       b.addEventListener("click", () => this.onEditProject(ev.project.id));
       tools.append(b);
     }
@@ -366,19 +382,21 @@ export class DetailPanel {
     const facts = [
       ev.title,
       EVENT_TYPE[ev.event_type] ?? ev.event_type,
-      ev.start_time && `ore ${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`,
+      ev.start_time && (ev.end_time
+      ? t("detail.time_range", { start: formatTime(ev.start_time), end: formatTime(ev.end_time) })
+      : t("detail.time_from", { start: formatTime(ev.start_time) })),
     ].filter(Boolean);
     head.append(el("p", "event-facts", facts.join(" · ")));
 
     const people = el("div", "event-people");
-    people.append(el("span", "muted", "Partecipanti:"));
+    people.append(el("span", "muted", t("detail.participants")));
     people.append(participantPicker(ev.participants.map((p) => p.id), {
       onChange: async (ids) => {
         try {
           ev.participants = await setParticipants(ev.id, ids);
           this.onEventChanged(ev); // il filtro per tecnico del calendario dipende dai partecipanti
         } catch (err) {
-          this.toast(`Partecipanti non salvati: ${err.message}`);
+          this.toast(t("detail.participants_not_saved", { message: err.message }));
           throw err; // il selettore torna allo stato precedente
         }
       },
@@ -413,8 +431,8 @@ export class DetailPanel {
 
   #siblings(project, currentId) {
     const nav = el("nav", "event-dates");
-    nav.setAttribute("aria-label", "Altre date del progetto");
-    nav.append(el("span", "muted", "Date del progetto:"));
+    nav.setAttribute("aria-label", t("detail.project_dates_label"));
+    nav.append(el("span", "muted", t("detail.project_dates")));
     for (const pe of project.events) {
       const b = el("button", "date-pill", formatShortDate(pe.event_date));
       b.type = "button";
@@ -434,14 +452,14 @@ export class DetailPanel {
     const servers = ev.servers;
     const n = servers.length;
     const count = (key, value) => servers.filter((s) => s[key] === value).length;
-    const parts = [`${n} server`];
+    const parts = [t("detail.servers_count", { n })];
     if (n && isConfigEvent(ev)) {
-      parts.push(`eseguiti ${servers.filter((s) => s.executed_date).length}/${n}`);
+      parts.push(t("detail.summary_executed", { done: servers.filter((s) => s.executed_date).length, n }));
     } else if (n) {
-      parts.push(`check OK ${count("check_status", "ok")}/${n}`);
+      parts.push(t("detail.summary_check_ok", { done: count("check_status", "ok"), n }));
       const ko = count("check_status", "ko");
-      if (ko) parts.push(`check KO ${ko}`);
-      parts.push(`${stageDone(ev)} ${count("migration_status", "completata")}/${n}`);
+      if (ko) parts.push(t("detail.summary_check_ko", { ko }));
+      parts.push(t("detail.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n }));
     }
     return el("p", "server-summary", parts.join(" · "));
   }
@@ -456,7 +474,7 @@ export class DetailPanel {
       if (sheet.pendingEvent) {
         const ev = sheet.pendingEvent;
         sheet.pendingEvent = null;
-        mounts.push(sheet.mount(ev).catch((err) => this.toast(`Tabella non disponibile: ${err.message}`)));
+        mounts.push(sheet.mount(ev).catch((err) => this.toast(t("detail.table_unavailable", { message: err.message }))));
       }
     }
     return Promise.all(mounts);
@@ -472,7 +490,7 @@ export class DetailPanel {
 
   #table(ev) {
     const servers = ev.servers;
-    if (!servers.length) return el("p", "muted", "Nessun server associato.");
+    if (!servers.length) return el("p", "muted", t("detail.no_servers"));
     const config = isConfigEvent(ev);
     const columns = config ? CONFIG_COLUMNS : COLUMNS;
     const wrap = el("div", "table-wrap");
@@ -481,9 +499,9 @@ export class DetailPanel {
     const hr = el("tr");
     for (const [label] of columns) {
       // "Migrazione" è la chiave stabile della colonna (larghezze salvate); il testo segue il tipo
-      const th = el("th", null, label === "Migrazione" ? stageLabel(ev) : label);
+      const th = el("th", null, label === "Migrazione" ? stageLabel(ev) : COLUMN_LABELS[label]);
       th.dataset.col = label;
-      if (label === "SO · kernel") th.title = "Sistema operativo e kernel: attuali e, dopo la freccia, target";
+      if (label === "SO · kernel") th.title = t("detail.os_kernel_title");
       hr.append(th);
     }
     thead.append(hr);
@@ -506,7 +524,7 @@ export class DetailPanel {
         nr.dataset.notesFor = s.id;
         const td = el("td", "notes-cell");
         td.colSpan = columns.length;
-        td.append(s.notes ? el("div", "config-notes", s.notes) : el("span", "muted", "Nessuna nota."));
+        td.append(s.notes ? el("div", "config-notes", s.notes) : el("span", "muted", t("detail.no_notes")));
         nr.append(td);
         tbody.append(nr);
       }

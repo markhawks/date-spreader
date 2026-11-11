@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
 from app.auth import require_admin
+from app.i18n import tr
 from app.models import OperatingSystem
 from app.repositories import oslist as repo
 from app.repositories.servers import Conflict
@@ -40,7 +41,7 @@ class OsCreate(BaseModel):
     def _family(cls, v):
         v = " ".join(str(v or "").split())
         if not v:
-            raise ValueError("Indica la famiglia (es. Red Hat Enterprise Linux).")
+            raise ValueError(tr("os.family_required"))
         return v
 
 
@@ -78,7 +79,7 @@ def create_os(session: SessionDep, data: OsCreate) -> OsOut:
 def _get(session: Session, os_id: int) -> OperatingSystem:
     item = session.get(OperatingSystem, os_id)
     if item is None:
-        raise HTTPException(404, "Sistema operativo non trovato.")
+        raise HTTPException(404, tr("os.not_found"))
     return item
 
 

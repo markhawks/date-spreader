@@ -1,6 +1,8 @@
 // Utilità per le date. Si lavora sempre con date "locali" e stringhe ISO YYYY-MM-DD,
 // senza fusi orari, perché gli interventi sono date di calendario.
 
+import { locale } from "./i18n.js";
+
 const pad = (n) => String(n).padStart(2, "0");
 
 /** {year, month} con month 1-12 */
@@ -38,10 +40,10 @@ export function parseIso(iso) {
   return new Date(y, m - 1, d);
 }
 
-const fmtMonth = new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" });
-// Sempre con l'anno: "15 nov 2026" (evita ambiguità tra interventi di anni diversi)
-const fmtShort = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short", year: "numeric" });
-const fmtWeekday = new Intl.DateTimeFormat("it-IT", { weekday: "short" });
+const fmtMonth = new Intl.DateTimeFormat(locale(), { month: "long", year: "numeric" });
+// Sempre con l'anno: "15 nov 2026" / "15 Nov 2026" (evita ambiguità tra interventi di anni diversi)
+const fmtShort = new Intl.DateTimeFormat(locale(), { day: "numeric", month: "short", year: "numeric" });
+const fmtWeekday = new Intl.DateTimeFormat(locale(), { weekday: "short" });
 
 export const formatMonth = ({ year, month }) => fmtMonth.format(new Date(year, month - 1, 1));
 export const formatShortDate = (iso) => fmtShort.format(parseIso(iso));
@@ -81,8 +83,8 @@ export function isoWeek(iso) {
   return Math.floor(days / 7) + 1;
 }
 
-const fmtDayMonth = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long" });
-const fmtDayMonthYear = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long", year: "numeric" });
+const fmtDayMonth = new Intl.DateTimeFormat(locale(), { day: "numeric", month: "long" });
+const fmtDayMonthYear = new Intl.DateTimeFormat(locale(), { day: "numeric", month: "long", year: "numeric" });
 
 /** Settimana che inizia il lunedì `monday`: "9 – 15 novembre 2026", "30 novembre – 6 dicembre 2026". */
 export function formatWeek(monday) {
@@ -93,8 +95,8 @@ export function formatWeek(monday) {
   return `${fmtDayMonthYear.format(a)} – ${fmtDayMonthYear.format(b)}`;
 }
 
-const fmtLong = new Intl.DateTimeFormat("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-const fmtMedium = new Intl.DateTimeFormat("it-IT", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const fmtLong = new Intl.DateTimeFormat(locale(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const fmtMedium = new Intl.DateTimeFormat(locale(), { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 
 /** "2026-11-15" → "domenica 15 novembre 2026" */
 export const formatLongDate = (iso) => fmtLong.format(parseIso(iso));

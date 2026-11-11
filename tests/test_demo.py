@@ -163,6 +163,7 @@ def test_cli_init_without_demo_is_empty(cli_db, capsys):
 
 
 def test_cli_demo_cycle(cli_db, capsys, monkeypatch):
+    monkeypatch.setenv("LANG", "it_IT.UTF-8")  # CLI messages in Italian, from the locale
     assert cli.main(["init", "--demo"]) == 0
     assert cli.main(["demo", "load"]) == 0
     assert "già presenti" in capsys.readouterr().out
@@ -178,6 +179,18 @@ def test_cli_demo_cycle(cli_db, capsys, monkeypatch):
     with f() as s:
         assert count(s, Project) == 0 and count(s, User) == 0 and count(s, Server) == 0
     eng.dispose()
+
+
+def test_cli_messages_follow_the_locale(cli_db, capsys, monkeypatch):
+    assert cli.language_from_env({"LANG": "it_IT.UTF-8"}) == "it"
+    assert cli.language_from_env({"LC_ALL": "en_US.UTF-8", "LANG": "it_IT.UTF-8"}) == "en"
+    assert cli.language_from_env({"LC_MESSAGES": "it_IT", "LANG": "C"}) == "it"
+    assert cli.language_from_env({}) == "en"
+    assert cli.main(["init"]) == 0
+    assert "Migrations applied." in capsys.readouterr().out
+    monkeypatch.setenv("LC_ALL", "it_IT.UTF-8")
+    assert cli.main(["demo", "remove"]) == 0
+    assert "Nessun dato di esempio presente." in capsys.readouterr().out
 
 
 def test_demo_database_is_current_and_clean():

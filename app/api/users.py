@@ -11,6 +11,7 @@ from sqlalchemy.orm.exc import StaleDataError
 from app.api.deps import get_session
 import json
 
+from app.i18n import tr
 from app.models import User, UserPreferences
 from app.schemas.preferences import Preferences, PreferencesPatch
 from app.repositories import calendar as calendar_repo
@@ -69,7 +70,7 @@ def _user_conflict(session: Session, user_id: int) -> HTTPException:
     return HTTPException(
         409,
         {
-            "message": "Il tecnico è stato modificato da un altro utente. Ecco i valori aggiornati.",
+            "message": tr("users.conflict"),
             "current": UserOut.from_user(current).model_dump(mode="json") if current else None,
         },
     )
@@ -80,7 +81,7 @@ def update_user(session: SessionDep, user_id: int, patch: UserPatch) -> UserOut:
     """Modifica nome, email, ruolo o stato attivo. Non si cancella: si disattiva."""
     user = session.get(User, user_id)
     if user is None:
-        raise HTTPException(404, "Tecnico non trovato.")
+        raise HTTPException(404, tr("users.technician_not_found"))
     if patch.version != user.version:
         raise _user_conflict(session, user_id)
     try:
@@ -109,7 +110,7 @@ def temporary_password(session: SessionDep, user_id: int) -> TemporaryPassword:
     """
     user = session.get(User, user_id)
     if user is None:
-        raise HTTPException(404, "Utente non trovato.")
+        raise HTTPException(404, tr("users.not_found"))
     try:
         password = repo.set_temporary_password(session, user)
         session.commit()
@@ -124,7 +125,7 @@ def set_participants(session: SessionDep, event_id: int, data: ParticipantsUpdat
     """Sostituisce l'elenco dei partecipanti di un intervento."""
     event = calendar_repo.get_event_detail(session, event_id)
     if event is None:
-        raise HTTPException(404, "Intervento non trovato.")
+        raise HTTPException(404, tr("events.not_found"))
     try:
         users = repo.set_participants(session, event, data.user_ids)
         session.commit()
@@ -150,7 +151,7 @@ def _load_prefs(session: Session, user_id: int) -> tuple[UserPreferences | None,
 
 def _require_real_user(user: AuthUser) -> int:
     if user.id is None:
-        raise HTTPException(400, "Preferenze disponibili solo per utenti reali.")
+        raise HTTPException(400, tr("users.preferences_real_only"))
     return user.id
 
 

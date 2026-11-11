@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
+from app.i18n import tr
 from app.models import Server
 from app.repositories import inventory as repo
 from app.schemas.inventory import ServerChange, ServerDetail, ServerHistoryItem, ServerList, ServerSummary
@@ -43,7 +44,7 @@ def server_detail(session: SessionDep, server_id: int) -> ServerDetail:
     """Dati del server, storico degli interventi (dal più recente) e modifiche ai suoi dati."""
     server = session.get(Server, server_id)
     if server is None:
-        raise HTTPException(404, "Server non trovato.")
+        raise HTTPException(404, tr("inventory.server_not_found"))
     history = repo.server_history(session, server_id)
     today = date.today()
     past = [e.event_date for _, e, _, _ in history if e.event_date <= today]

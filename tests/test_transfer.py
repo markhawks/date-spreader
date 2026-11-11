@@ -93,7 +93,7 @@ def test_conflicts_skip_or_copy_and_existing_servers(api):
     data["servers"][0]["ip_address"] = "192.0.2.250"         # nel file un IP diverso
     copy = api.post("/api/import", json={"data": data, "on_conflict": "copy"}).json()
     assert copy["projects"][0]["action"] == "copia"
-    assert copy["projects"][0]["imported_as"] == "Alfa Logistica (importato)"
+    assert copy["projects"][0]["imported_as"] == "Alfa Logistica (imported)"
     assert copy["servers"]["created"] == [] and copy["customers"]["created"] == []
     diff = copy["servers"]["different"][0]
     assert diff["hostname"] == data["servers"][0]["hostname"] and diff["fields"][0]["field"] == "ip_address"
@@ -101,7 +101,7 @@ def test_conflicts_skip_or_copy_and_existing_servers(api):
     srv = api.get("/api/servers", params={"q": data["servers"][0]["hostname"]}).json()["servers"][0]
     assert srv["ip_address"] != "192.0.2.250"
     third = api.post("/api/import", json={"data": data, "on_conflict": "copy"}).json()
-    assert third["projects"][0]["imported_as"] == "Alfa Logistica (importato) 2"
+    assert third["projects"][0]["imported_as"] == "Alfa Logistica (imported) 2"
 
 
 def test_export_whole_customer(api, other):

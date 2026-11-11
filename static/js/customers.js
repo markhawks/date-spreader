@@ -1,6 +1,7 @@
 // Clienti: elenco condiviso, menu a tendina (con "nuovo cliente"), finestra di gestione (amministratori).
 
 import { createCustomer, deleteCustomer, exportCustomer, fetchCustomers, patchCustomer, renameCustomer } from "./api.js";
+import { t } from "./i18n.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -42,18 +43,18 @@ export const customers = new CustomerStore();
 export function customerSelect(selectedId = null) {
   const wrap = el("div", "customer-select");
   const select = el("select");
-  select.setAttribute("aria-label", "Cliente");
+  select.setAttribute("aria-label", t("customers.customer"));
   const input = el("input");
-  Object.assign(input, { type: "text", maxLength: 200, placeholder: "Nome del nuovo cliente", hidden: true, autocomplete: "off" });
-  input.setAttribute("aria-label", "Nome del nuovo cliente");
-  const cancel = el("button", "btn btn-small", "Annulla");
+  Object.assign(input, { type: "text", maxLength: 200, placeholder: t("customers.new_name"), hidden: true, autocomplete: "off" });
+  input.setAttribute("aria-label", t("customers.new_name"));
+  const cancel = el("button", "btn btn-small", t("customers.cancel"));
   cancel.type = "button";
   cancel.hidden = true;
 
   const fill = (value) => {
-    select.replaceChildren(new Option("— nessun cliente —", ""));
+    select.replaceChildren(new Option(t("customers.none_option"), ""));
     for (const c of customers.list) select.append(new Option(c.name, String(c.id)));
-    select.append(new Option("+ Nuovo cliente…", NEW));
+    select.append(new Option(t("customers.new_option"), NEW));
     select.value = value == null ? "" : String(value);
   };
   fill(selectedId);
@@ -94,22 +95,19 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
   dialog.innerHTML = `
     <div class="pf">
       <header class="pf-head">
-        <h2 id="cust-title">Clienti</h2>
-        <button type="button" class="icon-btn" data-close aria-label="Chiudi">
+        <h2 id="cust-title">${t("customers.title")}</h2>
+        <button type="button" class="icon-btn" data-close aria-label="${t("customers.close")}">
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </header>
       <div class="pf-body">
-        <p class="muted pf-note">I clienti si creano direttamente dai moduli dei progetti («+ Nuovo cliente…»). Qui si
-          <strong>rinominano</strong> (il nome cambia su tutti i progetti), si sceglie il <strong>colore</strong> dei loro
-          progetti in calendario e nella colonna progetti («Automatico» = colori assegnati dal portale), e si
-          <strong>eliminano</strong> quelli senza progetti.</p>
+        <p class="muted pf-note">${t("customers.note_html")}</p>
         <div class="cust-list"></div>
         <form class="people-add cust-add" novalidate>
-          <h3>Aggiungi cliente</h3>
+          <h3>${t("customers.add_title")}</h3>
           <div class="cust-add-grid">
-            <label class="pf-field"><span>Nome</span><input name="name" maxlength="200" autocomplete="off"></label>
-            <button type="submit" class="btn btn-primary">Aggiungi</button>
+            <label class="pf-field"><span>${t("customers.name")}</span><input name="name" maxlength="200" autocomplete="off"></label>
+            <button type="submit" class="btn btn-primary">${t("customers.add")}</button>
           </div>
           <p class="pf-error" role="alert" hidden></p>
         </form>
@@ -126,14 +124,14 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
   async function render() {
     const list = await customers.load(true);
     if (!list.length) {
-      listEl.replaceChildren(el("p", "muted", "Nessun cliente."));
+      listEl.replaceChildren(el("p", "muted", t("customers.empty")));
       return;
     }
     listEl.replaceChildren(...list.map((c) => {
       const row = el("div", "os-row cust-row");
       const name = el("input", "cell-input");
       name.value = c.name;
-      name.setAttribute("aria-label", "Nome del cliente");
+      name.setAttribute("aria-label", t("customers.name_label"));
       name.addEventListener("keydown", (e) => {
         if (e.key === "Enter") { e.preventDefault(); name.blur(); }
         if (e.key === "Escape" && name.value !== c.name) { e.preventDefault(); name.value = c.name; }
@@ -141,7 +139,7 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
       name.addEventListener("change", async () => {
         try {
           await renameCustomer(c.id, c.version, name.value);
-          toast("Cliente rinominato.");
+          toast(t("customers.renamed"));
           onChanged();
           await render();
         } catch (ex) {
@@ -154,17 +152,17 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
       const picker = el("input");
       picker.type = "color";
       picker.value = c.color ?? "#9ca3af";
-      picker.title = c.color ? `Colore dei progetti: ${c.color}` : "Colore automatico: scegline uno per tutti i progetti del cliente";
-      picker.setAttribute("aria-label", `Colore dei progetti di ${c.name}`);
+      picker.title = c.color ? t("customers.color_title", { color: c.color }) : t("customers.color_auto_title");
+      picker.setAttribute("aria-label", t("customers.color_label", { name: c.name }));
       picker.classList.toggle("auto", !c.color);
-      const auto = el("button", "btn btn-small", "Automatico");
+      const auto = el("button", "btn btn-small", t("customers.auto"));
       auto.type = "button";
       auto.hidden = !c.color;
-      auto.title = "Torna ai colori assegnati automaticamente";
+      auto.title = t("customers.auto_title");
       const saveColor = async (color) => {
         try {
           await patchCustomer(c.id, c.version, { color });
-          toast(color ? "Colore aggiornato." : "Colori automatici ripristinati.");
+          toast(color ? t("customers.color_updated") : t("customers.color_reset"));
           onChanged();
           await render();
         } catch (ex) { toast(ex.message); }
@@ -172,13 +170,13 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
       picker.addEventListener("change", () => saveColor(picker.value));
       auto.addEventListener("click", () => saveColor(null));
       colorBox.append(picker, auto);
-      const count = el("span", "muted small", c.project_count === 1 ? "1 progetto" : `${c.project_count} progetti`);
-      const del = el("button", "btn btn-small btn-danger-outline", "Elimina");
+      const count = el("span", "muted small", t("customers.project_count", { n: c.project_count }));
+      const del = el("button", "btn btn-small btn-danger-outline", t("customers.delete"));
       del.type = "button";
       del.disabled = c.project_count > 0;
-      del.title = c.project_count ? "Ha dei progetti: assegnali a un altro cliente prima di eliminarlo" : "Elimina";
+      del.title = c.project_count ? t("customers.delete_blocked") : t("customers.delete");
       del.addEventListener("click", async () => {
-        if (!del.classList.contains("confirm")) { del.classList.add("confirm"); del.textContent = "Confermi?"; return; }
+        if (!del.classList.contains("confirm")) { del.classList.add("confirm"); del.textContent = t("customers.confirm"); return; }
         try {
           await deleteCustomer(c.id);
           onChanged();
@@ -186,15 +184,15 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
         } catch (ex) { toast(ex.message); }
       });
       const tags = el("span");
-      if (c.is_demo) tags.append(el("span", "tag-demo", "esempio"));
+      if (c.is_demo) tags.append(el("span", "tag-demo", t("customers.demo")));
       // Export del cliente intero, da importare in un'altra installazione di Date Spreader
-      const exp = el("button", "btn btn-small", "Esporta");
+      const exp = el("button", "btn btn-small", t("customers.export"));
       exp.type = "button";
       exp.disabled = !c.project_count;
-      exp.title = c.project_count ? `Scarica un file con tutti i progetti di ${c.name}, da importare in un'altra installazione di Date Spreader` : "Nessun progetto da esportare";
+      exp.title = c.project_count ? t("customers.export_title", { name: c.name }) : t("customers.export_none");
       exp.addEventListener("click", async () => {
         exp.disabled = true;
-        try { toast(`Scaricato ${await exportCustomer(c.id)}.`); } catch (ex) { toast(ex.message); } finally { exp.disabled = false; }
+        try { toast(t("customers.downloaded", { file: await exportCustomer(c.id) })); } catch (ex) { toast(ex.message); } finally { exp.disabled = false; }
       });
       row.append(name, colorBox, tags, count, exp, del);
       return row;
@@ -204,7 +202,7 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = form.elements.name.value.trim();
-    if (!name) { err.textContent = "Scrivi il nome del cliente."; err.hidden = false; return; }
+    if (!name) { err.textContent = t("customers.name_missing"); err.hidden = false; return; }
     try {
       await createCustomer(name);
       form.reset();

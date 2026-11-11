@@ -1,6 +1,8 @@
 // Conferma per operazioni irreversibili: elenca le conseguenze e, se richiesto,
 // fa scrivere un testo (es. il nome del progetto) prima di abilitare il pulsante.
 
+import { t } from "./i18n.js";
+
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -14,7 +16,7 @@ const el = (tag, className, text) => {
  *   items: cosa verrà eliminato · keep: cosa resta · requireText: testo da digitare per confermare
  * @returns {Promise<boolean>}
  */
-export function confirmDanger({ title, intro = "", items = [], keep = [], confirmLabel = "Elimina", requireText = null }) {
+export function confirmDanger({ title, intro = "", items = [], keep = [], confirmLabel = t("confirm.delete"), requireText = null }) {
   return new Promise((resolve) => {
     const dialog = el("dialog", "pf-dialog confirm-dialog");
     dialog.setAttribute("role", "alertdialog");
@@ -28,22 +30,22 @@ export function confirmDanger({ title, intro = "", items = [], keep = [], confir
     const body = el("div", "pf-body");
     if (intro) body.append(el("p", null, intro));
     if (items.length) {
-      body.append(el("p", "confirm-label", "Verrà eliminato:"));
+      body.append(el("p", "confirm-label", t("confirm.will_delete")));
       const ul = el("ul", "confirm-list danger");
-      items.forEach((t) => ul.append(el("li", null, t)));
+      items.forEach((text) => ul.append(el("li", null, text)));
       body.append(ul);
     }
     if (keep.length) {
-      body.append(el("p", "confirm-label", "Resta:"));
+      body.append(el("p", "confirm-label", t("confirm.keep")));
       const ul = el("ul", "confirm-list keep");
-      keep.forEach((t) => ul.append(el("li", null, t)));
+      keep.forEach((text) => ul.append(el("li", null, text)));
       body.append(ul);
     }
-    body.append(el("p", "confirm-warn", "L'operazione non si può annullare."));
+    body.append(el("p", "confirm-warn", t("confirm.irreversible")));
     let input = null;
     if (requireText) {
       const lab = el("label", "pf-field");
-      lab.append(el("span", null, `Per confermare scrivi: ${requireText}`));
+      lab.append(el("span", null, t("confirm.type_to_confirm", { text: requireText })));
       input = el("input");
       input.autocomplete = "off";
       input.spellcheck = false;
@@ -51,7 +53,7 @@ export function confirmDanger({ title, intro = "", items = [], keep = [], confir
       body.append(lab);
     }
     const foot = el("footer", "pf-foot");
-    const cancel = el("button", "btn", "Annulla");
+    const cancel = el("button", "btn", t("confirm.cancel"));
     cancel.type = "button";
     const ok = el("button", "btn btn-danger", confirmLabel);
     ok.type = "submit";

@@ -10,6 +10,7 @@ import {
 } from "./dates.js";
 import { EVENT_STATUS, EVENT_TYPE, isConfigEvent } from "./labels.js";
 import { people } from "./people.js";
+import { locale, t } from "./i18n.js";
 
 const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
 const MAX_CHIPS = 2;        // interventi per giorno a zoom normale; oltre, la cella mostra "+N"
@@ -42,7 +43,7 @@ const MONTH = {
   add: addMonths,
   cmp: cmpYm,
   range: monthRange,
-  label: formatMonth,
+  loadError: (ym, message) => t("calendar.load_month_error", { month: formatMonth(ym), message }),
 };
 const WEEK = {
   view: "week",
@@ -52,10 +53,10 @@ const WEEK = {
   add: (monday, n) => addDays(monday, 7 * n),
   cmp: (a, b) => (a < b ? -1 : a > b ? 1 : 0),
   range: (monday) => ({ start: monday, end: addDays(monday, 6) }),
-  label: (monday) => `la settimana ${formatWeek(monday)}`,
+  loadError: (monday, message) => t("calendar.load_week_error", { range: formatWeek(monday), message }),
 };
-const fmtWeekdayShort = new Intl.DateTimeFormat("it-IT", { weekday: "short" });
-const fmtMonthShort = new Intl.DateTimeFormat("it-IT", { month: "short" });
+const fmtWeekdayShort = new Intl.DateTimeFormat(locale(), { weekday: "short" });
+const fmtMonthShort = new Intl.DateTimeFormat(locale(), { month: "short" });
 
 export class Calendar {
   /**
@@ -410,7 +411,7 @@ export class Calendar {
 
     const title = document.createElement("h2");
     title.className = "month-title";
-    title.textContent = `Settimana ${isoWeek(monday)} · ${formatWeek(monday)}`;
+    title.textContent = t("calendar.week_title", { n: isoWeek(monday), range: formatWeek(monday) });
 
     const grid = document.createElement("div");
     grid.className = "month-grid";
@@ -507,7 +508,7 @@ export class Calendar {
       events = await fetchEvents(start, end);
     } catch (err) {
       section.classList.add("load-error");
-      this.onError(new Error(`Impossibile caricare ${unit.label(p)}: ${err.message}`));
+      this.onError(new Error(unit.loadError(p, err.message)));
       return;
     }
     if (unit !== this.unit || !section.isConnected) return; // nel frattempo è cambiata la vista
@@ -563,11 +564,11 @@ export class Calendar {
     if (events.length > max) {
       const more = document.createElement("li");
       more.className = "chip more";
-      more.textContent = `+${events.length - max}`;
+      more.textContent = t("calendar.more", { n: events.length - max });
       ul.append(more);
     }
     const label = events.map((e) => e.project_name).join(", ");
-    cell.setAttribute("aria-label", `${cell.dataset.date}: ${label}. Apri dettaglio`);
+    cell.setAttribute("aria-label", t("calendar.day_aria", { date: cell.dataset.date, projects: label }));
   }
 
   #chip(ev) {
@@ -579,7 +580,7 @@ export class Calendar {
     const n = ev.server_count;
     // Avanzamento: righe eseguite (configurazione) o migrate (altri tipi) sul totale
     const done = isConfigEvent(ev) ? ev.executed : ev.migrated;
-    const progress = n ? `${done}/${n}` : "0 srv";
+    const progress = n ? `${done}/${n}` : t("calendar.no_servers_short");
     if (n) {
       li.style.setProperty("--p", `${Math.round((done / n) * 100)}%`);
       li.classList.add("has-progress");
@@ -616,8 +617,8 @@ export class Calendar {
       ev.customer_name,
       ev.project_name,
       ev.title,
-      ev.start_time && `ore ${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`,
-      n ? `completati ${done}/${n} server` : "nessun server",
+      ev.start_time && t("calendar.chip_time", { time: `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` }),
+      n ? t("calendar.chip_done", { done, n }) : t("calendar.chip_no_servers"),
       EVENT_STATUS[ev.status] ?? ev.status,
     ].filter(Boolean).join(" · ");
     return li;

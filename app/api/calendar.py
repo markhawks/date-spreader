@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_session
+from app.i18n import tr
 from app.repositories import calendar as repo
 from app.schemas.calendar import (
     ChangedEvent,
@@ -41,9 +42,9 @@ def list_events(
 ) -> list[EventSummary]:
     """Interventi con data compresa tra `start` ed `end` (inclusi)."""
     if end < start:
-        raise HTTPException(422, "La data di fine precede quella di inizio.")
+        raise HTTPException(422, tr("calendar.end_before_start"))
     if (end - start).days > MAX_RANGE_DAYS:
-        raise HTTPException(422, f"Intervallo massimo: {MAX_RANGE_DAYS} giorni.")
+        raise HTTPException(422, tr("calendar.max_range", days=MAX_RANGE_DAYS))
     return [
         EventSummary(
             id=r["event"].id,
@@ -74,7 +75,7 @@ def get_event(session: SessionDep, event_id: int) -> EventDetail:
     """Dettaglio di un intervento con partecipanti e tabella server."""
     event = repo.get_event_detail(session, event_id)
     if event is None:
-        raise HTTPException(404, "Intervento non trovato.")
+        raise HTTPException(404, tr("events.not_found"))
     return EventDetail.from_event(event)
 
 

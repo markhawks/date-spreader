@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import audit
+from app.i18n import tr
 from app.models import EventServer, OperatingSystem, Server
 from app.repositories.servers import Conflict, ValidationProblem
 
@@ -37,8 +38,7 @@ def check_server_os(session: Session, value: str | None, current: str | None = N
         return
     if value not in active_names(session):
         raise ValidationProblem(
-            f"«{value}» non è nell'elenco dei sistemi operativi. Un amministratore può aggiungerlo da "
-            "menu utente → Sistemi operativi."
+            tr("os.not_in_list", name=value)
         )
 
 
@@ -48,7 +48,7 @@ def create_os(session: Session, family: str, major: int, minor: int | None) -> O
         OperatingSystem.minor.is_(None) if minor is None else OperatingSystem.minor == minor,
     )).first()
     if exists is not None:
-        raise Conflict(f"«{exists.name}» è già nell'elenco" + ("" if exists.is_active else " (disattivato: riattivalo)") + ".")
+        raise Conflict(tr("os.exists" if exists.is_active else "os.exists_inactive", name=exists.name))
     item = OperatingSystem(family=family, major=major, minor=minor, is_active=True)
     session.add(item)
     session.flush()
@@ -67,7 +67,7 @@ def delete_os(session: Session, item: OperatingSystem) -> None:
     used = session.scalar(select(func.count()).select_from(Server).where(Server.operating_system == item.name))
     used += session.scalar(select(func.count()).select_from(EventServer).where(EventServer.target_operating_system == item.name))
     if used:
-        raise Conflict(f"«{item.name}» è in uso ({used} tra server e SO target): disattivalo invece di eliminarlo.")
+        raise Conflict(tr("os.in_use", name=item.name, count=used))
     audit.record(session, "delete", "operating_systems", item.id, {"name": (item.name, None)})
     session.delete(item)
     session.flush()

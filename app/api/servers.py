@@ -18,6 +18,7 @@ from sqlalchemy.orm.exc import StaleDataError
 
 from app.api.deps import get_session
 from app.auth import AuthUser, require_user
+from app.i18n import tr
 from app.models import Event, statuses
 from app.repositories import servers as repo
 from app.repositories import calendar as calendar_repo
@@ -39,11 +40,9 @@ from app.schemas.edit import (
 router = APIRouter(tags=["tabella server"])
 SessionDep = Annotated[Session, Depends(get_session)]
 
-CONFLICT_MSG = "Questa riga è stata modificata da un altro utente. Ecco i valori aggiornati."
-
-
-def _conflict(session: Session, row_id: int, message: str = CONFLICT_MSG) -> HTTPException:
+def _conflict(session: Session, row_id: int, message: str | None = None) -> HTTPException:
     session.rollback()
+    message = message or tr("servers.row_conflict")
     current = repo.get_row(session, row_id)
     return HTTPException(
         status.HTTP_409_CONFLICT,
@@ -54,7 +53,7 @@ def _conflict(session: Session, row_id: int, message: str = CONFLICT_MSG) -> HTT
 def _load_row(session: Session, row_id: int):
     row = repo.get_row(session, row_id)
     if row is None:
-        raise HTTPException(404, "Riga non trovata: potrebbe essere stata rimossa da un altro utente.")
+        raise HTTPException(404, tr("servers.row_not_found"))
     return row
 
 
@@ -66,7 +65,7 @@ def update_row(session: SessionDep, row_id: int, patch: ServerRowPatch) -> Serve
     touches_server = bool(fields & set(SERVER_FIELDS))
 
     if touches_server and patch.server_version is None:
-        raise HTTPException(422, "server_version è obbligatorio per modificare i campi del server.")
+        raise HTTPException(422, tr("servers.server_version_required"))
     if patch.version != row.version or (touches_server and patch.server_version != row.server.version):
         raise _conflict(session, row_id)
 
@@ -91,7 +90,7 @@ def add_row(session: SessionDep, event_id: int, data: ServerRowCreate) -> Server
     """Aggiunge un server all'intervento (riusa il server se l'hostname esiste già)."""
     event = session.get(Event, event_id)
     if event is None:
-        raise HTTPException(404, "Intervento non trovato.")
+        raise HTTPException(404, tr("events.not_found"))
     try:
         row, reused = repo.add_row(session, event, data)
         session.commit()
@@ -113,7 +112,7 @@ def delete_row(
     """Toglie il server dall'intervento (il server resta in anagrafica)."""
     row = _load_row(session, row_id)
     if version != row.version:
-        raise _conflict(session, row_id, "La riga è stata modificata da un altro utente: controlla prima di eliminarla.")
+        raise _conflict(session, row_id, tr("servers.row_conflict_delete"))
     try:
         repo.delete_row(session, row)
         session.commit()
@@ -139,7 +138,7 @@ def _event_conflict(session: Session, event_id: int) -> HTTPException:
     return HTTPException(
         status.HTTP_409_CONFLICT,
         {
-            "message": "L'intervento è stato modificato da un altro utente. Ecco i valori aggiornati.",
+            "message": tr("events.conflict"),
             "current": EventDetail.from_event(current).model_dump(mode="json") if current else None,
         },
     )
@@ -150,7 +149,7 @@ def update_event(session: SessionDep, event_id: int, patch: EventPatch) -> Event
     """Modifica stato e/o note di un intervento, con controllo della versione."""
     event = session.get(Event, event_id)
     if event is None:
-        raise HTTPException(404, "Intervento non trovato.")
+        raise HTTPException(404, tr("events.not_found"))
     if patch.version != event.version:
         raise _event_conflict(session, event_id)
     try:
@@ -184,7 +183,7 @@ def _project_conflict(session: Session, project_id: int) -> HTTPException:
     return HTTPException(
         status.HTTP_409_CONFLICT,
         {
-            "message": "Il progetto è stato modificato da un altro utente. Ecco i valori aggiornati.",
+            "message": tr("projects.conflict"),
             "current": project_summary(current).model_dump(mode="json") if current else None,
         },
     )
@@ -195,7 +194,7 @@ def update_project(session: SessionDep, project_id: int, patch: ProjectPatch) ->
     """Modifica nome, descrizione e stato di un progetto, con controllo della versione."""
     project = session.get(Project, project_id)
     if project is None:
-        raise HTTPException(404, "Progetto non trovato.")
+        raise HTTPException(404, tr("projects.not_found"))
     if patch.version != project.version:
         raise _project_conflict(session, project_id)
     try:
@@ -217,7 +216,7 @@ def add_event(session: SessionDep, project_id: int, data: EventCreate) -> EventD
     """Nuovo intervento in un progetto esistente."""
     project = session.get(Project, project_id)
     if project is None:
-        raise HTTPException(404, "Progetto non trovato.")
+        raise HTTPException(404, tr("projects.not_found"))
     try:
         event = repo.add_event(session, project, data)
         session.commit()
@@ -232,7 +231,7 @@ def duplicate_event(session: SessionDep, event_id: int, data: EventDuplicate) ->
     """Copia l'intervento in un'altra data, con la tabella server (stati azzerati) se richiesto."""
     source = calendar_repo.get_event_detail(session, event_id)
     if source is None:
-        raise HTTPException(404, "Intervento non trovato.")
+        raise HTTPException(404, tr("events.not_found"))
     try:
         event = repo.duplicate_event(session, source, data)
         session.commit()
@@ -259,7 +258,7 @@ def delete_event(
     """
     event = calendar_repo.get_event_detail(session, event_id)
     if event is None:
-        raise HTTPException(404, "Intervento non trovato.")
+        raise HTTPException(404, tr("events.not_found"))
     if version != event.version:
         raise _event_conflict(session, event_id)
     try:
@@ -283,11 +282,11 @@ def delete_project(
     Il cliente e i server restano; la cronologia registra cosa è stato eliminato e da chi.
     """
     if user.role not in CAN_DELETE_ALL:
-        raise HTTPException(403, {"message": "Solo coordinatori e amministratori possono eliminare un progetto.",
+        raise HTTPException(403, {"message": tr("projects.delete_forbidden"),
                                   "code": "forbidden"})
     project = calendar_repo.load_project(session, project_id)
     if project is None:
-        raise HTTPException(404, "Progetto non trovato.")
+        raise HTTPException(404, tr("projects.not_found"))
     if version != project.version:
         raise _project_conflict(session, project_id)
     for event in project.events:  # carica i server per la cronologia

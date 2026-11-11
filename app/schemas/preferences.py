@@ -40,6 +40,8 @@ class Preferences(BaseModel):
     calendar_view: Literal["month", "week"] = "month"
     # Data e orologio nella barra in alto
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] = "date_time"
+    # Interface language: "auto" = the browser's (Italian if preferred, otherwise English)
+    language: Literal["auto", "en", "it"] = "auto"
 
 
 class PreferencesPatch(BaseModel):
@@ -60,3 +62,4 @@ class PreferencesPatch(BaseModel):
     calendar_zoom: float | None = Field(default=None, ge=0.5, le=2.5)
     calendar_view: Literal["month", "week"] | None = None
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] | None = None
+    language: Literal["auto", "en", "it"] | None = None

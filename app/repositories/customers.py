@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import audit
+from app.i18n import tr
 from app.models import Customer, Project
 from app.repositories.servers import Conflict, ValidationProblem
 
@@ -15,9 +16,9 @@ from app.repositories.servers import Conflict, ValidationProblem
 def clean_name(name: str | None) -> str:
     name = " ".join(str(name or "").split())
     if not name:
-        raise ValidationProblem("Il nome del cliente è obbligatorio.")
+        raise ValidationProblem(tr("customers.name_required"))
     if len(name) > 200:
-        raise ValidationProblem("Nome del cliente troppo lungo (massimo 200 caratteri).")
+        raise ValidationProblem(tr("customers.name_too_long", max=200))
     return name
 
 
@@ -35,7 +36,7 @@ def _check_unique(session: Session, name: str, exclude_id: int | None = None) ->
         q = q.where(Customer.id != exclude_id)
     other = session.scalars(q).first()
     if other is not None:
-        raise Conflict(f"Esiste già il cliente «{other.name}».")
+        raise Conflict(tr("customers.name_taken", name=other.name))
 
 
 def create_customer(session: Session, name: str) -> Customer:
@@ -60,7 +61,7 @@ def rename_customer(session: Session, customer: Customer, name: str) -> None:
 def delete_customer(session: Session, customer: Customer) -> None:
     used = session.scalar(select(func.count()).select_from(Project).where(Project.customer_id == customer.id))
     if used:
-        raise Conflict(f"«{customer.name}» ha {used} progetti: assegnali a un altro cliente prima di eliminarlo.")
+        raise Conflict(tr("customers.has_projects", name=customer.name, count=used))
     audit.record(session, "delete", "customers", customer.id, {"name": (customer.name, None)})
     session.delete(customer)
     session.flush()
@@ -68,7 +69,7 @@ def delete_customer(session: Session, customer: Customer) -> None:
 
 def check_customer(session: Session, customer_id: int | None) -> None:
     if customer_id is not None and session.get(Customer, customer_id) is None:
-        raise ValidationProblem("Cliente non valido.")
+        raise ValidationProblem(tr("customers.invalid"))
 
 
 COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
@@ -79,7 +80,7 @@ def set_color(session: Session, customer: Customer, color: str | None) -> None:
     if color is not None:
         color = color.strip()
         if not COLOR_RE.match(color):
-            raise ValidationProblem("Colore non valido: usa il formato #RRGGBB (es. #2563eb).")
+            raise ValidationProblem(tr("customers.invalid_color"))
         color = color.lower()
     if color != customer.color:
         audit.record(session, "update", "customers", customer.id, {"color": (customer.color, color)})

@@ -5,6 +5,8 @@
 // Requisiti: le <th> hanno data-col; l'ultima colonna (di solito "Note") resta elastica
 // e prende lo spazio libero, quindi non ha maniglia.
 
+import { t } from "./i18n.js";
+
 const PREFIX = "datespreader.colwidths.";
 const MIN_LAST = 140; // spazio minimo lasciato alla colonna elastica
 const STEP = 16;
@@ -76,8 +78,8 @@ export function makeResizable(table, { key, min = 56, skip = [] }) {
     handle.tabIndex = 0;
     handle.setAttribute("role", "separator");
     handle.setAttribute("aria-orientation", "vertical");
-    handle.setAttribute("aria-label", `Larghezza colonna ${th.textContent.trim()}`);
-    handle.title = "Trascina per allargare o restringere · doppio clic: larghezza predefinita";
+    handle.setAttribute("aria-label", t("resize.handle_label", { column: th.textContent.trim() }));
+    handle.title = t("resize.handle_title");
     th.append(handle);
 
     handle.addEventListener("pointerdown", (e) => {

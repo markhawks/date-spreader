@@ -20,6 +20,7 @@ from app.auth import (
     get_current_user,
     utcnow,
 )
+from app.i18n import tr
 from app.models import AuthSession, User
 from app.security import (
     DUMMY_HASH,
@@ -34,9 +35,6 @@ from app.security import (
 router = APIRouter(prefix="/auth", tags=["accesso"], dependencies=[Depends(csrf_protect)])
 SessionDep = Annotated[Session, Depends(get_session)]
 limiter = LoginLimiter()
-
-INVALID = "Credenziali non valide."
-
 
 class LoginIn(BaseModel):
     login: str = Field(min_length=1, max_length=255, description="Nome utente o email")
@@ -84,7 +82,7 @@ def login(data: LoginIn, request: Request, response: Response, db: SessionDep) -
     wait = limiter.retry_after(ip, data.login)
     if wait:
         raise HTTPException(
-            429, {"message": f"Troppi tentativi. Riprova tra {wait} secondi.", "code": "too_many_attempts"},
+            429, {"message": tr("auth.too_many_attempts", seconds=wait), "code": "too_many_attempts"},
             headers={"Retry-After": str(wait)},
         )
     user = find_user_by_login(db, data.login)
@@ -92,7 +90,7 @@ def login(data: LoginIn, request: Request, response: Response, db: SessionDep) -
     ok = verify_password(data.password, user.password_hash if user and user.password_hash else DUMMY_HASH)
     if not (ok and user and user.can_login):
         limiter.failure(ip, data.login)
-        raise HTTPException(401, {"message": INVALID, "code": "invalid_credentials"})
+        raise HTTPException(401, {"message": tr("auth.invalid_credentials"), "code": "invalid_credentials"})
     limiter.success(ip, data.login)
 
     now = utcnow()
@@ -141,9 +139,9 @@ def change_password(
 ) -> MeOut:
     user = db.get(User, current.id)
     if not verify_password(data.current_password, user.password_hash):
-        raise HTTPException(422, "La password attuale non è corretta.")
+        raise HTTPException(422, tr("auth.wrong_current_password"))
     if data.new_password == data.current_password:
-        raise HTTPException(422, "La nuova password deve essere diversa da quella attuale.")
+        raise HTTPException(422, tr("auth.same_password"))
     problem = password_problem(data.new_password, login_names=(user.username, current.email))
     if problem:
         raise HTTPException(422, problem)

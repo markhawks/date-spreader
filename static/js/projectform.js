@@ -3,6 +3,7 @@
 import { createProject } from "./api.js";
 import { todayIso } from "./dates.js";
 import { EVENT_TYPE } from "./labels.js";
+import { t } from "./i18n.js";
 import { customerSelect, customers } from "./customers.js";
 import { participantPicker, people } from "./people.js";
 import { linkTimes, timeSelect } from "./timepick.js";
@@ -10,39 +11,39 @@ import { linkTimes, timeSelect } from "./timepick.js";
 const html = `
   <form method="dialog" class="pf" novalidate>
     <header class="pf-head">
-      <h2 id="pf-title">Nuovo progetto</h2>
-      <button type="button" class="icon-btn" data-cancel aria-label="Chiudi">
+      <h2 id="pf-title">${t("projectform.title")}</h2>
+      <button type="button" class="icon-btn" data-cancel aria-label="${t("projectform.close")}">
         <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </header>
 
     <div class="pf-body">
       <label class="pf-field">
-        <span>Nome del progetto <em>*</em></span>
-        <input name="name" required maxlength="200" autocomplete="off" placeholder="Es. Delta Energia – migrazione RHEL 9">
+        <span>${t("projectform.name")} <em>*</em></span>
+        <input name="name" required maxlength="200" autocomplete="off" placeholder="${t("projectform.name_placeholder")}">
       </label>
       <div class="pf-field">
-        <span>Cliente</span>
+        <span>${t("projectform.customer")}</span>
         <div class="pf-customer"></div>
       </div>
       <label class="pf-field">
-        <span>Descrizione</span>
-        <textarea name="description" rows="2" maxlength="2000" placeholder="Facoltativa"></textarea>
+        <span>${t("projectform.description")}</span>
+        <textarea name="description" rows="2" maxlength="2000" placeholder="${t("projectform.description_placeholder")}"></textarea>
       </label>
 
       <fieldset class="pf-event">
         <legend>
-          <label class="pf-toggle"><input type="checkbox" name="with_event" checked> Primo intervento</label>
+          <label class="pf-toggle"><input type="checkbox" name="with_event" checked> ${t("projectform.first_event")}</label>
         </legend>
-        <p class="muted pf-note">Senza un intervento il progetto non compare nel calendario.</p>
+        <p class="muted pf-note">${t("projectform.first_event_note")}</p>
         <div class="pf-grid">
-          <label class="pf-field"><span>Data <em>*</em></span><input type="date" name="event_date" required></label>
-          <label class="pf-field"><span>Tipo</span><select name="event_type"></select></label>
-          <label class="pf-field pf-wide"><span>Titolo</span><input name="title" maxlength="200" autocomplete="off" placeholder="Es. prima finestra"></label>
-          <label class="pf-field"><span>Ora inizio</span><span class="pf-start"></span></label>
-          <label class="pf-field"><span>Ora fine</span><span class="pf-end"></span></label>
+          <label class="pf-field"><span>${t("projectform.date")} <em>*</em></span><input type="date" name="event_date" required></label>
+          <label class="pf-field"><span>${t("projectform.type")}</span><select name="event_type"></select></label>
+          <label class="pf-field pf-wide"><span>${t("projectform.event_title")}</span><input name="title" maxlength="200" autocomplete="off" placeholder="${t("projectform.event_title_placeholder")}"></label>
+          <label class="pf-field"><span>${t("projectform.start")}</span><span class="pf-start"></span></label>
+          <label class="pf-field"><span>${t("projectform.end")}</span><span class="pf-end"></span></label>
           <div class="pf-time-hint pf-wide"></div>
-          <div class="pf-field pf-wide"><span>Tecnici</span><div class="pf-people"></div></div>
+          <div class="pf-field pf-wide"><span>${t("projectform.technicians")}</span><div class="pf-people"></div></div>
         </div>
       </fieldset>
 
@@ -50,8 +51,8 @@ const html = `
     </div>
 
     <footer class="pf-foot">
-      <button type="button" class="btn" data-cancel>Annulla</button>
-      <button type="submit" class="btn btn-primary">Crea progetto</button>
+      <button type="button" class="btn" data-cancel>${t("projectform.cancel")}</button>
+      <button type="submit" class="btn btn-primary">${t("projectform.submit")}</button>
     </footer>
   </form>`;
 
@@ -87,14 +88,14 @@ export class ProjectForm {
     await Promise.all([people.load(), customers.load(true)]);
     this.customer = customerSelect(null);
     this.dialog.querySelector(".pf-customer").replaceChildren(this.customer);
-    this.picker = participantPicker([], { label: "Tecnici" });
+    this.picker = participantPicker([], { label: t("projectform.technicians") });
     this.dialog.querySelector(".pf-people").replaceChildren(this.picker);
     this.form.elements.event_date.value = date ?? todayIso();
     // Orari a passi di 30 minuti, proposti in base agli interventi già presenti nella data
     this.timesAbort?.abort();
     this.timesAbort = new AbortController();
-    this.start = timeSelect("", { label: "Ora inizio" });
-    this.end = timeSelect("", { label: "Ora fine" });
+    this.start = timeSelect("", { label: t("projectform.start") });
+    this.end = timeSelect("", { label: t("projectform.end") });
     this.dialog.querySelector(".pf-start").replaceChildren(this.start);
     this.dialog.querySelector(".pf-end").replaceChildren(this.end);
     const times = linkTimes(this.form.elements.event_date, this.start, this.end, { signal: this.timesAbort.signal });
@@ -126,20 +127,20 @@ export class ProjectForm {
   async #submit() {
     const f = this.form.elements;
     const name = f.name.value.trim();
-    if (!name) return this.#error("Il nome del progetto è obbligatorio.", "name");
+    if (!name) return this.#error(t("projectform.name_required"), "name");
 
     let customerId;
     try {
       customerId = await this.customer.getValue(); // crea il cliente nuovo, se scritto
     } catch (err) {
-      return this.#error(`Cliente: ${err.message}`);
+      return this.#error(t("projectform.customer_error", { error: err.message }));
     }
     const payload = { name, description: f.description.value, customer_id: customerId };
     if (f.with_event.checked) {
-      if (!f.event_date.value) return this.#error("Indica la data dell'intervento.", "event_date");
+      if (!f.event_date.value) return this.#error(t("projectform.date_required"), "event_date");
       if (this.start.value && this.end.value && this.end.value <= this.start.value) {
         this.end.focus();
-        return this.#error("L'ora di fine deve essere successiva all'ora di inizio.");
+        return this.#error(t("projectform.end_before_start"));
       }
       payload.first_event = {
         event_date: f.event_date.value,
@@ -153,7 +154,7 @@ export class ProjectForm {
 
     this.#error(null);
     this.submitBtn.disabled = true;
-    this.submitBtn.textContent = "Creazione…";
+    this.submitBtn.textContent = t("projectform.creating");
     try {
       const project = await createProject(payload);
       this.dialog.close();
@@ -162,7 +163,7 @@ export class ProjectForm {
       this.#error(err.message, err.isConflict ? "name" : null);
     } finally {
       this.submitBtn.disabled = false;
-      this.submitBtn.textContent = "Crea progetto";
+      this.submitBtn.textContent = t("projectform.submit");
     }
   }
 }

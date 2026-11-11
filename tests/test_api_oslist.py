@@ -55,7 +55,7 @@ def test_server_os_must_be_in_list(api):
     url = f"/api/event-servers/{row['id']}"
     body = {"version": row["version"], "server_version": row["server_version"]}
     bad = api.patch(url, json={**body, "operating_system": "Windows 95"})
-    assert bad.status_code == 422 and "non è nell'elenco" in bad.text
+    assert bad.status_code == 422 and "is not in the operating system list" in bad.text
     ok = api.patch(url, json={**body, "operating_system": f"{RHEL} 9.8"})
     assert ok.status_code == 200 and ok.json()["operating_system"] == f"{RHEL} 9.8"
     # svuotare è sempre permesso

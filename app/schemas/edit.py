@@ -10,6 +10,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.models import statuses
+from app.i18n import tr
 from app.schemas.calendar import ServerRow
 
 CheckStatus = Literal[statuses.CHECK_STATUSES]  # type: ignore[valid-type]
@@ -72,15 +73,15 @@ class _RowFields(BaseModel):
         try:
             return str(ipaddress.ip_address(v))
         except ValueError:
-            raise ValueError("Indirizzo IP non valido.") from None
+            raise ValueError(tr("validation.invalid_ip")) from None
 
 
 def _valid_hostname(v: str) -> str:
     v = v.strip().lower()
     if not v:
-        raise ValueError("L'hostname è obbligatorio.")
+        raise ValueError(tr("servers.hostname_required"))
     if len(v) > 255 or not HOSTNAME_RE.match(v):
-        raise ValueError("Hostname non valido: solo lettere, numeri, '-', '_' e '.'.")
+        raise ValueError(tr("validation.invalid_hostname"))
     return v
 
 
@@ -128,7 +129,7 @@ UserRole = Literal[statuses.USER_ROLES]  # type: ignore[valid-type]
 def _valid_name(v):
     v = " ".join(str(v or "").split())
     if not v:
-        raise ValueError("Il nome è obbligatorio.")
+        raise ValueError(tr("users.name_required"))
     return v
 
 
@@ -138,7 +139,7 @@ def _valid_email(v):
         return None
     v = v.lower()
     if not EMAIL_RE.match(v):
-        raise ValueError("Email non valida.")
+        raise ValueError(tr("validation.invalid_email"))
     return v
 
 
@@ -175,7 +176,7 @@ def _valid_username(v):
         return None
     v = v.lower()
     if not USERNAME_RE.match(v):
-        raise ValueError("Nome utente non valido: 2-50 caratteri tra lettere, numeri, '.', '_' e '-'.")
+        raise ValueError(tr("validation.invalid_username"))
     return v
 
 
@@ -320,7 +321,7 @@ class EventCreate(BaseModel):
     @model_validator(mode="after")
     def _times(self):
         if self.start_time and self.end_time and self.end_time <= self.start_time:
-            raise ValueError("L'ora di fine deve essere successiva all'ora di inizio.")
+            raise ValueError(tr("events.end_before_start"))
         return self
 
 
@@ -338,7 +339,7 @@ class ProjectCreate(BaseModel):
     def _name(cls, v):
         v = " ".join(str(v or "").split())  # spazi multipli → uno
         if not v:
-            raise ValueError("Il nome del progetto è obbligatorio.")
+            raise ValueError(tr("projects.name_required"))
         return v
 
     @field_validator("description", mode="before")
@@ -361,7 +362,7 @@ class ProjectPatch(BaseModel):
     def _name(cls, v):
         v = " ".join(str(v or "").split())
         if not v:
-            raise ValueError("Il nome del progetto è obbligatorio.")
+            raise ValueError(tr("projects.name_required"))
         return v
 
     @field_validator("description", mode="before")

@@ -3,6 +3,7 @@
 import {
   createOperatingSystem, deleteOperatingSystem, fetchOperatingSystems, setOperatingSystemActive,
 } from "./api.js";
+import { t } from "./i18n.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -19,22 +20,20 @@ export async function showOsDialog({ toast = () => {} } = {}) {
   dialog.innerHTML = `
     <div class="pf">
       <header class="pf-head">
-        <h2 id="os-title">Sistemi operativi</h2>
-        <button type="button" class="icon-btn" data-close aria-label="Chiudi">
+        <h2 id="os-title">${t("osdialog.title")}</h2>
+        <button type="button" class="icon-btn" data-close aria-label="${t("osdialog.close")}">
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </header>
       <div class="pf-body">
-        <p class="muted pf-note">Le versioni <strong>attive</strong> compaiono nei menu «SO» e «SO target» della tabella server,
-          ordinate per numero di versione. Una versione superata si <strong>disattiva</strong>: sparisce dal menu ma i server
-          che la usano la conservano. Si può eliminare solo una versione mai usata (es. inserita per errore).</p>
+        <p class="muted pf-note">${t("osdialog.note_html")}</p>
         <div class="os-list"></div>
         <form class="people-add os-add" novalidate>
-          <h3>Aggiungi versione</h3>
+          <h3>${t("osdialog.add_title")}</h3>
           <div class="os-add-grid">
-            <label class="pf-field"><span>Famiglia</span><input name="family" list="os-families" maxlength="100" autocomplete="off"></label>
-            <label class="pf-field"><span>Versioni <em>*</em></span><input name="versions" autocomplete="off" placeholder="es. 9.6 — oppure più versioni: 9.5, 9.6, 10.3"></label>
-            <button type="submit" class="btn btn-primary">Aggiungi</button>
+            <label class="pf-field"><span>${t("osdialog.family")}</span><input name="family" list="os-families" maxlength="100" autocomplete="off"></label>
+            <label class="pf-field"><span>${t("osdialog.versions")} <em>*</em></span><input name="versions" autocomplete="off" placeholder="${t("osdialog.versions_placeholder")}"></label>
+            <button type="submit" class="btn btn-primary">${t("osdialog.add")}</button>
           </div>
           <datalist id="os-families"></datalist>
           <p class="pf-error" role="alert" hidden></p>
@@ -81,7 +80,7 @@ export async function showOsDialog({ toast = () => {} } = {}) {
       block.append(el("h4", null, key));
       for (const o of list) {
         const row = el("div", `os-row${o.is_active ? "" : " inactive"}`);
-        row.append(el("span", "os-name", o.name), el("span", "muted small", o.server_count === 1 ? "1 server" : `${o.server_count} server`));
+        row.append(el("span", "os-name", o.name), el("span", "muted small", t("osdialog.server_count", { n: o.server_count })));
         const active = el("label", "os-active");
         const cb = el("input");
         cb.type = "checkbox";
@@ -97,16 +96,16 @@ export async function showOsDialog({ toast = () => {} } = {}) {
             cb.disabled = false;
           }
         });
-        active.append(cb, " attivo");
+        active.append(cb, ` ${t("osdialog.active")}`);
         row.append(active);
-        const del = el("button", "btn btn-small btn-danger-outline", "Elimina");
+        const del = el("button", "btn btn-small btn-danger-outline", t("osdialog.delete"));
         del.type = "button";
         del.disabled = o.server_count > 0;
-        del.title = o.server_count > 0 ? "Usato da almeno un server: disattivalo invece di eliminarlo" : "Elimina (mai usato)";
+        del.title = o.server_count > 0 ? t("osdialog.delete_blocked") : t("osdialog.delete_unused");
         del.addEventListener("click", async () => {
           if (!del.classList.contains("confirm")) {
             del.classList.add("confirm");
-            del.textContent = "Confermi?";
+            del.textContent = t("osdialog.confirm");
             return;
           }
           try {
@@ -121,13 +120,13 @@ export async function showOsDialog({ toast = () => {} } = {}) {
       }
       blocks.push(block);
     }
-    listEl.replaceChildren(...(blocks.length ? blocks : [el("p", "muted", "Nessun sistema operativo in elenco.")]));
+    listEl.replaceChildren(...(blocks.length ? blocks : [el("p", "muted", t("osdialog.empty"))]));
   }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const f = form.elements;
-    if (!f.family.value.trim()) return showError("Indica la famiglia.", "family");
+    if (!f.family.value.trim()) return showError(t("osdialog.family_missing"), "family");
     const parsed = parseVersions(f.versions.value);
     if (parsed.error) return showError(parsed.error, "versions");
     showError(null);
@@ -136,7 +135,7 @@ export async function showOsDialog({ toast = () => {} } = {}) {
     const { created, failed } = await createVersions(f.family.value, parsed.versions);
     btn.disabled = false;
     await render();
-    if (created.length) toast(`Aggiunt${created.length === 1 ? "o" : "i"}: ${created.map((o) => o.name).join(", ")}.`);
+    if (created.length) toast(t("osdialog.added", { n: created.length, names: created.map((o) => o.name).join(", ") }));
     if (failed.length) showError(failed.join(" "), "versions");
     else { f.versions.value = ""; f.versions.focus(); }
   });
@@ -149,11 +148,11 @@ export async function showOsDialog({ toast = () => {} } = {}) {
 /** "9.5, 9.6; 10" → [{major: 9, minor: 5}, …] oppure { error } */
 export function parseVersions(text) {
   const tokens = (text ?? "").split(/[\s,;]+/).filter(Boolean);
-  if (!tokens.length) return { error: "Scrivi almeno una versione (es. 9.6)." };
+  if (!tokens.length) return { error: t("osdialog.versions_missing") };
   const versions = [];
-  for (const t of tokens) {
-    const m = /^(\d{1,3})(?:\.(\d{1,3}))?$/.exec(t);
-    if (!m) return { error: `«${t}» non è una versione valida: usa major.minor, es. 9.6 (oppure solo la major, es. 10).` };
+  for (const token of tokens) {
+    const m = /^(\d{1,3})(?:\.(\d{1,3}))?$/.exec(token);
+    if (!m) return { error: t("osdialog.version_invalid", { version: token }) };
     versions.push({ major: Number(m[1]), minor: m[2] === undefined ? null : Number(m[2]) });
   }
   return { versions };
@@ -180,16 +179,16 @@ export async function createVersions(family, versions) {
 export function promptNewOsVersions({ family = DEFAULT_FAMILY } = {}) {
   return new Promise((resolve) => {
     const dialog = el("dialog", "pf-dialog os-quick");
-    dialog.setAttribute("aria-label", "Aggiungi versione del sistema operativo");
+    dialog.setAttribute("aria-label", t("osdialog.quick_label"));
     dialog.innerHTML = `
       <form class="pf" novalidate>
-        <header class="pf-head"><h2>Aggiungi versione</h2></header>
+        <header class="pf-head"><h2>${t("osdialog.add_title")}</h2></header>
         <div class="pf-body">
-          <label class="pf-field"><span>Famiglia</span><input name="family" maxlength="100" autocomplete="off"></label>
-          <label class="pf-field"><span>Versioni</span><input name="versions" autocomplete="off" placeholder="es. 9.6 — oppure 9.5, 9.6"></label>
+          <label class="pf-field"><span>${t("osdialog.family")}</span><input name="family" maxlength="100" autocomplete="off"></label>
+          <label class="pf-field"><span>${t("osdialog.versions")}</span><input name="versions" autocomplete="off" placeholder="${t("osdialog.versions_placeholder_short")}"></label>
           <p class="pf-error" role="alert" hidden></p>
         </div>
-        <footer class="pf-foot"><button type="button" class="btn" data-cancel>Annulla</button><button type="submit" class="btn btn-primary">Aggiungi</button></footer>
+        <footer class="pf-foot"><button type="button" class="btn" data-cancel>${t("osdialog.cancel")}</button><button type="submit" class="btn btn-primary">${t("osdialog.add")}</button></footer>
       </form>`;
     document.body.append(dialog);
     const form = dialog.querySelector("form");

@@ -17,6 +17,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models import statuses
+from app.i18n import tr
 from app.schemas.edit import _clean_text, _valid_email, _valid_hostname, _valid_name
 
 FORMAT = "datespreader-export"
@@ -87,7 +88,7 @@ class XServer(_In):
         try:
             return str(ipaddress.ip_address(v))
         except ValueError:
-            raise ValueError(f"Indirizzo IP non valido: {v}") from None
+            raise ValueError(tr("transfer.invalid_ip", value=v)) from None
 
 
 class XRow(_In):
@@ -148,8 +149,7 @@ class ExportFile(_In):
     @classmethod
     def _supported(cls, v):
         if v > FORMAT_VERSION:
-            raise ValueError(
-                f"File creato da una versione più recente di Date Spreader (formato {v}): aggiorna questo portale.")
+            raise ValueError(tr("transfer.newer_format", version=v))
         return v
 
 

@@ -2,9 +2,10 @@
 // data e ora, data e ora con i secondi, solo data, solo ora, niente. L'ora segue il formato 24h/12h.
 
 import { getTimeFormat } from "./dates.js";
+import { locale } from "./i18n.js";
 
-const fmtDate = new Intl.DateTimeFormat("it-IT", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
-const fmtFull = new Intl.DateTimeFormat("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const fmtDate = new Intl.DateTimeFormat(locale(), { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+const fmtFull = new Intl.DateTimeFormat(locale(), { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 const pad = (n) => String(n).padStart(2, "0");
 
 function formatClock(d, seconds) {
@@ -47,7 +48,7 @@ export class TopbarClock {
     const now = new Date();
     const seconds = this.mode === "date_time_seconds";
     const date = fmtDate.format(now);
-    this.dateEl.textContent = date.charAt(0).toUpperCase() + date.slice(1); // «Mer 11 novembre 2026»
+    this.dateEl.textContent = date.charAt(0).toUpperCase() + date.slice(1); // «Mer 11 novembre 2026» / «Wed 11 November 2026»
     this.timeEl.textContent = formatClock(now, seconds);
     this.root.title = `${fmtFull.format(now)}, ${formatClock(now, true)}`;
     this.root.setAttribute("datetime", now.toISOString());

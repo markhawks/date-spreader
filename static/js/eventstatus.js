@@ -2,6 +2,7 @@
 
 import { patchEvent } from "./api.js";
 import { EVENT_STATUS, toneOf } from "./labels.js";
+import { t } from "./i18n.js";
 
 /**
  * @param {{id:number, version:number, status:string}} ev intervento (viene aggiornato in place)
@@ -11,8 +12,8 @@ import { EVENT_STATUS, toneOf } from "./labels.js";
 export function eventStatusControl(ev, { onSaved = () => {}, onConflict = () => {}, onError = () => {} } = {}) {
   const select = document.createElement("select");
   select.className = "status-select";
-  select.setAttribute("aria-label", "Stato dell'intervento");
-  select.title = "Stato dell'intervento";
+  select.setAttribute("aria-label", t("eventstatus.label"));
+  select.title = t("eventstatus.label");
   for (const [value, label] of Object.entries(EVENT_STATUS)) select.append(new Option(label, value));
 
   const show = () => {

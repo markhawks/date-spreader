@@ -4,6 +4,7 @@
 
 import { fetchDay } from "./api.js";
 import { formatTime } from "./dates.js";
+import { t } from "./i18n.js";
 
 export const STEP_MINUTES = 30;
 export const MORNING = { start: "09:00", end: "13:00" };
@@ -21,7 +22,7 @@ export const addMinutes = (hhmm, minutes) => fromMinutes(Math.min(toMinutes(hhmm
  * Un valore non a passi di 30 minuti (es. dati importati) resta selezionabile.
  * @returns {HTMLSelectElement & { getValue: () => string, setValue: (v: string) => void }}
  */
-export function timeSelect(value = "", { label = "Orario", emptyLabel = "—" } = {}) {
+export function timeSelect(value = "", { label = t("timepick.label"), emptyLabel = "—" } = {}) {
   const select = document.createElement("select");
   select.className = "time-select";
   select.setAttribute("aria-label", label);
@@ -69,14 +70,14 @@ export function linkTimes(dateInput, start, end, { suggest = true, signal } = {}
   hint.className = "muted small time-hint";
   const apply = async () => {
     if (touched) return;
-    const t = ++token;
+    const tok = ++token;
     const s = await suggestTimes(dateInput.value);
-    if (touched || t !== token) return;
+    if (touched || tok !== token) return;
     start.setValue(s.start);
     end.setValue(s.end);
     hint.textContent = s === AFTERNOON
-      ? "In questa data c'è già un intervento: proposto il pomeriggio (modificabile)."
-      : "Orario proposto: mattina (modificabile).";
+      ? t("timepick.hint_afternoon")
+      : t("timepick.hint_morning");
   };
   const opts = signal ? { signal } : undefined;
   start.addEventListener("change", () => {

@@ -2,6 +2,7 @@
 // Restano attivi cambiando mese e vengono ricordati nel browser.
 
 import { EVENT_STATUS } from "./labels.js";
+import { t } from "./i18n.js";
 
 const STORE = "datespreader.filters";
 
@@ -73,7 +74,7 @@ export class FilterBar {
   #emit() {
     try { localStorage.setItem(STORE, JSON.stringify(this.state)); } catch { /* ignora */ }
     const n = this.activeCount;
-    this.toggleBtn.textContent = n ? `Filtri (${n})` : "Filtri";
+    this.toggleBtn.textContent = n ? t("filters.button_count", { n }) : t("filters.button");
     this.toggleBtn.classList.toggle("active", n > 0);
     this.clearBtn.hidden = n === 0;
     this.onChange(n ? (ev) => this.matches(ev) : null);
@@ -83,8 +84,8 @@ export class FilterBar {
     const group = document.createElement("div");
     group.className = "filter-group";
     group.setAttribute("role", "group");
-    group.setAttribute("aria-label", "Stato dell'intervento");
-    group.append(Object.assign(document.createElement("span"), { className: "filter-label", textContent: "Stato:" }));
+    group.setAttribute("aria-label", t("filters.status_group"));
+    group.append(Object.assign(document.createElement("span"), { className: "filter-label", textContent: t("filters.status") }));
     for (const [value, label] of Object.entries(EVENT_STATUS)) {
       const b = document.createElement("button");
       b.type = "button";
@@ -104,12 +105,12 @@ export class FilterBar {
 
     const userLabel = document.createElement("label");
     userLabel.className = "filter-group";
-    userLabel.append(Object.assign(document.createElement("span"), { className: "filter-label", textContent: "Tecnico:" }));
+    userLabel.append(Object.assign(document.createElement("span"), { className: "filter-label", textContent: t("filters.technician") }));
     const userSel = document.createElement("select");
     userSel.className = "filter-select";
-    userSel.append(new Option("Tutti", ""));
+    userSel.append(new Option(t("filters.all"), ""));
     for (const u of this.users) {
-      userSel.append(new Option(u.is_active === false ? `${u.display_name} (disattivato)` : u.display_name, String(u.id)));
+      userSel.append(new Option(u.is_active === false ? t("filters.inactive_name", { name: u.display_name }) : u.display_name, String(u.id)));
     }
     userSel.value = this.state.userId;
     userSel.addEventListener("change", () => { this.state.userId = userSel.value; this.#emit(); });
@@ -117,11 +118,11 @@ export class FilterBar {
 
     const custLabel = document.createElement("label");
     custLabel.className = "filter-group";
-    custLabel.title = "Filtra calendario e colonna progetti";
-    custLabel.append(Object.assign(document.createElement("span"), { className: "filter-label", textContent: "Cliente:" }));
+    custLabel.title = t("filters.customer_title");
+    custLabel.append(Object.assign(document.createElement("span"), { className: "filter-label", textContent: t("filters.customer") }));
     const custSel = document.createElement("select");
     custSel.className = "filter-select";
-    custSel.append(new Option("Tutti", ""));
+    custSel.append(new Option(t("filters.all"), ""));
     for (const c of this.customers) custSel.append(new Option(c.name, String(c.id)));
     custSel.value = this.state.customerId;
     custSel.addEventListener("change", () => { this.state.customerId = custSel.value; this.#emit(); });
@@ -129,17 +130,17 @@ export class FilterBar {
 
     const probLabel = document.createElement("label");
     probLabel.className = "filter-group filter-check";
-    probLabel.title = "Interventi con almeno un check KO o una migrazione fallita";
+    probLabel.title = t("filters.problems_title");
     const prob = document.createElement("input");
     prob.type = "checkbox";
     prob.checked = this.state.problems;
     prob.addEventListener("change", () => { this.state.problems = prob.checked; this.#emit(); });
-    probLabel.append(prob, " Solo con problemi");
+    probLabel.append(prob, ` ${t("filters.problems")}`);
 
     this.clearBtn = document.createElement("button");
     this.clearBtn.type = "button";
     this.clearBtn.className = "btn btn-small";
-    this.clearBtn.textContent = "Azzera filtri";
+    this.clearBtn.textContent = t("filters.clear");
     this.clearBtn.addEventListener("click", () => {
       this.state = EMPTY();
       this.#render();

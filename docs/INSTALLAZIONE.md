@@ -1,10 +1,10 @@
 # Installare Date Spreader su un server
 
-[English version](INSTALL.en.md) · Torna al [README](../README.md)
+[English](INSTALL.md) · Torna al [README](../README.it.md)
 
 Questa guida spiega come installare il portale su un nuovo server Linux, per esempio un server aziendale,
 un PC di lavoro o un'installazione presso un cliente, e come aggiornarlo. I progetti si portano da
-un'installazione all'altra con **export / import**: vedi il README, sezione «Export e import tra installazioni».
+un'installazione all'altra con **export / import**: vedi il README, sezione [«Export e import tra installazioni»](../README.it.md#export-e-import-tra-installazioni).
 
 ## Piattaforme
 
@@ -162,7 +162,7 @@ sudo rm -rf /opt/datespreader        # ATTENZIONE: cancella anche database e bac
 ## Installazione manuale
 
 Su altre distribuzioni, o per capire cosa fa lo script, segui gli stessi passi a mano. Vedi il README, sezione
-«Avvio locale», e il file `deploy/datespreader.service`, dove vanno adattati i percorsi e l'utente.
+[«Avvio locale»](../README.it.md#avvio-locale-sviluppo-o-prova-manuale), e il file `deploy/datespreader.service`, dove vanno adattati i percorsi e l'utente.
 
 ## Problemi frequenti
 

@@ -75,7 +75,24 @@ def test_login_with_email_or_username_case_insensitive(anon, accounts):
 def test_bad_credentials_same_message(anon, accounts, who, pw):
     res = login(anon, who, pw)
     assert res.status_code == 401
-    assert res.json()["detail"]["message"] == "Credenziali non valide."
+    assert res.json()["detail"]["message"] == "Invalid credentials."
+
+
+def test_error_messages_follow_accept_language(anon, accounts):
+    body = {"login": "admin@azienda.it", "password": "sbagliata"}
+    res = anon.post("/api/auth/login", json=body)
+    assert res.json()["detail"] == {"message": "Invalid credentials.", "code": "invalid_credentials"}
+    res = anon.post("/api/auth/login", json=body, headers={"Accept-Language": "it-IT,it;q=0.9,en;q=0.8"})
+    assert res.json()["detail"] == {"message": "Credenziali non valide.", "code": "invalid_credentials"}
+
+    login(anon, "admin@azienda.it", ADMIN_PW)
+    assert anon.get("/api/events/999999").json()["detail"] == "Intervention not found."
+    res = anon.get("/api/events/999999", headers={"Accept-Language": "it"})
+    assert res.status_code == 404 and res.json()["detail"] == "Intervento non trovato."
+    # 422 from a pydantic validator, translated too
+    res = anon.post("/api/projects", json={"name": "  "}, headers={"Accept-Language": "it",
+                                                                "X-Requested-With": "datespreader"})
+    assert res.status_code == 422 and "Il nome del progetto è obbligatorio." in res.text
 
 
 def test_logout_invalidates_session(anon, accounts):
@@ -100,7 +117,7 @@ def test_expired_session(anon, accounts):
         for sess in s.scalars(select(AuthSession)):
             sess.expires_at = utcnow() - timedelta(minutes=1)
     res = anon.get("/api/projects")
-    assert res.status_code == 401 and "scaduta" in res.json()["detail"]["message"]
+    assert res.status_code == 401 and "expired" in res.json()["detail"]["message"]
 
 
 def test_rate_limit(anon, accounts):
@@ -198,7 +215,7 @@ def test_last_admin_cannot_be_demoted_or_deactivated(anon, accounts):
     aid = uid(accounts, "Ada Admin")
     for change in ({"role": "tecnico"}, {"is_active": False}):
         res = anon.patch(f"/api/users/{aid}", json={"version": 1, **change})
-        assert res.status_code == 409 and "almeno un amministratore" in res.json()["detail"]["message"]
+        assert res.status_code == 409 and "At least one active administrator" in res.json()["detail"]["message"]
     # con un secondo amministratore si può
     tid = uid(accounts, "Tito Tecnico")
     assert anon.patch(f"/api/users/{tid}", json={"version": 1, "role": "admin"}).status_code == 200
@@ -253,7 +270,7 @@ def cli_db(tmp_path, monkeypatch):
 def test_cli_create_admin_temporary(cli_db, capsys):
     assert cli.main(["users", "create-admin", "--name", "Capo", "--email", "capo@azienda.it", "--temporary"]) == 0
     out = capsys.readouterr().out
-    assert "Password temporanea" in out
+    assert "Temporary password" in out
     temp = out.strip().split(": ")[-1]
     from app.db import create_db_engine, make_session_factory
     from app.config import Settings
@@ -276,4 +293,4 @@ def test_cli_promote_existing_user(cli_db, capsys, monkeypatch):
     assert cli.main(["users", "admin", "primo@azienda.it"]) == 1  # senza terminale serve --temporary
     assert cli.main(["users", "admin", "PRIMO@azienda.it", "--temporary"]) == 0
     assert cli.main(["users", "list"]) == 0
-    assert "accesso" in capsys.readouterr().out
+    assert "access" in capsys.readouterr().out

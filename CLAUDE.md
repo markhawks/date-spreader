@@ -1,15 +1,22 @@
 # Date Spreader — note per Claude Code
 
 Portale per pianificare migrazioni/upgrade di server (FastAPI + SQLite + frontend JS senza build).
-Documentazione utente e API: `README.md`. Storia delle modifiche: `CHANGELOG.md` e `git log`.
+Documentazione utente e API: `README.md` (inglese) e `README.it.md`. Storia delle modifiche: `CHANGELOG.md` (inglese), `CHANGELOG.it.md` e `git log`.
 Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
 
 ## Regole di lavoro concordate con l'utente
-- **Versioni**: NON creare una nuova versione a ogni modifica. Annotare le novità in `CHANGELOG.md` sotto
-  `## [Non rilasciato]`; fare il rilascio (`app/__init__.py`, `pyproject.toml`, intestazione del changelog)
+- **Versioni**: NON creare una nuova versione a ogni modifica. Annotare le novità sotto
+  `## [Unreleased]` in `CHANGELOG.md` e `## [Non rilasciato]` in `CHANGELOG.it.md`; fare il rilascio
+  (`app/__init__.py`, `pyproject.toml`, intestazione di entrambi i changelog)
   **solo quando l'utente lo chiede**.
 - **Git**: a fine di ogni modifica richiesta, `git add` + commit con messaggio in italiano.
-- Rispondere e scrivere UI/documentazione in **italiano** (più `README.en.md` in inglese).
+- Rispondere all'utente in **italiano**.
+- **Inglese lingua principale del progetto, italiano seconda** (dal 2026-11-11, per la diffusione open source):
+  - ogni testo dell'interfaccia passa da `t("<modulo>.<chiave>")` con "en" e "it" in `static/js/i18n/<modulo>.js`
+    (formato JSON: vedi `static/js/i18n.js`); i testi di `index.html` con `data-i18n*`;
+  - ogni messaggio del server passa da `tr("<area>.<chiave>")` con "en" e "it" in `app/i18n.py`;
+  - i valori salvati (stati, tipi, ruoli: "pianificata", "configurazione"…) restano in italiano: si traducono solo le etichette;
+  - inglese americano (color, recognized); `tests/test_i18n.py` controlla chiavi e segnaposto.
 
 ## Installazione
 - Le note della singola installazione (indirizzo, servizio, dati reali) stanno in `CLAUDE.local.md`,
@@ -24,11 +31,12 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
   nella documentazione o nei messaggi di commit. Nei test usare nomi di fantasia ed `example.com`.
 - Il database di prova `demo/datespreader-demo.sqlite3` si rigenera con `scripts/make_demo_db.py`
   dopo ogni nuova migrazione (lo verifica un test).
-- README in italiano (`README.md`) e in inglese (`README.en.md`): aggiornarli entrambi.
+- Documentazione in inglese (`README.md`, `docs/INSTALL.md`, `CHANGELOG.md`) e in italiano (`README.it.md`,
+  `docs/INSTALLAZIONE.md`, `CHANGELOG.it.md`): aggiornarle sempre entrambe.
 
 ## Installazione su altri server (deploy/install.sh)
 - Testato **solo su Fedora 44**; RHEL 10.2, Fedora 45, installatore e RPM sono pianificati. Tenere aggiornata la
-  tabella «Piattaforme» in `docs/INSTALLAZIONE.md` e `docs/INSTALL.en.md`.
+  tabella «Piattaforme» in `docs/INSTALL.md` e `docs/INSTALLAZIONE.md`.
 - Per provarlo su questa macchina senza toccare il servizio reale: istanza separata
   `--source <repo> --dir /opt/datespreader-test --port 8011 --service datespreader-test --user dstest`
   (lo script clona l'HEAD *committato*), poi disinstallarla come da guida.

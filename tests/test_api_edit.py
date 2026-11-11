@@ -76,7 +76,7 @@ def test_patch_with_stale_version_is_rejected_with_current_values(api):
     res = api.patch(url, json={"version": row["version"], "notes": "utente B"})  # versione vecchia
     assert res.status_code == 409
     detail = res.json()["detail"]
-    assert "altro utente" in detail["message"]
+    assert "another user" in detail["message"]
     assert detail["current"]["notes"] == "utente A"
     assert row_by_host(event_on(api, "2026-11-26"), "beta-app01")["notes"] == "utente A"
 
@@ -187,7 +187,7 @@ def test_add_server_already_in_event(api):
     ev = event_on(api, "2026-12-12")
     res = api.post(f"/api/events/{ev['id']}/servers", json={"hostname": "gamma-pos01.example.com"})
     assert res.status_code == 409
-    assert "già presente" in res.json()["detail"]["message"]
+    assert "already in this intervention" in res.json()["detail"]["message"]
 
 
 def test_add_server_validation(api):

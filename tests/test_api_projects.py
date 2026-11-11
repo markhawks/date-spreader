@@ -51,7 +51,7 @@ def test_create_project_with_first_event(api):
 def test_duplicate_name_is_rejected_case_insensitive(api):
     res = api.post("/api/projects", json={"name": "alfa logistica"})
     assert res.status_code == 409
-    assert "esiste già" in res.json()["detail"]["message"].lower()
+    assert "already exists" in res.json()["detail"]["message"].lower()
 
 
 @pytest.mark.parametrize(

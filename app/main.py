@@ -11,6 +11,7 @@ from app.auth import csrf_protect, require_user
 from app import __version__
 from app.config import PROJECT_ROOT, Settings, get_settings
 from app.db import create_db_engine, make_session_factory
+from app.i18n import LanguageMiddleware
 
 
 class RevalidatingStaticFiles(StaticFiles):
@@ -35,6 +36,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.engine = engine
     app.state.session_factory = make_session_factory(engine)
+    # Language of server messages: from the client's Accept-Language (English by default)
+    app.add_middleware(LanguageMiddleware)
 
     # Pubbliche: stato del servizio, versione/changelog, login.
     app.include_router(health.router, prefix="/api")

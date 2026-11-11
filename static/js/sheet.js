@@ -15,6 +15,7 @@ import { people } from "./people.js";
 import { session } from "./session.js";
 import { makeResizable } from "./resize.js";
 import { formatLongDate, formatTime } from "./dates.js";
+import { locale, t } from "./i18n.js";
 import {
   CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, stageLabel, toneOf,
 } from "./labels.js";
@@ -32,23 +33,23 @@ const el = (tag, className, text) => {
 const ADD_OS = "__add_os__";
 const OS_FIELDS = new Set(["operating_system", "target_operating_system"]);
 
-const SERVER_HINT = "Attributo del server: vale per tutti gli interventi in cui compare.";
+const SERVER_HINT = t("sheet.server_hint");
 
 /** Colonne: scope "server" = anagrafica condivisa, "row" = specifico di questo intervento. */
 const COLUMNS = [
-  { field: "hostname", label: "Hostname", kind: "text", scope: "server", mono: true, width: "12rem", required: true },
-  { field: "ip_address", label: "IP", kind: "text", scope: "server", mono: true, width: "7.5rem" },
-  { field: "operating_system", label: "SO", title: "Sistema operativo", kind: "select", scope: "server", width: "7rem", options: "os" },
-  { field: "environment", label: "Ambiente", kind: "select", scope: "server", width: "5.5rem", options: "environments" },
-  { field: "current_kernel", label: "Kernel attuale", kind: "text", scope: "server", mono: true, width: "12rem" },
-  { field: "target_operating_system", label: "SO target", title: "Sistema operativo target (di destinazione) in questo intervento", kind: "select", scope: "row", width: "7rem", options: "os" },
-  { field: "target_kernel", label: "Kernel target", kind: "text", scope: "row", mono: true, width: "12rem" },
-  { field: "check_status", label: "Check", kind: "select", scope: "row", width: "6.5rem", options: "check" },
-  { field: "migration_status", label: "Migrazione", kind: "select", scope: "row", width: "7.5rem", options: "migration" },
-  { field: "executed_date", label: "Eseguito il", kind: "date", scope: "row", width: "8rem" },
-  { field: "assigned_user_id", label: "Tecnico", kind: "select", scope: "row", width: "8rem", options: "users" },
+  { field: "hostname", label: t("sheet.col_hostname"), kind: "text", scope: "server", mono: true, width: "12rem", required: true },
+  { field: "ip_address", label: t("sheet.col_ip"), kind: "text", scope: "server", mono: true, width: "7.5rem" },
+  { field: "operating_system", label: t("sheet.col_os"), title: t("sheet.col_os_title"), kind: "select", scope: "server", width: "7rem", options: "os" },
+  { field: "environment", label: t("sheet.col_environment"), kind: "select", scope: "server", width: "5.5rem", options: "environments" },
+  { field: "current_kernel", label: t("sheet.col_current_kernel"), kind: "text", scope: "server", mono: true, width: "12rem" },
+  { field: "target_operating_system", label: t("sheet.col_target_os"), title: t("sheet.col_target_os_title"), kind: "select", scope: "row", width: "7rem", options: "os" },
+  { field: "target_kernel", label: t("sheet.col_target_kernel"), kind: "text", scope: "row", mono: true, width: "12rem" },
+  { field: "check_status", label: t("sheet.col_check"), kind: "select", scope: "row", width: "6.5rem", options: "check" },
+  { field: "migration_status", label: t("sheet.col_migration"), kind: "select", scope: "row", width: "7.5rem", options: "migration" },
+  { field: "executed_date", label: t("sheet.col_executed_date"), kind: "date", scope: "row", width: "8rem" },
+  { field: "assigned_user_id", label: t("sheet.col_technician"), kind: "select", scope: "row", width: "8rem", options: "users" },
   // Note: nessuna larghezza fissa, prende lo spazio che resta
-  { field: "notes", label: "Note", kind: "text", scope: "row" },
+  { field: "notes", label: t("sheet.col_notes"), kind: "text", scope: "row" },
 ];
 
 // Interventi di «Configurazione»: solo queste colonne; le note vanno in una riga a tutta larghezza
@@ -79,7 +80,7 @@ function payloadValue(col, value) {
   return value;
 }
 
-const nowHm = () => new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+const nowHm = () => new Date().toLocaleTimeString(locale(), { hour: "2-digit", minute: "2-digit" });
 
 export class Sheet {
   /**
@@ -147,14 +148,14 @@ export class Sheet {
     this.rowFilter = { text: "", check: "", migration: "" };
     this.root.hidden = false;
     document.body.classList.add("sheet-open");
-    this.root.replaceChildren(el("p", "sheet-loading muted", "Caricamento…"));
+    this.root.replaceChildren(el("p", "sheet-loading muted", t("sheet.loading")));
     try {
       const [event, lookups] = await Promise.all([fetchEvent(eventId), this.#loadLookups()]);
       this.event = event;
       this.lookups = lookups;
       this.#render();
     } catch (err) {
-      this.root.replaceChildren(this.#header(null), el("p", "error sheet-msg", `Impossibile aprire la tabella: ${err.message}`));
+      this.root.replaceChildren(this.#header(null), el("p", "error sheet-msg", t("sheet.open_failed", { message: err.message })));
     }
   }
 
@@ -183,7 +184,7 @@ export class Sheet {
       environments: [["", "—"], ...options.environments.map((v) => [v, v])],
       check: options.check_statuses.map((v) => [v, CHECK_STATUS[v] ?? v]),
       migration: options.migration_statuses.map((v) => [v, MIGRATION_STATUS[v] ?? v]),
-      users: [["", "— nessuno —"], ...users.map((u) => [String(u.id), u.display_name])],
+      users: [["", t("sheet.user_none")], ...users.map((u) => [String(u.id), u.display_name])],
     };
   }
 
@@ -222,13 +223,10 @@ export class Sheet {
     wrap.append(table);
 
     const hint = el("p", "sheet-hint muted");
-    hint.innerHTML =
-      "Le modifiche si salvano da sole. <kbd>Invio</kbd> salva e passa alla riga sotto · " +
-      "<kbd>Esc</kbd> annulla la modifica della cella · " +
-      "<span class=\"scope-server-sample\">Colonne sottolineate</span>: dati del server, validi in tutti i suoi interventi.";
+    hint.innerHTML = t("sheet.hint_html");
 
-    hint.append(" Le colonne si allargano trascinando il bordo dell'intestazione.");
-    if (this.config) hint.append(" Intervento di configurazione: sotto ogni server c'è lo spazio per le note (Invio va a capo; si salvano uscendo dal campo).");
+    hint.append(` ${t("sheet.hint_resize")}`);
+    if (this.config) hint.append(` ${t("sheet.hint_config")}`);
 
     if (this.embedded) {
       wrap.classList.add("embedded");
@@ -254,18 +252,20 @@ export class Sheet {
       this.statusControl = eventStatusControl(ev, {
         onSaved: () => {
           this.changed = true;
-          this.#setStatus(`Stato salvato alle ${nowHm()}`);
+          this.#setStatus(t("sheet.status_saved_at", { time: nowHm() }));
         },
         onConflict: (_current, message) => {
           this.changed = true;
           this.toast(message);
         },
-        onError: (message) => this.toast(`Stato non salvato: ${message}`),
+        onError: (message) => this.toast(t("sheet.status_not_saved", { message })),
       });
       titleRow.append(h, this.statusControl);
       const facts = [
         formatLongDate(ev.event_date),
-        ev.start_time && `ore ${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`,
+        ev.start_time && (ev.end_time
+          ? t("sheet.time_range", { start: formatTime(ev.start_time), end: formatTime(ev.end_time) })
+          : t("sheet.time_at", { start: formatTime(ev.start_time) })),
         ev.title,
         EVENT_TYPE[ev.event_type] ?? ev.event_type,
       ].filter(Boolean);
@@ -277,8 +277,8 @@ export class Sheet {
 
     const close = el("button", "btn");
     close.type = "button";
-    close.textContent = "Chiudi";
-    close.title = "Chiudi la tabella (Esc)";
+    close.textContent = t("sheet.close");
+    close.title = t("sheet.close_title");
     close.addEventListener("click", () => this.close());
 
     const side = el("div", "sheet-side");
@@ -286,8 +286,9 @@ export class Sheet {
     if (this.onShare && ev) {
       const share = el("button", "btn share-btn");
       share.type = "button";
-      share.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2.5 4.5h11v8h-11z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2.8 4.8 8 9l5.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span>Condividi</span>';
-      share.title = "Condividi l'intervento via email (Gmail), con la tabella server";
+      share.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2.5 4.5h11v8h-11z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M2.8 4.8 8 9l5.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span></span>';
+      share.querySelector("span").textContent = t("sheet.share");
+      share.title = t("sheet.share_title");
       share.addEventListener("click", async () => {
         document.activeElement?.blur?.(); // salva prima la cella in modifica
         await Promise.all([...this.rows.values()].map((r) => r.chain));
@@ -304,25 +305,25 @@ export class Sheet {
     const bar = el("div", "sheet-toolbar");
     const text = el("input", "sheet-filter");
     text.type = "search";
-    text.placeholder = this.config ? "Filtra righe: hostname, IP, note…" : "Filtra righe: hostname, IP, kernel, note…";
-    text.setAttribute("aria-label", "Filtra le righe della tabella");
+    text.placeholder = this.config ? t("sheet.filter_placeholder_config") : t("sheet.filter_placeholder");
+    text.setAttribute("aria-label", t("sheet.filter_label"));
     text.addEventListener("input", () => { this.rowFilter.text = text.value; this.pinned.clear(); this.#applyRowFilter(); });
 
     const mk = (label, key, options) => {
       const sel = el("select", "filter-select");
       sel.setAttribute("aria-label", label);
-      sel.append(new Option(`${label}: tutti`, ""));
-      for (const [v, l] of options) sel.append(new Option(`${label}: ${l}`, v));
+      sel.append(new Option(t("sheet.filter_all", { label }), ""));
+      for (const [v, l] of options) sel.append(new Option(t("sheet.filter_option", { label, value: l }), v));
       sel.addEventListener("change", () => { this.rowFilter[key] = sel.value; this.pinned.clear(); this.#applyRowFilter(); });
       return sel;
     };
     this.visibleEl = el("span", "sheet-visible muted");
-    const reset = el("button", "btn btn-small", "Larghezze predefinite");
+    const reset = el("button", "btn btn-small", t("sheet.reset_widths"));
     reset.type = "button";
-    reset.title = "Riporta tutte le colonne alla larghezza iniziale";
+    reset.title = t("sheet.reset_widths_title");
     reset.addEventListener("click", () => this.resizer?.reset());
     bar.append(text);
-    if (!this.config) bar.append(mk("Check", "check", this.lookups.check), mk(stageLabel(this.event), "migration", this.lookups.migration));
+    if (!this.config) bar.append(mk(t("sheet.col_check"), "check", this.lookups.check), mk(stageLabel(this.event), "migration", this.lookups.migration));
     bar.append(this.visibleEl);
     if (this.embedded) {
       // Nell'anteprima non c'è l'intestazione: conteggio e stato del salvataggio stanno qui.
@@ -359,7 +360,7 @@ export class Sheet {
     this.#updateCount();
     if (this.visibleEl) {
       const filtered = visible < this.rows.size;
-      this.visibleEl.textContent = filtered ? `${visible} di ${this.rows.size} righe visibili` : "";
+      this.visibleEl.textContent = filtered ? t("sheet.visible_rows", { visible, total: this.rows.size }) : "";
     }
   }
 
@@ -417,7 +418,7 @@ export class Sheet {
     if (touched) {
       this.changed = true;
       this.#applyRowFilter();
-      this.#setStatus(`Aggiornato con modifiche di altri utenti (${nowHm()})`);
+      this.#setStatus(t("sheet.status_remote", { time: nowHm() }));
     }
     return touched;
   }
@@ -441,8 +442,8 @@ export class Sheet {
     const ta = el("textarea", "cell-input notes-input");
     ta.rows = 2;
     ta.dataset.field = "notes";
-    ta.placeholder = "Note di configurazione: passi, parametri, file modificati, verifiche…";
-    ta.setAttribute("aria-label", `Note di configurazione di ${state.data.hostname}`);
+    ta.placeholder = t("sheet.config_notes_placeholder");
+    ta.setAttribute("aria-label", t("sheet.config_notes_label", { hostname: state.data.hostname }));
     ta.spellcheck = true;
     ta.value = controlValue(state.data, "notes");
     ta.addEventListener("input", () => { td.classList.add("dirty"); autoGrow(ta); });
@@ -474,8 +475,8 @@ export class Sheet {
     const actions = el("td", "col-actions");
     const del = el("button", "row-delete");
     del.type = "button";
-    del.title = "Togli questo server dall'intervento";
-    del.setAttribute("aria-label", `Togli ${data.hostname} dall'intervento`);
+    del.title = t("sheet.remove_title");
+    del.setAttribute("aria-label", t("sheet.remove_label", { hostname: data.hostname }));
     del.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9h4.8l.6-9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     del.addEventListener("click", () => this.#onDelete(state, del));
     actions.append(del);
@@ -496,13 +497,13 @@ export class Sheet {
       const current = controlValue(state.data, col.field);
       if (current && ![...control.options].some((o) => o.value === current)) {
         const label = col.field === "assigned_user_id"
-          ? `${state.data.assigned_user.display_name} (disattivato)`
-          : `${shortOs(current)} (non in elenco)`;
+          ? t("sheet.user_inactive", { name: state.data.assigned_user.display_name })
+          : t("sheet.os_not_listed", { os: shortOs(current) });
         control.append(new Option(label, current));
       }
       if (col.options === "os") {
         control.title = current || col.title; // nome completo al passaggio del mouse
-        if (session.me?.is_admin) control.append(new Option("+ Aggiungi versione…", ADD_OS));
+        if (session.me?.is_admin) control.append(new Option(t("sheet.add_os_version"), ADD_OS));
       }
     } else {
       control = el("input", "cell-input");
@@ -530,11 +531,11 @@ export class Sheet {
     const form = el("form", "add-form");
     const input = el("input", "cell-input mono");
     input.type = "text";
-    input.placeholder = "Hostname del server da aggiungere…";
-    input.setAttribute("aria-label", "Hostname del server da aggiungere");
+    input.placeholder = t("sheet.add_placeholder");
+    input.setAttribute("aria-label", t("sheet.add_label"));
     input.autocomplete = "off";
     input.spellcheck = false;
-    const btn = el("button", "btn", "+ Aggiungi server");
+    const btn = el("button", "btn", t("sheet.add_server"));
     btn.type = "submit";
     this.addMsg = el("span", "add-msg muted");
     form.append(input, btn, this.addMsg);
@@ -606,7 +607,7 @@ export class Sheet {
         li.id = `sugg-${i}`;
         li.append(el("span", "sg-host mono", s.hostname));
         const meta = [s.ip_address, s.operating_system, s.environment,
-          s.present ? "già nell'intervento" : `${s.event_count} interventi`].filter(Boolean).join(" · ");
+          s.present ? t("sheet.suggest_present") : t("sheet.suggest_events", { n: s.event_count })].filter(Boolean).join(" · ");
         li.append(el("span", "sg-meta", meta));
         if (s.present) li.setAttribute("aria-disabled", "true");
         li.addEventListener("mousedown", (e) => e.preventDefault()); // non togliere il focus all'input
@@ -616,7 +617,7 @@ export class Sheet {
       const exact = servers.some((s) => s.hostname === text.toLowerCase());
       if (!exact) {
         const li = el("li", "sg-new");
-        li.textContent = `Nuovo server: «${text.toLowerCase()}» (Invio per crearlo)`;
+        li.textContent = t("sheet.suggest_new", { hostname: text.toLowerCase() });
         li.setAttribute("aria-disabled", "true");
         lis.push(li);
       }
@@ -632,10 +633,10 @@ export class Sheet {
       const text = input.value.trim();
       if (text.length < 2) return hide();
       timer = setTimeout(async () => {
-        const t = ++token;
+        const tok = ++token;
         try {
           const res = await listServers(text, 8);
-          if (t === token && input.value.trim() === text) render(res.servers, text);
+          if (tok === token && input.value.trim() === text) render(res.servers, text);
         } catch { hide(); }
       }, 150);
     });
@@ -698,7 +699,7 @@ export class Sheet {
       return;
     }
     if (col.required && !value.trim()) {
-      this.#cellError(td, control, `${col.label}: campo obbligatorio.`);
+      this.#cellError(td, control, t("sheet.required", { label: col.label }));
       return;
     }
     state.chain = state.chain.then(() => this.#save(state, col, control, value));
@@ -713,10 +714,10 @@ export class Sheet {
       if (!OS_FIELDS.has(sel.dataset.field)) continue;
       const keep = sel.value;
       const extras = [...sel.options].filter((o) => o.value !== ADD_OS && !this.lookups.os.some(([v]) => v === o.value));
-      sel.replaceChildren(...this.lookups.os.map(([v, l]) => new Option(l, v)), ...extras, new Option("+ Aggiungi versione…", ADD_OS));
+      sel.replaceChildren(...this.lookups.os.map(([v, l]) => new Option(l, v)), ...extras, new Option(t("sheet.add_os_version"), ADD_OS));
       sel.value = keep;
     }
-    this.toast(`Aggiunt${created.length === 1 ? "a" : "e"}: ${created.map((o) => shortOs(o.name)).join(", ")}.`);
+    this.toast(t("sheet.os_added", { n: created.length, list: created.map((o) => shortOs(o.name)).join(", ") }));
     if (created.length === 1) {
       control.value = created[0].name;   // la versione appena creata va nella cella da cui si è partiti
       control.title = created[0].name;
@@ -740,7 +741,7 @@ export class Sheet {
       this.changed = true;
       this.#refreshRow(state, td);
       this.#flash(td, "saved");
-      this.#setStatus(`Salvato alle ${nowHm()}`);
+      this.#setStatus(t("sheet.saved_at", { time: nowHm() }));
       this.pinned.add(state.data.id); // non far sparire la riga che si sta modificando
       this.#applyRowFilter();
     } catch (err) {
@@ -757,23 +758,23 @@ export class Sheet {
       this.changed = true; // altri hanno cambiato dati: al ritorno va aggiornata la vista
       this.#refreshRow(state, null, { force: true });
       this.#flash(td, "conflict", 4000);
-      this.#setStatus(`${state.data.hostname}: modificato da un altro utente`, true);
-      this.toast(`${err.message} La tua modifica non è stata salvata: ripetila se serve.`);
+      this.#setStatus(t("sheet.conflict_status", { hostname: state.data.hostname }), true);
+      this.toast(t("sheet.conflict_toast", { message: err.message }));
     } else if (err.status === 404) {
       this.#removeRow(state);
       this.changed = true;
       this.toast(err.message);
     } else {
       this.#cellError(td, control, err.message);
-      this.#setStatus("Errore di salvataggio", true);
+      this.#setStatus(t("sheet.save_error"), true);
     }
   }
 
   async #onDelete(state, btn) {
     if (!btn.classList.contains("confirm")) {
       btn.classList.add("confirm");
-      btn.textContent = "Togli?";
-      btn.title = "Clic di nuovo per confermare";
+      btn.textContent = t("sheet.remove_confirm");
+      btn.title = t("sheet.remove_confirm_title");
       clearTimeout(btn._t);
       btn._t = setTimeout(() => this.#resetDeleteBtn(btn, state), 4000);
       return;
@@ -786,7 +787,7 @@ export class Sheet {
         await deleteServerRow(state.data.id, state.data.version);
         this.#removeRow(state);
         this.changed = true;
-        this.#setStatus(`Tolto ${state.data.hostname} alle ${nowHm()}`);
+        this.#setStatus(t("sheet.removed_at", { hostname: state.data.hostname, time: nowHm() }));
       } catch (err) {
         btn.disabled = false;
         this.#resetDeleteBtn(btn, state);
@@ -800,9 +801,9 @@ export class Sheet {
   #resetDeleteBtn(btn, state) {
     if (!btn.isConnected) return;
     btn.classList.remove("confirm");
-    btn.title = "Togli questo server dall'intervento";
+    btn.title = t("sheet.remove_title");
     btn.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9h4.8l.6-9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    btn.setAttribute("aria-label", `Togli ${state.data.hostname} dall'intervento`);
+    btn.setAttribute("aria-label", t("sheet.remove_label", { hostname: state.data.hostname }));
   }
 
   async #onAdd(input, btn) {
@@ -813,7 +814,7 @@ export class Sheet {
     }
     btn.disabled = true;
     this.addMsg.className = "add-msg muted";
-    this.addMsg.textContent = "Aggiunta in corso…";
+    this.addMsg.textContent = t("sheet.adding");
     this.#busy(+1);
     try {
       const row = await addServerRow(this.event.id, { hostname });
@@ -824,10 +825,10 @@ export class Sheet {
       this.changed = true;
       input.value = "";
       this.addMsg.textContent = row.server_reused
-        ? `${row.hostname} esisteva già: collegato con i suoi dati.`
-        : `${row.hostname} aggiunto: completa i dati nella riga.`;
+        ? t("sheet.added_reused", { hostname: row.hostname })
+        : t("sheet.added_new", { hostname: row.hostname });
       this.#updateCount();
-      this.#setStatus(`Salvato alle ${nowHm()}`);
+      this.#setStatus(t("sheet.saved_at", { time: nowHm() }));
     } catch (err) {
       this.addMsg.className = "add-msg error-text";
       this.addMsg.textContent = err.message;
@@ -850,8 +851,8 @@ export class Sheet {
       const value = controlValue(state.data, control.dataset.field);
       if (control.tagName === "SELECT" && value && ![...control.options].some((o) => o.value === value)) {
         const label = control.dataset.field === "assigned_user_id"
-          ? `${state.data.assigned_user?.display_name ?? value} (disattivato)`
-          : `${shortOs(value)} (non in elenco)`;
+          ? t("sheet.user_inactive", { name: state.data.assigned_user?.display_name ?? value })
+          : t("sheet.os_not_listed", { os: shortOs(value) });
         control.append(new Option(label, value));
       }
       control.value = value;
@@ -860,7 +861,7 @@ export class Sheet {
       if (control.type === "text" || OS_FIELDS.has(control.dataset.field)) control.title = value;
       else control.removeAttribute("title");
     }
-    state.tr.querySelector(".row-delete")?.setAttribute("aria-label", `Togli ${state.data.hostname} dall'intervento`);
+    state.tr.querySelector(".row-delete")?.setAttribute("aria-label", t("sheet.remove_label", { hostname: state.data.hostname }));
     this.#tone(state.tr, state.data);
   }
 
@@ -894,7 +895,7 @@ export class Sheet {
 
   #busy(delta) {
     this.pending += delta;
-    if (this.pending > 0) this.#setStatus("Salvataggio…");
+    if (this.pending > 0) this.#setStatus(t("sheet.saving"));
   }
 
   #setStatus(text, warn = false) {
@@ -904,6 +905,6 @@ export class Sheet {
   }
 
   #updateCount() {
-    if (this.countEl) this.countEl.textContent = `${this.rows.size} server`;
+    if (this.countEl) this.countEl.textContent = t("sheet.server_count", { n: this.rows.size });
   }
 }

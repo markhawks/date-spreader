@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,99 +26,103 @@
         <path d="M3 12h26M10 3v5M22 3v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
         <circle cx="16" cy="20.5" r="3.2" fill="currentColor"/></svg>
       <h1 class="brand">Date Spreader</h1>
-      <button type="button" id="version-link" class="version-link" title="Novità del portale (changelog)"></button>
+      <button type="button" id="version-link" class="version-link" title="What's new in the portal (changelog)" data-i18n-title="index.version_title"></button>
       <time id="topbar-clock" class="topbar-clock" hidden><span class="clock-date"></span><span class="clock-time"></span></time>
     </div>
     <div class="topbar-center">
-      <button type="button" id="btn-today" class="btn btn-today" title="Torna a oggi">
+      <button type="button" id="btn-today" class="btn btn-today" title="Back to today" data-i18n-title="index.today_title">
         <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.8" width="12.4" height="11.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.8 6.2h12.4M5 1.5v2.6M11 1.5v2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="10.2" r="1.7" fill="currentColor"/></svg>
-        <span>Oggi</span>
+        <span data-i18n="index.today">Today</span>
       </button>
-      <div class="view-switch" role="group" aria-label="Vista del calendario">
-        <button type="button" class="btn btn-today view-switch-btn" data-view="month" aria-pressed="true" title="Vista mensile">
+      <div class="view-switch" role="group" aria-label="Calendar view" data-i18n-aria-label="index.view_switch">
+        <button type="button" class="btn btn-today view-switch-btn" data-view="month" aria-pressed="true" title="Month view" data-i18n-title="index.month_title">
           <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.3" width="12.4" height="11.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.8 6h12.4M1.8 9.8h12.4M6 6v7.7M10 6v7.7" stroke="currentColor" stroke-width="1.2"/></svg>
-          <span>Mese</span>
+          <span data-i18n="index.month">Month</span>
         </button>
-        <button type="button" class="btn btn-today view-switch-btn" data-view="week" aria-pressed="false" title="Vista settimanale: ogni intervento in dettaglio">
+        <button type="button" class="btn btn-today view-switch-btn" data-view="week" aria-pressed="false" title="Week view: every intervention in detail" data-i18n-title="index.week_title">
           <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.3" width="12.4" height="11.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.9 2.3v11.4M10.1 2.3v11.4" stroke="currentColor" stroke-width="1.2"/></svg>
-          <span>Settimana</span>
+          <span data-i18n="index.week">Week</span>
         </button>
       </div>
     </div>
     <div class="topbar-actions" id="topbar-actions">
-      <button type="button" id="btn-servers" class="btn" title="Anagrafica server: ricerca e storico degli interventi">Server</button>
-      <button type="button" id="btn-people" class="btn" title="Gestione utenti e accessi">Utenti</button>
-      <button type="button" id="btn-settings" class="btn icon-only" title="Impostazioni" aria-label="Impostazioni">
+      <button type="button" id="btn-servers" class="btn" title="Server inventory: search and intervention history" data-i18n-title="index.servers_title" data-i18n="index.servers">Servers</button>
+      <button type="button" id="btn-people" class="btn" title="Manage users and access" data-i18n-title="index.people_title" data-i18n="index.people">Users</button>
+      <button type="button" id="btn-settings" class="btn icon-only" title="Settings" aria-label="Settings" data-i18n-title="index.settings" data-i18n-aria-label="index.settings">
         <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M8.6 2.5h2.8l.4 2.1 1.5.8 2-.8 1.4 2.4-1.6 1.4v1.7l1.6 1.4-1.4 2.4-2-.8-1.5.8-.4 2.1H8.6l-.4-2.1-1.5-.8-2 .8-1.4-2.4 1.6-1.4V8.4L3.3 7l1.4-2.4 2 .8 1.5-.8z"/><circle cx="10" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
       </button>
-      <button type="button" id="btn-filters" class="btn" aria-expanded="false" aria-controls="filter-bar">Filtri</button>
+      <button type="button" id="btn-filters" class="btn" aria-expanded="false" aria-controls="filter-bar" data-i18n="index.filters">Filters</button>
     </div>
   </header>
 
-  <div id="filter-bar" class="filter-bar" aria-label="Filtri del calendario" hidden></div>
+  <div id="filter-bar" class="filter-bar" aria-label="Calendar filters" data-i18n-aria-label="index.filter_bar" hidden></div>
 
   <div id="banner" class="banner" role="alert" hidden></div>
 
   <div class="layout">
     <div class="sidebar-resizer" role="separator" aria-orientation="vertical" tabindex="0"
-         aria-label="Larghezza della colonna progetti (frecce sinistra/destra, doppio clic: predefinita)"
-         title="Trascina per allargare o restringere · doppio clic: larghezza predefinita"></div>
-    <aside class="sidebar" aria-label="Progetti">
+         aria-label="Width of the projects column (left/right arrows, double-click: default)"
+         data-i18n-aria-label="index.sidebar_resizer_aria"
+         title="Drag to widen or narrow · double-click: default width"
+         data-i18n-title="index.sidebar_resizer_title"></div>
+    <aside class="sidebar" aria-label="Projects" data-i18n-aria-label="index.projects">
       <div class="sidebar-head">
         <div class="sidebar-title">
-          <h2>Progetti <span id="project-count" class="count"></span></h2>
+          <h2><span data-i18n="index.projects">Projects</span> <span id="project-count" class="count"></span></h2>
           <div class="sidebar-tools">
-            <select id="project-sort" class="mini-select" aria-label="Ordina o raggruppa i progetti" title="Ordina o raggruppa i progetti">
-              <option value="name|none">A → Z</option>
-              <option value="date|none">Per data</option>
-              <option value="name|customer">Cliente · A → Z</option>
-              <option value="date|customer">Cliente · per data</option>
+            <select id="project-sort" class="mini-select" aria-label="Sort or group the projects" title="Sort or group the projects" data-i18n-aria-label="index.project_sort" data-i18n-title="index.project_sort">
+              <option value="name|none" data-i18n="index.sort_name">A → Z</option>
+              <option value="date|none" data-i18n="index.sort_date">By date</option>
+              <option value="name|customer" data-i18n="index.sort_customer_name">Customer · A → Z</option>
+              <option value="date|customer" data-i18n="index.sort_customer_date">Customer · by date</option>
             </select>
-            <div class="view-toggle" role="group" aria-label="Vista dei progetti">
-              <button type="button" class="view-btn" data-view="grid" aria-label="Quadrati" title="Quadrati">
+            <div class="view-toggle" role="group" aria-label="Projects view" data-i18n-aria-label="index.project_view">
+              <button type="button" class="view-btn" data-view="grid" aria-label="Squares" title="Squares" data-i18n-aria-label="index.view_grid" data-i18n-title="index.view_grid">
                 <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/></svg>
               </button>
-              <button type="button" class="view-btn" data-view="list" aria-label="Rettangoli (uno per riga)" title="Rettangoli, uno per riga">
+              <button type="button" class="view-btn" data-view="list" aria-label="Rectangles (one per row)" title="Rectangles, one per row" data-i18n-aria-label="index.view_list_aria" data-i18n-title="index.view_list_title">
                 <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M2 2.5h12v3H2zM2 6.5h12v3H2zM2 10.5h12v3H2z"/></svg>
               </button>
             </div>
           </div>
         </div>
-        <input id="project-search" type="search" placeholder="Cerca progetto, hostname, IP…"
-               autocomplete="off" aria-label="Cerca progetto o server">
+        <input id="project-search" type="search" placeholder="Search project, hostname, IP…" data-i18n-placeholder="index.search_placeholder"
+               autocomplete="off" aria-label="Search project or server" data-i18n-aria-label="index.search_aria">
       </div>
       <ul id="project-list" class="project-grid" aria-live="polite"></ul>
-      <p id="project-empty" class="muted empty" hidden>Nessun progetto trovato.</p>
+      <p id="project-empty" class="muted empty" data-i18n="index.no_projects" hidden>No projects found.</p>
       <section id="server-hits" class="server-hits" aria-live="polite" hidden></section>
     </aside>
 
-    <main id="calendar-scroll" class="calendar-scroll" aria-label="Calendario" tabindex="-1">
+    <main id="calendar-scroll" class="calendar-scroll" aria-label="Calendar" data-i18n-aria-label="index.calendar" tabindex="-1">
       <div id="months" class="months"></div>
-      <div class="zoom-ctl" role="group" aria-label="Zoom del calendario"
-           title="Zoom del calendario: tasto centrale del mouse premuto e mouse avanti/indietro, oppure pizzico sul touchpad">
-        <button type="button" id="zoom-out" class="zoom-btn" aria-label="Rimpicciolisci il calendario">−</button>
-        <button type="button" id="zoom-reset" class="zoom-value" title="Torna al 100%">100%</button>
-        <button type="button" id="zoom-in" class="zoom-btn" aria-label="Ingrandisci il calendario">+</button>
+      <div class="zoom-ctl" role="group" aria-label="Calendar zoom" data-i18n-aria-label="index.zoom"
+           title="Calendar zoom: hold the middle mouse button and move the mouse forward/back, or pinch on the touchpad"
+           data-i18n-title="index.zoom_title">
+        <button type="button" id="zoom-out" class="zoom-btn" aria-label="Zoom out the calendar" data-i18n-aria-label="index.zoom_out">−</button>
+        <button type="button" id="zoom-reset" class="zoom-value" title="Back to 100%" data-i18n-title="index.zoom_reset">100%</button>
+        <button type="button" id="zoom-in" class="zoom-btn" aria-label="Zoom in the calendar" data-i18n-aria-label="index.zoom_in">+</button>
       </div>
     </main>
 
     <aside id="detail" class="detail" aria-labelledby="detail-title" hidden>
       <div class="detail-resizer" role="separator" aria-orientation="horizontal" tabindex="0"
-           aria-label="Altezza dell'anteprima (frecce su/giù)" title="Trascina per regolare l'altezza"></div>
+           aria-label="Height of the preview (up/down arrows)" data-i18n-aria-label="index.detail_resizer_aria"
+           title="Drag to adjust the height" data-i18n-title="index.detail_resizer_title"></div>
       <header class="detail-header">
         <div>
           <h2 id="detail-title" class="detail-title"></h2>
           <p class="detail-sub muted"></p>
         </div>
         <div class="detail-actions">
-          <button type="button" class="btn btn-small" id="btn-detail-new-event" title="Nuovo intervento in questa data (in un progetto esistente)">+ Intervento</button>
-          <button type="button" class="icon-btn" id="btn-detail-position" aria-label="Sposta l'anteprima" title="Sposta l'anteprima">
+          <button type="button" class="btn btn-small" id="btn-detail-new-event" title="New intervention on this date (in an existing project)" data-i18n-title="index.new_event_title" data-i18n="index.new_event">+ Intervention</button>
+          <button type="button" class="icon-btn" id="btn-detail-position" aria-label="Move the preview" title="Move the preview" data-i18n-aria-label="index.move_preview" data-i18n-title="index.move_preview">
             <!-- icona "pannello in basso" (mostrata quando l'anteprima è a destra) -->
             <svg class="ico-to-bottom" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2.2" y="9" width="11.6" height="4.3" fill="currentColor" opacity=".55"/></svg>
             <!-- icona "pannello a destra" (mostrata quando l'anteprima è in basso) -->
             <svg class="ico-to-right" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="2.7" width="4.8" height="10.6" fill="currentColor" opacity=".55"/></svg>
           </button>
-          <button type="button" class="icon-btn" data-close aria-label="Chiudi dettaglio" title="Chiudi (Esc)"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button type="button" class="icon-btn" data-close aria-label="Close details" title="Close (Esc)" data-i18n-aria-label="index.close_detail" data-i18n-title="index.close_detail_title"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
         </div>
       </header>
       <div class="detail-body"></div>

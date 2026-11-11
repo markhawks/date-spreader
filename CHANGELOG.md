@@ -1,233 +1,236 @@
 # Changelog
 
-Tutte le modifiche rilevanti del portale Date Spreader (fino alla 0.9.0 chiamato "Time Dot").
-Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [Semantic Versioning](https://semver.org/lang/it/).
+All notable changes to the Date Spreader portal (called "Time Dot" up to version 0.9.0).
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [Semantic Versioning](https://semver.org/).
+Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
-## [Non rilasciato]
-### Aggiunto
-- **Data e ora nella barra in alto**, accanto al nome del portale: «Mer 11 novembre 2026 · 14:32». Da Impostazioni → Aspetto → «Data e ora nella barra in alto» si sceglie: data e ora (predefinito), con i secondi, solo la data, solo l'ora, nascondi. L'ora segue il formato 24h/12h; passando il mouse si vede la data per esteso. Sugli schermi medi resta solo l'ora, su telefono è nascosta. Preferenza personale `topbar_clock`.
-- **Duplica intervento**: pulsante **«Duplica»** nella scheda dell'intervento, tra «Condividi» e «Modifica», per quando lo stesso intervento va rieseguito in un'altra data. Si sceglie la data (proposta: una settimana dopo) e l'orario (quello dell'originale, modificabile) e se copiare la tabella server. Il nuovo intervento, nello stesso progetto, è «Pianificato» e ha tipo, titolo, note e tecnici attivi dell'originale; le righe server mantengono target, tecnico e note, con gli stati azzerati (check «Da fare», migrazione «Pianificata», nessuna data di esecuzione). Dopo la copia si apre il nuovo intervento. API: `POST /api/events/{id}/duplicate`.
-- **Vista settimanale del calendario**: due pulsanti **Mese** e **Settimana** accanto a «Oggi», con la stessa grafica (quello della vista attiva è blu pieno, l'altro bordato di blu; su telefono solo l'icona). Ogni settimana è un blocco («Settimana 46 · 9 – 15 novembre 2026») con sette colonne che crescono con gli interventi: si vedono **tutti**, senza «+N», con nome, avanzamento, cliente, titolo e orario, tipo e tecnici. Il cambio di vista resta sullo stesso giorno; scorrimento continuo con caricamento progressivo, zoom (altezza minima dei giorni), filtri, tasto destro e aggiornamenti in tempo reale funzionano come nella vista mensile. Con il calendario stretto (telefono, anteprima a destra) i giorni si dispongono uno sotto l'altro. La vista scelta è una preferenza personale (`calendar_view`).
-- **Avanzamento degli interventi nel calendario**: ogni intervento mostra quante attività sono completate sul totale dei server (es. **«2/4»**, in testa alla seconda riga) e una **barra sottile** in fondo che si riempie nel colore del progetto; a lavoro finito il numero diventa verde con ✓. Per gli interventi di configurazione conta i server con «eseguito il» compilato, per gli altri le migrazioni completate. Il tooltip riporta «completati 2/4 server». API: nuovo campo `executed` in `GET /api/events`.
+## [Unreleased]
+### Added
+- **Interface in English and Italian**. Each user picks the language in Settings → Appearance → "Language": "Same as the browser" (default: Italian if the browser prefers it, otherwise English), English or Italiano. Server messages, the sharing email and the "What's new" changelog (`CHANGELOG.md` in English, `CHANGELOG.it.md` in Italian) follow the chosen language too. Personal preference `language`.
+- **Documentation primarily in English**, for worldwide use: `README.md` and `docs/INSTALL.md` are now complete and in English; the Italian versions are `README.it.md` and `docs/INSTALLAZIONE.md`. The Italian changelog is `CHANGELOG.it.md`.
+- **Date and time in the top bar**, next to the portal name: "Wed 11 November 2026 · 14:32". In Settings → Appearance → "Date and time in the top bar" you choose: date and time (default), with seconds, date only, time only, hide. The time follows the 24h/12h format; hovering shows the full date. On medium screens only the time is shown, on phones it is hidden. Personal preference `topbar_clock`.
+- **Duplicate intervention**: a **"Duplicate"** button in the intervention card, between "Share" and "Edit", for when the same intervention must be run again on another date. You choose the date (suggested: one week later), the time (the original's, editable) and whether to copy the server table. The new intervention, in the same project, is "Planned" and has the original's type, title, notes and active technicians; the server rows keep target, technician and notes, with statuses reset (check "To do", migration "Planned", no execution date). After the copy the new intervention opens. API: `POST /api/events/{id}/duplicate`.
+- **Weekly calendar view**: two buttons, **Month** and **Week**, next to "Today", with the same look (the active view's button is solid blue, the other has a blue border; on phones only the icon). Each week is a block ("Week 46 · 9 – 15 November 2026") with seven columns that grow with the interventions: **all** of them are shown, without "+N", with name, progress, customer, title and time, type and technicians. Switching view stays on the same day; continuous scrolling with progressive loading, zoom (minimum height of the days), filters, right click and live updates work as in the monthly view. When the calendar is narrow (phone, preview on the right) the days are stacked one below the other. The chosen view is a personal preference (`calendar_view`).
+- **Intervention progress in the calendar**: each intervention shows how many tasks are completed out of the total number of servers (e.g. **"2/4"**, at the start of the second line) and a **thin bar** at the bottom that fills up in the project color; when the work is done the number turns green with ✓. For configuration interventions it counts the servers with "executed on" filled in, for the others the completed migrations. The tooltip says "completed 2/4 servers". API: new `executed` field in `GET /api/events`.
 
-### Modificato
-- **Anche i giorni vuoti del calendario si selezionano con un clic**, come quelli con interventi: il giorno si illumina e si apre l'anteprima vuota («Nessun intervento in questa data»), con i pulsanti «+ Intervento in un progetto esistente» e «Nuovo progetto in questa data».
-- **L'oggetto dell'email di condivisione contiene anche lo stato dell'intervento**, in fondo: «Intervento: Cliente · Progetto · 18 nov 2026 21:00 · Confermato».
-- **La colonna di stato della tabella server prende il nome dal tipo di intervento**: «Migrazione» per le migrazioni, «Upgrading» per gli upgrade, «Patching» per il patching, «Esecuzione» per «Altro». Cambia anche il filtro della tabella, il riepilogo della scheda («migrati / aggiornati / patchati / completati 2/4») e l'email di condivisione. Cambiando il tipo, la tabella aperta (anche nell'anteprima in basso) si aggiorna da sola, senza ricaricare.
+### Changed
+- **Empty calendar days can also be selected with a click**, like those with interventions: the day lights up and the empty preview opens ("No interventions on this date"), with the "+ Intervention in an existing project" and "New project on this date" buttons.
+- **The subject of the sharing email also contains the intervention status**, at the end: "Intervention: Customer · Project · 18 Nov 2026 21:00 · Confirmed".
+- **The status column of the server table is named after the intervention type**: "Migration" for migrations, "Upgrading" for upgrades, "Patching" for patching, "Execution" for "Other". The table filter, the card summary ("migrated / upgraded / patched / completed 2/4") and the sharing email change too. When the type changes, the open table (also in the bottom preview) updates by itself, without reloading.
 
-### Corretto
-- Nell'anteprima in basso, le modifiche di altri utenti ai dati dell'intervento (tipo, titolo, orario, note) ora aggiornano anche l'intestazione della scheda, non solo le righe della tabella.
+### Fixed
+- In the bottom preview, changes made by other users to the intervention data (type, title, time, notes) now also update the card header, not only the table rows.
 
 ## [0.22.0] - 2026-11-11
-### Aggiunto
-- **Nuovo tipo di intervento «Configurazione»**. La tabella server mostra solo hostname, IP, SO, ambiente, «eseguito il» e tecnico; sotto ogni server c'è una **riga di note a tutta larghezza**, alta due righe e che cresce con il testo (Invio va a capo, si salva uscendo dal campo). Vale nella tabella a tutto schermo, nell'anteprima in basso, nella scheda compatta (note con gli a capo) e nell'email di condivisione. Il riepilogo indica i server eseguiti («eseguiti 1/2»). Cambiando il tipo di un intervento la tabella cambia colonne, i dati restano.
-- Pulsante **«+ Intervento»** nella barra dell'anteprima (accanto a sposta-anteprima e ✕, in basso e a destra): crea un intervento nel giorno mostrato, scegliendo il progetto; il modulo ha la data già compilata, come dal tasto destro sul calendario.
-- **Tecnico nuovo direttamente dai partecipanti**: in fondo al menu «+ Aggiungi tecnico…» c'è **«+ Nuovo tecnico…»**, che apre un campo per il nome (Invio aggiunge, Esc annulla). Il tecnico viene salvato nel database e compare subito in tutti i menu; se il nome esiste già (anche con maiuscole o spazi diversi) si usa quello, senza doppioni. Funziona nella scheda dell'intervento, nel «Nuovo progetto» e nel modulo dell'intervento, per tutti gli utenti: crea solo il nome, con ruolo tecnico e senza accesso al portale. API: `POST /api/users/technicians`.
-- **Zoom del calendario**, come in Blender: **tasto centrale del mouse premuto e mouse avanti/indietro** (avanti ingrandisce), dal 50% al 250%. Il giorno sotto il cursore resta fermo. In alternativa: pizzico sul touchpad e controllo **− % +** nell'angolo in basso a destra del calendario (clic sulla percentuale = 100%). Lo zoom è una preferenza personale. Ctrl + rotellina del mouse resta lo zoom normale della pagina.
-- **Lo zoom mostra più informazioni**: rimpicciolendo si vedono più mesi, con gli interventi come barrette colorate; ingrandendo ogni giorno mostra più interventi e, se c'è spazio, anche titolo e orario completo.
-- **Export e import tra installazioni di Date Spreader** (es. dal portale aziendale a un'installazione su PC o presso il cliente):
-  - **export** di un progetto, o di un **cliente intero** con tutti i suoi progetti, in un file JSON: interventi, tabelle server complete, partecipanti, cliente con il suo colore, versioni SO usate. Dalla scheda progetto («Questo progetto» / «Tutto il cliente») e da Impostazioni → Amministrazione → Clienti («Esporta»). Riservato a coordinatori e amministratori; ogni export resta nella cronologia. Mai password, accessi o cronologia nel file;
-  - **import** (amministratori) da Impostazioni → Amministrazione → «Importa progetti», con **anteprima** fedele prima di importare. Clienti, server, tecnici e versioni SO già presenti vengono riconosciuti e riusati, senza modificarne i dati (le differenze sui server sono segnalate). I progetti con lo stesso nome si saltano o si importano come copia «… (importato)». L'import è tutto o niente.
-- **Script di installazione** `deploy/install.sh`, **testato su Fedora 44**:
-  - installa il portale in `/opt/datespreader` con utente di sistema dedicato, servizio systemd, firewall e primo amministratore;
-  - rilanciato, **aggiorna** l'installazione, con un backup del database prima;
-  - opzioni per porta, dati di esempio, password temporanea, versione da installare e seconda istanza sulla stessa macchina.
-- **Guida di installazione**: `docs/INSTALLAZIONE.md` (in inglese `docs/INSTALL.en.md`), con aggiornamento, backup, HTTPS, disinstallazione e problemi frequenti. In arrivo: installatore guidato, pacchetto RPM e supporto di RHEL 10.2 e Fedora 45.
-### Modificato
-- Il pulsante **«Oggi»** è al **centro della barra in alto**, blu pieno come il titolo del mese corrente e con un'icona calendario, per trovarlo subito. Su telefono sta accanto al nome del portale.
-- Le note di una riga server accettano fino a 20.000 caratteri (prima 2.000).
-### Corretto
-- Nei giorni con più interventi i riquadri venivano schiacciati e il testo tagliato. Ora ogni giorno sceglie come disegnarli: due righe se c'è spazio, altrimenti solo il nome, e «+N» per quelli che non entrano.
+### Added
+- **New "Configuration" intervention type**. The server table shows only hostname, IP, OS, environment, "executed on" and technician; below each server there is a **full-width notes row**, two lines high, that grows with the text (Enter starts a new line, leaving the field saves). It applies to the full-screen table, the bottom preview, the compact card (notes with line breaks) and the sharing email. The summary shows the executed servers ("executed 1/2"). Changing the type of an intervention changes the table columns; the data stays.
+- **"+ Intervention"** button in the preview bar (next to move-preview and ✕, at the bottom and on the right): creates an intervention on the day shown, choosing the project; the form has the date already filled in, as from the right click on the calendar.
+- **New technician directly from the participants**: at the bottom of the "+ Add technician…" menu there is **"+ New technician…"**, which opens a field for the name (Enter adds, Esc cancels). The technician is saved in the database and appears immediately in all menus; if the name already exists (even with different case or spaces) that one is used, without duplicates. It works in the intervention card, in "New project" and in the intervention form, for all users: it creates only the name, with the technician role and without access to the portal. API: `POST /api/users/technicians`.
+- **Calendar zoom**, as in Blender: **hold the middle mouse button and move the mouse forward/back** (forward zooms in), from 50% to 250%. The day under the cursor stays put. Alternatively: pinch on the touchpad and the **− % +** control in the bottom right corner of the calendar (click on the percentage = 100%). Zoom is a personal preference. Ctrl + mouse wheel remains the normal page zoom.
+- **Zoom shows more information**: zooming out shows more months, with interventions as colored bars; zooming in, each day shows more interventions and, if there is room, also the title and full time.
+- **Export and import between Date Spreader installations** (e.g. from the company portal to an installation on a PC or at a customer's site):
+  - **export** of a project, or of a **whole customer** with all its projects, to a JSON file: interventions, complete server tables, participants, customer with its color, OS versions used. From the project card ("This project" / "Whole customer") and from Settings → Administration → Customers ("Export"). Reserved for coordinators and administrators; every export stays in the audit log. Never passwords, logins or audit log in the file;
+  - **import** (administrators) from Settings → Administration → "Import projects", with a faithful **preview** before importing. Customers, servers, technicians and OS versions already present are recognized and reused, without changing their data (differences on servers are reported). Projects with the same name are skipped or imported as a copy "… (imported)". The import is all or nothing.
+- **Install script** `deploy/install.sh`, **tested on Fedora 44**:
+  - installs the portal in `/opt/datespreader` with a dedicated system user, systemd service, firewall and first administrator;
+  - run again, it **upgrades** the installation, backing up the database first;
+  - options for port, sample data, temporary password, version to install and a second instance on the same machine.
+- **Installation guide**: `docs/INSTALLAZIONE.md` (with a shorter English version), with upgrade, backup, HTTPS, uninstall and troubleshooting. Coming soon: guided installer, RPM package and support for RHEL 10.2 and Fedora 45.
+### Changed
+- The **"Today"** button is in the **middle of the top bar**, solid blue like the title of the current month and with a calendar icon, so it is found at once. On phones it sits next to the portal name.
+- The notes of a server row accept up to 20,000 characters (previously 2,000).
+### Fixed
+- On days with several interventions the boxes were squashed and the text cut. Now each day chooses how to draw them: two lines if there is room, otherwise the name only, and "+N" for those that do not fit.
 
 ## [0.21.0] - 2026-11-10
-### Aggiunto
-- **Progetto open source**, rilasciato sotto licenza **GNU AGPL-3.0-only** (file `LICENSE`). Il link al codice sorgente compare nella schermata di accesso e in «Novità»; chi pubblica una versione modificata lo indica con la variabile `SOURCE_URL`.
-- **README in inglese** (`README.en.md`).
-- **Database di prova** `demo/datespreader-demo.sqlite3`, con i soli dati di esempio e un amministratore demo; si rigenera con `scripts/make_demo_db.py`.
-- **Condividi via email** (pulsante «Condividi» su ogni intervento e nella tabella a tutto schermo): prepara un'email formattata con intestazione (cliente, progetto, data, orario, tipo, stato, partecipanti, note), riepilogo e **tabella server completa** con gli stati colorati. «Copia e apri Gmail» la copia negli appunti e apre un nuovo messaggio di Gmail con destinatari (partecipanti) e oggetto già compilati: basta incollare con Ctrl+V. Disponibile anche la copia in testo semplice.
-- **Link diretto a un intervento** (`/#intervento-ID`), incluso nell'email: apre il portale su quell'intervento.
-- **Scelta dell'account Gmail** per la condivisione via email: campo «Account Gmail (mittente)» nella finestra Condividi e in Impostazioni → Aspetto, ricordato come preferenza personale (prima si usava sempre l'email del profilo, e Gmail apriva l'account personale del browser se non la riconosceva). Opzione «Fammi scegliere l'account Google a ogni invio» per passare dalla scelta dell'account di Google.
-- **Logo del portale** in alto a sinistra, prima del nome «Date Spreader» (accanto alla versione), e come icona della scheda del browser.
-- Pulsante nella barra dell'anteprima dell'intervento (accanto alla ✕) per spostarla **in basso** o **a destra** al volo; la scelta resta salvata come in Impostazioni → Aspetto.
+### Added
+- **Open-source project**, released under the **GNU AGPL-3.0-only** license (`LICENSE` file). The link to the source code appears on the login screen and in "What's new"; whoever publishes a modified version sets it with the `SOURCE_URL` variable.
+- **README in English**.
+- **Demo database** `demo/datespreader-demo.sqlite3`, with sample data only and a demo administrator; regenerated with `scripts/make_demo_db.py`.
+- **Share by email** ("Share" button on every intervention and in the full-screen table): prepares a formatted email with a header (customer, project, date, time, type, status, participants, notes), summary and **complete server table** with colored statuses. "Copy and open Gmail" copies it to the clipboard and opens a new Gmail message with recipients (participants) and subject already filled in: just paste with Ctrl+V. Copying as plain text is also available.
+- **Direct link to an intervention** (`/#intervento-ID`), included in the email: opens the portal on that intervention.
+- **Choice of the Gmail account** for sharing by email: "Gmail account (sender)" field in the Share window and in Settings → Appearance, remembered as a personal preference (previously the profile email was always used, and Gmail opened the browser's personal account if it did not recognize it). Option "Let me choose the Google account each time I send" to go through Google's account chooser.
+- **Portal logo** at the top left, before the name "Date Spreader" (next to the version), and as the browser tab icon.
+- Button in the intervention preview bar (next to ✕) to move it **to the bottom** or **to the right** on the fly; the choice is saved as in Settings → Appearance.
 
 ## [0.20.0] - 2026-11-10
-### Aggiunto
-- **Colonna «SO target»** nella tabella server di ogni intervento: sistema operativo di destinazione, scelto dallo stesso menu a tendina dell'elenco dei sistemi operativi. È un dato della singola riga, come il kernel target. Compare anche nella scheda compatta («→ RHEL 9.6 · kernel») e nello storico dei server.
-- **«+ Aggiungi versione…»** nei menu SO e SO target (amministratori): crea una nuova versione senza uscire dalla tabella. Se ne crei una sola, viene subito impostata nella cella.
-- **Più versioni in una volta** («9.5, 9.6, 10.3») sia dal menu sia da Impostazioni → Amministrazione → Sistemi operativi; quelle già presenti vengono segnalate senza bloccare le altre.
+### Added
+- **"Target OS" column** in the server table of every intervention: destination operating system, chosen from the same drop-down as the operating system list. It is an attribute of the single row, like the target kernel. It also appears in the compact card ("→ RHEL 9.6 · kernel") and in the server history.
+- **"+ Add version…"** in the OS and Target OS menus (administrators): creates a new version without leaving the table. If you create just one, it is set in the cell immediately.
+- **Several versions at once** ("9.5, 9.6, 10.3") both from the menu and from Settings → Administration → Operating systems; those already present are reported without blocking the others.
 
-### Modificato
-- Intestazioni abbreviate: «SO» e «SO target», con il nome completo al passaggio del mouse; i valori mostrano il nome completo («Red Hat Enterprise Linux 9.6») nel tooltip.
-- Una versione usata come SO target conta come «in uso»: non si può eliminare, solo disattivare.
+### Changed
+- Abbreviated headers: "OS" and "Target OS", with the full name on hover; values show the full name ("Red Hat Enterprise Linux 9.6") in the tooltip.
+- A version used as target OS counts as "in use": it cannot be deleted, only deactivated.
 
-### Corretto
-- Chiudendo con Esc la tabella a tutto schermo si chiudeva anche l'anteprima dell'intervento, che restava su «Caricamento…».
+### Fixed
+- Closing the full-screen table with Esc also closed the intervention preview, which stayed on "Loading…".
 
 ## [0.19.0] - 2026-11-10
-### Aggiunto
-- **Tasto destro su un giorno del calendario**: menu con
-  - «Nuovo progetto in questa data…» (primo intervento già in quella data);
-  - «Nuovo intervento in un progetto esistente…» (scelta del progetto, raggruppati per cliente);
-  - «Apri gli interventi del giorno», se ce ne sono.
-  Data e orario proposto (9–13, o 14–18 se il giorno è già occupato) sono precompilati.
-- Sui dispositivi touch lo stesso menu si apre **tenendo premuto** sul giorno; da tastiera con il tasto Menu o Maiusc+F10 su un giorno selezionato.
+### Added
+- **Right click on a calendar day**: a menu with
+  - "New project on this date…" (first intervention already on that date);
+  - "New intervention in an existing project…" (project choice, grouped by customer);
+  - "Open the day's interventions", if there are any.
+  Date and suggested time (9–13, or 14–18 if the day is already busy) are pre-filled.
+- On touch devices the same menu opens with a **long press** on the day; from the keyboard with the Menu key or Shift+F10 on a selected day.
 
 ## [0.18.0] - 2026-11-10
-### Aggiunto
-- **Orari a menu, a passi di 30 minuti**, nei moduli «Nuovo progetto» (primo intervento), «Nuovo intervento» e «Modifica», al posto del campo orario del browser.
-- **Orario proposto** per un nuovo intervento: **9:00–13:00**, oppure **14:00–18:00** se in quella data c'è già un intervento. Il suggerimento segue i cambi di data finché non si modificano gli orari a mano.
-- Se l'ora di inizio supera quella di fine, la fine si sposta in automatico (+4 ore).
-- **Formato degli orari** in Impostazioni → Aspetto: **24 ore** (europeo, predefinito) oppure **12 ore AM/PM**. Vale per moduli, calendario e schede.
+### Added
+- **Time menus in 30-minute steps** in the "New project" (first intervention), "New intervention" and "Edit" forms, instead of the browser's time field.
+- **Suggested time** for a new intervention: **9:00–13:00**, or **14:00–18:00** if there is already an intervention on that date. The suggestion follows date changes until the times are edited by hand.
+- If the start time goes past the end time, the end moves automatically (+4 hours).
+- **Time format** in Settings → Appearance: **24-hour** (European, default) or **12-hour AM/PM**. It applies to forms, calendar and cards.
 
-### Corretto
-- Premendo Esc per chiudere una finestra (es. «Modifica intervento») si chiudeva anche l'anteprima dell'intervento sotto.
+### Fixed
+- Pressing Esc to close a window (e.g. "Edit intervention") also closed the intervention preview below.
 
 ## [0.17.0] - 2026-11-10
-### Aggiunto
-- **Cliente nel calendario**: ogni intervento mostra il cliente nella seconda riga («Cliente · ora · N srv») e nel tooltip.
-- **Colore per cliente** (Impostazioni → Amministrazione → Clienti): un colore per ogni cliente, usato da tutti i suoi progetti nella colonna progetti, nel calendario e nelle schede. «Automatico» torna ai colori assegnati dal portale; anche i progetti senza cliente li usano.
-- Testo leggibile sui colori pieni: scuro sui colori chiari (es. giallo), bianco su quelli scuri.
-- Le modifiche ai colori arrivano subito anche ai colleghi, senza ricaricare la pagina.
+### Added
+- **Customer in the calendar**: each intervention shows the customer in the second line ("Customer · time · N srv") and in the tooltip.
+- **Color per customer** (Settings → Administration → Customers): a color for each customer, used by all its projects in the project column, in the calendar and in the cards. "Automatic" goes back to the colors assigned by the portal; projects without a customer use them too.
+- Readable text on solid colors: dark on light colors (e.g. yellow), white on dark ones.
+- Color changes reach colleagues immediately, without reloading the page.
 
 ## [0.16.0] - 2026-11-10
-### Aggiunto
-- **Eliminazione di un progetto** (scheda progetto → «Elimina progetto»), con tutti i suoi interventi. Il cliente e i server in anagrafica restano.
-- **Eliminazione di un intervento anche se contiene server** (da «Modifica» nella scheda dell'intervento, o dal cestino nell'elenco della scheda progetto). Le righe della tabella server vengono tolte; i server restano in anagrafica.
-- **Conferma prima di ogni eliminazione**: una finestra elenca cosa verrà eliminato e cosa resta. Per un progetto con interventi bisogna **scriverne il nome** per abilitare il pulsante. Il fuoco parte su «Annulla».
-- La cronologia registra ogni eliminazione: chi l'ha fatta, l'intervento e i server che conteneva.
+### Added
+- **Deleting a project** (project card → "Delete project"), with all its interventions. The customer and the servers in the inventory stay.
+- **Deleting an intervention even if it contains servers** (from "Edit" in the intervention card, or from the bin in the list of the project card). The server table rows are removed; the servers stay in the inventory.
+- **Confirmation before every deletion**: a window lists what will be deleted and what stays. For a project with interventions you must **type its name** to enable the button. Focus starts on "Cancel".
+- The audit log records every deletion: who made it, the intervention and the servers it contained.
 
-### Modificato
-- Permessi: eliminare un progetto, o un intervento che contiene server, è riservato a **coordinatori e amministratori**. I tecnici possono eliminare solo interventi vuoti.
+### Changed
+- Permissions: deleting a project, or an intervention that contains servers, is reserved for **coordinators and administrators**. Technicians can delete only empty interventions.
 
 ## [0.15.1] - 2026-11-10
-### Modificato
-- **Date sempre con l'anno** in tutto il portale (es. «15 nov 2026»): riquadri dei progetti, scheda dell'intervento, anagrafica server, risultati di ricerca.
-- Sui riquadri dei progetti un tooltip spiega «Prossimo» (prossimo intervento in programma) e «Ultimo» (il più recente, quando non ce ne sono in programma).
+### Changed
+- **Dates always with the year** throughout the portal (e.g. "15 Nov 2026"): project tiles, intervention card, server inventory, search results.
+- On the project tiles a tooltip explains "Next" (next scheduled intervention) and "Last" (the most recent one, when none is scheduled).
 
-### Corretto
-- Nella vista a quadrati il nome del cliente copriva icona e nome del progetto: nei quadrati non viene più mostrato (resta nel tooltip, nei rettangoli, nel raggruppamento e nel filtro).
-- I nomi lunghi su due righe non vengono più tagliati nei quadrati; nei rettangoli la data non viene più troncata.
+### Fixed
+- In the squares view the customer name covered the project icon and name: it is no longer shown in the squares (it stays in the tooltip, in the rectangles, in the grouping and in the filter).
+- Long names on two lines are no longer cut in the squares; in the rectangles the date is no longer truncated.
 
 ## [0.15.0] - 2026-11-10
-### Aggiunto
-- **Clienti**: ogni progetto può avere un cliente, scelto da menu a tendina nella creazione e nella scheda progetto. Con «+ Nuovo cliente…» lo si crea al volo; i nomi sono unici, senza distinguere maiuscole.
-- **Raggruppamento per cliente** nella colonna progetti («Cliente · A → Z» / «Cliente · per data»), con un'intestazione per ogni cliente e «Senza cliente» in fondo.
-- **Filtro per cliente** nel pannello Filtri: vale sia per il calendario sia per la colonna progetti.
-- Nome del cliente sui riquadri dei progetti e nella scheda dell'intervento. La ricerca nella colonna trova anche il nome del cliente.
-- **Gestione clienti** (Impostazioni → Amministrazione → Clienti): rinomina, ed eliminazione dei clienti senza progetti.
-- Clienti di esempio nei dati demo; `demo remove` li toglie, salvo quelli assegnati a progetti reali.
+### Added
+- **Customers**: each project can have a customer, chosen from a drop-down at creation and in the project card. "+ New customer…" creates one on the fly; names are unique, case-insensitive.
+- **Grouping by customer** in the project column ("Customer · A → Z" / "Customer · by date"), with a heading for each customer and "No customer" at the bottom.
+- **Filter by customer** in the Filters panel: it applies both to the calendar and to the project column.
+- Customer name on the project tiles and in the intervention card. The column search also finds the customer name.
+- **Customer management** (Settings → Administration → Customers): rename, and deletion of customers without projects.
+- Sample customers in the demo data; `demo remove` removes them, except those assigned to real projects.
 
 ## [0.14.0] - 2026-11-10
-### Aggiunto
-- **Colonna progetti ridimensionabile**: si trascina il bordo destro (frecce ←/→ da tastiera, doppio clic per la larghezza predefinita). Con la colonna più larga i quadrati si dispongono su più colonne.
-- **Vista dei progetti**: a **quadrati** o a **rettangoli**, uno per riga con il nome per intero. Si sceglie dai pulsanti in testa alla colonna o da Impostazioni → Aspetto.
-- **Ordinamento dei progetti**: **alfabetico** o **per data**. Per data vengono prima i progetti con il prossimo intervento più vicino, poi quelli con soli interventi passati (dal più recente), infine quelli senza interventi.
-- Larghezza, vista e ordinamento sono preferenze personali, ricordate sul server.
+### Added
+- **Resizable project column**: drag the right edge (←/→ arrows from the keyboard, double click for the default width). With a wider column the squares are laid out in several columns.
+- **Project view**: as **squares** or as **rectangles**, one per row with the full name. Chosen from the buttons at the top of the column or from Settings → Appearance.
+- **Project sorting**: **alphabetical** or **by date**. By date, projects with the nearest next intervention come first, then those with only past interventions (most recent first), finally those without interventions.
+- Width, view and sorting are personal preferences, remembered on the server.
 
 ## [0.13.0] - 2026-11-10
-### Aggiunto
-- **Impostazioni** (icona ⚙ in alto), la sezione in cui raccogliere configurazioni e personalizzazioni:
-  - *Aspetto*, per ogni utente: posizione dell'anteprima e tema;
-  - *Amministrazione*, solo per gli amministratori: accesso a Utenti e Sistemi operativi.
-- **Anteprima in basso**: in alternativa alla colonna di destra, il dettaglio dell'intervento compare sotto il calendario a tutta larghezza. La colonna dei progetti resta invariata. In basso la tabella server è **completa e modificabile**: 11 colonne, salvataggio automatico, aggiunta e rimozione dei server, filtri, colonne regolabili. Le modifiche dei colleghi arrivano senza toccare le celle in modifica.
-- L'altezza dell'anteprima in basso si regola **trascinando il bordo** (o con le frecce ↑/↓) e viene ricordata.
-- **Tema** chiaro, scuro o come il sistema.
-- Le **preferenze sono personali** e salvate sul server (`/api/me/preferences`): seguono l'utente su qualsiasi computer.
+### Added
+- **Settings** (⚙ icon at the top), the place where configuration and customization options are collected:
+  - *Appearance*, for each user: preview position and theme;
+  - *Administration*, for administrators only: access to Users and Operating systems.
+- **Bottom preview**: as an alternative to the right column, the intervention details appear below the calendar at full width. The project column stays unchanged. At the bottom the server table is **complete and editable**: 11 columns, auto-save, adding and removing servers, filters, adjustable columns. Colleagues' changes arrive without touching the cells being edited.
+- The height of the bottom preview is adjusted by **dragging the edge** (or with the ↑/↓ arrows) and is remembered.
+- **Theme**: light, dark or same as the system.
+- **Preferences are personal** and saved on the server (`/api/me/preferences`): they follow the user on any computer.
 
 ## [0.12.0] - 2026-11-10
-### Aggiunto
-- **Elenco dei sistemi operativi**: nella tabella server la colonna «Sistema operativo» è un menu a tendina. Versioni iniziali: Red Hat Enterprise Linux 7.9, 8.10, 9.8 e 10.2.
-- **Gestione dell'elenco** (amministratori, menu utente → «Sistemi operativi»):
-  - nuove versioni minor o major, anche di altre famiglie (es. Rocky Linux), ordinate per numero di versione (10.2 viene dopo 9.8);
-  - le versioni superate si **disattivano**: escono dal menu, ma i server le conservano;
-  - si elimina solo una voce mai usata.
-- Il sistema operativo di un server deve essere una voce attiva dell'elenco. Un valore precedente fuori elenco resta visibile come «(non in elenco)» finché non lo si cambia.
+### Added
+- **Operating system list**: in the server table the "Operating system" column is a drop-down. Initial versions: Red Hat Enterprise Linux 7.9, 8.10, 9.8 and 10.2.
+- **List management** (administrators, user menu → "Operating systems"):
+  - new minor or major versions, also of other families (e.g. Rocky Linux), sorted by version number (10.2 comes after 9.8);
+  - outdated versions are **deactivated**: they leave the menu, but the servers keep them;
+  - only an entry that was never used can be deleted.
+- A server's operating system must be an active entry of the list. A previous value not in the list stays visible as "(not in list)" until it is changed.
 
 ## [0.11.0] - 2026-11-10
-### Aggiunto
-- **Scheda progetto**: si modificano nome, descrizione e stato (attivo, sospeso, chiuso) e si vede l'elenco dei suoi interventi con stato e numero di server. Si apre dalla matita sul riquadro del progetto o dal pulsante «Progetto» nella scheda dell'intervento. Per i progetti senza interventi basta un clic sul riquadro.
-- **Nuovi interventi in un progetto esistente** («+ Nuovo intervento»), con data, tipo, titolo, orari, note e tecnici.
-- **Modifica dell'intervento** (pulsante «Modifica»): data, tipo, titolo, orari e note. Spostando la data, le righe server con la stessa data prevista la seguono.
-- **Eliminazione di un intervento** creato per errore, solo se non contiene server. Un intervento con server va segnato come «annullato», così lo storico dei server si conserva.
-- Le modifiche dei colleghi aggiornano anche il mese di partenza di un intervento spostato o eliminato.
+### Added
+- **Project card**: edit name, description and status (active, suspended, closed) and see the list of its interventions with status and number of servers. It opens from the pencil on the project tile or from the "Project" button in the intervention card. For projects without interventions a click on the tile is enough.
+- **New interventions in an existing project** ("+ New intervention"), with date, type, title, times, notes and technicians.
+- **Editing the intervention** ("Edit" button): date, type, title, times and notes. When the date moves, the server rows with the same planned date follow it.
+- **Deleting an intervention** created by mistake, only if it contains no servers. An intervention with servers should be marked as "cancelled", so that the server history is kept.
+- Colleagues' changes also update the starting month of an intervention that was moved or deleted.
 
-### Corretto
-- Sul telefono la barra in alto usciva dallo schermo (dalla 0.9.0, con il menu utente).
-- Dopo un aggiornamento il browser poteva usare file JavaScript vecchi dalla cache e mostrare una pagina vuota. Ora i file statici hanno `Cache-Control: no-cache` e vengono ricontrollati a ogni caricamento.
+### Fixed
+- On phones the top bar went off the screen (since 0.9.0, with the user menu).
+- After an upgrade the browser could use old JavaScript files from the cache and show an empty page. Static files now have `Cache-Control: no-cache` and are revalidated on every load.
 
 ## [0.10.0] - 2026-11-10
-### Modificato
-- **Il progetto si chiama ora Date Spreader** (prima "Time Dot"). Il nuovo nome compare nell'interfaccia, nella documentazione e nell'API (`/api/version`).
-- Nomi tecnici allineati: cartella `DateSpreader`, servizio systemd e utente di sistema `datespreader`, database `data/datespreader.sqlite3`, pacchetto `datespreader`.
-- Intestazione anti-CSRF ora `X-Requested-With: datespreader` e cookie di sessione `datespreader_session`. Dopo l'aggiornamento **bisogna accedere di nuovo**.
-- Le preferenze salvate nel browser (filtri, larghezza delle colonne) ripartono dai valori predefiniti.
+### Changed
+- **The project is now called Date Spreader** (previously "Time Dot"). The new name appears in the interface, in the documentation and in the API (`/api/version`).
+- Technical names aligned: `DateSpreader` folder, `datespreader` systemd service and system user, `data/datespreader.sqlite3` database, `datespreader` package.
+- Anti-CSRF header now `X-Requested-With: datespreader` and session cookie `datespreader_session`. After the upgrade **you must sign in again**.
+- Preferences saved in the browser (filters, column widths) start again from the default values.
 
 ## [0.9.0] - 2026-11-10
-### Aggiunto
-- **Accesso con login**: schermata di accesso con email o nome utente e password. Tutte le API dei dati richiedono di essere autenticati.
-- Sessioni sicure: cookie `HttpOnly`; nel database solo l'hash del token. Scadenza dopo 12 ore di inattività (`SESSION_HOURS`) e comunque dopo 7 giorni.
-- Blocco temporaneo dopo 5 tentativi di accesso sbagliati.
-- **Gestione utenti** (solo amministratori): creazione, ruolo, nome utente, attivazione e disattivazione, **password temporanea** da cambiare al primo accesso.
-- **Cambio password** dal menu utente, con regole minime (10 caratteri, non contenere nome utente o email). Il cambio chiude le altre sessioni aperte.
-- Comandi `users list`, `users admin` e `users create-admin` per creare il primo amministratore.
-- La **cronologia delle modifiche registra l'autore** di ogni modifica.
-- **Versione del portale** visibile in alto e **changelog** consultabile dal portale (`/api/version`, `/api/changelog`).
+### Added
+- **Login**: sign-in screen with email or username and password. All data APIs require authentication.
+- Secure sessions: `HttpOnly` cookie; only the token hash in the database. Expiry after 12 hours of inactivity (`SESSION_HOURS`) and in any case after 7 days.
+- Temporary lock after 5 failed login attempts.
+- **User management** (administrators only): creation, role, username, activation and deactivation, **temporary password** to be changed on first login.
+- **Password change** from the user menu, with minimum rules (10 characters, must not contain the username or email). Changing it closes the other open sessions.
+- `users list`, `users admin` and `users create-admin` commands to create the first administrator.
+- The **audit log records the author** of every change.
+- **Portal version** visible at the top and **changelog** viewable from the portal (`/api/version`, `/api/changelog`).
 
-### Sicurezza
-- Protezione CSRF: le richieste che modificano dati devono avere l'intestazione `X-Requested-With: timedot`.
-- Impossibile restare senza amministratori: l'ultimo amministratore attivo non può essere disattivato né declassato.
-- Un utente disattivato esce subito da tutte le sessioni.
+### Security
+- CSRF protection: requests that change data must have the `X-Requested-With: timedot` header.
+- It is impossible to be left without administrators: the last active administrator cannot be deactivated or demoted.
+- A deactivated user is signed out of all sessions immediately.
 
 ## [0.8.0] - 2026-11-10
-### Aggiunto
-- **Anagrafica server** (pulsante "Server"): tutti i server, anche quelli non più presenti in un intervento, con ricerca, ultimo e prossimo intervento.
-- **Storico degli interventi** di ogni server, con le modifiche ai suoi dati. Dallo storico si apre direttamente l'intervento.
-- Suggerimenti dall'anagrafica in "Aggiungi server": un server già inserito si riusa con tutti i suoi dati.
-- **Dati di esempio marcati** (`is_demo`), con l'etichetta "ESEMPIO" nell'interfaccia. Nuovi comandi `init --demo`, `demo load` e `demo remove`, che non toccano mai i dati reali.
+### Added
+- **Server inventory** ("Servers" button): all servers, including those no longer present in any intervention, with search, last and next intervention.
+- **Intervention history** of each server, with the changes to its data. The intervention can be opened directly from the history.
+- Suggestions from the inventory in "Add server": a server already entered is reused with all its data.
+- **Sample data flagged** (`is_demo`), with the "ESEMPIO" (sample) label in the interface. New `init --demo`, `demo load` and `demo remove` commands, which never touch real data.
 
-### Rimosso
-- Il comando `seed --reset`, che cancellava tutti i dati, compresi quelli reali.
+### Removed
+- The `seed --reset` command, which deleted all data, including real data.
 
-### Corretto
-- **Migrazioni su SQLite**: ricreando una tabella con le chiavi esterne attive, i DELETE a cascata potevano cancellare interventi e righe server. Ora le chiavi esterne sono disattivate durante le migrazioni e alla fine viene verificata l'integrità.
-- Iniziali dei progetti con trattini nel nome (es. "Delta - Update" → "MU").
+### Fixed
+- **Migrations on SQLite**: when a table was recreated with foreign keys enabled, cascading DELETEs could delete interventions and server rows. Foreign keys are now disabled during migrations and integrity is checked at the end.
+- Project initials with dashes in the name (e.g. "Delta - Update" → "DU").
 
 ## [0.7.0] - 2026-11-10
-### Aggiunto
-- Riquadro **"+ Nuovo progetto"** con primo intervento facoltativo.
-- **Tecnici** gestiti nel database: aggiunta, modifica e disattivazione (senza cancellazione).
-- **Partecipanti** degli interventi scelti da menu a tendina, sia nella scheda sia nella creazione del progetto.
+### Added
+- **"+ New project"** tile with an optional first intervention.
+- **Technicians** managed in the database: add, edit and deactivate (no deletion).
+- Intervention **participants** chosen from a drop-down, both in the card and when creating the project.
 
 ## [0.6.0] - 2026-11-10
-### Aggiunto
-- **Ricerca** di progetti e server (hostname, IP, sistema operativo) dalla barra laterale.
-- **Filtri** del calendario (stato, tecnico, solo con problemi), ricordati nel browser.
-- Filtro delle righe nella tabella server a tutto schermo.
-- **Stato dell'intervento** modificabile.
-- **Aggiornamento automatico** delle modifiche degli altri utenti, ogni 10 secondi.
-- **Colonne ridimensionabili** nelle tabelle, con larghezze ricordate.
+### Added
+- **Search** for projects and servers (hostname, IP, operating system) from the sidebar.
+- Calendar **filters** (status, technician, problems only), remembered in the browser.
+- Row filter in the full-screen server table.
+- Editable **intervention status**.
+- **Automatic updates** with other users' changes, every 10 seconds.
+- **Resizable columns** in the tables, with remembered widths.
 
 ## [0.5.0] - 2026-11-10
-### Aggiunto
-- **Tabella server a tutto schermo** con 11 colonne modificabili in linea e salvataggio automatico.
-- Aggiunta e rimozione dei server da un intervento.
-- **Controllo di concorrenza** (optimistic locking): niente sovrascritture silenziose tra utenti.
-- Cronologia delle modifiche (`audit_log`).
+### Added
+- **Full-screen server table** with 11 columns editable inline and auto-save.
+- Adding and removing servers from an intervention.
+- **Concurrency control** (optimistic locking): no silent overwrites between users.
+- Change history (`audit_log`).
 
 ## [0.4.0] - 2026-11-10
-### Aggiunto
-- Clic su un progetto: il calendario va all'intervento, con scelta della data se gli interventi sono più di uno.
-- Clic su un giorno: dettaglio degli interventi con la tabella server.
+### Added
+- Click on a project: the calendar goes to the intervention, with a choice of date if there are several interventions.
+- Click on a day: details of the interventions with the server table.
 
 ## [0.3.0] - 2026-11-10
-### Aggiunto
-- Home con **calendario verticale** (mese precedente, corrente e successivo, centrato su oggi) e barra laterale dei progetti.
-- Versione per telefono e tema scuro.
+### Added
+- Home page with a **vertical calendar** (previous, current and next month, centered on today) and project sidebar.
+- Phone layout and dark theme.
 
 ## [0.2.0] - 2026-11-10
-### Aggiunto
-- Schema del database, migrazioni Alembic e dati di esempio.
+### Added
+- Database schema, Alembic migrations and sample data.
 
 ## [0.1.0] - 2026-11-10
-### Aggiunto
-- Struttura del progetto (FastAPI + SQLite + frontend senza build), avvio locale, servizio systemd.
+### Added
+- Project structure (FastAPI + SQLite + build-free frontend), local run, systemd service.

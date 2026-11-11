@@ -2,6 +2,7 @@
 // Per aggiungere un'impostazione: un controllo in una sezione + il campo in app/schemas/preferences.py.
 
 import { prefs } from "./prefs.js";
+import { adoptLanguagePreference, t } from "./i18n.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -36,20 +37,20 @@ export function showSettings({ me, toast, adminActions = [] }) {
   const dialog = el("dialog", "pf-dialog settings-dialog");
   dialog.setAttribute("aria-labelledby", "settings-title");
   const head = el("header", "pf-head");
-  const h = el("h2", null, "Impostazioni");
+  const h = el("h2", null, t("settings.title"));
   h.id = "settings-title";
   const x = el("button", "icon-btn");
   x.type = "button";
-  x.setAttribute("aria-label", "Chiudi");
+  x.setAttribute("aria-label", t("settings.close"));
   x.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   x.addEventListener("click", () => dialog.close());
   head.append(h, x);
 
   const nav = el("nav", "settings-nav");
-  nav.setAttribute("aria-label", "Sezioni delle impostazioni");
+  nav.setAttribute("aria-label", t("settings.sections"));
   const content = el("div", "settings-content");
-  const sections = [["aspetto", "Aspetto", renderAppearance]];
-  if (me.is_admin) sections.push(["admin", "Amministrazione", renderAdmin]);
+  const sections = [["aspetto", t("settings.appearance"), renderAppearance]];
+  if (me.is_admin) sections.push(["admin", t("settings.admin"), renderAdmin]);
 
   function select(key) {
     nav.querySelectorAll("button").forEach((b) => b.setAttribute("aria-current", String(b.dataset.key === key)));
@@ -70,9 +71,11 @@ export function showSettings({ me, toast, adminActions = [] }) {
     try {
       await prefs.set(changes);
       toast(message);
+      return true;
     } catch (err) {
-      toast(`Impostazione non salvata: ${err.message}`);
+      toast(t("settings.not_saved", { message: err.message }));
       select("aspetto");
+      return false;
     }
   }
 
@@ -80,95 +83,104 @@ export function showSettings({ me, toast, adminActions = [] }) {
     const p = prefs.get();
     const posField = el("div", "settings-field");
     posField.append(
-      el("h4", null, "Anteprima dell'intervento"),
-      el("p", "muted small", "Dove compare il dettaglio quando apri un giorno o un progetto. La colonna dei progetti resta sempre a sinistra."),
+      el("h4", null, t("settings.preview_title")),
+      el("p", "muted small", t("settings.preview_hint")),
       choice("detail_position", p.detail_position, [
-        ["right", "A destra", "Compatta, in sola lettura; la modifica si apre a tutto schermo."],
-        ["bottom", "In basso, sotto il calendario", "A tutta larghezza, con la tabella server completa e modificabile. L'altezza si regola trascinando il bordo."],
-      ], (v) => update({ detail_position: v }, v === "bottom" ? "Anteprima in basso." : "Anteprima a destra.")),
+        ["right", t("settings.preview_right"), t("settings.preview_right_hint")],
+        ["bottom", t("settings.preview_bottom"), t("settings.preview_bottom_hint")],
+      ], (v) => update({ detail_position: v }, v === "bottom" ? t("settings.preview_bottom_done") : t("settings.preview_right_done"))),
     );
     const themeField = el("div", "settings-field");
     themeField.append(
-      el("h4", null, "Tema"),
+      el("h4", null, t("settings.theme")),
       choice("theme", p.theme, [
-        ["system", "Come il sistema", "Segue l'impostazione chiaro/scuro del computer."],
-        ["light", "Chiaro", null],
-        ["dark", "Scuro", null],
-      ], (v) => update({ theme: v }, "Tema aggiornato.")),
+        ["system", t("settings.theme_system"), t("settings.theme_system_hint")],
+        ["light", t("settings.theme_light"), null],
+        ["dark", t("settings.theme_dark"), null],
+      ], (v) => update({ theme: v }, t("settings.theme_done"))),
     );
     const sideField = el("div", "settings-field");
     const width = el("div", "settings-inline");
-    const reset = el("button", "btn btn-small", "Larghezza predefinita");
+    const reset = el("button", "btn btn-small", t("settings.sidebar_reset"));
     reset.type = "button";
-    reset.addEventListener("click", () => update({ sidebar_width: 280 }, "Larghezza della colonna ripristinata."));
-    width.append(el("span", "muted small", `Larghezza attuale: ${p.sidebar_width} px — si regola trascinando il bordo destro della colonna.`), reset);
+    reset.addEventListener("click", () => update({ sidebar_width: 280 }, t("settings.sidebar_reset_done")));
+    width.append(el("span", "muted small", t("settings.sidebar_width", { px: p.sidebar_width })), reset);
     sideField.append(
-      el("h4", null, "Colonna progetti"),
+      el("h4", null, t("settings.sidebar_title")),
       choice("project_view", p.project_view, [
-        ["grid", "Quadrati", "Riquadri affiancati; allargando la colonna se ne vedono di più per riga."],
-        ["list", "Rettangoli", "Un progetto per riga, con nome per intero."],
-      ], (v) => update({ project_view: v }, "Vista dei progetti aggiornata.")),
-      el("p", "muted small settings-sub", "Raggruppamento"),
+        ["grid", t("settings.view_grid"), t("settings.view_grid_hint")],
+        ["list", t("settings.view_list"), t("settings.view_list_hint")],
+      ], (v) => update({ project_view: v }, t("settings.view_done"))),
+      el("p", "muted small settings-sub", t("settings.group_title")),
       choice("project_group", p.project_group, [
-        ["none", "Nessuno", null],
-        ["customer", "Per cliente", "Un'intestazione per ogni cliente; i progetti senza cliente in fondo."],
-      ], (v) => update({ project_group: v }, "Raggruppamento aggiornato.")),
-      el("p", "muted small settings-sub", "Ordinamento"),
+        ["none", t("settings.group_none"), null],
+        ["customer", t("settings.group_customer"), t("settings.group_customer_hint")],
+      ], (v) => update({ project_group: v }, t("settings.group_done"))),
+      el("p", "muted small settings-sub", t("settings.sort_title")),
       choice("project_sort", p.project_sort, [
-        ["name", "Alfabetico", null],
-        ["date", "Per data", "Prima il prossimo intervento più vicino, poi i progetti con soli interventi passati, infine quelli senza interventi."],
-      ], (v) => update({ project_sort: v }, "Ordinamento aggiornato.")),
+        ["name", t("settings.sort_name"), null],
+        ["date", t("settings.sort_date"), t("settings.sort_date_hint")],
+      ], (v) => update({ project_sort: v }, t("settings.sort_done"))),
       width,
     );
     const timeField = el("div", "settings-field");
     timeField.append(
-      el("h4", null, "Formato degli orari"),
+      el("h4", null, t("settings.time_title")),
       choice("time_format", p.time_format, [
-        ["24h", "24 ore", "Europeo: 09:00, 14:30, 18:00."],
-        ["12h", "12 ore (AM/PM)", "9:00 AM, 2:30 PM, 6:00 PM."],
-      ], (v) => update({ time_format: v }, "Formato degli orari aggiornato.")),
+        ["24h", t("settings.time_24"), t("settings.time_24_hint")],
+        ["12h", t("settings.time_12"), "9:00 AM, 2:30 PM, 6:00 PM."],
+      ], (v) => update({ time_format: v }, t("settings.time_done"))),
     );
     const clockField = el("div", "settings-field");
     clockField.append(
-      el("h4", null, "Data e ora nella barra in alto"),
-      el("p", "muted small", "Accanto al nome del portale. L'ora segue il formato degli orari scelto sopra."),
+      el("h4", null, t("settings.clock_title")),
+      el("p", "muted small", t("settings.clock_hint")),
       choice("topbar_clock", p.topbar_clock, [
-        ["date_time", "Data e ora", "Mer 11 novembre 2026 · 14:32"],
-        ["date_time_seconds", "Data e ora con i secondi", "Mer 11 novembre 2026 · 14:32:07"],
-        ["date", "Solo la data", null],
-        ["time", "Solo l'ora", null],
-        ["off", "Nascondi", null],
-      ], (v) => update({ topbar_clock: v }, v === "off" ? "Data e ora nascoste." : "Data e ora aggiornate.")),
+        ["date_time", t("settings.clock_date_time"), t("settings.clock_date_time_example")],
+        ["date_time_seconds", t("settings.clock_seconds"), t("settings.clock_seconds_example")],
+        ["date", t("settings.clock_date"), null],
+        ["time", t("settings.clock_time"), null],
+        ["off", t("settings.clock_off"), null],
+      ], (v) => update({ topbar_clock: v }, v === "off" ? t("settings.clock_off_done") : t("settings.clock_done"))),
     );
     const mailField = el("div", "settings-field");
     const accForm = el("form", "settings-inline settings-mail");
     accForm.noValidate = true;
     const acc = el("input");
-    Object.assign(acc, { type: "email", name: "gmail_account", value: p.gmail_account, placeholder: me.email || "nome@azienda.it", autocomplete: "email" });
-    acc.setAttribute("aria-label", "Account Gmail");
-    const accSave = el("button", "btn btn-small", "Salva");
+    Object.assign(acc, { type: "email", name: "gmail_account", value: p.gmail_account, placeholder: me.email || t("settings.gmail_placeholder"), autocomplete: "email" });
+    acc.setAttribute("aria-label", t("settings.gmail_account"));
+    const accSave = el("button", "btn btn-small", t("settings.save"));
     accSave.type = "submit";
     accForm.append(acc, accSave);
     accForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const v = acc.value.trim();
-      if (v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { acc.classList.add("invalid"); acc.focus(); toast("Scrivi un indirizzo email valido (oppure lascia vuoto)."); return; }
+      if (v && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { acc.classList.add("invalid"); acc.focus(); toast(t("settings.gmail_invalid")); return; }
       acc.classList.remove("invalid");
-      update({ gmail_account: v === me.email ? "" : v }, v ? `Gmail si aprirà con ${v}.` : "Gmail si aprirà con l'email del tuo profilo.");
+      update({ gmail_account: v === me.email ? "" : v }, v ? t("settings.gmail_with", { email: v }) : t("settings.gmail_profile"));
     });
     const chooseLbl = el("label", "share-choose");
     const chooseCb = el("input");
     Object.assign(chooseCb, { type: "checkbox", checked: p.gmail_choose_account });
     chooseCb.addEventListener("change", () => update({ gmail_choose_account: chooseCb.checked },
-      chooseCb.checked ? "A ogni invio sceglierai l'account Google." : "Gmail si aprirà direttamente."));
-    chooseLbl.append(chooseCb, " Fammi scegliere l'account Google a ogni invio");
+      chooseCb.checked ? t("settings.gmail_choose_done") : t("settings.gmail_direct")));
+    chooseLbl.append(chooseCb, " ", t("settings.gmail_choose"));
     mailField.append(
-      el("h4", null, "Condivisione via email"),
-      el("p", "muted small", `Account Google con cui aprire Gmail quando condividi un intervento. Vuoto = email del tuo profilo${me.email ? ` (${me.email})` : ""}. L'account deve essere collegato nel browser (anche insieme a quello personale); se non lo è, attiva la scelta dell'account: Google ti farà selezionarlo o accedervi.`),
+      el("h4", null, t("settings.mail_title")),
+      el("p", "muted small", t("settings.mail_hint", { profile: me.email ? ` (${me.email})` : "" })),
       accForm, chooseLbl,
     );
-    const note = el("p", "muted small settings-note", "Le impostazioni sono personali e ti seguono su qualsiasi computer da cui accedi.");
-    return [posField, sideField, timeField, clockField, themeField, mailField, note];
+    const langField = el("div", "settings-field");
+    langField.append(
+      el("h4", null, t("settings.language_title")),
+      choice("language", p.language, [
+        ["auto", t("settings.language_auto"), t("settings.language_auto_hint")],
+        ["en", "English", null],
+        ["it", "Italiano", null],
+      ], (v) => update({ language: v }, t("settings.language_done")).then((ok) => ok && adoptLanguagePreference(v))),
+    );
+    const note = el("p", "muted small settings-note", t("settings.note"));
+    return [langField, posField, sideField, timeField, clockField, themeField, mailField, note];
   }
 
   function renderAdmin() {
@@ -176,7 +188,7 @@ export function showSettings({ me, toast, adminActions = [] }) {
       const row = el("div", "settings-field settings-link");
       const text = el("div");
       text.append(el("h4", null, title), el("p", "muted small", description));
-      const b = el("button", "btn", "Apri");
+      const b = el("button", "btn", t("settings.open"));
       b.type = "button";
       b.addEventListener("click", () => { dialog.close(); open(); });
       row.append(text, b);

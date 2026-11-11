@@ -9,6 +9,14 @@ from app.main import create_app
 from app.migrations import upgrade_database
 
 
+@pytest.fixture(autouse=True)
+def _english_locale(monkeypatch):
+    """CLI messages follow the locale: tests run in English unless they choose otherwise."""
+    for var in ("LC_ALL", "LC_MESSAGES"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("LANG", "C.UTF-8")
+
+
 @pytest.fixture
 def settings(tmp_path) -> Settings:
     """Ogni test usa un database SQLite temporaneo, mai quello di sviluppo."""

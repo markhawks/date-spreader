@@ -4,6 +4,7 @@
 import { colorFor } from "./colors.js";
 import { formatMediumDate, todayIso } from "./dates.js";
 import { EVENT_STATUS, toneOf } from "./labels.js";
+import { t } from "./i18n.js";
 
 let active = null; // popover aperto: { close(value) }
 
@@ -22,12 +23,12 @@ export function chooseEvent(anchor, project) {
     const pop = document.createElement("div");
     pop.className = "chooser";
     pop.setAttribute("role", "dialog");
-    pop.setAttribute("aria-label", `Interventi di ${project.name}`);
+    pop.setAttribute("aria-label", t("chooser.aria", { name: project.name }));
     pop.style.setProperty("--c", colorFor(project.id));
 
     const head = document.createElement("div");
     head.className = "chooser-head";
-    head.textContent = `${project.name}: ${project.events.length} interventi`;
+    head.textContent = t("chooser.head", { name: project.name, n: project.events.length });
     const list = document.createElement("ul");
     list.className = "chooser-list";
 

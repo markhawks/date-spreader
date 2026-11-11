@@ -12,6 +12,7 @@ from sqlalchemy.orm.exc import StaleDataError
 
 from app.api.deps import get_session
 from app.auth import require_admin
+from app.i18n import tr
 from app.models import Customer
 from app.repositories import customers as repo
 from app.repositories.servers import Conflict, ValidationProblem
@@ -73,7 +74,7 @@ def create_customer(session: SessionDep, data: CustomerIn) -> CustomerOut:
 def _get(session: Session, customer_id: int) -> Customer:
     customer = session.get(Customer, customer_id)
     if customer is None:
-        raise HTTPException(404, "Cliente non trovato.")
+        raise HTTPException(404, tr("customers.not_found"))
     return customer
 
 
@@ -82,7 +83,7 @@ def rename_customer(session: SessionDep, customer_id: int, data: CustomerPatch) 
     """Rinomina e/o cambia colore (solo amministratori)."""
     customer = _get(session, customer_id)
     if data.version != customer.version:
-        raise HTTPException(409, {"message": "Il cliente è stato modificato da un altro utente.", "current": None})
+        raise HTTPException(409, {"message": tr("customers.conflict"), "current": None})
     try:
         if "name" in data.model_fields_set:
             repo.rename_customer(session, customer, data.name)
@@ -93,7 +94,7 @@ def rename_customer(session: SessionDep, customer_id: int, data: CustomerPatch) 
         raise _errors(session, exc) from None
     except StaleDataError:
         session.rollback()
-        raise HTTPException(409, {"message": "Il cliente è stato modificato da un altro utente.", "current": None}) from None
+        raise HTTPException(409, {"message": tr("customers.conflict"), "current": None}) from None
     n = dict((c.id, k) for c, k in repo.list_customers(session)).get(customer.id, 0)
     return _out(customer, n)
 

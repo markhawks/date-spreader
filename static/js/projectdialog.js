@@ -7,7 +7,8 @@ import { confirmDanger } from "./confirm.js";
 import { session } from "./session.js";
 import { colorFor } from "./colors.js";
 import { addDays, formatMediumDate, todayIso } from "./dates.js";
-import { EVENT_STATUS, EVENT_TYPE, PROJECT_STATUS, badge, isConfigEvent, stageLabel } from "./labels.js";
+import { CHECK_STATUS, EVENT_STATUS, EVENT_TYPE, MIGRATION_STATUS, PROJECT_STATUS, badge, isConfigEvent, stageLabel } from "./labels.js";
+import { locale, t } from "./i18n.js";
 import { customerSelect, customers } from "./customers.js";
 import { participantPicker, people } from "./people.js";
 import { linkTimes, timeSelect } from "./timepick.js";
@@ -33,7 +34,7 @@ function makeDialog(title, accent) {
   dialog.setAttribute("aria-labelledby", h.id);
   const x = el("button", "icon-btn");
   x.type = "button";
-  x.setAttribute("aria-label", "Chiudi");
+  x.setAttribute("aria-label", t("projectdialog.close"));
   x.innerHTML = CLOSE_SVG;
   x.addEventListener("click", () => dialog.close());
   head.append(h, x);
@@ -94,30 +95,30 @@ export async function deleteEventFlow(eventId, { toast = (m) => alert(m) } = {})
   }
   const n = ev.servers.length;
   if (n && !session.canDeleteAll) {
-    toast("L'intervento contiene dei server: solo coordinatori e amministratori possono eliminarlo.");
+    toast(t("projectdialog.event_has_servers"));
     return null;
   }
   const ok = await confirmDanger({
-    title: "Eliminare l'intervento?",
+    title: t("projectdialog.delete_event_title"),
     intro: `${ev.project.name} · ${formatMediumDate(ev.event_date)}${ev.title ? ` · ${ev.title}` : ""}`,
     items: [
-      "l'intervento, con stato, orari e note",
-      ...(n ? [`le ${n === 1 ? "riga" : `${n} righe`} della tabella server (check, migrazione, kernel target, tecnico, note di questo intervento)`] : []),
-      ...(ev.participants.length ? [`i partecipanti assegnati (${ev.participants.map((p) => p.display_name).join(", ")})`] : []),
+      t("projectdialog.delete_event_item_event"),
+      ...(n ? [t("projectdialog.delete_event_item_rows", { n })] : []),
+      ...(ev.participants.length ? [t("projectdialog.delete_event_item_participants", { names: ev.participants.map((p) => p.display_name).join(", ") })] : []),
     ],
     keep: [
-      ...(n ? [`i ${n === 1 ? "server" : `${n} server`} in anagrafica, con i loro dati e gli altri interventi`] : []),
-      "il progetto e gli altri suoi interventi",
-      "la registrazione dell'eliminazione nella cronologia",
+      ...(n ? [t("projectdialog.delete_event_keep_servers", { n })] : []),
+      t("projectdialog.delete_event_keep_project"),
+      t("projectdialog.keep_history"),
     ],
-    confirmLabel: "Elimina intervento",
+    confirmLabel: t("projectdialog.delete_event"),
   });
   if (!ok) return null;
   try {
     await deleteEvent(ev.id, ev.version);
     return ev;
   } catch (err) {
-    toast(err.isConflict ? "L'intervento è stato modificato da un altro utente nel frattempo: riaprilo e riprova." : err.message);
+    toast(err.isConflict ? t("projectdialog.event_conflict") : err.message);
     return null;
   }
 }
@@ -133,43 +134,43 @@ export function openEventForm({ project, event = null, date: initialDate = null 
   return new Promise(async (resolve) => {
     await people.load();
     const editing = Boolean(event);
-    const d = makeDialog(editing ? "Modifica intervento" : `Nuovo intervento · ${project.name}`, colorFor(project.id));
+    const d = makeDialog(editing ? t("projectdialog.edit_event") : t("projectdialog.new_event_in", { project: project.name }), colorFor(project.id));
     let result = null;
     d.dialog.addEventListener("close", () => resolve(result));
 
     const date = Object.assign(el("input"), { type: "date", required: true, value: event?.event_date ?? initialDate ?? todayIso() });
     const type = select(EVENT_TYPE, event?.event_type ?? "migrazione");
-    const title = Object.assign(el("input"), { maxLength: 200, autocomplete: "off", value: event?.title ?? "", placeholder: "Es. seconda finestra" });
-    const start = timeSelect(event?.start_time ?? "", { label: "Ora inizio" });
-    const end = timeSelect(event?.end_time ?? "", { label: "Ora fine" });
+    const title = Object.assign(el("input"), { maxLength: 200, autocomplete: "off", value: event?.title ?? "", placeholder: t("projectdialog.title_placeholder") });
+    const start = timeSelect(event?.start_time ?? "", { label: t("projectdialog.start_time") });
+    const end = timeSelect(event?.end_time ?? "", { label: t("projectdialog.end_time") });
     // Nuovo intervento: 9:00–13:00, o 14:00–18:00 se la data è già occupata (finché non si tocca l'orario)
     const times = linkTimes(date, start, end, { suggest: !editing });
-    const notes = Object.assign(el("textarea"), { rows: 2, maxLength: 4000, value: event?.notes ?? "", placeholder: "Facoltative" });
+    const notes = Object.assign(el("textarea"), { rows: 2, maxLength: 4000, value: event?.notes ?? "", placeholder: t("projectdialog.optional_plural") });
     const grid = el("div", "pf-grid");
-    grid.append(labeled("Data", date, { required: true }), labeled("Tipo", type), labeled("Titolo", title, { wide: true }),
-      labeled("Ora inizio", start), labeled("Ora fine", end));
+    grid.append(labeled(t("projectdialog.date"), date, { required: true }), labeled(t("projectdialog.type"), type),
+      labeled(t("projectdialog.title"), title, { wide: true }),
+      labeled(t("projectdialog.start_time"), start), labeled(t("projectdialog.end_time"), end));
     times.hint.classList.add("pf-wide");
-    grid.append(times.hint, labeled("Note", notes, { wide: true }));
+    grid.append(times.hint, labeled(t("projectdialog.notes"), notes, { wide: true }));
     let picker = null;
     if (!editing) {
-      picker = participantPicker([], { label: "Tecnici" });
+      picker = participantPicker([], { label: t("projectdialog.technicians") });
       const p = el("div", "pf-field pf-wide");
-      p.append(el("span", null, "Tecnici"), picker);
+      p.append(el("span", null, t("projectdialog.technicians")), picker);
       grid.append(p);
     }
     d.body.append(grid);
     if (editing) {
-      d.body.append(el("p", "muted small",
-        "Stato, partecipanti e server si modificano dalla scheda dell'intervento. Spostando la data, le righe server con la stessa data prevista la seguono."));
+      d.body.append(el("p", "muted small", t("projectdialog.edit_event_hint")));
     }
     d.body.append(d.error);
 
     // Eliminazione (con conferma). Con server dentro: solo coordinatori e amministratori.
     if (editing) {
-      const del = button("Elimina intervento", "btn btn-danger-outline");
+      const del = button(t("projectdialog.delete_event"), "btn btn-danger-outline");
       if (event.servers.length && !session.canDeleteAll) {
         del.disabled = true;
-        del.title = "Contiene dei server: solo coordinatori e amministratori possono eliminarlo. In alternativa segnalo come «annullato».";
+        del.title = t("projectdialog.delete_event_disabled", { cancelled: EVENT_STATUS.annullato.toLowerCase() });
       }
       del.addEventListener("click", async () => {
         const deleted = await deleteEventFlow(event.id, { toast: (m) => d.showError(m) });
@@ -180,16 +181,16 @@ export function openEventForm({ project, event = null, date: initialDate = null 
       });
       d.foot.append(del, el("span", "spacer"));
     }
-    const cancel = button("Annulla");
+    const cancel = button(t("projectdialog.cancel"));
     cancel.addEventListener("click", () => d.dialog.close());
-    const save = button(editing ? "Salva" : "Crea intervento", "btn btn-primary", "submit");
+    const save = button(editing ? t("projectdialog.save") : t("projectdialog.create_event"), "btn btn-primary", "submit");
     d.foot.append(cancel, save);
 
     d.form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!date.value) return d.showError("Indica la data dell'intervento.", date);
+      if (!date.value) return d.showError(t("projectdialog.date_required"), date);
       if (start.value && end.value && end.value <= start.value) {
-        return d.showError("L'ora di fine deve essere successiva all'ora di inizio.", end);
+        return d.showError(t("projectdialog.end_after_start"), end);
       }
       const values = {
         event_date: date.value, event_type: type.value, title: title.value,
@@ -215,7 +216,7 @@ export function openEventForm({ project, event = null, date: initialDate = null 
         d.dialog.close();
       } catch (err) {
         if (err.isConflict && err.current) {
-          d.showError(`${err.message} Chiudi e riapri per vedere i valori aggiornati.`);
+          d.showError(t("projectdialog.conflict_reopen", { message: err.message }));
         } else {
           d.showError(err.message);
         }
@@ -243,23 +244,24 @@ export class ProjectDialog {
 
   async open(project) {
     await customers.load(true);
-    const d = makeDialog("Progetto", colorFor(project.id));
+    const d = makeDialog(t("projectdialog.project"), colorFor(project.id));
     d.dialog.classList.add("project-dialog");
     let current = { ...project };
 
     const name = Object.assign(el("input"), { maxLength: 200, autocomplete: "off", value: project.name, required: true });
-    const description = Object.assign(el("textarea"), { rows: 2, maxLength: 2000, value: project.description ?? "", placeholder: "Facoltativa" });
+    const description = Object.assign(el("textarea"), { rows: 2, maxLength: 2000, value: project.description ?? "", placeholder: t("projectdialog.optional") });
     const status = select(PROJECT_STATUS, project.status);
     const customer = customerSelect(project.customer_id ?? null);
     const grid = el("div", "pf-grid");
-    grid.append(labeled("Nome del progetto", name, { wide: true, required: true }),
-      labeled("Descrizione", description, { wide: true }), labeled("Cliente", customer), labeled("Stato del progetto", status));
-    if (project.is_demo) grid.append(el("p", "muted small pf-wide", "Progetto di esempio: si toglie con «python -m app.cli demo remove»."));
+    grid.append(labeled(t("projectdialog.project_name"), name, { wide: true, required: true }),
+      labeled(t("projectdialog.description"), description, { wide: true }), labeled(t("projectdialog.customer"), customer),
+      labeled(t("projectdialog.project_status"), status));
+    if (project.is_demo) grid.append(el("p", "muted small pf-wide", t("projectdialog.demo_hint")));
 
     // Interventi del progetto
     const evHead = el("div", "pd-events-head");
-    evHead.append(el("h3", null, `Interventi (${project.events.length})`));
-    const add = button("+ Nuovo intervento", "btn btn-small");
+    evHead.append(el("h3", null, t("projectdialog.events_heading", { n: project.events.length })));
+    const add = button(t("projectdialog.add_event"), "btn btn-small");
     evHead.append(add);
     const list = el("ul", "pd-events");
     const today = todayIso();
@@ -268,16 +270,16 @@ export class ProjectDialog {
       const info = el("div", "pd-ev-info");
       info.append(el("span", "pd-ev-date", formatMediumDate(pe.event_date)), el("span", "pd-ev-title", pe.title ?? EVENT_TYPE[pe.event_type] ?? ""));
       const meta = el("div", "pd-ev-meta");
-      meta.append(badge(pe.status, EVENT_STATUS), el("span", "muted small", `${pe.server_count} server`));
-      const open = button("Apri", "btn btn-small");
+      meta.append(badge(pe.status, EVENT_STATUS), el("span", "muted small", t("projectdialog.servers_count", { n: pe.server_count })));
+      const open = button(t("projectdialog.open"), "btn btn-small");
       open.addEventListener("click", () => { d.dialog.close(); this.opts.onOpenEvent(pe); });
       const del = button("", "btn btn-small icon-only btn-danger-outline");
       del.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9h4.8l.6-9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      del.title = "Elimina questo intervento";
-      del.setAttribute("aria-label", `Elimina l'intervento del ${formatMediumDate(pe.event_date)}`);
+      del.title = t("projectdialog.delete_this_event");
+      del.setAttribute("aria-label", t("projectdialog.delete_event_of", { date: formatMediumDate(pe.event_date) }));
       if (pe.server_count && !session.canDeleteAll) {
         del.disabled = true;
-        del.title = "Contiene dei server: solo coordinatori e amministratori possono eliminarlo";
+        del.title = t("projectdialog.delete_event_disabled_short");
       }
       del.addEventListener("click", async () => {
         const deleted = await deleteEventFlow(pe.id, { toast: this.opts.toast });
@@ -289,24 +291,24 @@ export class ProjectDialog {
       li.append(info, meta, open, del);
       list.append(li);
     }
-    if (!project.events.length) list.append(el("li", "muted pd-empty", "Nessun intervento: aggiungine uno perché il progetto compaia nel calendario."));
+    if (!project.events.length) list.append(el("li", "muted pd-empty", t("projectdialog.no_events")));
 
     d.body.append(grid, evHead, list);
     // Export (coordinatori e amministratori): file da importare in un'altra installazione di Date Spreader
     if (session.canExport) {
       const box = el("div", "pd-export");
-      box.append(el("span", "muted small", "Esporta per un'altra installazione di Date Spreader:"));
+      box.append(el("span", "muted small", t("projectdialog.export_intro")));
       const download = async (btn, fn) => {
         btn.disabled = true;
-        try { this.opts.toast?.(`Scaricato ${await fn()}.`); } catch (err) { d.showError(err.message); } finally { btn.disabled = false; }
+        try { this.opts.toast?.(t("projectdialog.downloaded", { file: await fn() })); } catch (err) { d.showError(err.message); } finally { btn.disabled = false; }
       };
-      const expProject = button("Questo progetto", "btn btn-small");
-      expProject.title = "Scarica un file con il progetto, i suoi interventi e le tabelle server";
+      const expProject = button(t("projectdialog.export_project"), "btn btn-small");
+      expProject.title = t("projectdialog.export_project_title");
       expProject.addEventListener("click", () => download(expProject, () => exportProject(project.id)));
       box.append(expProject);
       if (project.customer_id) {
-        const expCustomer = button(`Tutto il cliente «${project.customer_name}»`, "btn btn-small");
-        expCustomer.title = "Scarica un file con tutti i progetti di questo cliente";
+        const expCustomer = button(t("projectdialog.export_customer", { customer: project.customer_name }), "btn btn-small");
+        expCustomer.title = t("projectdialog.export_customer_title");
         expCustomer.addEventListener("click", () => download(expCustomer, () => exportCustomer(project.customer_id)));
         box.append(expCustomer);
       }
@@ -320,25 +322,25 @@ export class ProjectDialog {
     });
 
     if (session.canDeleteAll) {
-      const delProject = button("Elimina progetto", "btn btn-danger-outline");
+      const delProject = button(t("projectdialog.delete_project"), "btn btn-danger-outline");
       delProject.addEventListener("click", async () => {
         const events = current.events ?? project.events;
         const rows = events.reduce((n, e) => n + (e.server_count ?? 0), 0);
         const dates = events.slice(0, 5).map((e) => formatMediumDate(e.event_date)).join(", ") + (events.length > 5 ? "…" : "");
         const ok = await confirmDanger({
-          title: "Eliminare il progetto?",
+          title: t("projectdialog.delete_project_title"),
           intro: current.name,
           items: [
-            "il progetto, con descrizione e stato",
-            ...(events.length ? [`${events.length === 1 ? "l'intervento" : `i ${events.length} interventi`} (${dates})`] : []),
-            ...(rows ? [`le ${rows} righe server di quegli interventi`] : []),
+            t("projectdialog.delete_project_item_project"),
+            ...(events.length ? [t("projectdialog.delete_project_item_events", { n: events.length, dates })] : []),
+            ...(rows ? [t("projectdialog.delete_project_item_rows", { n: rows })] : []),
           ],
           keep: [
-            ...(current.customer_name ? [`il cliente «${current.customer_name}»`] : []),
-            ...(rows ? ["i server in anagrafica, con i loro dati e gli altri interventi"] : []),
-            "la registrazione dell'eliminazione nella cronologia",
+            ...(current.customer_name ? [t("projectdialog.delete_project_keep_customer", { customer: current.customer_name })] : []),
+            ...(rows ? [t("projectdialog.delete_project_keep_servers")] : []),
+            t("projectdialog.keep_history"),
           ],
-          confirmLabel: "Elimina progetto",
+          confirmLabel: t("projectdialog.delete_project"),
           requireText: events.length ? current.name : null, // con interventi: va scritto il nome
         });
         if (!ok) return;
@@ -347,20 +349,20 @@ export class ProjectDialog {
           d.dialog.close();
           this.opts.onProjectDeleted({ ...current, events });
         } catch (err) {
-          d.showError(err.isConflict ? "Il progetto è stato modificato da un altro utente nel frattempo: chiudi e riapri." : err.message);
+          d.showError(err.isConflict ? t("projectdialog.project_conflict") : err.message);
         }
       });
       d.foot.append(delProject, el("span", "spacer"));
     }
-    const cancel = button("Chiudi");
+    const cancel = button(t("projectdialog.close"));
     cancel.addEventListener("click", () => d.dialog.close());
-    const save = button("Salva progetto", "btn btn-primary", "submit");
+    const save = button(t("projectdialog.save_project"), "btn btn-primary", "submit");
     d.foot.append(cancel, save);
 
     d.form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const values = { name: name.value.trim().replace(/\s+/g, " "), description: description.value.trim(), status: status.value };
-      if (!values.name) return d.showError("Il nome del progetto è obbligatorio.", name);
+      if (!values.name) return d.showError(t("projectdialog.name_required"), name);
       const changes = {};
       if (values.name !== current.name) changes.name = values.name;
       if (values.description !== (current.description ?? "")) changes.description = values.description;
@@ -369,7 +371,7 @@ export class ProjectDialog {
         const cid = await customer.getValue(); // crea il cliente nuovo, se scritto
         if (cid !== (current.customer_id ?? null)) changes.customer_id = cid;
       } catch (err) {
-        return d.showError(`Cliente: ${err.message}`);
+        return d.showError(t("projectdialog.customer_error", { message: err.message }));
       }
       if (!Object.keys(changes).length) { d.dialog.close(); return; }
       save.disabled = true;
@@ -385,7 +387,7 @@ export class ProjectDialog {
           status.value = current.status;
           d.showError(err.message);
         } else {
-          d.showError(err.message, /nome/i.test(err.message) ? name : null);
+          d.showError(err.message, /nome|name/i.test(err.message) ? name : null);
         }
       } finally {
         save.disabled = false;
@@ -412,50 +414,56 @@ export async function duplicateEventFlow(eventId) {
   const ev = await fetchEvent(eventId);
   return new Promise((resolve) => {
     let result = null;
-    const d = makeDialog("Duplica intervento", colorFor(ev.project.id));
+    const d = makeDialog(t("projectdialog.duplicate_title"), colorFor(ev.project.id));
     d.dialog.addEventListener("close", () => resolve(result));
     const what = [ev.project.customer_name, ev.project.name, ev.title].filter(Boolean).join(" · ");
     const intro = el("p", "pf-wide dup-intro");
-    intro.append("Copia di ", el("strong", null, what), ` del ${formatMediumDate(ev.event_date)} in un'altra data.`);
+    // The sentence is split around {what}, which is shown in bold
+    const [before, after = ""] = t("projectdialog.duplicate_intro", { date: formatMediumDate(ev.event_date) }).split("{what}");
+    intro.append(before, el("strong", null, what), after);
 
     const date = Object.assign(el("input"), { type: "date", required: true, value: addDays(ev.event_date, 7) });
-    const start = timeSelect(ev.start_time ?? "", { label: "Ora inizio" });
-    const end = timeSelect(ev.end_time ?? "", { label: "Ora fine" });
+    const start = timeSelect(ev.start_time ?? "", { label: t("projectdialog.start_time") });
+    const end = timeSelect(ev.end_time ?? "", { label: t("projectdialog.end_time") });
     start.addEventListener("change", () => {
       if (start.value && end.value && end.value <= start.value) end.setValue("");
     });
     const grid = el("div", "pf-grid");
-    grid.append(intro, labeled("Nuova data", date, { required: true }), el("span"),
-      labeled("Ora inizio", start), labeled("Ora fine", end));
+    grid.append(intro, labeled(t("projectdialog.new_date"), date, { required: true }), el("span"),
+      labeled(t("projectdialog.start_time"), start), labeled(t("projectdialog.end_time"), end));
 
     const n = ev.servers.length;
     const withServers = Object.assign(el("input"), { type: "checkbox", checked: n > 0, disabled: n === 0 });
     const check = el("label", "pf-wide dup-check");
     check.append(withServers, el("span", null, n
-      ? `Copia anche la tabella server (${n} server)`
-      : "L'intervento non ha server da copiare"));
+      ? t("projectdialog.duplicate_with_servers", { n })
+      : t("projectdialog.duplicate_no_servers")));
     grid.append(check);
     // i tecnici disattivati non vengono copiati
     const names = ev.participants.filter((p) => people.byId(p.id)?.is_active !== false).map((p) => p.display_name);
     const notes = el("ul", "pf-wide muted small dup-notes");
     notes.append(
-      el("li", null, `Si copiano tipo, titolo, note${names.length ? ` e tecnici (${names.join(", ")})` : ""}; il nuovo intervento è «Pianificato».`),
+      el("li", null, names.length
+        ? t("projectdialog.duplicate_copies_people", { names: names.join(", "), planned: EVENT_STATUS.pianificato })
+        : t("projectdialog.duplicate_copies", { planned: EVENT_STATUS.pianificato })),
       el("li", null, isConfigEvent(ev)
-        ? "Nella tabella server restano tecnico e note di ogni riga; la data di esecuzione si azzera."
-        : `Nella tabella server restano target, tecnico e note di ogni riga; gli stati ripartono da capo: check «Da fare», ${stageLabel(ev).toLowerCase()} «Pianificata», nessuna data di esecuzione.`),
+        ? t("projectdialog.duplicate_rows_config")
+        : t("projectdialog.duplicate_rows", {
+          check: CHECK_STATUS.da_fare, stage: stageLabel(ev).toLowerCase(), planned: MIGRATION_STATUS.pianificata,
+        })),
     );
     grid.append(notes);
     d.body.append(grid, d.error);
 
-    const cancel = button("Annulla");
+    const cancel = button(t("projectdialog.cancel"));
     cancel.addEventListener("click", () => d.dialog.close());
-    const save = button("Duplica", "btn btn-primary", "submit");
+    const save = button(t("projectdialog.duplicate"), "btn btn-primary", "submit");
     d.foot.append(cancel, save);
     d.form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!date.value) return d.showError("Indica la nuova data.", date);
+      if (!date.value) return d.showError(t("projectdialog.new_date_required"), date);
       if (start.value && end.value && end.value <= start.value) {
-        return d.showError("L'ora di fine deve essere successiva all'ora di inizio.", end);
+        return d.showError(t("projectdialog.end_after_start"), end);
       }
       save.disabled = true;
       try {
@@ -480,32 +488,33 @@ export async function duplicateEventFlow(eventId) {
  */
 export function newEventOnDate(projects, isoDate) {
   return new Promise((resolve) => {
-    const d = makeDialog(`Nuovo intervento · ${formatMediumDate(isoDate)}`);
+    const d = makeDialog(t("projectdialog.new_event_on", { date: formatMediumDate(isoDate) }));
     const sel = el("select");
-    sel.setAttribute("aria-label", "Progetto");
-    sel.append(new Option("Scegli il progetto…", ""));
+    sel.setAttribute("aria-label", t("projectdialog.project"));
+    sel.append(new Option(t("projectdialog.choose_project"), ""));
+    const noCustomer = t("projectdialog.no_customer");
     const byCustomer = new Map();
-    for (const p of [...projects].sort((a, b) => a.name.localeCompare(b.name, "it"))) {
-      const key = p.customer_name ?? "Senza cliente";
+    for (const p of [...projects].sort((a, b) => a.name.localeCompare(b.name, locale()))) {
+      const key = p.customer_name ?? noCustomer;
       if (!byCustomer.has(key)) byCustomer.set(key, []);
       byCustomer.get(key).push(p);
     }
-    const keys = [...byCustomer.keys()].sort((a, b) => (a === "Senza cliente") - (b === "Senza cliente") || a.localeCompare(b, "it"));
+    const keys = [...byCustomer.keys()].sort((a, b) => (a === noCustomer) - (b === noCustomer) || a.localeCompare(b, locale()));
     for (const k of keys) {
       const group = document.createElement("optgroup");
       group.label = k;
       byCustomer.get(k).forEach((p) => group.append(new Option(p.name, String(p.id))));
       sel.append(group);
     }
-    d.body.append(labeled("Progetto", sel, { required: true }), d.error);
-    const cancel = button("Annulla");
+    d.body.append(labeled(t("projectdialog.project"), sel, { required: true }), d.error);
+    const cancel = button(t("projectdialog.cancel"));
     cancel.addEventListener("click", () => d.dialog.close());
-    const next = button("Continua", "btn btn-primary", "submit");
+    const next = button(t("projectdialog.continue"), "btn btn-primary", "submit");
     d.foot.append(cancel, next);
     let chosen = null;
     d.form.addEventListener("submit", (e) => {
       e.preventDefault();
-      if (!sel.value) return d.showError("Scegli il progetto.", sel);
+      if (!sel.value) return d.showError(t("projectdialog.project_required"), sel);
       chosen = projects.find((p) => p.id === Number(sel.value));
       d.dialog.close();
     });

@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from app import audit
 from app.api.deps import get_session
 from app.auth import AuthUser, require_admin, require_user
+from app.i18n import tr
 from app.models import Customer, Project
 from app.schemas.transfer import ImportRequest
 from app.transfer import export_projects, import_file, load_projects
@@ -32,7 +33,7 @@ CAN_EXPORT = {"admin", "coordinatore"}
 
 def require_exporter(user: Annotated[AuthUser, Depends(require_user)]) -> AuthUser:
     if user.role not in CAN_EXPORT:
-        raise HTTPException(403, {"message": "L'export è riservato a coordinatori e amministratori.", "code": "forbidden"})
+        raise HTTPException(403, {"message": tr("transfer.export_forbidden"), "code": "forbidden"})
     return user
 
 
@@ -55,7 +56,7 @@ def export_project(session: SessionDep, project_id: int) -> Response:
     """File JSON con il progetto, i suoi interventi e le tabelle server."""
     projects = load_projects(session, [project_id])
     if not projects:
-        raise HTTPException(404, "Progetto non trovato.")
+        raise HTTPException(404, tr("projects.not_found"))
     p = projects[0]
     payload = export_projects(session, projects, {"type": "project", "name": p.name})
     audit.record(session, "export", "export", p.id, {"progetto": (None, p.name)})
@@ -68,10 +69,10 @@ def export_customer(session: SessionDep, customer_id: int) -> Response:
     """File JSON con tutti i progetti del cliente."""
     customer = session.get(Customer, customer_id)
     if customer is None:
-        raise HTTPException(404, "Cliente non trovato.")
+        raise HTTPException(404, tr("customers.not_found"))
     ids = list(session.scalars(select(Project.id).where(Project.customer_id == customer_id)))
     if not ids:
-        raise HTTPException(409, {"message": f"«{customer.name}» non ha progetti da esportare.", "current": None})
+        raise HTTPException(409, {"message": tr("transfer.customer_no_projects", name=customer.name), "current": None})
     payload = export_projects(session, load_projects(session, ids), {"type": "customer", "name": customer.name})
     audit.record(session, "export", "export", customer.id, {"cliente": (None, customer.name)})
     session.commit()

@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app import audit
+from app.i18n import tr
 from app.models import Event, EventServer, EventUser, Project, Server, User, statuses
 from app.schemas.edit import ROW_FIELDS, SERVER_FIELDS, ProjectCreate, ServerRowCreate
 
@@ -42,7 +43,7 @@ def _check_user(session: Session, user_id: int | None) -> User | None:
         return None
     user = session.get(User, user_id)
     if user is None or not user.is_active:
-        raise ValidationProblem("Tecnico non valido.")
+        raise ValidationProblem(tr("users.invalid_technician"))
     return user
 
 
@@ -68,14 +69,14 @@ def update_row(session: Session, row: EventServer, values: dict[str, Any]) -> No
         check_server_os(session, server_values["operating_system"], current=row.server.operating_system)
     if "hostname" in server_values:
         if server_values["hostname"] is None:
-            raise ValidationProblem("L'hostname è obbligatorio.")
+            raise ValidationProblem(tr("servers.hostname_required"))
         other = find_server_by_hostname(session, server_values["hostname"])
         if other is not None and other.id != row.server_id:
-            raise ValidationProblem("Esiste già un altro server con questo hostname.")
+            raise ValidationProblem(tr("servers.hostname_taken"))
     if "check_status" in row_values and row_values["check_status"] is None:
-        raise ValidationProblem("Lo stato del check è obbligatorio.")
+        raise ValidationProblem(tr("servers.check_status_required"))
     if "migration_status" in row_values and row_values["migration_status"] is None:
-        raise ValidationProblem("Lo stato della migrazione è obbligatorio.")
+        raise ValidationProblem(tr("servers.migration_status_required"))
     if "target_operating_system" in row_values:
         from app.repositories.oslist import check_server_os
 
@@ -107,7 +108,7 @@ def add_row(session: Session, event: Event, data: ServerRowCreate) -> tuple[Even
         session.flush()
         audit.record(session, "create", "servers", server.id, event_id=event.id)
     elif any(link.event_id == event.id for link in server.event_links):
-        raise Conflict(f"{server.hostname} è già presente in questo intervento.")
+        raise Conflict(tr("servers.already_in_event", hostname=server.hostname))
 
     position = session.scalar(
         select(func.coalesce(func.max(EventServer.position), -1)).where(EventServer.event_id == event.id)
@@ -145,13 +146,13 @@ def update_event(session: Session, event: Event, values: dict[str, Any]) -> None
 
     Se cambia la data, le righe server con la data prevista uguale alla vecchia data la seguono.
     """
-    for field, label in (("status", "Lo stato"), ("event_date", "La data"), ("event_type", "Il tipo")):
+    for field in ("status", "event_date", "event_type"):
         if field in values and values[field] is None:
-            raise ValidationProblem(f"{label} dell'intervento è obbligatorio.")
+            raise ValidationProblem(tr(f"events.{field}_required"))
     start = values.get("start_time", event.start_time)
     end = values.get("end_time", event.end_time)
     if start and end and end <= start:
-        raise ValidationProblem("L'ora di fine deve essere successiva all'ora di inizio.")
+        raise ValidationProblem(tr("events.end_before_start"))
     old_date = event.event_date
     changes = _apply(event, values)
     if "event_date" in changes:
@@ -166,7 +167,7 @@ def update_event(session: Session, event: Event, values: dict[str, Any]) -> None
 def add_event(session: Session, project: Project, data) -> Event:
     """Nuovo intervento in un progetto esistente (data: EventCreate)."""
     if data.start_time and data.end_time and data.end_time <= data.start_time:
-        raise ValidationProblem("L'ora di fine deve essere successiva all'ora di inizio.")
+        raise ValidationProblem(tr("events.end_before_start"))
     event = Event(
         project=project, event_date=data.event_date, title=data.title, event_type=data.event_type,
         status=data.status, start_time=data.start_time, end_time=data.end_time, notes=data.notes,
@@ -191,7 +192,7 @@ def duplicate_event(session: Session, source: Event, data) -> Event:
     """
     start, end = (source.start_time, source.end_time) if data.keep_times else (data.start_time, data.end_time)
     if start and end and end <= start:
-        raise ValidationProblem("L'ora di fine deve essere successiva all'ora di inizio.")
+        raise ValidationProblem(tr("events.end_before_start"))
     event = Event(
         project=source.project, event_date=data.event_date, title=source.title, event_type=source.event_type,
         status=statuses.EVENT_STATUSES[0], start_time=start, end_time=end, notes=source.notes,
@@ -244,8 +245,7 @@ def delete_event(session: Session, event: Event, *, allow_with_servers: bool) ->
     """
     if event.server_links and not allow_with_servers:
         raise Forbidden(
-            "L'intervento contiene dei server: solo coordinatori e amministratori possono eliminarlo. "
-            "In alternativa segnalo come «annullato»."
+            tr("events.delete_forbidden")
         )
     _audit_event_deletion(session, event)
     session.delete(event)  # a cascata: righe server e partecipanti
@@ -266,7 +266,7 @@ def delete_project(session: Session, project: Project) -> dict[str, int]:
 def update_project(session: Session, project: Project, values: dict[str, Any]) -> None:
     for field in ("name", "status"):
         if field in values and values[field] is None:
-            raise ValidationProblem("Nome e stato del progetto sono obbligatori.")
+            raise ValidationProblem(tr("projects.name_status_required"))
     if "customer_id" in values:
         from app.repositories.customers import check_customer
 
@@ -276,7 +276,7 @@ def update_project(session: Session, project: Project, values: dict[str, Any]) -
             select(Project.id).where(func.lower(Project.name) == values["name"].lower(), Project.id != project.id)
         )
         if other is not None:
-            raise Conflict("Esiste già un progetto con questo nome.")
+            raise Conflict(tr("projects.name_taken"))
     changes = _apply(project, values)
     session.flush()
     if changes:
@@ -287,7 +287,7 @@ def create_project(session: Session, data: ProjectCreate) -> Project:
     """Crea un progetto ed eventualmente il suo primo intervento."""
     exists = session.scalar(select(Project.id).where(func.lower(Project.name) == data.name.lower()))
     if exists is not None:
-        raise Conflict("Esiste già un progetto con questo nome.")
+        raise Conflict(tr("projects.name_taken"))
     from app.repositories.customers import check_customer
 
     check_customer(session, data.customer_id)

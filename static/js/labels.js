@@ -1,38 +1,30 @@
 // Etichette leggibili e classi colore per stati e tipi.
+// The stored values (e.g. "pianificato") never change; only their labels are translated.
 
-export const EVENT_STATUS = {
-  pianificato: "Pianificato", confermato: "Confermato", in_corso: "In corso",
-  completato: "Completato", rinviato: "Rinviato", annullato: "Annullato",
-};
+import { t } from "./i18n.js";
+
+const labelsFor = (prefix, values) => Object.fromEntries(values.map((v) => [v, t(`${prefix}.${v}`)]));
+
+export const EVENT_STATUS = labelsFor("labels.event_status", ["pianificato", "confermato", "in_corso", "completato", "rinviato", "annullato"]);
 
 /** Tipo di intervento con tabella ridotta e note estese sotto ogni server. */
 export const CONFIG_TYPE = "configurazione";
 export const isConfigEvent = (ev) => ev?.event_type === CONFIG_TYPE;
 
-export const EVENT_TYPE = {
-  migrazione: "Migrazione", upgrade: "Upgrade", patching: "Patching", configurazione: "Configurazione", altro: "Altro",
-};
+export const EVENT_TYPE = labelsFor("labels.event_type", ["migrazione", "upgrade", "patching", "configurazione", "altro"]);
 
 /**
  * Colonna dello stato di lavorazione di ogni server: prende il nome dal tipo di intervento
  * (il dato è sempre `migration_status`). Con `done` la parola del riepilogo («migrati 2/4»).
  */
-const STAGE = {
-  migrazione: ["Migrazione", "migrati"],
-  upgrade: ["Upgrading", "aggiornati"],
-  patching: ["Patching", "patchati"],
-};
-export const stageLabel = (ev) => (STAGE[ev?.event_type] ?? ["Esecuzione"])[0];
-export const stageDone = (ev) => (STAGE[ev?.event_type] ?? [null, "completati"])[1];
+const STAGED = ["migrazione", "upgrade", "patching"];
+const stageKey = (ev) => (STAGED.includes(ev?.event_type) ? ev.event_type : "other");
+export const stageLabel = (ev) => t(`labels.stage.${stageKey(ev)}`);
+export const stageDone = (ev) => t(`labels.stage_done.${stageKey(ev)}`);
 
-export const CHECK_STATUS = {
-  da_fare: "Da fare", in_corso: "In corso", ok: "OK", ko: "KO", non_applicabile: "N/A",
-};
+export const CHECK_STATUS = labelsFor("labels.check_status", ["da_fare", "in_corso", "ok", "ko", "non_applicabile"]);
 
-export const MIGRATION_STATUS = {
-  pianificata: "Pianificata", in_corso: "In corso", completata: "Completata",
-  fallita: "Fallita", rinviata: "Rinviata", annullata: "Annullata",
-};
+export const MIGRATION_STATUS = labelsFor("labels.migration_status", ["pianificata", "in_corso", "completata", "fallita", "rinviata", "annullata"]);
 
 // Tono del badge: ok (verde), warn (ambra), bad (rosso), info (blu), neutral (grigio).
 const TONE = {
@@ -53,7 +45,7 @@ export function badge(status, labels) {
   return el;
 }
 
-export const PROJECT_STATUS = { attivo: "Attivo", sospeso: "Sospeso", chiuso: "Chiuso" };
+export const PROJECT_STATUS = labelsFor("labels.project_status", ["attivo", "sospeso", "chiuso"]);
 
 /** "Red Hat Enterprise Linux 9.8" → "RHEL 9.8" (il nome completo resta nel valore/tooltip). */
 export const shortOs = (os) => (os ?? "").replace(/^Red Hat Enterprise Linux/i, "RHEL");

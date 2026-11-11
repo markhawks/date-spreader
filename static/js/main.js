@@ -21,6 +21,7 @@ import { Sheet } from "./sheet.js";
 import { showShareDialog } from "./share.js";
 import { Sidebar, attachSidebarResizer } from "./sidebar.js";
 import { showImportDialog } from "./transfer.js";
+import { adoptLanguagePreference, t, translateStatic } from "./i18n.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -34,22 +35,22 @@ function showError(message) {
 
 let toastTimer;
 function toast(message) {
-  const t = $("toast");
-  t.textContent = message;
-  t.hidden = false;
+  const box = $("toast");
+  box.textContent = message;
+  box.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, 3000);
+  toastTimer = setTimeout(() => { box.hidden = true; }, 3000);
 }
 
 async function checkSchema() {
   try {
     const health = await fetchHealth();
     if (!health.database.schema.up_to_date) {
-      showError("Il database non è aggiornato. Esegui: .venv/bin/python -m app.cli init");
+      showError(t("main.schema_outdated", { command: ".venv/bin/python -m app.cli init" }));
       return false;
     }
   } catch (err) {
-    showError(`Server non disponibile: ${err.message}`);
+    showError(t("main.server_unavailable", { message: err.message }));
     return false;
   }
   return true;
@@ -69,7 +70,7 @@ async function authenticate() {
       try { info = await (await fetch("/api/version")).json(); } catch { /* facoltativa */ }
       showLogin({ version: info.version, source: info.source_url, onSuccess: () => location.reload() });
     } else {
-      showError(`Server non disponibile: ${err.message}`);
+      showError(t("main.server_unavailable", { message: err.message }));
     }
     return null;
   }
@@ -83,7 +84,7 @@ async function authenticate() {
   window.addEventListener(AUTH_REQUIRED, () => {
     if (prompting) return;
     prompting = true;
-    showLogin({ message: "La sessione è scaduta: accedi di nuovo per continuare.", onSuccess: () => location.reload() });
+    showLogin({ message: t("main.session_expired"), onSuccess: () => location.reload() });
   });
   window.addEventListener(PASSWORD_CHANGE, async () => {
     if (prompting) return;
@@ -95,24 +96,27 @@ async function authenticate() {
 }
 
 async function main() {
+  translateStatic(); // texts of index.html in the page language
   if (!(await checkSchema())) return;
   const me = await authenticate();
   if (!me) return;
   session.me = me;
   await prefs.load(); // tema e posizione dell'anteprima prima di disegnare
+  // The user's language (saved preference) differs from the one the page was built with: reload once
+  if (adoptLanguagePreference(prefs.get().language)) return;
   document.body.classList.add("signed-in");
   let projects = [];
 
   /** Nuovo intervento in una data: scelta del progetto, poi modulo con la data già compilata. */
   async function addEventOnDate(iso) {
-    if (!projects.length) return toast("Non ci sono ancora progetti: crea prima un progetto.");
+    if (!projects.length) return toast(t("main.no_projects_yet"));
     const ev = await newEventOnDate(projects, iso);
     if (!ev) return;
     await reloadProjects();
     await calendar.refreshDate(ev.event_date);
     sidebar.setActive(ev.project.id);
     await showProjectEvent(ev);
-    toast("Intervento creato. Aggiungi i server con «Tutto schermo · modifica».");
+    toast(t("main.event_created"));
   }
 
   const calendar = new Calendar($("calendar-scroll"), $("months"), {
@@ -123,13 +127,13 @@ async function main() {
         title: formatMediumDate(iso),
         onClose: done,
         items: [
-          { label: "Nuovo progetto in questa data…", hint: "con il primo intervento", onSelect: () => projectForm.open({ date: iso }) },
+          { label: t("main.ctx_new_project"), hint: t("main.ctx_new_project_hint"), onSelect: () => projectForm.open({ date: iso }) },
           {
-            label: "Nuovo intervento in un progetto esistente…",
+            label: t("main.ctx_new_event"),
             disabled: !projects.length,
             onSelect: () => addEventOnDate(iso),
           },
-          ...(hasEvents ? [{ label: "Apri gli interventi del giorno", onSelect: () => {
+          ...(hasEvents ? [{ label: t("main.ctx_open_day"), onSelect: () => {
             calendar.setSelected(iso);
             detail.openDay(iso);
           } }] : []),
@@ -177,7 +181,7 @@ async function main() {
       await reloadProjects();
       await calendar.refreshDate(copy.event_date);
       await showProjectEvent(copy);
-      toast(`Intervento duplicato al ${formatMediumDate(copy.event_date)}.`);
+      toast(t("main.event_duplicated", { date: formatMediumDate(copy.event_date) }));
     },
     onEditEvent: async (ev) => {
       const res = await editEvent(ev.id);
@@ -186,7 +190,7 @@ async function main() {
       if (res.deleted) {
         await calendar.refreshDate(res.deleted.event_date);
         detail.close();
-        toast("Intervento eliminato.");
+        toast(t("main.event_deleted"));
         return;
       }
       if (res.previousDate && res.previousDate !== res.saved.event_date) await calendar.refreshDate(res.previousDate);
@@ -285,7 +289,7 @@ async function main() {
     const view = b.dataset.view;
     if (view === calendar.view) return;
     applyView(view);
-    prefs.set({ calendar_view: view }).catch((err) => toast(`Impostazione non salvata: ${err.message}`));
+    prefs.set({ calendar_view: view }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
   }));
   prefs.onChange((p, changes) => {
     if ("calendar_view" in changes && p.calendar_view !== calendar.view) applyView(p.calendar_view);
@@ -299,7 +303,7 @@ async function main() {
     $("project-sort").value = `${p.project_sort}|${p.project_group}`;
     viewBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === p.project_view)));
   };
-  const savePref = (changes) => prefs.set(changes).catch((err) => toast(`Impostazione non salvata: ${err.message}`));
+  const savePref = (changes) => prefs.set(changes).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
   $("project-sort").addEventListener("change", (e) => {
     const [sort, group] = e.target.value.split("|");
     savePref({ project_sort: sort, project_group: group });
@@ -350,10 +354,10 @@ async function main() {
     me,
     toast,
     adminActions: [
-      ["Utenti", "Account, ruoli, accessi al portale e password temporanee.", () => peopleDialog.open()],
-      ["Sistemi operativi", "Versioni selezionabili nella tabella server (nuove minor/major, disattivazione).", () => showOsDialog({ toast })],
-      ["Clienti", "Rinomina i clienti, scegli i colori, esporta un cliente intero o elimina quelli senza progetti.", () => showCustomersDialog({ toast, onChanged: () => reloadProjects() })],
-      ["Importa progetti", "Da un file esportato da un'altra installazione di Date Spreader, con anteprima prima di importare.", () => showImportDialog({
+      [t("main.admin_users"), t("main.admin_users_hint"), () => peopleDialog.open()],
+      [t("main.admin_os"), t("main.admin_os_hint"), () => showOsDialog({ toast })],
+      [t("main.admin_customers"), t("main.admin_customers_hint"), () => showCustomersDialog({ toast, onChanged: () => reloadProjects() })],
+      [t("main.admin_import"), t("main.admin_import_hint"), () => showImportDialog({
         toast,
         onImported: async () => {
           await Promise.all([reloadProjects(), people.load(true)]);
@@ -369,14 +373,14 @@ async function main() {
   });
   const positionBtn = $("btn-detail-position");
   const syncPositionBtn = (p) => {
-    const label = p.detail_position === "bottom" ? "Sposta l'anteprima a destra" : "Sposta l'anteprima in basso, sotto il calendario";
+    const label = p.detail_position === "bottom" ? t("main.preview_to_right") : t("main.preview_to_bottom");
     positionBtn.title = label;
     positionBtn.setAttribute("aria-label", label);
   };
   syncPositionBtn(prefs.get());
   positionBtn.addEventListener("click", () => {
     const next = prefs.get().detail_position === "bottom" ? "right" : "bottom";
-    prefs.set({ detail_position: next }).catch((err) => toast(`Impostazione non salvata: ${err.message}`));
+    prefs.set({ detail_position: next }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
   });
   prefs.onChange((p, changes) => { if ("detail_position" in changes) syncPositionBtn(p); });
 
@@ -402,7 +406,7 @@ async function main() {
   $("version-link").addEventListener("click", () => showChangelog());
   $("topbar-actions").append(userMenu(me, {
     onLogout: () => location.reload(),
-    adminItems: [["Sistemi operativi", () => showOsDialog({ toast })]],
+    adminItems: [[t("main.admin_os"), () => showOsDialog({ toast })]],
   }));
   // Menu del filtro per tecnico: tutti, anche i disattivati (per rivedere interventi passati).
   people.onChange((users) => filters.setUsers(users));
@@ -414,7 +418,7 @@ async function main() {
       // Il nome compare nelle chip: ridisegna i mesi dei suoi interventi
       await Promise.all(p.events.map((e) => calendar.refreshDate(e.event_date)));
       if (detail.isOpen) await detail.reload();
-      toast(`Progetto "${p.name}" salvato.`);
+      toast(t("main.project_saved", { name: p.name }));
     },
     onOpenEvent: (pe) => showProjectEvent(pe),
     toast,
@@ -422,21 +426,21 @@ async function main() {
       await reloadProjects();
       await calendar.refreshDate(ev.event_date);
       if (detail.showsAnyEvent([ev.id])) detail.close();
-      toast("Intervento eliminato.");
+      toast(t("main.event_deleted"));
     },
     onProjectDeleted: async (p) => {
       await reloadProjects();
       await Promise.all(p.events.map((e) => calendar.refreshDate(e.event_date)));
       if (detail.showsAnyEvent(p.events.map((e) => e.id))) detail.close();
       sidebar.setActive(null);
-      toast(`Progetto «${p.name}» eliminato.`);
+      toast(t("main.project_deleted", { name: p.name }));
     },
     onEventCreated: async (ev) => {
       await reloadProjects();
       await calendar.refreshDate(ev.event_date);
       sidebar.setActive(ev.project.id);
       await showProjectEvent(ev);
-      toast("Intervento creato. Aggiungi i server con «Tutto schermo · modifica».");
+      toast(t("main.event_created"));
     },
   });
 
@@ -448,9 +452,9 @@ async function main() {
       if (first) {
         await calendar.refreshDate(first.event_date);
         await showProjectEvent(first);
-        toast(`Progetto "${project.name}" creato. Aggiungi i server con "Tutto schermo · modifica".`);
+        toast(t("main.project_created", { name: project.name }));
       } else {
-        toast(`Progetto "${project.name}" creato, senza interventi.`);
+        toast(t("main.project_created_empty", { name: project.name }));
       }
     },
   });
@@ -505,12 +509,12 @@ async function main() {
   try {
     await reloadProjects();
   } catch (err) {
-    showError(`Impossibile caricare i progetti: ${err.message}`);
+    showError(t("main.load_projects_error", { message: err.message }));
   }
   try {
     await people.load(); // avvisa i filtri, che applicano subito quelli salvati
   } catch (err) {
-    showError(`Impossibile caricare i tecnici: ${err.message}`);
+    showError(t("main.load_people_error", { message: err.message }));
   }
   await calendar.init();
   startLiveUpdates();
@@ -524,7 +528,7 @@ async function main() {
       sidebar.setActive(ev.project.id);
       await showProjectEvent(ev);
     } catch {
-      toast("L'intervento del link non esiste più.");
+      toast(t("main.link_event_missing"));
     }
     history.replaceState(null, "", location.pathname); // il link non si riapre a ogni ricarica
   };

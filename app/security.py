@@ -10,6 +10,8 @@ import string
 import threading
 import time
 
+from app.i18n import tr
+
 # scrypt: parametri raccomandati per l'uso interattivo (circa 50 ms, 16 MiB di memoria)
 _N, _R, _P, _DKLEN = 2**14, 8, 1, 64
 MIN_PASSWORD_LENGTH = 10
@@ -46,14 +48,14 @@ DUMMY_HASH = hash_password(secrets.token_hex(8))
 def password_problem(password: str, *, login_names: tuple[str | None, ...] = ()) -> str | None:
     """Messaggio d'errore se la password non è accettabile, altrimenti None."""
     if len(password) < MIN_PASSWORD_LENGTH:
-        return f"La password deve avere almeno {MIN_PASSWORD_LENGTH} caratteri."
+        return tr("password.too_short", min=MIN_PASSWORD_LENGTH)
     if password.strip() != password:
-        return "La password non può iniziare o finire con uno spazio."
+        return tr("password.spaces")
     low = password.lower()
     if any(n and n.lower() in low for n in login_names):
-        return "La password non può contenere il nome utente o l'email."
+        return tr("password.contains_login")
     if len(set(password)) < 5:
-        return "La password è troppo ripetitiva."
+        return tr("password.repetitive")
     return None
 
 
