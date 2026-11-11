@@ -1,6 +1,6 @@
 [project]
 name = "datespreader"
-version = "0.21.0"
+version = "0.22.0"
 description = "Multi-user web portal to plan server migrations and upgrades"
 readme = "README.en.md"
 requires-python = ">=3.11"

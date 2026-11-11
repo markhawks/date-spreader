@@ -4,6 +4,8 @@ Tutte le modifiche rilevanti del portale Date Spreader (fino alla 0.9.0 chiamato
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [Semantic Versioning](https://semver.org/lang/it/).
 
 ## [Non rilasciato]
+
+## [0.22.0] - 2026-11-11
 ### Aggiunto
 - **Nuovo tipo di intervento «Configurazione»**. La tabella server mostra solo hostname, IP, SO, ambiente, «eseguito il» e tecnico; sotto ogni server c'è una **riga di note a tutta larghezza**, alta due righe e che cresce con il testo (Invio va a capo, si salva uscendo dal campo). Vale nella tabella a tutto schermo, nell'anteprima in basso, nella scheda compatta (note con gli a capo) e nell'email di condivisione. Il riepilogo indica i server eseguiti («eseguiti 1/2»). Cambiando il tipo di un intervento la tabella cambia colonne, i dati restano.
 - Pulsante **«+ Intervento»** nella barra dell'anteprima (accanto a sposta-anteprima e ✕, in basso e a destra): crea un intervento nel giorno mostrato, scegliendo il progetto; il modulo ha la data già compilata, come dal tasto destro sul calendario.

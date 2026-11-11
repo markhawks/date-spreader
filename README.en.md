@@ -56,7 +56,10 @@ new password on first login.
 The demo dates are relative to the day the database was generated. To get sample data around today's date,
 regenerate it with `.venv/bin/python scripts/make_demo_db.py`, or start from an empty database as shown below.
 
-## Installation
+## Manual installation (development or quick trial)
+
+For a server, use the install script (see "Installing on a server" above and [docs/INSTALL.en.md](docs/INSTALL.en.md)).
+The steps below are for development or a quick manual trial.
 
 Requirements: **Python 3.11+**. Nothing else is needed: the database is a local SQLite file.
 
@@ -131,6 +134,10 @@ Environment variables, or a `.env` file (see `.env.example`):
 - **Roles**: *admin* (manages users, customers and the OS list), *coordinatore* (coordinator) and *tecnico*
   (technician). Deleting projects, or interventions that contain servers, requires coordinator or admin.
 - Administrators grant access with a **one-time temporary password**; the user must change it on first login.
+- Any user can add a technician **on the fly** from the participants menu («+ Nuovo tecnico…»): only a name is
+  created (technician role, no login); existing names are reused.
+- **Export** of projects/customers is limited to coordinators and administrators and is recorded in the audit log;
+  **import** is for administrators only.
 - Passwords: at least 10 characters, stored as **scrypt** hashes. Session cookie is `HttpOnly` / `SameSite=Lax`;
   writes require an anti-CSRF header; 5 failed logins lock the account/IP for 5 minutes.
 

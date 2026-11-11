@@ -38,7 +38,9 @@ generato; per averle intorno a oggi: `.venv/bin/python scripts/make_demo_db.py` 
 - Python 3.11 o superiore (sviluppato con 3.14)
 - Nessun altro servizio: il database è un file SQLite locale.
 
-## Avvio locale
+## Avvio locale (sviluppo o prova manuale)
+Per installare il portale su un server usa lo script: vedi «Installazione su un server» qui sopra e
+[docs/INSTALLAZIONE.md](docs/INSTALLAZIONE.md). I passi seguenti servono per sviluppare o per una prova al volo.
 
 ```bash
 # 1. Ambiente virtuale e dipendenze
@@ -72,7 +74,8 @@ Con `HOST=127.0.0.1` torna raggiungibile solo dalla macchina stessa.
 Per vedere e modificare i dati bisogna accedere: vedi "Accesso e utenti".
 
 ### Servizio systemd
-In produzione il portale gira come servizio **`datespreader`**:
+In produzione il portale gira come servizio **`datespreader`**. Lo script `deploy/install.sh` lo configura da solo;
+i dettagli che seguono servono per gestirlo o per un'installazione a mano.
 - è abilitato al boot e si riavvia da solo se si blocca;
 - usa l'utente di sistema `datespreader`, senza shell, che può scrivere **solo** in `data/`;
 - prima di partire applica le eventuali migrazioni nuove.
@@ -133,7 +136,16 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - La versione è in `app/__init__.py` (`__version__`) e in `pyproject.toml`; segue il [Semantic Versioning](https://semver.org/lang/it/).
 - Le novità sono in [`CHANGELOG.md`](CHANGELOG.md), nel formato "Keep a Changelog".
 - Nel portale la versione è accanto al nome, in alto a sinistra: cliccandola si apre il changelog (anche da menu utente → "Novità").
-- Per un rilascio: aggiornare `__version__`, `pyproject.toml` e `CHANGELOG.md`, poi riavviare il servizio. Un test verifica che le tre versioni coincidano.
+- Le novità si annotano nel changelog sotto «Non rilasciato»; la versione cambia solo al rilascio.
+- **Per un rilascio**:
+  1. aggiornare `__version__` (`app/__init__.py`), `pyproject.toml` e l'intestazione in `CHANGELOG.md`. Un test verifica che le tre versioni coincidano;
+  2. rigenerare il database di prova con `scripts/make_demo_db.py`;
+  3. eseguire i test;
+  4. commit, tag `vX.Y.Z` e push su GitHub, insieme al tag;
+  5. creare la release su GitHub con le note del changelog;
+  6. riavviare il servizio.
+
+  Chi ha installato con lo script si aggiorna con `sudo /opt/datespreader/deploy/install.sh`, oppure con `--ref vX.Y.Z` per una versione precisa.
 
 ## Interfaccia (home)
 - **Calendario verticale**: un blocco per mese, dall'alto in basso, settimana da lunedì. All'apertura mostra mese precedente, corrente e successivo, con il **mese corrente centrato** nella vista. Scorrendo vicino al bordo superiore o inferiore si caricano altri mesi senza che la vista salti. Il pulsante blu **Oggi**, al centro della barra in alto, riporta al mese corrente.
