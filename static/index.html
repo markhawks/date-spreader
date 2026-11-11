@@ -29,10 +29,14 @@
       <button type="button" id="version-link" class="version-link" title="Novità del portale (changelog)"></button>
     </div>
     <div class="topbar-center">
-      <button type="button" id="btn-today" class="btn btn-today" title="Torna al mese corrente e a oggi">
+      <button type="button" id="btn-today" class="btn btn-today" title="Torna a oggi">
         <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.8" width="12.4" height="11.4" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.8 6.2h12.4M5 1.5v2.6M11 1.5v2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="10.2" r="1.7" fill="currentColor"/></svg>
         <span>Oggi</span>
       </button>
+      <div class="view-switch" role="group" aria-label="Vista del calendario">
+        <button type="button" class="view-switch-btn" data-view="month" aria-pressed="true" title="Vista mensile">Mese</button>
+        <button type="button" class="view-switch-btn" data-view="week" aria-pressed="false" title="Vista settimanale: ogni intervento in dettaglio">Settimana</button>
+      </div>
     </div>
     <div class="topbar-actions" id="topbar-actions">
       <button type="button" id="btn-servers" class="btn" title="Anagrafica server: ricerca e storico degli interventi">Server</button>

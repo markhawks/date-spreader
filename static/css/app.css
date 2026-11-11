@@ -765,7 +765,16 @@ tr.added td { animation: cell-saved 1.6s ease-out; }
    Punto 6: filtri, ricerca server, stato modificabile, colonne ridimensionabili
    ========================================================================= */
 .topbar-actions { display: flex; gap: 8px; justify-self: end; }
-.topbar-center { justify-self: center; }
+.topbar-center { justify-self: center; display: flex; align-items: center; gap: 10px; }
+/* Mese | Settimana */
+.view-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--panel); }
+.view-switch-btn {
+  border: 0; background: transparent; color: var(--muted); padding: 6px 13px; font: inherit; font-size: 0.85rem; cursor: pointer;
+}
+.view-switch-btn + .view-switch-btn { border-left: 1px solid var(--border); }
+.view-switch-btn:hover { color: var(--text); }
+.view-switch-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); color: var(--accent); font-weight: 600; }
+.view-switch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 /* «Oggi»: blu pieno come il mese corrente, ben riconoscibile */
 .btn-today {
   display: inline-flex; align-items: center; gap: 7px;
@@ -1860,3 +1869,51 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 .imp-diff summary, .imp-warn summary { cursor: pointer; font-weight: 600; }
 .imp-diff ul, .imp-warn ul { margin: 6px 0 0; padding-left: 18px; font-size: 0.82rem; }
 .imp-total { margin: 0; font-weight: 600; }
+
+/* ---------- Vista settimanale ------------------------------------------------ */
+/* Una settimana per blocco; i giorni crescono con gli interventi (mai «+N»), che mostrano tutto:
+   nome, avanzamento, cliente, titolo e orario, tipo, tecnici. Lo zoom cambia l'altezza minima. */
+.calendar-scroll { --week-h: 170px; }
+.calendar-scroll[data-view="week"] .month { padding-top: 4px; padding-bottom: 6px; }
+.calendar-scroll[data-view="week"] .month-title { font-size: 1rem; text-transform: none; }
+.calendar-scroll[data-view="week"] .day {
+  height: auto;
+  min-height: calc(var(--week-h) * var(--zoom, 1));
+  overflow: visible;
+  padding: 6px 6px 8px;
+  gap: 5px;
+}
+.day-head { display: flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--muted); }
+.day-wd { text-transform: capitalize; }
+.day-month { font-size: 0.78rem; }
+.calendar-scroll[data-view="week"] .chips { gap: 5px; }
+.calendar-scroll[data-view="week"] .chip { white-space: normal; padding: 5px 7px 6px; gap: 1px; }
+.calendar-scroll[data-view="week"] .chip-name,
+.calendar-scroll[data-view="week"] .chip-meta,
+.calendar-scroll[data-view="week"] .chip-extra { overflow-wrap: anywhere; text-overflow: clip; }
+.calendar-scroll[data-view="week"] .chip-extra { display: block; }
+/* l'avanzamento resta visibile anche con l'anteprima aperta a destra */
+body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
+.chip-week, .chip-people { display: none; font-size: 0.72rem; line-height: 1.35; overflow-wrap: anywhere; }
+.calendar-scroll[data-view="week"] .chip-week { display: block; color: var(--muted); }
+.calendar-scroll[data-view="week"] .chip-people { display: block; }
+.calendar-scroll[data-view="week"] .chip.has-progress::after { height: 3px; }
+/* Calendario stretto (telefono, o anteprima aperta a destra): i giorni uno sotto l'altro,
+   con gli interventi su più colonne se c'è spazio */
+.calendar-scroll[data-view="week"] { container: calweek / inline-size; }
+@container calweek (max-width: 820px) {
+  .month.week .month-grid { grid-template-columns: minmax(0, 1fr); }
+  .month.week .day { min-height: 0; }
+  .month.week .day:not(.has-events) .chips { display: none; }
+  .month.week .day-head { font-size: 0.9rem; }
+  .month.week .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+@media (max-width: 760px) {
+  /* annulla le barrette del calendario mensile su telefono */
+  .calendar-scroll[data-view="week"] .chip {
+    height: auto; padding: 5px 7px 6px; border-left: 3px solid var(--c);
+    background: color-mix(in srgb, var(--c) 16%, var(--panel));
+  }
+  .calendar-scroll[data-view="week"] .chip > * { display: block; }
+  .view-switch-btn { padding: 5px 9px; }
+}

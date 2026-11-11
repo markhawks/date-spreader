@@ -62,6 +62,36 @@ export function formatTime(t) {
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
 }
 
+/** Giorni aggiunti a una data ISO: addDays("2026-11-30", 1) → "2026-12-01". */
+export function addDays(iso, n) {
+  const d = parseIso(iso);
+  d.setDate(d.getDate() + n);
+  return isoDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+/** Lunedì della settimana che contiene `iso`. */
+export const mondayOf = (iso) => addDays(iso, -((parseIso(iso).getDay() + 6) % 7));
+
+/** Numero della settimana ISO 8601 (la settimana 1 contiene il primo giovedì dell'anno). */
+export function isoWeek(iso) {
+  const thursday = parseIso(addDays(mondayOf(iso), 3));
+  const jan1 = new Date(thursday.getFullYear(), 0, 1);
+  const days = Math.round((thursday - jan1) / 86400000); // round: i giorni col cambio d'ora durano 23 o 25 ore
+  return Math.floor(days / 7) + 1;
+}
+
+const fmtDayMonth = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long" });
+const fmtDayMonthYear = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long", year: "numeric" });
+
+/** Settimana che inizia il lunedì `monday`: "9 – 15 novembre 2026", "30 novembre – 6 dicembre 2026". */
+export function formatWeek(monday) {
+  const a = parseIso(monday);
+  const b = parseIso(addDays(monday, 6));
+  if (a.getMonth() === b.getMonth()) return `${a.getDate()} – ${fmtDayMonthYear.format(b)}`;
+  if (a.getFullYear() === b.getFullYear()) return `${fmtDayMonth.format(a)} – ${fmtDayMonthYear.format(b)}`;
+  return `${fmtDayMonthYear.format(a)} – ${fmtDayMonthYear.format(b)}`;
+}
+
 const fmtLong = new Intl.DateTimeFormat("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 const fmtMedium = new Intl.DateTimeFormat("it-IT", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 

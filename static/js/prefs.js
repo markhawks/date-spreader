@@ -7,7 +7,7 @@ const THEME_KEY = "datespreader.theme"; // copia locale per applicare il tema pr
 const DEFAULTS = {
   detail_position: "right", bottom_panel_height: 45, theme: "system",
   sidebar_width: 280, project_view: "grid", project_sort: "name", project_group: "none",
-  time_format: "24h", gmail_account: "", gmail_choose_account: false, calendar_zoom: 1,
+  time_format: "24h", gmail_account: "", gmail_choose_account: false, calendar_zoom: 1, calendar_view: "month",
 };
 
 const darkQuery = matchMedia("(prefers-color-scheme: dark)");

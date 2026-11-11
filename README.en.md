@@ -11,6 +11,7 @@ this job with:
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
+- **month or week view**: a **Month | Week** switch next to "Today"; the week view shows seven tall columns with every intervention in full (name, progress, customer, title and time, type, technicians), never "+N";
 - **calendar zoom**, Blender style: hold the **middle mouse button and move forward/back** (or pinch on a
   touchpad, or use the − % + control); zooming in shows more interventions and details per day;
 - **real multi-user editing**: optimistic locking (no silent overwrites), live updates from colleagues every

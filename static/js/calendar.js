@@ -1,14 +1,15 @@
-// Calendario verticale: un blocco per mese, impilati dall'alto verso il basso.
-// All'avvio mostra mese precedente, corrente e successivo e centra il corrente;
-// avvicinandosi al bordo superiore/inferiore aggiunge altri mesi.
+// Calendario verticale: un blocco per mese (o per settimana, nella vista settimanale),
+// impilati dall'alto verso il basso. All'avvio mostra il periodo precedente, il corrente e il
+// successivo e centra il corrente; avvicinandosi al bordo superiore/inferiore ne aggiunge altri.
 
 import { fetchEvents } from "./api.js";
 import { colorFor } from "./colors.js";
 import {
-  WEEKDAYS, addMonths, daysInMonth, firstWeekdayMonday, formatMonth, formatTime,
-  isoDate, monthRange, todayIso, ymKey,
+  WEEKDAYS, addDays, addMonths, daysInMonth, firstWeekdayMonday, formatMonth, formatTime, formatWeek,
+  isoDate, isoWeek, monthRange, mondayOf, parseIso, todayIso, ymKey,
 } from "./dates.js";
-import { EVENT_STATUS, isConfigEvent } from "./labels.js";
+import { EVENT_STATUS, EVENT_TYPE, isConfigEvent } from "./labels.js";
+import { people } from "./people.js";
 
 const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
 const MAX_CHIPS = 2;        // interventi per giorno a zoom normale; oltre, la cella mostra "+N"
@@ -29,6 +30,33 @@ const AUTO_SCROLL_MS = 1200; // limite massimo di uno scorrimento animato
 const ymFromIso = (iso) => ({ year: Number(iso.slice(0, 4)), month: Number(iso.slice(5, 7)) });
 const cmpYm = (a, b) => (a.year - b.year) * 12 + (a.month - b.month);
 
+/**
+ * Unità di caricamento e di disegno del calendario. Un periodo è un mese ({year, month})
+ * o una settimana (data ISO del suo lunedì); ogni periodo è un blocco <section class="month">.
+ */
+const MONTH = {
+  view: "month",
+  ofIso: ymFromIso,
+  key: ymKey,
+  parse: (key) => ({ year: Number(key.slice(0, 4)), month: Number(key.slice(5, 7)) }),
+  add: addMonths,
+  cmp: cmpYm,
+  range: monthRange,
+  label: formatMonth,
+};
+const WEEK = {
+  view: "week",
+  ofIso: mondayOf,
+  key: (monday) => monday,
+  parse: (key) => key,
+  add: (monday, n) => addDays(monday, 7 * n),
+  cmp: (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+  range: (monday) => ({ start: monday, end: addDays(monday, 6) }),
+  label: (monday) => `la settimana ${formatWeek(monday)}`,
+};
+const fmtWeekdayShort = new Intl.DateTimeFormat("it-IT", { weekday: "short" });
+const fmtMonthShort = new Intl.DateTimeFormat("it-IT", { month: "short" });
+
 export class Calendar {
   /**
    * @param {HTMLElement} scrollEl contenitore con lo scorrimento verticale
@@ -42,9 +70,10 @@ export class Calendar {
     this.onError = opts.onError ?? console.error;
     this.onDayClick = opts.onDayClick ?? (() => {});
     this.onDayContext = opts.onDayContext ?? null; // tasto destro / pressione prolungata su un giorno
-    this.first = null;          // primo mese renderizzato {year, month}
-    this.last = null;           // ultimo mese renderizzato
-    this.current = null;        // mese di oggi
+    this.unit = MONTH;          // vista: mesi o settimane (vedi useView)
+    this.first = null;          // primo periodo renderizzato (mese {year, month} o lunedì ISO)
+    this.last = null;           // ultimo periodo renderizzato
+    this.current = null;        // periodo di oggi
     this.eventsByDate = new Map();
     this.extending = false;
     this.autoScrolling = false; // durante uno scorrimento animato non si aggiungono mesi
@@ -72,12 +101,67 @@ export class Calendar {
     this.#setupContextMenu();
     this.#setupZoomGestures();
     addEventListener("resize", () => this.#relayout());
+    // Nella vista settimanale gli interventi mostrano i tecnici: ridisegna quando cambiano i nomi
+    people.onChange(() => { if (this.unit === WEEK && this.first) this.rerender(); });
+  }
+
+  // --- vista mese / settimana -------------------------------------------------------
+
+  get view() {
+    return this.unit.view;
+  }
+
+  /** Imposta la vista ("month" o "week") senza ridisegnare: da usare prima di init(). */
+  useView(view) {
+    this.unit = view === "week" ? WEEK : MONTH;
+    this.scrollEl.dataset.view = this.unit.view;
+    this.layout = this.#layout();
+    this.scrollEl.dataset.zoomMode = this.layout.mode;
+  }
+
+  /** Cambia vista restando sullo stesso giorno (quello al centro della vista, o il selezionato). */
+  async setView(view) {
+    if ((view === "week" ? WEEK : MONTH) === this.unit) return;
+    const anchor = this.#centerDate() ?? this.selected ?? todayIso();
+    this.useView(view);
+    await this.init(new Date(), anchor);
+    await this.goToDate(anchor, { flash: false, behavior: "instant" });
+  }
+
+  /** Data del giorno al centro della parte visibile del calendario. */
+  #centerDate() {
+    const box = this.scrollEl.getBoundingClientRect();
+    const mid = box.top + box.height / 2;
+    let best = null;
+    let dist = Infinity;
+    for (const cell of this.monthsEl.querySelectorAll(".day[data-date]")) {
+      const r = cell.getBoundingClientRect();
+      if (r.bottom < box.top || r.top > box.bottom) continue;
+      const d = Math.abs((r.top + r.bottom) / 2 - mid);
+      if (d < dist) { dist = d; best = cell.dataset.date; }
+    }
+    return best;
+  }
+
+  /**
+   * Nella vista settimanale l'altezza dei blocchi dipende dagli interventi: ridisegnando
+   * un blocco sopra la vista il contenuto si sposterebbe. Qui si tiene fermo il primo giorno visibile.
+   */
+  #keepAnchor(fn) {
+    if (this.unit !== WEEK) return fn();
+    const top = this.scrollEl.getBoundingClientRect().top;
+    const anchor = [...this.monthsEl.querySelectorAll(".day[data-date]")].find((c) => c.getBoundingClientRect().bottom > top);
+    const before = anchor?.getBoundingClientRect().top;
+    const result = fn();
+    if (anchor && anchor.isConnected) this.scrollEl.scrollTop += anchor.getBoundingClientRect().top - before;
+    return result;
   }
 
   // --- zoom ---------------------------------------------------------------------
 
   /** Altezza attuale di un giorno e conseguente modo di disegno degli interventi. */
   #layout() {
+    if (this.unit === WEEK) return { h: 0, mode: "week", key: "week" }; // giorni alti quanto serve
     const base = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--cell-h")) || 104;
     const h = base * this.zoom;
     const narrow = matchMedia("(max-width: 760px)").matches; // su telefono sono già barrette
@@ -92,6 +176,7 @@ export class Calendar {
    */
   #fit(n) {
     const { h, mode } = this.layout;
+    if (mode === "week") return { fit: "week", shown: n }; // si vedono sempre tutti
     if (mode === "compact") {
       const avail = h - 30;
       const all = Math.floor((avail + BAR_GAP) / (BAR_H + BAR_GAP));
@@ -222,35 +307,43 @@ export class Calendar {
     ["pointerup", "pointercancel", "pointerleave"].forEach((t) => this.monthsEl.addEventListener(t, cancel));
   }
 
-  /** Mostra i tre mesi attorno a `today` e centra il mese corrente. */
-  async init(today = new Date()) {
-    this.current = { year: today.getFullYear(), month: today.getMonth() + 1 };
-    this.first = addMonths(this.current, -1);
-    this.last = addMonths(this.current, 1);
+  /**
+   * Mostra i tre periodi (mesi o settimane) attorno a `around` (data ISO; predefinito: oggi)
+   * e centra quello di oggi, o quello di `around`.
+   */
+  async init(today = new Date(), around = null) {
+    const u = this.unit;
+    this.current = u.ofIso(isoDate(today.getFullYear(), today.getMonth() + 1, today.getDate()));
+    const center = around ? u.ofIso(around) : this.current;
+    this.first = u.add(center, -1);
+    this.last = u.add(center, 1);
+    this.eventsByDate.clear();
     this.monthsEl.replaceChildren();
 
     const loads = [];
-    for (let ym = this.first; cmpYm(ym, this.last) <= 0; ym = addMonths(ym, 1)) {
-      const section = this.#buildMonth(ym);
+    for (let p = this.first; u.cmp(p, this.last) <= 0; p = u.add(p, 1)) {
+      const section = this.#buildPeriod(p);
       this.monthsEl.append(section);
-      loads.push(this.#loadMonthEvents(ym, section));
+      loads.push(this.#loadEvents(p, section));
     }
-    this.scrollToMonth(this.current, { behavior: "instant" });
+    this.scrollToPeriod(center, { behavior: "instant" });
     await Promise.all(loads);
-    this.#onScroll(); // su schermi molto alti può servire subito un mese in più
+    if (u === WEEK) this.scrollToPeriod(center, { behavior: "instant" }); // le settimane crescono con gli interventi
+    this.#onScroll(); // su schermi molto alti può servire subito un periodo in più
   }
 
-  /** Porta il mese al centro della vista (o in alto, se è più alto della vista). */
-  scrollToMonth(ym, { behavior = "smooth" } = {}) {
-    const section = this.monthsEl.querySelector(`[data-month="${ymKey(ym)}"]`);
+  /** Porta il periodo al centro della vista (o in alto, se è più alto della vista). */
+  scrollToPeriod(p, { behavior = "smooth" } = {}) {
+    const section = this.monthsEl.querySelector(`[data-period="${this.unit.key(p)}"]`);
     if (!section) return;
     const view = this.scrollEl.clientHeight;
     const offset = section.offsetTop - this.monthsEl.offsetTop;
     this.#scrollTo(offset - Math.max(0, (view - section.offsetHeight) / 2), behavior);
   }
 
-  scrollToToday() {
-    this.scrollToMonth(this.current);
+  async scrollToToday() {
+    await this.#ensurePeriod(this.current);
+    this.scrollToPeriod(this.current);
   }
 
   /**
@@ -258,7 +351,7 @@ export class Calendar {
    * @returns {Promise<HTMLElement|null>} la cella del giorno
    */
   async goToDate(iso, { flash = true, behavior = "smooth" } = {}) {
-    await this.#ensureMonth(ymFromIso(iso));
+    await this.#ensurePeriod(this.unit.ofIso(iso));
     const cell = this.cell(iso);
     if (!cell) return null;
     const box = this.scrollEl.getBoundingClientRect();
@@ -285,20 +378,17 @@ export class Calendar {
     this.setFilter(this.filter);
   }
 
-  /** Ricarica dal server gli eventi di tutti i mesi a video (es. dopo un import). */
+  /** Ricarica dal server gli eventi di tutti i periodi a video (es. dopo un import). */
   async reload() {
     const sections = [...this.monthsEl.querySelectorAll(".month")];
-    await Promise.all(sections.map((section) => {
-      const [year, month] = section.dataset.month.split("-").map(Number);
-      return this.#loadMonthEvents({ year, month }, section);
-    }));
+    await Promise.all(sections.map((section) => this.#loadEvents(this.unit.parse(section.dataset.period), section)));
   }
 
-  /** Ricarica dal server gli eventi del mese che contiene `iso`. */
+  /** Ricarica dal server gli eventi del periodo (mese o settimana) che contiene `iso`. */
   async refreshDate(iso) {
-    const ym = ymFromIso(iso);
-    const section = this.monthsEl.querySelector(`[data-month="${ymKey(ym)}"]`);
-    if (section) await this.#loadMonthEvents(ym, section);
+    const p = this.unit.ofIso(iso);
+    const section = this.monthsEl.querySelector(`[data-period="${this.unit.key(p)}"]`);
+    if (section) await this.#loadEvents(p, section);
   }
 
   cell(iso) {
@@ -307,10 +397,58 @@ export class Calendar {
 
   // --- costruzione DOM ------------------------------------------------------
 
+  #buildPeriod(p) {
+    return this.unit === WEEK ? this.#buildWeek(p) : this.#buildMonth(p);
+  }
+
+  /** Una settimana: titolo con numero e date, poi 7 giorni in colonne alte quanto i loro interventi. */
+  #buildWeek(monday) {
+    const section = document.createElement("section");
+    section.className = "month week";
+    section.dataset.period = monday;
+    if (monday === this.current) section.classList.add("is-current");
+
+    const title = document.createElement("h2");
+    title.className = "month-title";
+    title.textContent = `Settimana ${isoWeek(monday)} · ${formatWeek(monday)}`;
+
+    const grid = document.createElement("div");
+    grid.className = "month-grid";
+    const today = todayIso();
+    for (let i = 0; i < 7; i++) {
+      const iso = addDays(monday, i);
+      const date = parseIso(iso);
+      const cell = document.createElement("div");
+      cell.className = "day";
+      cell.dataset.date = iso;
+      if (i >= 5) cell.classList.add("weekend");
+      if (iso === today) {
+        cell.classList.add("today");
+        cell.setAttribute("aria-current", "date");
+      }
+      if (iso === this.selected) cell.classList.add("selected");
+      const head = document.createElement("div");
+      head.className = "day-head";
+      const wd = Object.assign(document.createElement("span"), { className: "day-wd", textContent: fmtWeekdayShort.format(date) });
+      const num = Object.assign(document.createElement("span"), { className: "day-num", textContent: date.getDate() });
+      head.append(wd, num);
+      // Il mese accanto al numero: il primo giorno della settimana e il primo del mese
+      if (i === 0 || date.getDate() === 1) {
+        head.append(Object.assign(document.createElement("span"), { className: "day-month", textContent: fmtMonthShort.format(date) }));
+      }
+      const chips = document.createElement("ul");
+      chips.className = "chips";
+      cell.append(head, chips);
+      grid.append(cell);
+    }
+    section.append(title, grid);
+    return section;
+  }
+
   #buildMonth(ym) {
     const section = document.createElement("section");
     section.className = "month";
-    section.dataset.month = ymKey(ym);
+    section.dataset.period = ymKey(ym);
     if (ymKey(ym) === ymKey(this.current)) section.classList.add("is-current");
 
     const title = document.createElement("h2");
@@ -361,16 +499,18 @@ export class Calendar {
     return section;
   }
 
-  async #loadMonthEvents(ym, section) {
-    const { start, end } = monthRange(ym);
+  async #loadEvents(p, section) {
+    const unit = this.unit;
+    const { start, end } = unit.range(p);
     let events;
     try {
       events = await fetchEvents(start, end);
     } catch (err) {
       section.classList.add("load-error");
-      this.onError(new Error(`Impossibile caricare ${formatMonth(ym)}: ${err.message}`));
+      this.onError(new Error(`Impossibile caricare ${unit.label(p)}: ${err.message}`));
       return;
     }
+    if (unit !== this.unit || !section.isConnected) return; // nel frattempo è cambiata la vista
     section.classList.remove("load-error");
     // Sostituisce gli eventi del mese (serve anche quando si ricarica dopo una modifica).
     for (const cell of section.querySelectorAll(".day[data-date]")) this.eventsByDate.delete(cell.dataset.date);
@@ -378,7 +518,7 @@ export class Calendar {
       if (!this.eventsByDate.has(ev.event_date)) this.eventsByDate.set(ev.event_date, []);
       this.eventsByDate.get(ev.event_date).push(ev);
     }
-    this.#renderMonth(section);
+    this.#keepAnchor(() => this.#renderMonth(section));
   }
 
   /** Disegna gli eventi di un mese già caricato, applicando il filtro attivo. */
@@ -406,7 +546,9 @@ export class Calendar {
    */
   setFilter(predicate) {
     this.filter = predicate;
-    for (const section of this.monthsEl.querySelectorAll(".month")) this.#renderMonth(section);
+    this.#keepAnchor(() => {
+      for (const section of this.monthsEl.querySelectorAll(".month")) this.#renderMonth(section);
+    });
   }
 
   #renderDay(cell, events) {
@@ -451,12 +593,24 @@ export class Calendar {
     meta.className = "chip-meta";
     // Seconda riga: avanzamento, cliente (se c'è), ora
     const prog = Object.assign(document.createElement("span"), { className: "chip-progress", textContent: progress });
-    meta.append(prog, [ev.customer_name, formatTime(ev.start_time)].filter(Boolean).map((t) => ` · ${t}`).join(""));
+    // (nella vista settimanale l'orario completo sta nella riga sotto, con il titolo)
+    const metaRest = [ev.customer_name, this.unit === WEEK ? null : formatTime(ev.start_time)];
+    meta.append(prog, metaRest.filter(Boolean).map((t) => ` · ${t}`).join(""));
     li.append(name, meta);
     // Terza riga, visibile solo con lo zoom grande: titolo e orario completo
     const extra = [ev.title, ev.start_time && `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`]
       .filter(Boolean).join(" · ");
     if (extra) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: extra }));
+    if (this.unit === WEEK) {
+      // Vista settimanale: anche tipo di intervento e tecnici (partecipanti e assegnati alle righe)
+      const names = (ev.user_ids ?? []).map((id) => people.byId(id)?.display_name).filter(Boolean);
+      li.append(Object.assign(document.createElement("span"), {
+        className: "chip-week", textContent: EVENT_TYPE[ev.event_type] ?? ev.event_type,
+      }));
+      if (names.length) {
+        li.append(Object.assign(document.createElement("span"), { className: "chip-people", textContent: names.join(", ") }));
+      }
+    }
 
     li.title = [
       ev.customer_name,
@@ -505,37 +659,37 @@ export class Calendar {
     else if (scrollHeight - scrollTop - clientHeight < EDGE_PX) this.#extend(1);
   }
 
-  /** Aggiunge un mese sopra, mantenendo ferma la vista. Restituisce il caricamento eventi. */
-  #prependMonth() {
-    const ym = addMonths(this.first, -1);
-    const section = this.#buildMonth(ym);
+  /** Aggiunge un periodo sopra, mantenendo ferma la vista. Restituisce il caricamento eventi. */
+  #prependPeriod() {
+    const p = this.unit.add(this.first, -1);
+    const section = this.#buildPeriod(p);
     const before = this.scrollEl.scrollHeight;
     this.monthsEl.prepend(section);
     this.scrollEl.scrollTop += this.scrollEl.scrollHeight - before;
-    this.first = ym;
-    return this.#loadMonthEvents(ym, section);
+    this.first = p;
+    return this.#loadEvents(p, section);
   }
 
-  #appendMonth() {
-    const ym = addMonths(this.last, 1);
-    const section = this.#buildMonth(ym);
+  #appendPeriod() {
+    const p = this.unit.add(this.last, 1);
+    const section = this.#buildPeriod(p);
     this.monthsEl.append(section);
-    this.last = ym;
-    return this.#loadMonthEvents(ym, section);
+    this.last = p;
+    return this.#loadEvents(p, section);
   }
 
-  /** Aggiunge i mesi necessari perché `ym` sia presente e ne attende gli eventi. */
-  async #ensureMonth(ym) {
+  /** Aggiunge i periodi necessari perché `p` sia presente e ne attende gli eventi. */
+  async #ensurePeriod(p) {
     const loads = [];
-    while (cmpYm(ym, this.first) < 0) loads.push(this.#prependMonth());
-    while (cmpYm(ym, this.last) > 0) loads.push(this.#appendMonth());
+    while (this.unit.cmp(p, this.first) < 0) loads.push(this.#prependPeriod());
+    while (this.unit.cmp(p, this.last) > 0) loads.push(this.#appendPeriod());
     await Promise.all(loads);
   }
 
   async #extend(direction) {
     this.extending = true;
     try {
-      await (direction < 0 ? this.#prependMonth() : this.#appendMonth());
+      await (direction < 0 ? this.#prependPeriod() : this.#appendPeriod());
     } finally {
       this.extending = false;
     }

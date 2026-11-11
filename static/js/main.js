@@ -257,6 +257,26 @@ async function main() {
   zoomValue.addEventListener("click", () => stepZoom(1 / calendar.zoom));
   calendar.setZoom(prefs.get().calendar_zoom);
 
+  // Vista del calendario: Mese | Settimana (preferenza personale)
+  const viewSwitch = [...document.querySelectorAll(".view-switch-btn")];
+  const showView = (view) => viewSwitch.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
+  const applyView = async (view) => {
+    showView(view);
+    await calendar.setView(view);
+    if (calendar.selected) calendar.setSelected(calendar.selected);
+  };
+  viewSwitch.forEach((b) => b.addEventListener("click", () => {
+    const view = b.dataset.view;
+    if (view === calendar.view) return;
+    applyView(view);
+    prefs.set({ calendar_view: view }).catch((err) => toast(`Impostazione non salvata: ${err.message}`));
+  }));
+  prefs.onChange((p, changes) => {
+    if ("calendar_view" in changes && p.calendar_view !== calendar.view) applyView(p.calendar_view);
+  });
+  calendar.useView(prefs.get().calendar_view);
+  showView(calendar.view);
+
   // Colonna progetti: vista (quadrati/rettangoli), ordinamento, larghezza — preferenze personali.
   const viewBtns = [...document.querySelectorAll(".view-btn")];
   const syncSidebarControls = (p) => {
