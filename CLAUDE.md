@@ -34,6 +34,12 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
 - Documentazione in inglese (`README.md`, `docs/INSTALL.md`, `CHANGELOG.md`) e in italiano (`README.it.md`,
   `docs/INSTALLAZIONE.md`, `CHANGELOG.it.md`): aggiornarle sempre entrambe.
 
+## Funzioni future e uso da smartphone
+- Le funzioni proposte stanno in `docs/ROADMAP.md` (inglese) e `docs/ROADMAP.it.md`: quando una viene fatta,
+  toglierla da lì e annotarla nei changelog; le idee nuove concordate con l'utente si aggiungono lì.
+- Il portale è pensato per il **computer** (verificare a 1100–1920 px). Sul telefono c'è solo il riepilogo in
+  sola lettura (`static/js/recap.js`): non investire nella modifica da smartphone. In programma: app Android/PWA.
+
 ## Installazione su altri server (deploy/install.sh)
 - Testato **solo su Fedora 44**; RHEL 10.2, Fedora 45, installatore e RPM sono pianificati. Tenere aggiornata la
   tabella «Piattaforme» in `docs/INSTALL.md` e `docs/INSTALLAZIONE.md`.
