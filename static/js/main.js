@@ -101,6 +101,18 @@ async function main() {
   document.body.classList.add("signed-in");
   let projects = [];
 
+  /** Nuovo intervento in una data: scelta del progetto, poi modulo con la data già compilata. */
+  async function addEventOnDate(iso) {
+    if (!projects.length) return toast("Non ci sono ancora progetti: crea prima un progetto.");
+    const ev = await newEventOnDate(projects, iso);
+    if (!ev) return;
+    await reloadProjects();
+    await calendar.refreshDate(ev.event_date);
+    sidebar.setActive(ev.project.id);
+    await showProjectEvent(ev);
+    toast("Intervento creato. Aggiungi i server con «Tutto schermo · modifica».");
+  }
+
   const calendar = new Calendar($("calendar-scroll"), $("months"), {
     onError: (err) => showError(err.message),
     // Tasto destro (o pressione prolungata) su un giorno: crea un progetto o un intervento in quella data
@@ -113,15 +125,7 @@ async function main() {
           {
             label: "Nuovo intervento in un progetto esistente…",
             disabled: !projects.length,
-            onSelect: async () => {
-              const ev = await newEventOnDate(projects, iso);
-              if (!ev) return;
-              await reloadProjects();
-              await calendar.refreshDate(ev.event_date);
-              sidebar.setActive(ev.project.id);
-              await showProjectEvent(ev);
-              toast("Intervento creato. Aggiungi i server con «Tutto schermo · modifica».");
-            },
+            onSelect: () => addEventOnDate(iso),
           },
           ...(hasEvents ? [{ label: "Apri gli interventi del giorno", onSelect: () => {
             calendar.setSelected(iso);
@@ -296,6 +300,10 @@ async function main() {
     ],
   }));
   // Pulsante nella barra dell'anteprima: in basso ↔ a destra (stessa preferenza delle Impostazioni)
+  // «+ Intervento» nella barra dell'anteprima: nuovo intervento nel giorno mostrato
+  $("btn-detail-new-event").addEventListener("click", () => {
+    if (detail.currentDate) addEventOnDate(detail.currentDate);
+  });
   const positionBtn = $("btn-detail-position");
   const syncPositionBtn = (p) => {
     const label = p.detail_position === "bottom" ? "Sposta l'anteprima a destra" : "Sposta l'anteprima in basso, sotto il calendario";

@@ -136,6 +136,7 @@ export class DetailPanel {
   /** Tutti gli interventi di un giorno; se `focusEventId`, porta in vista quello. */
   async openDay(iso, focusEventId = null) {
     this.last = () => this.openDay(iso, focusEventId);
+    this.currentDate = iso; // giorno mostrato: serve al pulsante «+ Intervento» della barra
     this.#show(formatLongDate(iso), "");
     const req = ++this.request;
     try {
@@ -160,6 +161,7 @@ export class DetailPanel {
     try {
       const ev = await fetchEvent(eventId);
       if (req !== this.request) return;
+      this.currentDate = ev.event_date;
       this.titleEl.textContent = formatLongDate(ev.event_date);
       this.subEl.textContent = ev.project.name;
       this.bodyEl.replaceChildren(this.#eventCard(ev, true));

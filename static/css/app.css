@@ -1731,7 +1731,7 @@ body.row-resizing, body.row-resizing * { cursor: row-resize !important; user-sel
 .day:not(.pad) { -webkit-touch-callout: none; }   /* niente menu di sistema alla pressione prolungata */
 
 /* Pulsante "sposta anteprima" nella barra dell'intervento */
-.detail-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.detail-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 #btn-detail-position .ico-to-right { display: none; }
 body.detail-bottom #btn-detail-position .ico-to-right { display: block; }
 body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
@@ -1764,3 +1764,6 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 .server-table tr.has-notes td { border-bottom-style: dashed; }
 .server-table tr.notes-row td.notes-cell { background: var(--panel-2); padding: 6px 8px 8px; }
 .config-notes { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; font-size: 0.8rem; }
+
+/* «+ Intervento» nella barra dell'anteprima */
+#btn-detail-new-event { white-space: nowrap; }
