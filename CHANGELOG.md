@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Changed
+- **Configuration interventions have a "Status" column** (Planned, In progress, Completed…) in the full-screen table, the bottom preview, the card, the filters and the sharing email. The progress in the calendar ("1/2") and the summary now count the servers with status "Completed", as for the other types, and no longer those with an "executed on" date: a date filled in as a planned date no longer marks the work as done.
+
 ### Added
 - **Import servers from CSV/Excel** into an intervention ("Import from CSV/Excel…" next to "Add server"): a CSV or .xlsx file, or rows pasted from a spreadsheet. Columns recognised from their English or Italian names (or from the content), changeable; a preview shows the result of every row before saving; OS names matched to the list even when written differently; servers already in the inventory are linked and updated only on request; bad rows never block the others. New dependency: `openpyxl` (reading .xlsx). API: `POST /api/events/{id}/servers/import`.
 - **Scheduling conflicts**: warning when the same server is in two interventions on the same day, or a technician (participant or assigned to a server row) is in two interventions at overlapping times (no time = whole day; cancelled interventions ignored). Warning icon on the calendar, list of conflicts with a link to the other intervention in the card and in the full-screen table. API: `conflict_users` and `conflict_servers` in `GET /api/events`, `conflicts` in the intervention details.

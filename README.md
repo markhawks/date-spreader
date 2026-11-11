@@ -468,12 +468,14 @@ new one:
 ### Configuration interventions
 - The **"Configuration"** type (in the intervention window, "Type" menu) is meant for interventions without kernel,
   check and migration.
-- The server table has only **hostname, IP, OS, environment, executed on and technician**. Below each server there
+- The server table has only **hostname, IP, OS, environment, status, executed on and technician**. The **status** of
+  each server's activity (Planned, In progress, Completed, Failed, Postponed, Cancelled) is what counts for the
+  progress in the calendar ("1/2"); "executed on" is only the date the work was actually done. Below each server there
   is a **full-width notes row** for the configuration details (steps, parameters, modified files, checks): it
   starts two lines high and **grows with the text**; it can also be stretched by dragging the corner. **Enter**
   starts a new line, leaving the field saves, **Esc** cancels.
 - The notes (up to 20,000 characters) keep their line breaks in the compact card and in the sharing **email**,
-  below each server. The summary shows how many servers have been executed.
+  below each server. The summary shows how many servers are completed.
 - Changing the type of an intervention changes the table columns; the data of hidden columns stays saved.
 
 ### Full-screen table (editing)

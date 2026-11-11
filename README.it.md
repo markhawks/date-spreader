@@ -311,8 +311,8 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
 
 ### Interventi di configurazione
 - Il tipo **«Configurazione»** (nella finestra dell'intervento, menu «Tipo») è pensato per interventi senza kernel, check e migrazione.
-- La tabella server ha solo **hostname, IP, SO, ambiente, eseguito il e tecnico**. Sotto ogni server c'è una **riga di note a tutta larghezza** per il dettaglio della configurazione (passi, parametri, file modificati, verifiche): parte alta due righe e **cresce con il testo**; si può anche allungare trascinando l'angolo. **Invio** va a capo, l'uscita dal campo salva, **Esc** annulla.
-- Le note (fino a 20.000 caratteri) compaiono con gli a capo anche nella scheda compatta e nell'**email** di condivisione, sotto ogni server. Il riepilogo indica quanti server sono stati eseguiti.
+- La tabella server ha solo **hostname, IP, SO, ambiente, stato, eseguito il e tecnico**. Lo **stato** dell'attività su ogni server (Pianificata, In corso, Completata, Fallita, Rinviata, Annullata) è quello che conta per l'avanzamento nel calendario («1/2»); «eseguito il» è solo la data in cui il lavoro è stato fatto davvero. Sotto ogni server c'è una **riga di note a tutta larghezza** per il dettaglio della configurazione (passi, parametri, file modificati, verifiche): parte alta due righe e **cresce con il testo**; si può anche allungare trascinando l'angolo. **Invio** va a capo, l'uscita dal campo salva, **Esc** annulla.
+- Le note (fino a 20.000 caratteri) compaiono con gli a capo anche nella scheda compatta e nell'**email** di condivisione, sotto ogni server. Il riepilogo indica quanti server sono completati.
 - Cambiando il tipo di un intervento la tabella cambia colonne; i dati delle colonne nascoste restano salvati.
 
 ### Tabella a tutto schermo (modifica)

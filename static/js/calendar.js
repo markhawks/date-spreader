@@ -8,7 +8,7 @@ import {
   WEEKDAYS, addDays, addMonths, daysInMonth, firstWeekdayMonday, formatMonth, formatTime, formatWeek,
   isoDate, isoWeek, monthRange, mondayOf, parseIso, todayIso, ymKey,
 } from "./dates.js";
-import { EVENT_STATUS, EVENT_TYPE, isConfigEvent } from "./labels.js";
+import { EVENT_STATUS, EVENT_TYPE } from "./labels.js";
 import { people } from "./people.js";
 import { warnIcon } from "./conflicts.js";
 import { locale, t } from "./i18n.js";
@@ -592,7 +592,7 @@ export class Calendar {
     li.dataset.projectId = ev.project_id;
     const n = ev.server_count;
     // Avanzamento: righe eseguite (configurazione) o migrate (altri tipi) sul totale
-    const done = isConfigEvent(ev) ? ev.executed : ev.migrated;
+    const done = ev.migrated; // rows with status "completata" (for every type of intervention)
     const progress = n ? `${done}/${n}` : t("calendar.no_servers_short");
     if (n) {
       li.style.setProperty("--p", `${Math.round((done / n) * 100)}%`);

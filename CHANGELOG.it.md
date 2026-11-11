@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Modificato
+- **Gli interventi di configurazione hanno la colonna «Stato»** (Pianificata, In corso, Completata…) nella tabella a tutto schermo, nell'anteprima in basso, nella scheda, nei filtri e nell'email di condivisione. L'avanzamento nel calendario («1/2») e il riepilogo contano ora i server con stato «Completata», come per gli altri tipi, e non più quelli con la data «eseguito il»: una data inserita come data prevista non segna più il lavoro come fatto.
+
 ### Aggiunto
 - **Import dei server da CSV/Excel** in un intervento («Importa da CSV/Excel…» accanto ad «Aggiungi server»): un file CSV o .xlsx, oppure righe incollate da un foglio di calcolo. Colonne riconosciute dal nome in italiano o in inglese (o dal contenuto), modificabili; un'anteprima mostra l'esito di ogni riga prima di salvare; SO riconosciuti anche se scritti diversamente; i server già in anagrafica vengono collegati e aggiornati solo su richiesta; le righe sbagliate non bloccano le altre. Nuova dipendenza: `openpyxl` (lettura dei file .xlsx). API: `POST /api/events/{id}/servers/import`.
 - **Conflitti di pianificazione**: avviso quando lo stesso server è in due interventi nello stesso giorno, o un tecnico (partecipante o assegnato a una riga server) è in due interventi con orari sovrapposti (senza orario = tutto il giorno; interventi annullati esclusi). Icona di avviso nel calendario, elenco dei conflitti con link all'altro intervento nella scheda e nella tabella a tutto schermo. API: `conflict_users` e `conflict_servers` in `GET /api/events`, `conflicts` nel dettaglio dell'intervento.

@@ -33,7 +33,9 @@ export default {
     "labels.migration_status.annullata": "Cancelled",
     "labels.project_status.attivo": "Active",
     "labels.project_status.sospeso": "On hold",
-    "labels.project_status.chiuso": "Closed"
+    "labels.project_status.chiuso": "Closed",
+    "labels.stage.configurazione": "Status",
+    "labels.stage_done.configurazione": "completed"
   },
   "it": {
     "labels.event_status.pianificato": "Pianificato",
@@ -68,6 +70,8 @@ export default {
     "labels.migration_status.annullata": "Annullata",
     "labels.project_status.attivo": "Attivo",
     "labels.project_status.sospeso": "Sospeso",
-    "labels.project_status.chiuso": "Chiuso"
+    "labels.project_status.chiuso": "Chiuso",
+    "labels.stage.configurazione": "Stato",
+    "labels.stage_done.configurazione": "completati"
   }
 };

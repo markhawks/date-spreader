@@ -79,6 +79,7 @@ const CONFIG_COLUMNS = [
     os.title = s.operating_system ?? "";
     return os;
   }],
+  ["Migrazione", (s) => badge(s.migration_status, MIGRATION_STATUS)],
   ["Eseguito il", (s) => (s.executed_date ? formatShortDate(s.executed_date) : el("span", "muted", "—"))],
   ["Tecnico", (s) => s.assigned_user?.display_name ?? el("span", "muted", "—")],
 ];
@@ -458,7 +459,7 @@ export class DetailPanel {
     const count = (key, value) => servers.filter((s) => s[key] === value).length;
     const parts = [t("detail.servers_count", { n })];
     if (n && isConfigEvent(ev)) {
-      parts.push(t("detail.summary_executed", { done: servers.filter((s) => s.executed_date).length, n }));
+      parts.push(t("detail.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n }));
     } else if (n) {
       parts.push(t("detail.summary_check_ok", { done: count("check_status", "ok"), n }));
       const ko = count("check_status", "ko");

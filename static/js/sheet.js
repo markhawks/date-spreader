@@ -56,7 +56,7 @@ const COLUMNS = [
 
 // Interventi di «Configurazione»: solo queste colonne; le note vanno in una riga a tutta larghezza
 // sotto ogni server (alta due righe, cresce con il testo). L'ultima colonna resta elastica.
-const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "executed_date", "assigned_user_id"];
+const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "migration_status", "executed_date", "assigned_user_id"];
 const CONFIG_COLUMNS = CONFIG_FIELDS.map((f, i, all) => {
   const c = COLUMNS.find((x) => x.field === f);
   return i === all.length - 1 ? { ...c, width: undefined } : c;
@@ -327,7 +327,8 @@ export class Sheet {
     reset.title = t("sheet.reset_widths_title");
     reset.addEventListener("click", () => this.resizer?.reset());
     bar.append(text);
-    if (!this.config) bar.append(mk(t("sheet.col_check"), "check", this.lookups.check), mk(stageLabel(this.event), "migration", this.lookups.migration));
+    if (!this.config) bar.append(mk(t("sheet.col_check"), "check", this.lookups.check));
+    bar.append(mk(stageLabel(this.event), "migration", this.lookups.migration));
     bar.append(this.visibleEl);
     if (this.embedded) {
       // Nell'anteprima non c'è l'intestazione: conteggio e stato del salvataggio stanno qui.

@@ -58,7 +58,7 @@ export function buildEmail(ev) {
   const count = (k, v) => ev.servers.filter((s) => s[k] === v).length;
   const ko = count("check_status", "ko");
   const summary = !n ? t("share.no_servers")
-    : config ? [t("share.server_count", { n }), t("share.summary_executed", { done: ev.servers.filter((s) => s.executed_date).length, n })].join(" · ")
+    : config ? [t("share.server_count", { n }), t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ")
     : [t("share.server_count", { n }), t("share.summary_check_ok", { ok: count("check_status", "ok"), n }),
       ...(ko ? [t("share.summary_check_ko", { ko })] : []),
       t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ");
@@ -81,7 +81,7 @@ export function buildEmail(ev) {
     ["notes", t("share.col_notes"), (s) => esc(s.notes ?? "")],
   ];
   // Configurazione: colonne ridotte e note in una riga a tutta larghezza sotto ogni server
-  const CONFIG_COLS = ["hostname", "ip", "os", "env", "executed", "technician"];
+  const CONFIG_COLS = ["hostname", "ip", "os", "env", "stage", "executed", "technician"];
   const cols = config ? allCols.filter(([id]) => CONFIG_COLS.includes(id)) : allCols;
   const notesRow = (s) => (config
     ? `<tr><td colspan="${cols.length}" style="padding:6px 10px 10px;border-bottom:2px solid #d5d9e0;background:#f8f9fb;font-size:13px;white-space:pre-wrap">${
@@ -133,6 +133,7 @@ export function buildEmail(ev) {
     "", summary, "",
     ...ev.servers.map((s) => (config ? [
       [s.hostname, s.ip_address, shortOs(s.operating_system), s.environment,
+        t("share.text_stage", { stage: stageLabel(ev).toLowerCase(), status: MIGRATION_STATUS[s.migration_status] ?? s.migration_status }),
         s.executed_date && t("share.text_executed", { date: formatShortDate(s.executed_date) }), s.assigned_user?.display_name].filter(Boolean).join(" | "),
       ...(s.notes ? s.notes.split("\n").map((l) => `    ${l}`) : []),
       "",

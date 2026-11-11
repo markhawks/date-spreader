@@ -17,7 +17,7 @@ export const EVENT_TYPE = labelsFor("labels.event_type", ["migrazione", "upgrade
  * Colonna dello stato di lavorazione di ogni server: prende il nome dal tipo di intervento
  * (il dato è sempre `migration_status`). Con `done` la parola del riepilogo («migrati 2/4»).
  */
-const STAGED = ["migrazione", "upgrade", "patching"];
+const STAGED = ["migrazione", "upgrade", "patching", "configurazione"];
 const stageKey = (ev) => (STAGED.includes(ev?.event_type) ? ev.event_type : "other");
 export const stageLabel = (ev) => t(`labels.stage.${stageKey(ev)}`);
 export const stageDone = (ev) => t(`labels.stage_done.${stageKey(ev)}`);
