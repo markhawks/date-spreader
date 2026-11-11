@@ -59,6 +59,7 @@ def list_events(
             check_ko=r["check_ko"],
             migration_failed=r["migration_failed"],
             migrated=r["migrated"],
+            executed=r["executed"],
             user_ids=r["user_ids"],
             customer_id=r["customer_id"],
             customer_name=r["customer_name"],

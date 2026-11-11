@@ -153,7 +153,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
   - Rimpicciolendo si vedono più mesi e gli interventi diventano barrette colorate.
   - Ingrandendo ogni giorno mostra più interventi; dove c'è spazio compaiono anche titolo e orario completo.
   - Ogni giorno sceglie da solo come disegnare i suoi interventi (dettagliato, due righe, solo il nome) senza mai tagliare il testo; quelli che non entrano diventano «+N».
-- **Giorni con interventi**: sono evidenziati e mostrano, nel colore del progetto, nome, ora e numero di server (quanti ne stanno nella cella, poi "+N"). Passando il mouse si vedono i dettagli. Un intervento completato è attenuato, uno rinviato ha il bordo tratteggiato, uno annullato è barrato.
+- **Giorni con interventi**: sono evidenziati e mostrano, nel colore del progetto, nome, **avanzamento** («2/4»: server completati sul totale, con una barra in fondo che si riempie; verde con ✓ a lavoro finito), cliente e ora (quanti ne stanno nella cella, poi "+N"). Passando il mouse si vedono i dettagli. Un intervento completato è attenuato, uno rinviato ha il bordo tratteggiato, uno annullato è barrato.
 - **Sidebar dei progetti**: riquadri con «**Prossimo**: data» (il prossimo intervento in programma) oppure, se il progetto ha solo interventi passati, «**Ultimo**: data» (il più recente); «Nessun intervento» se non ne ha. Le date hanno sempre l'anno. L'etichetta "N date" indica più interventi. La ricerca istantanea non distingue maiuscole e accenti.
 - **Telefono** (sotto 760 px): i progetti diventano una riga scorrevole e gli eventi delle barre colorate.
 - **Tema scuro**: segue l'impostazione del sistema operativo.
@@ -231,7 +231,7 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
 - Ogni progetto può avere un **cliente** (facoltativo), scelto da menu a tendina nella finestra "Nuovo progetto" e nella scheda progetto. **«+ Nuovo cliente…»** lo crea al volo; se il nome esiste già, anche con maiuscole diverse, viene usato quello.
 - **Raggruppare**: nel menu in testa alla colonna progetti scegli «Cliente · A → Z» o «Cliente · per data» (oppure Impostazioni → Aspetto → Raggruppamento). Compare un'intestazione per cliente, con il numero di progetti; quelli senza cliente vanno in fondo.
 - **Filtrare**: Filtri → **Cliente**. Il filtro vale per il calendario **e** per la colonna progetti.
-- Il nome del cliente compare sui riquadri, **nel calendario** (seconda riga di ogni intervento: «Cliente · ora · N srv»), nella scheda dell'intervento e nei tooltip; la ricerca della colonna lo trova.
+- Il nome del cliente compare sui riquadri, **nel calendario** (seconda riga di ogni intervento: «2/4 · Cliente · ora»), nella scheda dell'intervento e nei tooltip; la ricerca della colonna lo trova.
 - **Colore per cliente**: in Impostazioni → Amministrazione → Clienti si sceglie il colore di ogni cliente, che vale per tutti i suoi progetti (riquadri, calendario, schede). «Automatico» torna alla tavolozza del portale, usata anche per i progetti senza cliente. Sui colori chiari il testo diventa scuro per restare leggibile.
 - **Gestione** (amministratori): Impostazioni → Amministrazione → **Clienti**. Rinominare un cliente aggiorna tutti i suoi progetti; si possono eliminare solo i clienti senza progetti.
 
@@ -340,7 +340,7 @@ Per portare progetti da un'installazione di Date Spreader a un'altra: per esempi
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Accesso |
 | `POST /api/users/{id}/temporary-password` | Password temporanea per un utente (solo amministratori) |
 | `GET /api/projects` | Progetti con le date dei propri interventi, in ordine |
-| `GET /api/events?start=YYYY-MM-DD&end=YYYY-MM-DD` | Interventi nell'intervallo (estremi inclusi, al massimo 400 giorni), con nome del progetto e numero di server |
+| `GET /api/events?start=YYYY-MM-DD&end=YYYY-MM-DD` | Interventi nell'intervallo (estremi inclusi, al massimo 400 giorni), con nome del progetto, numero di server e avanzamento (`migrated`, `executed`) |
 | `GET /api/events/{id}` | Dettaglio di un intervento: partecipanti e righe server, con `version` per il controllo di concorrenza |
 | `GET /api/days/YYYY-MM-DD` | Dettaglio di tutti gli interventi di un giorno (lista vuota se non ce ne sono) |
 | `PATCH /api/event-servers/{id}` | Modifica parziale di una riga. Richiede `version` (e `server_version` se si toccano campi del server). Risponde **409** con `detail.current` se i dati sono cambiati, **422** se un valore non è valido |

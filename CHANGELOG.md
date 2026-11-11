@@ -4,6 +4,8 @@ Tutte le modifiche rilevanti del portale Date Spreader (fino alla 0.9.0 chiamato
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [Semantic Versioning](https://semver.org/lang/it/).
 
 ## [Non rilasciato]
+### Aggiunto
+- **Avanzamento degli interventi nel calendario**: ogni intervento mostra quante attività sono completate sul totale dei server (es. **«2/4»**, in testa alla seconda riga) e una **barra sottile** in fondo che si riempie nel colore del progetto; a lavoro finito il numero diventa verde con ✓. Per gli interventi di configurazione conta i server con «eseguito il» compilato, per gli altri le migrazioni completate. Il tooltip riporta «completati 2/4 server». API: nuovo campo `executed` in `GET /api/events`.
 
 ## [0.22.0] - 2026-11-11
 ### Aggiunto

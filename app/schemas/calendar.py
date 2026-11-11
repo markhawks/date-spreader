@@ -19,6 +19,7 @@ class EventSummary(BaseModel):
     check_ko: int = 0           # righe con check KO
     migration_failed: int = 0   # righe con migrazione fallita
     migrated: int = 0           # righe con migrazione completata
+    executed: int = 0           # righe con data di esecuzione (interventi di configurazione)
     user_ids: list[int] = []    # partecipanti e tecnici assegnati (per il filtro per tecnico)
     customer_id: int | None = None  # cliente del progetto (per il filtro per cliente)
     customer_name: str | None = None

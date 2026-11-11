@@ -8,7 +8,7 @@ import {
   WEEKDAYS, addMonths, daysInMonth, firstWeekdayMonday, formatMonth, formatTime,
   isoDate, monthRange, todayIso, ymKey,
 } from "./dates.js";
-import { EVENT_STATUS } from "./labels.js";
+import { EVENT_STATUS, isConfigEvent } from "./labels.js";
 
 const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
 const MAX_CHIPS = 2;        // interventi per giorno a zoom normale; oltre, la cella mostra "+N"
@@ -434,14 +434,24 @@ export class Calendar {
     li.style.setProperty("--c", colorFor(ev.project_id));
     li.dataset.eventId = ev.id;
     li.dataset.projectId = ev.project_id;
+    const n = ev.server_count;
+    // Avanzamento: righe eseguite (configurazione) o migrate (altri tipi) sul totale
+    const done = isConfigEvent(ev) ? ev.executed : ev.migrated;
+    const progress = n ? `${done}/${n}` : "0 srv";
+    if (n) {
+      li.style.setProperty("--p", `${Math.round((done / n) * 100)}%`);
+      li.classList.add("has-progress");
+      if (done === n) li.classList.add("all-done");
+    }
 
     const name = document.createElement("span");
     name.className = "chip-name";
     name.textContent = ev.project_name;
     const meta = document.createElement("span");
     meta.className = "chip-meta";
-    // Seconda riga: cliente (se c'è), ora, numero di server
-    meta.textContent = [ev.customer_name, formatTime(ev.start_time), `${ev.server_count} srv`].filter(Boolean).join(" · ");
+    // Seconda riga: avanzamento, cliente (se c'è), ora
+    const prog = Object.assign(document.createElement("span"), { className: "chip-progress", textContent: progress });
+    meta.append(prog, [ev.customer_name, formatTime(ev.start_time)].filter(Boolean).map((t) => ` · ${t}`).join(""));
     li.append(name, meta);
     // Terza riga, visibile solo con lo zoom grande: titolo e orario completo
     const extra = [ev.title, ev.start_time && `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`]
@@ -453,7 +463,7 @@ export class Calendar {
       ev.project_name,
       ev.title,
       ev.start_time && `ore ${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`,
-      `${ev.server_count} server`,
+      n ? `completati ${done}/${n} server` : "nessun server",
       EVENT_STATUS[ev.status] ?? ev.status,
     ].filter(Boolean).join(" · ");
     return li;

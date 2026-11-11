@@ -260,6 +260,15 @@ h1, h2 { margin: 0; }
 }
 .chip-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
 .chip-meta { color: var(--muted); font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; }
+/* Avanzamento dell'intervento: "2/4" in testa alla seconda riga e barra sottile in fondo al chip */
+.chip.has-progress { position: relative; }
+.chip.has-progress::after {
+  content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: var(--p, 0%);
+  background: var(--c);
+}
+.chip-progress { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.chip.all-done .chip-progress { color: var(--ok-fg); }
+.chip.all-done .chip-progress::after { content: " ✓"; }
 .chip.more { border-left-color: var(--border); background: transparent; color: var(--muted); }
 .chip.status-completato { opacity: 0.6; }
 .chip.status-annullato .chip-name { text-decoration: line-through; }

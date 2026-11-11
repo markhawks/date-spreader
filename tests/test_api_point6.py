@@ -35,6 +35,14 @@ def test_event_summary_indicators(api):
     assert alfa1["migrated"] == 2
 
 
+def test_event_summary_executed_matches_detail(api):
+    """`executed` (avanzamento degli interventi di configurazione) = righe con data di esecuzione."""
+    for ev in events(api).values():
+        detail = api.get(f"/api/events/{ev['id']}").json()
+        assert ev["executed"] == sum(1 for s in detail["servers"] if s["executed_date"])
+    assert any(e["executed"] for e in events(api).values())
+
+
 def test_event_summary_user_ids_include_participants_and_assignees(api):
     ev = events(api)
     # Beta: partecipante Giulia; tecnico assegnato Giulia

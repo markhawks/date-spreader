@@ -6,7 +6,7 @@
 upgrades** (designed around Red Hat Enterprise Linux). It replaces the shared spreadsheet that teams often use for
 this job with:
 
-- a **vertical calendar** centred on the current month, showing every intervention (maintenance window);
+- a **vertical calendar** centred on the current month, showing every intervention (maintenance window) with its **progress** ("2/4" servers done, plus a thin bar that fills up);
 - a **project sidebar**, with projects grouped and filtered by **customer** and coloured per customer;
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;

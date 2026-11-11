@@ -42,6 +42,7 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             func.sum(case((es.check_status == "ko", 1), else_=0)).label("ko"),
             func.sum(case((es.migration_status == "fallita", 1), else_=0)).label("failed"),
             func.sum(case((es.migration_status == "completata", 1), else_=0)).label("done"),
+            func.sum(case((es.executed_date.is_not(None), 1), else_=0)).label("executed"),
         )
         .group_by(es.event_id)
         .subquery()
@@ -57,6 +58,7 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             func.coalesce(counts.c.ko, 0),
             func.coalesce(counts.c.failed, 0),
             func.coalesce(counts.c.done, 0),
+            func.coalesce(counts.c.executed, 0),
         )
         .join(Project, Project.id == Event.project_id)
         .outerjoin(Customer, Customer.id == Project.customer_id)
@@ -88,12 +90,13 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             "check_ko": ko,
             "migration_failed": failed,
             "migrated": done,
+            "executed": executed,
             "user_ids": sorted(people[e.id]),
             "customer_id": customer_id,
             "customer_name": customer_name,
             "customer_color": customer_color,
         }
-        for e, name, customer_id, customer_name, customer_color, n, ko, failed, done in rows
+        for e, name, customer_id, customer_name, customer_color, n, ko, failed, done, executed in rows
     ]
 
 
