@@ -44,7 +44,12 @@ export default {
     "index.close_detail": "Close details",
     "index.close_detail_title": "Close (Esc)",
     "index.team": "Technicians",
-    "index.team_title": "Technicians' workload: who is busy when, with conflicts highlighted"
+    "index.team_title": "Technicians' workload: who is busy when, with conflicts highlighted",
+    "index.days_label": "Days shown",
+    "index.days_all": "7 days",
+    "index.days_all_title": "Show the whole week",
+    "index.days_workweek": "Mon–Fri",
+    "index.days_workweek_title": "Monday to Friday: Saturday and Sunday appear only where there are interventions"
   },
   "it": {
     "index.version_title": "Novità del portale (changelog)",
@@ -91,6 +96,11 @@ export default {
     "index.close_detail": "Chiudi dettaglio",
     "index.close_detail_title": "Chiudi (Esc)",
     "index.team": "Tecnici",
-    "index.team_title": "Carico dei tecnici: chi è impegnato e quando, con i conflitti evidenziati"
+    "index.team_title": "Carico dei tecnici: chi è impegnato e quando, con i conflitti evidenziati",
+    "index.days_label": "Giorni mostrati",
+    "index.days_all": "7 giorni",
+    "index.days_all_title": "Mostra tutta la settimana",
+    "index.days_workweek": "Lun–Ven",
+    "index.days_workweek_title": "Da lunedì a venerdì: sabato e domenica compaiono solo dove ci sono interventi"
   }
 };

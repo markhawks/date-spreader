@@ -201,6 +201,10 @@ to **recover access** if the administrator forgets the password.
   bar, brings you back to today's month (or week).
 - **Date and time** in the top bar, next to the portal name. What to show (date and time, with seconds, date only,
   time only, nothing) is chosen in Settings → Appearance.
+- **7 days or Mon–Fri**: the "7 days / Mon–Fri" switch at the bottom right of the calendar (also in Settings →
+  Appearance, as a personal preference). With **Mon–Fri**, Saturday and Sunday are hidden and come back only where
+  they are needed: in the weeks (week and Technicians views) or months (month view) that have interventions on a
+  weekend, so exceptions are never missed.
 - **Scheduling conflicts**: the portal warns when the **same server** is in two interventions on the **same day**, or
   a **technician** (participant or assigned to a server row) is in two interventions whose times **overlap** (an
   intervention without a time counts as the whole day; cancelled interventions are ignored). The calendar marks

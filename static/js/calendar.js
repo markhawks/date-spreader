@@ -113,6 +113,12 @@ export class Calendar {
     return this.unit.view;
   }
 
+  /** Days shown: "all" (7) or "workweek" (Mon–Fri; weekends only where there are interventions). */
+  setDays(mode) {
+    this.days = mode === "workweek" ? "workweek" : "all";
+    this.#keepAnchor(() => { this.scrollEl.dataset.days = this.days; });
+  }
+
   /** Imposta la vista ("month" o "week") senza ridisegnare: da usare prima di init(). */
   useView(view) {
     this.unit = view === "week" ? WEEK : MONTH;
@@ -472,17 +478,18 @@ export class Calendar {
     const head = document.createElement("div");
     head.className = "weekdays";
     head.setAttribute("aria-hidden", "true");
-    for (const name of WEEKDAYS) {
+    WEEKDAYS.forEach((name, i) => {
       const el = document.createElement("div");
       el.textContent = name;
+      if (i >= 5) el.classList.add("is-weekend-col"); // hidden in the Mon–Fri view
       head.append(el);
-    }
+    });
 
     const grid = document.createElement("div");
     grid.className = "month-grid";
-    const pad = () => Object.assign(document.createElement("div"), { className: "day pad" });
+    const pad = (col) => Object.assign(document.createElement("div"), { className: `day pad${col >= 5 ? " is-weekend-col" : ""}` });
     const lead = firstWeekdayMonday(ym);
-    for (let i = 0; i < lead; i++) grid.append(pad());
+    for (let i = 0; i < lead; i++) grid.append(pad(i));
 
     const today = todayIso();
     for (let d = 1; d <= daysInMonth(ym); d++) {
@@ -507,7 +514,7 @@ export class Calendar {
     }
     // Celle vuote fino a fine settimana, così la griglia resta rettangolare.
     const trail = (7 - ((lead + daysInMonth(ym)) % 7)) % 7;
-    for (let i = 0; i < trail; i++) grid.append(pad());
+    for (let i = 0; i < trail; i++) grid.append(pad((lead + daysInMonth(ym) + i) % 7));
 
     section.append(title, head, grid);
     return section;
@@ -537,6 +544,9 @@ export class Calendar {
 
   /** Disegna gli eventi di un mese già caricato, applicando il filtro attivo. */
   #renderMonth(section) {
+    // Mon–Fri view: Saturday and Sunday come back only in the months/weeks that have interventions on them
+    section.classList.toggle("has-weekend-events", [...section.querySelectorAll(".day.weekend[data-date]")]
+      .some((c) => (this.eventsByDate.get(c.dataset.date) ?? []).length > 0));
     for (const cell of section.querySelectorAll(".day[data-date]")) {
       const all = this.eventsByDate.get(cell.dataset.date) ?? [];
       const shown = this.filter ? all.filter(this.filter) : all;

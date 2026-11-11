@@ -61,6 +61,12 @@ export class Workload {
     await this.refresh();
   }
 
+  /** "all" or "workweek" (Mon–Fri; Saturday and Sunday only in weeks with interventions on them). */
+  setDays(mode) {
+    this.days = mode;
+    if (this.isOpen) this.#render();
+  }
+
   setFilter(predicate) {
     this.filter = predicate;
     if (this.isOpen) this.#render();
@@ -86,9 +92,10 @@ export class Workload {
   }
 
   #render() {
-    const days = Array.from({ length: 7 }, (_, i) => addDays(this.monday, i));
     const today = todayIso();
     const events = this.filter ? this.events.filter(this.filter) : this.events;
+    const weekendBusy = events.some((ev) => parseIso(ev.event_date).getDay() % 6 === 0);
+    const days = Array.from({ length: this.days === "workweek" && !weekendBusy ? 5 : 7 }, (_, i) => addDays(this.monday, i));
 
     // technician → day → events
     const rows = new Map();
@@ -136,6 +143,7 @@ export class Workload {
 
     // grid
     const grid = el("div", "wl-grid");
+    grid.style.setProperty("--wl-days", days.length);
     grid.setAttribute("role", "table");
     grid.setAttribute("aria-label", t("workload.table_label"));
     const head = el("div", "wl-row wl-head");

@@ -321,6 +321,20 @@ async function main() {
   prefs.onChange((p, changes) => {
     if ("calendar_view" in changes && p.calendar_view !== currentView) applyView(p.calendar_view);
   });
+  // Days shown: 7 days or Mon–Fri (weekends only where there are interventions), personal preference
+  const daysBtns = [...document.querySelectorAll(".days-btn")];
+  const applyDays = (mode) => {
+    daysBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.days === mode)));
+    calendar.setDays(mode);
+    workload.setDays(mode);
+  };
+  daysBtns.forEach((b) => b.addEventListener("click", () => {
+    if (b.getAttribute("aria-pressed") === "true") return;
+    prefs.set({ calendar_days: b.dataset.days }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
+  }));
+  prefs.onChange((p, changes) => { if ("calendar_days" in changes) applyDays(p.calendar_days); });
+  applyDays(prefs.get().calendar_days);
+
   // The calendar underneath keeps month or week; "team" covers it
   calendar.useView(currentView === "team" ? "month" : currentView);
   calendar.setPaused(currentView === "team");

@@ -1830,8 +1830,6 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 
 /* Controllo − % + nell'angolo in basso a destra del calendario */
 .zoom-ctl {
-  position: sticky; bottom: 12px; z-index: 4;
-  width: fit-content; margin: 8px 0 0 auto;
   display: flex; align-items: center;
   background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); overflow: hidden;
@@ -1988,7 +1986,7 @@ body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
 .calendar-scroll[data-zoom-mode="compact"] .chip.has-conflict { box-shadow: 0 0 0 1.5px var(--warn-fg); }
 
 /* ---------- Vista «Tecnici»: carico della settimana ------------------------------------ */
-body.view-team #months, body.view-team .zoom-ctl { display: none; }
+body.view-team #months { display: none; }
 .workload[hidden] { display: none; }
 .workload { padding: 8px 0 24px; }
 .wl-bar {
@@ -2004,7 +2002,7 @@ body.view-team #months, body.view-team .zoom-ctl { display: none; }
   display: grid; min-width: 860px;
   border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel);
 }
-.wl-row { display: grid; grid-template-columns: 190px repeat(7, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.wl-row { display: grid; grid-template-columns: 190px repeat(var(--wl-days, 7), minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
 .wl-row:last-child { border-bottom: 0; }
 .wl-head { background: var(--panel-2, var(--bg)); font-size: 0.8rem; color: var(--muted); }
 .wl-head > div { padding: 8px; }
@@ -2083,3 +2081,26 @@ body.view-team #months, body.view-team .zoom-ctl { display: none; }
 .si-diff { color: var(--muted); }
 .add-form .import-btn { margin-left: 4px; }
 @media (max-width: 700px) { .si-source { grid-template-columns: 1fr; } .si-or { justify-self: center; } }
+
+/* Strumenti in basso a destra del calendario: giorni (7 / Lun–Ven) e zoom */
+.cal-tools {
+  position: sticky; bottom: 12px; z-index: 4; margin-top: 8px;
+  display: flex; justify-content: flex-end; gap: 8px; pointer-events: none;
+}
+.cal-tools > * { pointer-events: auto; }
+.days-ctl {
+  display: flex; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12); overflow: hidden;
+}
+.days-btn { font: inherit; font-size: 0.8rem; border: 0; background: none; color: var(--muted); cursor: pointer; height: 30px; padding: 0 12px; }
+.days-btn + .days-btn { border-left: 1px solid var(--border); }
+.days-btn[aria-pressed="true"] { color: var(--accent); font-weight: 700; background: color-mix(in srgb, var(--accent) 10%, var(--panel)); }
+.days-btn:hover { color: var(--accent); }
+body.view-team .zoom-ctl { display: none; }
+
+/* Lun–Ven: sabato e domenica nascosti, tranne dove ci sono interventi */
+.calendar-scroll[data-days="workweek"] .month:not(.has-weekend-events) :is(.weekend, .is-weekend-col) { display: none; }
+.calendar-scroll[data-days="workweek"] .month:not(.has-weekend-events) :is(.weekdays, .month-grid) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@container calweek (max-width: 820px) {
+  .calendar-scroll[data-days] .month.week .month-grid { grid-template-columns: minmax(0, 1fr); }
+}

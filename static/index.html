@@ -101,12 +101,18 @@
     <main id="calendar-scroll" class="calendar-scroll" aria-label="Calendar" data-i18n-aria-label="index.calendar" tabindex="-1">
       <section id="workload" class="workload" aria-label="Technicians' workload" data-i18n-aria-label="index.team_title" hidden></section>
       <div id="months" class="months"></div>
-      <div class="zoom-ctl" role="group" aria-label="Calendar zoom" data-i18n-aria-label="index.zoom"
-           title="Calendar zoom: hold the middle mouse button and move the mouse forward/back, or pinch on the touchpad"
-           data-i18n-title="index.zoom_title">
-        <button type="button" id="zoom-out" class="zoom-btn" aria-label="Zoom out the calendar" data-i18n-aria-label="index.zoom_out">−</button>
-        <button type="button" id="zoom-reset" class="zoom-value" title="Back to 100%" data-i18n-title="index.zoom_reset">100%</button>
-        <button type="button" id="zoom-in" class="zoom-btn" aria-label="Zoom in the calendar" data-i18n-aria-label="index.zoom_in">+</button>
+      <div class="cal-tools">
+        <div class="days-ctl" role="group" aria-label="Days shown" data-i18n-aria-label="index.days_label">
+          <button type="button" class="days-btn" data-days="all" aria-pressed="true" title="Show the whole week" data-i18n-title="index.days_all_title" data-i18n="index.days_all">7 days</button>
+          <button type="button" class="days-btn" data-days="workweek" aria-pressed="false" title="Monday to Friday: Saturday and Sunday appear only where there are interventions" data-i18n-title="index.days_workweek_title" data-i18n="index.days_workweek">Mon–Fri</button>
+        </div>
+        <div class="zoom-ctl" role="group" aria-label="Calendar zoom" data-i18n-aria-label="index.zoom"
+             title="Calendar zoom: hold the middle mouse button and move the mouse forward/back, or pinch on the touchpad"
+             data-i18n-title="index.zoom_title">
+          <button type="button" id="zoom-out" class="zoom-btn" aria-label="Zoom out the calendar" data-i18n-aria-label="index.zoom_out">−</button>
+          <button type="button" id="zoom-reset" class="zoom-value" title="Back to 100%" data-i18n-title="index.zoom_reset">100%</button>
+          <button type="button" id="zoom-in" class="zoom-btn" aria-label="Zoom in the calendar" data-i18n-aria-label="index.zoom_in">+</button>
+        </div>
       </div>
     </main>
 

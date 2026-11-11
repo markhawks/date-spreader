@@ -131,6 +131,14 @@ export function showSettings({ me, toast, adminActions = [] }) {
         ["12h", t("settings.time_12"), "9:00 AM, 2:30 PM, 6:00 PM."],
       ], (v) => update({ time_format: v }, t("settings.time_done"))),
     );
+    const daysField = el("div", "settings-field");
+    daysField.append(
+      el("h4", null, t("settings.days_title")),
+      choice("calendar_days", p.calendar_days, [
+        ["all", t("settings.days_all"), null],
+        ["workweek", t("settings.days_workweek"), t("settings.days_workweek_hint")],
+      ], (v) => update({ calendar_days: v }, t("settings.days_done"))),
+    );
     const clockField = el("div", "settings-field");
     clockField.append(
       el("h4", null, t("settings.clock_title")),
@@ -180,7 +188,7 @@ export function showSettings({ me, toast, adminActions = [] }) {
       ], (v) => update({ language: v }, t("settings.language_done")).then((ok) => ok && adoptLanguagePreference(v))),
     );
     const note = el("p", "muted small settings-note", t("settings.note"));
-    return [langField, posField, sideField, timeField, clockField, themeField, mailField, note];
+    return [langField, posField, sideField, daysField, timeField, clockField, themeField, mailField, note];
   }
 
   function renderAdmin() {

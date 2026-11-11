@@ -72,7 +72,12 @@ export default {
     "settings.language_auto": "Same as the browser",
     "settings.language_auto_hint": "Italian if your browser prefers it, otherwise English.",
     "settings.language_done": "Language updated.",
-    "settings.gmail_placeholder": "name@company.com"
+    "settings.gmail_placeholder": "name@company.com",
+    "settings.days_title": "Days in the calendar",
+    "settings.days_all": "Whole week (7 days)",
+    "settings.days_workweek": "Monday to Friday",
+    "settings.days_workweek_hint": "Saturday and Sunday appear only in the weeks (or months) with interventions on them. Also from the “7 days / Mon–Fri” switch at the bottom right of the calendar.",
+    "settings.days_done": "Calendar days updated."
   },
   "it": {
     "settings.title": "Impostazioni",
@@ -146,6 +151,11 @@ export default {
     "settings.language_auto": "Come il browser",
     "settings.language_auto_hint": "Italiano se il browser lo preferisce, altrimenti inglese.",
     "settings.language_done": "Lingua aggiornata.",
-    "settings.gmail_placeholder": "nome@azienda.it"
+    "settings.gmail_placeholder": "nome@azienda.it",
+    "settings.days_title": "Giorni nel calendario",
+    "settings.days_all": "Tutta la settimana (7 giorni)",
+    "settings.days_workweek": "Da lunedì a venerdì",
+    "settings.days_workweek_hint": "Sabato e domenica compaiono solo nelle settimane (o nei mesi) in cui ci sono interventi. Anche dall'interruttore «7 giorni / Lun–Ven» in basso a destra nel calendario.",
+    "settings.days_done": "Giorni del calendario aggiornati."
   }
 };
