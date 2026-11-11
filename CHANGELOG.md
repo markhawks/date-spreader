@@ -5,6 +5,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 
 ## [Non rilasciato]
 ### Modificato
+- **L'oggetto dell'email di condivisione contiene anche lo stato dell'intervento**, in fondo: «Intervento: Cliente · Progetto · 18 nov 2026 21:00 · Confermato».
 - **La colonna di stato della tabella server prende il nome dal tipo di intervento**: «Migrazione» per le migrazioni, «Upgrading» per gli upgrade, «Patching» per il patching, «Esecuzione» per «Altro». Cambia anche il filtro della tabella, il riepilogo della scheda («migrati / aggiornati / patchati / completati 2/4») e l'email di condivisione. Cambiando il tipo, la tabella aperta (anche nell'anteprima in basso) si aggiorna da sola, senza ricaricare.
 
 ### Corretto

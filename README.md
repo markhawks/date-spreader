@@ -287,7 +287,7 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
 
 ### Condividere un intervento via email
 - Il pulsante **«Condividi»** (sulla scheda di ogni intervento e nella tabella a tutto schermo) apre l'anteprima dell'email: intestazione con cliente, progetto, data, orario, tipo, stato, partecipanti e note, il riepilogo e la **tabella server con tutte le colonne** del portale (stati colorati, kernel e SO attuali e target, tecnico, note).
-- **Destinatari** già compilati con le email dei partecipanti (modificabili) e **oggetto** già scritto.
+- **Destinatari** già compilati con le email dei partecipanti (modificabili) e **oggetto** già scritto: cliente, progetto, data e ora, stato dell'intervento.
 - **«Copia e apri Gmail»**: copia l'email formattata e apre un nuovo messaggio di Gmail con destinatari e oggetto. Nel corpo si incolla con **Ctrl+V** e la tabella resta formattata. «Copia email» copia soltanto; «Copia come testo semplice» serve per programmi che non accettano testo formattato.
 - **Account Gmail (mittente)**: l'account Google con cui aprire Gmail; per default l'email del profilo nel portale. Si cambia nella finestra o in Impostazioni → Aspetto → «Condivisione via email» e viene ricordato. L'account deve essere collegato nel browser (anche insieme a quello personale della sincronizzazione), altrimenti Gmail apre quello predefinito: in quel caso attivare **«Fammi scegliere l'account Google a ogni invio»**, che passa dalla scelta dell'account di Google (con l'indirizzo già proposto) e permette di selezionarlo o di accedervi.
 - Non serve collegare il portale a Google: l'email la invia l'utente dalla sua casella.

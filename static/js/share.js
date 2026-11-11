@@ -47,7 +47,8 @@ export function buildEmail(ev) {
   const color = colorFor(ev.project.id);
   const customer = ev.project.customer_name;
   const when = [formatLongDate(ev.event_date), timeRange(ev)].filter(Boolean).join(", ");
-  const subject = ["Intervento", customer, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`]
+  const subject = ["Intervento", customer, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`,
+    EVENT_STATUS[ev.status] ?? ev.status]
     .filter(Boolean).join(" · ").replace("Intervento · ", "Intervento: ");
 
   const config = isConfigEvent(ev);
