@@ -139,3 +139,26 @@ def test_status_change_does_not_reload_projects(api):
     ev = event_on(api, "2026-11-26")
     api.patch(f"/api/events/{ev['id']}", json={"version": ev["version"], "status": "confermato"})
     assert api.get("/api/changes", params={"since": since}).json()["projects_changed"] is False
+
+
+# --- interventi di configurazione ---------------------------------------------------------
+
+
+def test_configuration_event_with_long_multiline_notes(api):
+    """Tipo «configurazione»: le note della riga servono per il dettaglio, anche lungo e su più righe."""
+    p = project(api, "Gamma Retail")
+    res = api.post(f"/api/projects/{p['id']}/events", json={"event_date": "2027-02-03", "event_type": "configurazione"})
+    assert res.status_code == 201, res.text
+    ev = res.json()
+    assert ev["event_type"] == "configurazione"
+    row = api.post(f"/api/events/{ev['id']}/servers", json={"hostname": "gamma-cfg01.example.com"}).json()
+    notes = "1. /etc/chrony.conf: server ntp.example.com iburst\n2. systemctl restart chronyd\n" + "x" * 6000
+    res = api.patch(f"/api/event-servers/{row['id']}", json={"version": row["version"], "notes": notes,
+                                                             "executed_date": "2027-02-03"})
+    assert res.status_code == 200, res.text
+    assert res.json()["notes"] == notes
+    too_long = api.patch(f"/api/event-servers/{row['id']}", json={"version": res.json()["version"], "notes": "y" * 20001})
+    assert too_long.status_code == 422
+    # il tipo si può cambiare anche dopo (la tabella cambia colonne, i dati restano)
+    patched = api.patch(f"/api/events/{ev['id']}", json={"version": ev["version"], "event_type": "migrazione"})
+    assert patched.status_code == 200 and patched.json()["event_type"] == "migrazione"

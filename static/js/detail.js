@@ -9,7 +9,7 @@ import { makeResizable } from "./resize.js";
 import { Sheet } from "./sheet.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import {
-  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge,
+  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent,
 } from "./labels.js";
 
 const el = (tag, className, text) => {
@@ -54,6 +54,19 @@ const COLUMNS = [
   )],
   ["Tecnico", (s) => s.assigned_user?.display_name ?? el("span", "muted", "—")],
   ["Note", (s) => s.notes ?? ""],
+];
+
+// Interventi di «Configurazione»: niente kernel, check e migrazione; le note stanno in una riga sotto il server.
+const CONFIG_COLUMNS = [
+  COLUMNS[0],
+  COLUMNS[1],
+  ["SO", (s) => {
+    const os = el("span", null, shortOs(s.operating_system) || "—");
+    os.title = s.operating_system ?? "";
+    return os;
+  }],
+  ["Eseguito il", (s) => (s.executed_date ? formatShortDate(s.executed_date) : el("span", "muted", "—"))],
+  ["Tecnico", (s) => s.assigned_user?.display_name ?? el("span", "muted", "—")],
 ];
 
 export class DetailPanel {
@@ -352,8 +365,8 @@ export class DetailPanel {
       this.embedded.push(sheet);
       card.append(container);
     } else {
-      card.append(this.#summary(ev.servers));
-      card.append(this.#table(ev.servers));
+      card.append(this.#summary(ev));
+      card.append(this.#table(ev));
     }
     return card;
   }
@@ -377,11 +390,14 @@ export class DetailPanel {
     return nav;
   }
 
-  #summary(servers) {
+  #summary(ev) {
+    const servers = ev.servers;
     const n = servers.length;
     const count = (key, value) => servers.filter((s) => s[key] === value).length;
     const parts = [`${n} server`];
-    if (n) {
+    if (n && isConfigEvent(ev)) {
+      parts.push(`eseguiti ${servers.filter((s) => s.executed_date).length}/${n}`);
+    } else if (n) {
       parts.push(`check OK ${count("check_status", "ok")}/${n}`);
       const ko = count("check_status", "ko");
       if (ko) parts.push(`check KO ${ko}`);
@@ -393,7 +409,7 @@ export class DetailPanel {
   /** Da chiamare dopo l'inserimento nel DOM: le colonne si possono misurare solo lì. */
   #afterRender() {
     for (const table of this.bodyEl.querySelectorAll(".server-table")) {
-      makeResizable(table, { key: "compact" });
+      makeResizable(table, { key: table.classList.contains("config-table") ? "compact-config" : "compact" });
     }
     const mounts = [];
     for (const sheet of this.embedded) {
@@ -414,13 +430,16 @@ export class DetailPanel {
     setTimeout(() => tr.classList.remove("hit-row"), 4000);
   }
 
-  #table(servers) {
+  #table(ev) {
+    const servers = ev.servers;
     if (!servers.length) return el("p", "muted", "Nessun server associato.");
+    const config = isConfigEvent(ev);
+    const columns = config ? CONFIG_COLUMNS : COLUMNS;
     const wrap = el("div", "table-wrap");
-    const table = el("table", "server-table");
+    const table = el("table", `server-table${config ? " config-table" : ""}`);
     const thead = el("thead");
     const hr = el("tr");
-    for (const [label] of COLUMNS) {
+    for (const [label] of columns) {
       const th = el("th", null, label);
       th.dataset.col = label;
       if (label === "SO · kernel") th.title = "Sistema operativo e kernel: attuali e, dopo la freccia, target";
@@ -431,7 +450,7 @@ export class DetailPanel {
     for (const s of servers) {
       const tr = el("tr");
       tr.dataset.rowId = s.id;
-      for (const [, render] of COLUMNS) {
+      for (const [, render] of columns) {
         const td = el("td");
         const v = render(s);
         if (v instanceof Node) td.append(v);
@@ -439,6 +458,17 @@ export class DetailPanel {
         tr.append(td);
       }
       tbody.append(tr);
+      if (config) {
+        // Note di configurazione a tutta larghezza, con gli a capo
+        tr.classList.add("has-notes");
+        const nr = el("tr", "notes-row");
+        nr.dataset.notesFor = s.id;
+        const td = el("td", "notes-cell");
+        td.colSpan = columns.length;
+        td.append(s.notes ? el("div", "config-notes", s.notes) : el("span", "muted", "Nessuna nota."));
+        nr.append(td);
+        tbody.append(nr);
+      }
     }
     table.append(thead, tbody);
     wrap.append(table);

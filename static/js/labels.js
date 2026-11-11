@@ -5,8 +5,12 @@ export const EVENT_STATUS = {
   completato: "Completato", rinviato: "Rinviato", annullato: "Annullato",
 };
 
+/** Tipo di intervento con tabella ridotta e note estese sotto ogni server. */
+export const CONFIG_TYPE = "configurazione";
+export const isConfigEvent = (ev) => ev?.event_type === CONFIG_TYPE;
+
 export const EVENT_TYPE = {
-  migrazione: "Migrazione", upgrade: "Upgrade", patching: "Patching", altro: "Altro",
+  migrazione: "Migrazione", upgrade: "Upgrade", patching: "Patching", configurazione: "Configurazione", altro: "Altro",
 };
 
 export const CHECK_STATUS = {

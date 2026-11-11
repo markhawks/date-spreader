@@ -16,7 +16,7 @@ import { session } from "./session.js";
 import { makeResizable } from "./resize.js";
 import { formatLongDate, formatTime } from "./dates.js";
 import {
-  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, shortOs, toneOf,
+  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, toneOf,
 } from "./labels.js";
 
 /** Minuscolo e senza accenti, per il filtro delle righe. */
@@ -50,6 +50,21 @@ const COLUMNS = [
   // Note: nessuna larghezza fissa, prende lo spazio che resta
   { field: "notes", label: "Note", kind: "text", scope: "row" },
 ];
+
+// Interventi di «Configurazione»: solo queste colonne; le note vanno in una riga a tutta larghezza
+// sotto ogni server (alta due righe, cresce con il testo). L'ultima colonna resta elastica.
+const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "executed_date", "assigned_user_id"];
+const CONFIG_COLUMNS = CONFIG_FIELDS.map((f, i, all) => {
+  const c = COLUMNS.find((x) => x.field === f);
+  return i === all.length - 1 ? { ...c, width: undefined } : c;
+});
+const NOTES_COLUMN = COLUMNS.find((c) => c.field === "notes");
+
+/** Altezza della nota: segue il testo, almeno due righe. */
+function autoGrow(ta) {
+  ta.style.height = "auto";
+  ta.style.height = `${ta.scrollHeight + 2}px`;
+}
 
 /** Valore del campo come stringa per il controllo HTML. */
 function controlValue(row, field) {
@@ -175,10 +190,12 @@ export class Sheet {
   #render() {
     const ev = this.event;
     this.root.style.setProperty("--c", colorFor(ev.project.id));
+    this.config = isConfigEvent(ev);
+    this.columns = this.config ? CONFIG_COLUMNS : COLUMNS;
 
-    const table = el("table", "edit-table");
+    const table = el("table", `edit-table${this.config ? " config-table" : ""}`);
     const colgroup = el("colgroup");
-    for (const c of COLUMNS) {
+    for (const c of this.columns) {
       const col = el("col");
       if (c.width) col.style.width = c.width;
       colgroup.append(col);
@@ -187,7 +204,7 @@ export class Sheet {
 
     const thead = el("thead");
     const hr = el("tr");
-    for (const c of COLUMNS) {
+    for (const c of this.columns) {
       const th = el("th", c.scope === "server" ? "scope-server" : null, c.label);
       th.dataset.col = c.field;
       th.title = [c.title, c.scope === "server" ? SERVER_HINT : null].filter(Boolean).join(". ");
@@ -197,7 +214,7 @@ export class Sheet {
     thead.append(hr);
 
     this.tbody = el("tbody");
-    for (const row of ev.servers) this.tbody.append(this.#rowEl(row));
+    for (const row of ev.servers) this.#appendRow(row);
 
     table.append(colgroup, thead, this.tbody, this.#addRowFoot());
     const wrap = el("div", "sheet-table-wrap");
@@ -210,6 +227,7 @@ export class Sheet {
       "<span class=\"scope-server-sample\">Colonne sottolineate</span>: dati del server, validi in tutti i suoi interventi.";
 
     hint.append(" Le colonne si allargano trascinando il bordo dell'intestazione.");
+    if (this.config) hint.append(" Intervento di configurazione: sotto ogni server c'è lo spazio per le note (Invio va a capo; si salvano uscendo dal campo).");
 
     if (this.embedded) {
       wrap.classList.add("embedded");
@@ -219,7 +237,8 @@ export class Sheet {
     }
     if (this.suggestBox) this.root.append(this.suggestBox);
     wrap.addEventListener("scroll", () => this.hideSuggest?.(), { passive: true });
-    this.resizer = makeResizable(table, { key: "sheet" });
+    this.resizer = makeResizable(table, { key: this.config ? "sheet-config" : "sheet" });
+    for (const ta of this.tbody.querySelectorAll("textarea")) autoGrow(ta);
     this.#applyRowFilter();
     if (!this.embedded) this.tbody.querySelector("input, select")?.focus();
   }
@@ -284,7 +303,7 @@ export class Sheet {
     const bar = el("div", "sheet-toolbar");
     const text = el("input", "sheet-filter");
     text.type = "search";
-    text.placeholder = "Filtra righe: hostname, IP, kernel, note…";
+    text.placeholder = this.config ? "Filtra righe: hostname, IP, note…" : "Filtra righe: hostname, IP, kernel, note…";
     text.setAttribute("aria-label", "Filtra le righe della tabella");
     text.addEventListener("input", () => { this.rowFilter.text = text.value; this.pinned.clear(); this.#applyRowFilter(); });
 
@@ -301,12 +320,9 @@ export class Sheet {
     reset.type = "button";
     reset.title = "Riporta tutte le colonne alla larghezza iniziale";
     reset.addEventListener("click", () => this.resizer?.reset());
-    bar.append(
-      text,
-      mk("Check", "check", this.lookups.check),
-      mk("Migrazione", "migration", this.lookups.migration),
-      this.visibleEl,
-    );
+    bar.append(text);
+    if (!this.config) bar.append(mk("Check", "check", this.lookups.check), mk("Migrazione", "migration", this.lookups.migration));
+    bar.append(this.visibleEl);
     if (this.embedded) {
       // Nell'anteprima non c'è l'intestazione: conteggio e stato del salvataggio stanno qui.
       this.countEl = el("span", "sheet-count");
@@ -336,6 +352,7 @@ export class Sheet {
     for (const state of this.rows.values()) {
       const show = this.pinned.has(state.data.id) || this.#matches(state.data);
       state.tr.hidden = !show;
+      if (state.notesTr) state.notesTr.hidden = !show;
       if (show) visible++;
     }
     this.#updateCount();
@@ -359,13 +376,22 @@ export class Sheet {
       return false; // riproverà al prossimo giro
     }
     if (!this.isOpen || this.pending > 0 || fresh.id !== this.event.id) return false;
+    if (isConfigEvent(fresh) !== this.config) {
+      // Tipo cambiato (es. in «Configurazione»): le colonne sono diverse, si ridisegna tutto
+      if (this.root.contains(document.activeElement)) return false; // non interrompere chi scrive
+      this.event = fresh;
+      this.rows.clear();
+      this.#render();
+      this.changed = true;
+      return true;
+    }
     let touched = false;
     const seen = new Set();
     for (const data of fresh.servers) {
       seen.add(data.id);
       const state = this.rows.get(data.id);
       if (!state) {
-        this.tbody.append(this.#rowEl(data));
+        this.#appendRow(data);
         this.#flash(this.rows.get(data.id).tr, "remote", 2500);
         touched = true;
       } else if (data.version !== state.data.version || data.server_version !== state.data.server_version) {
@@ -393,13 +419,48 @@ export class Sheet {
     return touched;
   }
 
+  /** Aggiunge in fondo la riga del server (e, per la configurazione, la sua riga di note). */
+  #appendRow(data) {
+    const tr = this.#rowEl(data);
+    const { notesTr } = this.rows.get(data.id);
+    this.tbody.append(...[tr, notesTr].filter(Boolean));
+    if (notesTr) autoGrow(notesTr.querySelector("textarea"));
+    return tr;
+  }
+
+  /** Riga a tutta larghezza con le note del server (interventi di configurazione). */
+  #notesRowEl(state) {
+    const tr = el("tr", "notes-row");
+    tr.dataset.notesFor = state.data.id;
+    const td = el("td", "notes-cell");
+    td.colSpan = this.columns.length + 1;
+    td.dataset.field = "notes";
+    const ta = el("textarea", "cell-input notes-input");
+    ta.rows = 2;
+    ta.dataset.field = "notes";
+    ta.placeholder = "Note di configurazione: passi, parametri, file modificati, verifiche…";
+    ta.setAttribute("aria-label", `Note di configurazione di ${state.data.hostname}`);
+    ta.spellcheck = true;
+    ta.value = controlValue(state.data, "notes");
+    ta.addEventListener("input", () => { td.classList.add("dirty"); autoGrow(ta); });
+    ta.addEventListener("change", () => this.#commit(state, NOTES_COLUMN, ta));
+    ta.addEventListener("keydown", (e) => this.#onKey(e, state, NOTES_COLUMN, ta));
+    td.append(ta);
+    tr.append(td);
+    return tr;
+  }
+
   #rowEl(data) {
     const tr = el("tr");
     tr.dataset.rowId = data.id;
     const state = { data, tr, chain: Promise.resolve() };
     this.rows.set(data.id, state);
+    if (this.config) {
+      tr.classList.add("has-notes");
+      state.notesTr = this.#notesRowEl(state);
+    }
 
-    for (const col of COLUMNS) {
+    for (const col of this.columns) {
       const td = el("td", col.scope === "server" ? "scope-server" : null);
       td.dataset.field = col.field;
       const control = this.#control(col, state);
@@ -462,7 +523,7 @@ export class Sheet {
     const tfoot = el("tfoot");
     const tr = el("tr", "add-row");
     const td = el("td");
-    td.colSpan = COLUMNS.length + 1;
+    td.colSpan = this.columns.length + 1;
     const form = el("form", "add-form");
     const input = el("input", "cell-input mono");
     input.type = "text";
@@ -606,12 +667,15 @@ export class Sheet {
         e.preventDefault(); // non chiude il foglio: annulla solo la cella
         control.value = controlValue(state.data, col.field);
         td.classList.remove("dirty", "error");
-        control.title = col.kind === "text" ? control.value : "";
+        if (control.tagName === "TEXTAREA") autoGrow(control);
+        else control.title = col.kind === "text" ? control.value : "";
       }
     } else if (e.key === "Enter" && control.tagName === "INPUT") {
       e.preventDefault();
       // Scende alla stessa colonna della riga sotto; l'uscita dalla cella fa partire il salvataggio.
-      const next = state.tr.nextElementSibling?.querySelector(`.cell-input[data-field="${col.field}"]`);
+      let below = state.tr.nextElementSibling;
+      while (below?.classList.contains("notes-row")) below = below.nextElementSibling;
+      const next = below?.querySelector(`.cell-input[data-field="${col.field}"]`);
       if (next) next.focus();
       else control.blur();
     }
@@ -750,8 +814,7 @@ export class Sheet {
     this.#busy(+1);
     try {
       const row = await addServerRow(this.event.id, { hostname });
-      const tr = this.#rowEl(row);
-      this.tbody.append(tr);
+      const tr = this.#appendRow(row);
       this.pinned.add(row.id);
       this.#applyRowFilter();
       this.#flash(tr, "added", 1600);
@@ -776,7 +839,8 @@ export class Sheet {
 
   /** Riporta nei controlli i valori salvati, senza toccare le celle che l'utente sta modificando. */
   #refreshRow(state, savedTd, { force = false } = {}) {
-    for (const control of state.tr.querySelectorAll(".cell-input")) {
+    const controls = [...state.tr.querySelectorAll(".cell-input"), ...(state.notesTr?.querySelectorAll(".cell-input") ?? [])];
+    for (const control of controls) {
       const td = control.parentElement;
       const editing = !force && td !== savedTd && td.classList.contains("dirty");
       if (editing) continue;
@@ -789,6 +853,7 @@ export class Sheet {
       }
       control.value = value;
       td.classList.remove("dirty", "error");
+      if (control.tagName === "TEXTAREA") { autoGrow(control); continue; }
       if (control.type === "text" || OS_FIELDS.has(control.dataset.field)) control.title = value;
       else control.removeAttribute("title");
     }
@@ -806,6 +871,7 @@ export class Sheet {
 
   #removeRow(state) {
     state.tr.remove();
+    state.notesTr?.remove();
     this.rows.delete(state.data.id);
     this.#updateCount();
   }

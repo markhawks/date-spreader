@@ -640,6 +640,25 @@ kbd {
 }
 .edit-table th:first-child { z-index: 3; background: var(--panel-2); }
 .edit-table tbody tr:hover td { background: color-mix(in srgb, var(--accent) 4%, var(--panel)); }
+/* Interventi di configurazione: meno colonne, note a tutta larghezza sotto ogni server */
+.edit-table.config-table { min-width: 760px; }
+.edit-table tr.has-notes td { border-bottom-style: dashed; }
+.edit-table tr.notes-row td.notes-cell {
+  position: relative; left: auto; box-shadow: none;
+  padding: 0 0 0 1.4rem;
+  border-bottom: 2px solid var(--border);
+  background: var(--panel-2);
+}
+.edit-table tr.notes-row td.notes-cell::before {
+  content: "Note"; position: absolute; left: 4px; top: 8px;
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase;
+}
+.edit-table tbody tr.notes-row:hover td { background: var(--panel-2); }
+textarea.notes-input {
+  display: block; height: auto; min-height: 3.4em; resize: vertical; overflow: hidden;
+  padding: 6px 8px; line-height: 1.45; white-space: pre-wrap; background: var(--panel);
+}
 
 .cell-input {
   width: 100%;
@@ -1740,3 +1759,8 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
   color: #1d2330;
 }
 @media (max-width: 760px) { .share-btn span { display: none; } }
+
+/* Tabella compatta di un intervento di configurazione */
+.server-table tr.has-notes td { border-bottom-style: dashed; }
+.server-table tr.notes-row td.notes-cell { background: var(--panel-2); padding: 6px 8px 8px; }
+.config-notes { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.45; font-size: 0.8rem; }

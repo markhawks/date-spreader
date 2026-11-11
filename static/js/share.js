@@ -10,7 +10,7 @@ import { fetchEvent } from "./api.js";
 import { colorFor, textOn } from "./colors.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import {
-  CHECK_STATUS, EVENT_STATUS, EVENT_TYPE, MIGRATION_STATUS, shortOs, toneOf,
+  CHECK_STATUS, EVENT_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, toneOf,
 } from "./labels.js";
 import { people } from "./people.js";
 import { prefs } from "./prefs.js";
@@ -50,15 +50,16 @@ export function buildEmail(ev) {
   const subject = ["Intervento", customer, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`]
     .filter(Boolean).join(" · ").replace("Intervento · ", "Intervento: ");
 
+  const config = isConfigEvent(ev);
   const n = ev.servers.length;
   const count = (k, v) => ev.servers.filter((s) => s[k] === v).length;
-  const summary = n
-    ? `${n} server · check OK ${count("check_status", "ok")}/${n}${count("check_status", "ko") ? ` · check KO ${count("check_status", "ko")}` : ""} · migrati ${count("migration_status", "completata")}/${n}`
-    : "Nessun server associato";
+  const summary = !n ? "Nessun server associato"
+    : config ? `${n} server · eseguiti ${ev.servers.filter((s) => s.executed_date).length}/${n}`
+    : `${n} server · check OK ${count("check_status", "ok")}/${n}${count("check_status", "ko") ? ` · check KO ${count("check_status", "ko")}` : ""} · migrati ${count("migration_status", "completata")}/${n}`
 
   const td = "padding:6px 8px;border-bottom:1px solid #e3e6eb;vertical-align:top;font-size:13px";
   const mono = "font-family:Consolas,Menlo,monospace;font-size:12px";
-  const cols = [
+  const allCols = [
     ["Hostname", (s) => `<span style="${mono};font-weight:bold">${esc(s.hostname)}</span>`],
     ["IP", (s) => `<span style="${mono}">${esc(s.ip_address ?? "")}</span>`],
     ["SO", (s) => esc(shortOs(s.operating_system))],
@@ -72,6 +73,13 @@ export function buildEmail(ev) {
     ["Tecnico", (s) => esc(s.assigned_user?.display_name ?? "")],
     ["Note", (s) => esc(s.notes ?? "")],
   ];
+  // Configurazione: colonne ridotte e note in una riga a tutta larghezza sotto ogni server
+  const CONFIG_HEADS = ["Hostname", "IP", "SO", "Amb.", "Eseguito il", "Tecnico"];
+  const cols = config ? allCols.filter(([h]) => CONFIG_HEADS.includes(h)) : allCols;
+  const notesRow = (s) => (config
+    ? `<tr><td colspan="${cols.length}" style="padding:6px 10px 10px;border-bottom:2px solid #d5d9e0;background:#f8f9fb;font-size:13px;white-space:pre-wrap">${
+      s.notes ? esc(s.notes).replace(/\n/g, "<br>") : '<span style="color:#9ca3af">Nessuna nota.</span>'}</td></tr>`
+    : "");
   const facts = [
     ["Data", esc(when)],
     ["Tipo", esc(EVENT_TYPE[ev.event_type] ?? ev.event_type)],
@@ -97,7 +105,7 @@ export function buildEmail(ev) {
   ${n ? `
   <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #e3e6eb">
     <thead><tr>${cols.map(([h]) => `<th style="padding:7px 8px;background:#f1f3f6;border-bottom:1px solid #e3e6eb;text-align:left;font-size:12px;color:#4b5563;white-space:nowrap">${h}</th>`).join("")}</tr></thead>
-    <tbody>${ev.servers.map((s) => `<tr>${cols.map(([h, f]) => `<td style="${td};${h === "Note" ? "min-width:160px" : "white-space:nowrap"}">${f(s)}</td>`).join("")}</tr>`).join("")}</tbody>
+    <tbody>${ev.servers.map((s) => `<tr>${cols.map(([h, f]) => `<td style="${td};${h === "Note" ? "min-width:160px" : "white-space:nowrap"}${config ? ";border-bottom:1px dashed #e3e6eb" : ""}">${f(s)}</td>`).join("")}</tr>${notesRow(s)}`).join("")}</tbody>
   </table>` : ""}
   <p style="margin:16px 0 0;font-size:12px;color:#6b7280">
     Apri l'intervento nel portale: <a href="${esc(eventLink(ev.id))}" style="color:#2563eb">${esc(eventLink(ev.id))}</a><br>
@@ -116,12 +124,17 @@ export function buildEmail(ev) {
     ...(ev.participants.length ? [`Partecipanti: ${ev.participants.map((p) => p.display_name).join(", ")}`] : []),
     ...(ev.notes ? [`Note: ${ev.notes}`] : []),
     "", summary, "",
-    ...ev.servers.map((s) => [
+    ...ev.servers.map((s) => (config ? [
+      [s.hostname, s.ip_address, shortOs(s.operating_system), s.environment,
+        s.executed_date && `eseguito il ${formatShortDate(s.executed_date)}`, s.assigned_user?.display_name].filter(Boolean).join(" | "),
+      ...(s.notes ? s.notes.split("\n").map((l) => `    ${l}`) : []),
+      "",
+    ].join("\n") : [
       s.hostname, s.ip_address, shortOs(s.operating_system), s.environment,
       `${s.current_kernel ?? "?"} → ${shortOs(s.target_operating_system) || ""} ${s.target_kernel ?? ""}`.trim(),
       `check ${CHECK_STATUS[s.check_status] ?? s.check_status}`, `migrazione ${MIGRATION_STATUS[s.migration_status] ?? s.migration_status}`,
       s.assigned_user?.display_name, s.notes,
-    ].filter(Boolean).join(" | ")),
+    ].filter(Boolean).join(" | "))),
     "", `Apri nel portale: ${eventLink(ev.id)}`,
   ];
   return { subject, html, text: lines.join("\n"), accent: color };

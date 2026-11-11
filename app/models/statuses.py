@@ -8,7 +8,9 @@ Il primo valore di ogni tupla è il default.
 PROJECT_STATUSES = ("attivo", "sospeso", "chiuso")
 
 EVENT_STATUSES = ("pianificato", "confermato", "in_corso", "completato", "rinviato", "annullato")
-EVENT_TYPES = ("migrazione", "upgrade", "patching", "altro")
+EVENT_TYPES = ("migrazione", "upgrade", "patching", "configurazione", "altro")
+# Interventi di configurazione: niente kernel, check e migrazione; le note della riga sono il dettaglio
+CONFIG_EVENT_TYPE = "configurazione"
 
 CHECK_STATUSES = ("da_fare", "in_corso", "ok", "ko", "non_applicabile")
 MIGRATION_STATUSES = ("pianificata", "in_corso", "completata", "fallita", "rinviata", "annullata")

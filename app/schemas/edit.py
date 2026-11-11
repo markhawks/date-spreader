@@ -53,7 +53,8 @@ class _RowFields(BaseModel):
     planned_date: date | None = None
     executed_date: date | None = None
     assigned_user_id: int | None = None
-    notes: str | None = Field(default=None, max_length=2000)
+    # Lunghe: negli interventi di configurazione contengono il dettaglio della configurazione
+    notes: str | None = Field(default=None, max_length=20000)
 
     @field_validator(
         "ip_address", "operating_system", "current_kernel", "target_kernel", "target_operating_system", "notes",

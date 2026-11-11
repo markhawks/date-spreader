@@ -13,6 +13,9 @@ this job with:
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
 - **real multi-user editing**: optimistic locking (no silent overwrites), live updates from colleagues every
   10 seconds, and an **audit log** of every change with its author;
+- **configuration interventions** (type «Configurazione»): a reduced table (hostname, IP, OS, environment,
+  execution date, technician) with a full-width, auto-growing **notes row under each server** for the
+  configuration details;
 - **sharing by email**: a formatted email with the full server table, ready to paste into Gmail.
 
 The user interface is in **Italian**. The stack is deliberately small: **FastAPI + SQLite** on the backend and
