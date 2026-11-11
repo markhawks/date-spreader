@@ -41,6 +41,9 @@ ASSUME_YES=0
 FORCE=0
 PORT_SET=0
 HOST_SET=0
+DIR_SET=0
+SERVICE_SET=0
+USER_SET=0
 
 TESTED_OS="fedora 44"   # "ID VERSION_ID" da /etc/os-release
 MIN_PY="3.11"
@@ -90,14 +93,14 @@ while [[ $# -gt 0 ]]; do
     --admin-email) ADMIN_EMAIL="${2:?}"; shift 2 ;;
     --admin-username) ADMIN_USERNAME="${2:?}"; shift 2 ;;
     --temporary-password) TEMP_PASSWORD=1; shift ;;
-    --dir) INSTALL_DIR="${2:?}"; shift 2 ;;
+    --dir) INSTALL_DIR="${2:?}"; DIR_SET=1; shift 2 ;;
     --port) PORT="${2:?}"; PORT_SET=1; shift 2 ;;
     --local-only) HOST_ADDR="127.0.0.1"; HOST_SET=1; shift ;;
     --demo) DEMO=1; shift ;;
     --source) REPO_URL="${2:?}"; shift 2 ;;
     --ref) REF="${2:?}"; shift 2 ;;
-    --service) SERVICE="${2:?}"; shift 2 ;;
-    --user) SVC_USER="${2:?}"; shift 2 ;;
+    --service) SERVICE="${2:?}"; SERVICE_SET=1; shift 2 ;;
+    --user) SVC_USER="${2:?}"; USER_SET=1; shift 2 ;;
     --no-firewall) OPEN_FIREWALL=0; shift ;;
     --force) FORCE=1; shift ;;
     -y|--yes) ASSUME_YES=1; shift ;;
@@ -105,6 +108,21 @@ while [[ $# -gt 0 ]]; do
     *) usage >&2; die "opzione sconosciuta: $1" ;;
   esac
 done
+
+# Lanciato da un'installazione esistente (es. sudo /opt/datespreader/deploy/install.sh): aggiorna quella.
+SELF_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd || true)"
+if (( ! DIR_SET )) && [[ -n "$SELF_ROOT" && -f "$SELF_ROOT/.install.conf" ]]; then
+  INSTALL_DIR="$SELF_ROOT"
+fi
+# Impostazioni salvate alla prima installazione (servizio e utente), se non indicate di nuovo
+if [[ -f "$INSTALL_DIR/.install.conf" ]]; then
+  while IFS='=' read -r key value; do
+    case "$key" in
+      SERVICE) (( SERVICE_SET )) || SERVICE="$value" ;;
+      SVC_USER) (( USER_SET )) || SVC_USER="$value" ;;
+    esac
+  done < "$INSTALL_DIR/.install.conf"
+fi
 
 [[ "$PORT" =~ ^[0-9]+$ ]] && (( PORT >= 1 && PORT <= 65535 )) || die "porta non valida: $PORT"
 [[ "$SERVICE" =~ ^[a-zA-Z0-9_.-]+$ ]] || die "nome del servizio non valido: $SERVICE"
@@ -168,7 +186,10 @@ fi
 
 # --- 1. pacchetti ----------------------------------------------------------------------------------
 step "1/7 Pacchetti di sistema"
-dnf install -y -q git python3 curl >/dev/null
+if ! dnf_out="$(dnf install -y -q git python3 curl 2>&1)"; then
+  printf '%s\n' "$dnf_out" >&2
+  die "installazione dei pacchetti non riuscita (dnf)."
+fi
 ok "git, python3, curl"
 
 find_python() {
@@ -246,6 +267,9 @@ chmod 750 "$INSTALL_DIR/data"
 chown "root:$SVC_USER" "$ENV_FILE"
 chmod 640 "$ENV_FILE"
 ok "Configurazione: $ENV_FILE (HOST=$HOST_ADDR, PORT=$PORT)"
+# Servizio e utente: servono agli aggiornamenti (sudo $INSTALL_DIR/deploy/install.sh, senza opzioni)
+printf 'SERVICE=%s\nSVC_USER=%s\n' "$SERVICE" "$SVC_USER" > "$INSTALL_DIR/.install.conf"
+chmod 644 "$INSTALL_DIR/.install.conf"
 if command -v getenforce >/dev/null && [[ "$(getenforce)" == "Enforcing" ]]; then
   restorecon -R "$INSTALL_DIR" >/dev/null 2>&1 || true
   warn "SELinux attivo (Enforcing): configurazione non ancora testata. Se il servizio non parte: ausearch -m avc -ts recent"

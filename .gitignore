@@ -10,3 +10,5 @@ data/*
 .claude/settings.local.json
 # note di questa installazione (indirizzi, dati reali): restano sulla macchina
 CLAUDE.local.md
+# impostazioni scritte da deploy/install.sh nella cartella installata
+.install.conf
