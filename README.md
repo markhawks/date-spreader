@@ -17,11 +17,14 @@ called "Time Dot").
 Highlights:
 
 - a **vertical calendar** centered on the current month, showing every intervention with its **progress** ("2/4"
-  servers done, plus a thin bar that fills up), in a **month or week view**;
+  servers done, plus a thin bar that fills up), in a **month or week view**, with **7 days or Mon–Fri** (weekends
+  shown only where there are interventions);
 - a **project sidebar**, with projects grouped and filtered by **customer** and colored per customer;
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
+- **import servers from CSV or Excel** (or rows pasted from a spreadsheet) into an intervention, with column
+  recognition and a preview of every row before saving;
 - **scheduling conflicts**: a warning when the same server is in two interventions on the same day, or a technician
   is busy in two interventions at overlapping times, plus a **Technicians** view with each technician's week;
 - **duplicate an intervention** to another date (e.g. when it must be run again), with every status reset;
@@ -32,9 +35,16 @@ Highlights:
 - **configuration interventions**: a reduced table with a full-width, auto-growing **notes row under each server**;
 - **export and import between installations**: move a project or a whole customer to another Date Spreader;
 - **sharing by email**: a formatted email with the full server table, ready to paste into Gmail;
+- **automatic database backups**: verified copies every night, before every upgrade and on demand, with rotation,
+  download from the portal and restore from the command line;
+- a **read-only recap for smartphones**, for technicians and coordinators away from the office (the portal itself is
+  meant for a desktop);
+- **today's date and a clock** in the top bar, configurable per user;
 - **multilingual interface**: **English** and **Italian**; each user picks the language in Settings → Appearance →
   Language (by default it follows the browser). Server messages, the sharing email and the "What's new" changelog
   follow the user's language too.
+
+Planned and proposed features: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 The stack is deliberately small: **FastAPI + SQLite** on the backend and plain ES-module JavaScript (no framework,
 no build step) on the frontend.

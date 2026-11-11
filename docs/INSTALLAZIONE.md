@@ -16,7 +16,8 @@ un'installazione all'altra con **export / import**: vedi il README, sezione [«E
 | Altre distribuzioni con systemd e Python ≥ 3.11 | ⚠️ Installazione manuale (vedi sotto), a proprio rischio |
 
 **In arrivo:** un **installatore** guidato e un **pacchetto RPM** (`dnf install datespreader`), insieme al supporto
-di RHEL 10.2 e Fedora 45. Fino ad allora lo script `deploy/install.sh` è il modo consigliato.
+di RHEL 10.2 e Fedora 45. Fino ad allora lo script `deploy/install.sh` è il modo consigliato. Tutte le funzioni
+previste: [ROADMAP.it.md](ROADMAP.it.md).
 
 Lo script rifiuta i sistemi non ancora testati. Con `--force` procede lo stesso, segnalandolo.
 
@@ -71,7 +72,7 @@ quella si può cancellare.
 | `--port N` | Porta del portale (predefinita `8000`) |
 | `--local-only` | Raggiungibile solo dalla macchina stessa (`127.0.0.1`), per esempio dietro un proxy HTTPS |
 | `--dir PERCORSO` | Cartella di installazione (predefinita `/opt/datespreader`). Non sono ammesse `/tmp` e le home |
-| `--source URL\|PERCORSO`, `--ref RAMO\|TAG` | Da dove scaricare il codice e quale versione (predefiniti: GitHub, `main`). Es. `--ref v0.23.0` |
+| `--source URL\|PERCORSO`, `--ref RAMO\|TAG` | Da dove scaricare il codice e quale versione (predefiniti: GitHub, `main`). Es. `--ref v0.24.0` |
 | `--service NOME`, `--user NOME` | Nome del servizio systemd e dell'utente di sistema. Servono per installare una seconda istanza sulla stessa macchina |
 | `--no-firewall` | Non modifica il firewall |
 | `--force` | Procede su un sistema non ancora testato |
@@ -89,6 +90,11 @@ sudo ./deploy/install.sh --admin-name "Prova" --admin-email prova@example.com --
 - **Utenti**: menu Impostazioni → Amministrazione → Utenti. Per far accedere un collega genera una password
   temporanea, che al primo accesso dovrà cambiare.
 - **Importare progetti** da un'altra installazione: Impostazioni → Amministrazione → «Importa progetti».
+- **Importare server** in un intervento da un file CSV/Excel: «Importa da CSV/Excel…» nella tabella server.
+- **Backup del database**: sono automatici (ogni notte), vedi [Backup](#backup).
+- **Da smartphone**: lo stesso indirizzo apre un riepilogo in sola lettura (oggi, prossimi 7 giorni, interventi da
+  chiudere); il portale vero e proprio è pensato per il computer.
+- **Lingua**: ogni utente sceglie inglese o italiano in Impostazioni → Aspetto → Lingua.
 - Comandi utili:
 
 ```bash
@@ -117,7 +123,7 @@ sudo /opt/datespreader/deploy/install.sh
 
 Cosa succede:
 1. **backup del database** in `data/backups/…-pre-aggiornamento.sqlite3`;
-2. scarica la nuova versione da GitHub. Per una versione precisa: `--ref v0.23.0`;
+2. scarica la nuova versione da GitHub. Per una versione precisa: `--ref v0.24.0`;
 3. aggiorna le dipendenze e riavvia il servizio;
 4. il servizio, all'avvio, porta il database allo schema nuovo (migrazioni).
 

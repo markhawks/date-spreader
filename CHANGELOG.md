@@ -5,11 +5,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+
+## [0.24.0] - 2026-11-11
 ### Changed
 - Top bar on medium screens (below 1360 px): the view buttons show only their icon (the name stays in the tooltip) and the clock only the time below 1500 px, so the bar stays on one line.
 - **Configuration interventions have a "Status" column** (Planned, In progress, Completed…) in the full-screen table, the bottom preview, the card, the filters and the sharing email. The progress in the calendar ("1/2") and the summary now count the servers with status "Completed", as for the other types, and no longer those with an "executed on" date: a date filled in as a planned date no longer marks the work as done.
 
 ### Added
+- **Roadmap** of the proposed features: [docs/ROADMAP.md](docs/ROADMAP.md) (Italian: `docs/ROADMAP.it.md`), linked from the READMEs and the install guide.
 - **Recap for smartphones**: on a phone the portal (meant for a desktop) opens a single read-only page for technicians and coordinators away from the office: interventions still to close (last 14 days), today's and the next 7 days', "Mine" or "All", with status, progress, conflicts and technicians; a tap shows the servers and lets you change the intervention status. "Full version" opens the normal portal (remembered in the browser), whose "Recap" button goes back.
 - **7 days or Mon–Fri** in the calendar: **"Mon–Fri" button in the top bar**, next to Month, Week and Technicians (also a switch at the bottom right of the calendar and in Settings → Appearance). With Mon–Fri, Saturday and Sunday appear only in the weeks (week and Technicians views) or months (month view) with interventions on a weekend. Personal preference `calendar_days`.
 - **Import servers from CSV/Excel** into an intervention ("Import from CSV/Excel…" next to "Add server"): a CSV or .xlsx file, or rows pasted from a spreadsheet. Columns recognised from their English or Italian names (or from the content), changeable; a preview shows the result of every row before saving; OS names matched to the list even when written differently; servers already in the inventory are linked and updated only on request; bad rows never block the others. New dependency: `openpyxl` (reading .xlsx). API: `POST /api/events/{id}/servers/import`.

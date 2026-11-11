@@ -5,11 +5,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+
+## [0.24.0] - 2026-11-11
 ### Modificato
 - Barra in alto su schermi medi (sotto i 1360 px): i pulsanti di vista mostrano solo l'icona (il nome resta nel tooltip) e sotto i 1500 px l'orologio mostra solo l'ora, così la barra resta su una riga.
 - **Gli interventi di configurazione hanno la colonna «Stato»** (Pianificata, In corso, Completata…) nella tabella a tutto schermo, nell'anteprima in basso, nella scheda, nei filtri e nell'email di condivisione. L'avanzamento nel calendario («1/2») e il riepilogo contano ora i server con stato «Completata», come per gli altri tipi, e non più quelli con la data «eseguito il»: una data inserita come data prevista non segna più il lavoro come fatto.
 
 ### Aggiunto
+- **Roadmap** delle funzioni proposte: [docs/ROADMAP.it.md](docs/ROADMAP.it.md) (inglese: `docs/ROADMAP.md`), collegata dai README e dalla guida di installazione.
 - **Riepilogo per smartphone**: sul telefono il portale (pensato per il computer) apre una sola pagina in sola lettura per tecnici e coordinatori fuori ufficio: interventi da chiudere (ultimi 14 giorni), di oggi e dei prossimi 7 giorni, «I miei» o «Tutti», con stato, avanzamento, conflitti e tecnici; un tocco mostra i server e permette di cambiare lo stato dell'intervento. «Versione completa» apre il portale normale (scelta ricordata nel browser), dove il pulsante «Riepilogo» riporta indietro.
 - **7 giorni o Lun–Ven** nel calendario: **pulsante «Lun–Ven» nella barra in alto**, accanto a Mese, Settimana e Tecnici (anche interruttore in basso a destra nel calendario e in Impostazioni → Aspetto). Con Lun–Ven sabato e domenica compaiono solo nelle settimane (viste Settimana e Tecnici) o nei mesi (vista Mese) con interventi nel fine settimana. Preferenza personale `calendar_days`.
 - **Import dei server da CSV/Excel** in un intervento («Importa da CSV/Excel…» accanto ad «Aggiungi server»): un file CSV o .xlsx, oppure righe incollate da un foglio di calcolo. Colonne riconosciute dal nome in italiano o in inglese (o dal contenuto), modificabili; un'anteprima mostra l'esito di ogni riga prima di salvare; SO riconosciuti anche se scritti diversamente; i server già in anagrafica vengono collegati e aggiornati solo su richiesta; le righe sbagliate non bloccano le altre. Nuova dipendenza: `openpyxl` (lettura dei file .xlsx). API: `POST /api/events/{id}/servers/import`.

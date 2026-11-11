@@ -12,6 +12,22 @@ conflitti e cronologia delle modifiche.
 È nato per i team che gestiscono infrastrutture IT, ma nulla vieta di usarlo ovunque si debbano programmare lavori
 tecnici su un elenco di macchine o apparati.
 L'interfaccia è disponibile in **inglese** e **italiano**: ogni utente sceglie la sua lingua (vedi «Impostazioni»).
+
+In breve:
+
+- **calendario verticale** con l'**avanzamento** di ogni intervento («2/4» e una barra), vista **mensile o settimanale**, **7 giorni o Lun–Ven** (il weekend compare solo dove ci sono interventi);
+- **colonna dei progetti** raggruppati e colorati per **cliente**;
+- **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico;
+- **import dei server da CSV o Excel** (o righe incollate da un foglio di calcolo), con anteprima di ogni riga;
+- **conflitti di pianificazione** (stesso server nello stesso giorno, tecnico impegnato due volte) e vista **«Tecnici»** con la settimana di ognuno;
+- **Duplica intervento**, **interventi di configurazione** con note estese, **zoom** del calendario;
+- **più utenti in contemporanea** con controllo dei conflitti di modifica, aggiornamenti in tempo reale e cronologia;
+- **export/import** di progetti e clienti tra installazioni, **condivisione via email** (Gmail);
+- **backup automatici** del database (ogni notte, prima degli aggiornamenti, a richiesta), con download e ripristino;
+- **riepilogo per smartphone** in sola lettura per chi è fuori ufficio (il portale è pensato per il computer);
+- **data e ora** nella barra in alto, personalizzabili.
+
+Funzioni previste e proposte: [docs/ROADMAP.it.md](docs/ROADMAP.it.md).
 Specifica iniziale: [DateWeaver.md](DateWeaver.md) (documento originale, scritto quando il progetto si chiamava ancora "Time Dot").
 
 ## Installazione su un server

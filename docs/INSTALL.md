@@ -17,7 +17,8 @@ installation at a customer's site, and how to upgrade it. Projects are moved fro
 | Other distributions with systemd and Python ≥ 3.11 | ⚠️ Manual installation (see below), at your own risk |
 
 **Coming soon:** a guided **installer** and an **RPM package** (`dnf install datespreader`), together with support
-for RHEL 10.2 and Fedora 45. Until then, the `deploy/install.sh` script is the recommended way.
+for RHEL 10.2 and Fedora 45. Until then, the `deploy/install.sh` script is the recommended way. Everything planned:
+[ROADMAP.md](ROADMAP.md).
 
 The script refuses systems that have not been tested yet. With `--force` it goes ahead anyway, with a warning.
 
@@ -72,7 +73,7 @@ that folder can be deleted.
 | `--port N` | Portal port (default `8000`) |
 | `--local-only` | Reachable only from the machine itself (`127.0.0.1`), for example behind an HTTPS proxy |
 | `--dir PATH` | Installation folder (default `/opt/datespreader`). `/tmp` and home directories are not allowed |
-| `--source URL\|PATH`, `--ref BRANCH\|TAG` | Where to download the code from and which version (defaults: GitHub, `main`). E.g. `--ref v0.23.0` |
+| `--source URL\|PATH`, `--ref BRANCH\|TAG` | Where to download the code from and which version (defaults: GitHub, `main`). E.g. `--ref v0.24.0` |
 | `--service NAME`, `--user NAME` | Name of the systemd service and of the system user. Used to install a second instance on the same machine |
 | `--no-firewall` | Does not change the firewall |
 | `--force` | Goes ahead on a system that has not been tested yet |
@@ -94,6 +95,10 @@ sudo ./deploy/install.sh --admin-name "Test" --admin-email test@example.com --de
 - **Language**: each user chooses English or Italian in Settings → Appearance → Language (by default it follows the
   browser).
 - **Importing projects** from another installation: Settings → Administration → "Import projects".
+- **Importing servers** into an intervention from a CSV/Excel file: "Import from CSV/Excel…" in the server table.
+- **Database backups** are automatic (every night): see [Backup](#backup).
+- **From a smartphone**: the same address opens a read-only recap (today, next 7 days, interventions still to
+  close); the portal itself is meant for a desktop.
 - Useful commands:
 
 ```bash
@@ -122,7 +127,7 @@ sudo /opt/datespreader/deploy/install.sh
 
 What happens:
 1. **database backup** in `data/backups/…-pre-aggiornamento.sqlite3`;
-2. the new version is downloaded from GitHub. For a specific version: `--ref v0.23.0`;
+2. the new version is downloaded from GitHub. For a specific version: `--ref v0.24.0`;
 3. the dependencies are updated and the service is restarted;
 4. at startup, the service brings the database to the new schema (migrations).
 
