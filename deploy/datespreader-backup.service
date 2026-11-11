@@ -1,0 +1,23 @@
+# Nightly database backup of Date Spreader (started by datespreader-backup.timer).
+# Verified copy in data/backups/ + rotation (7 daily, 4 weekly, 12 monthly).
+# Installed by deploy/install.sh; manual run: sudo systemctl start datespreader-backup
+[Unit]
+Description=Date Spreader - nightly database backup
+Documentation=file:///var/www/html/DateSpreader/docs/INSTALL.md
+
+[Service]
+Type=oneshot
+User=datespreader
+Group=datespreader
+WorkingDirectory=/var/www/html/DateSpreader
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/var/www/html/DateSpreader/.venv/bin/python -m app.cli backup --scheduled
+Nice=10
+IOSchedulingClass=idle
+
+# Same protections as the portal: it can write only in the database folder.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/html/DateSpreader/data

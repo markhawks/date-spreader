@@ -9,6 +9,8 @@
     python -m app.cli users admin LOGIN  rende amministratore l'utente (email o nome utente)
                                          e gli imposta la password (chiesta, o --temporary)
     python -m app.cli users create-admin --name "Nome" --email x@y.it [--username u] [--temporary]
+    python -m app.cli backup [--scheduled] [--list]   backup verificato del database (+ rotazione)
+    python -m app.cli restore FILE [--yes]            ripristina un backup (servizio fermo)
 
 Nessun comando cancella i dati inseriti dagli utenti: "demo remove" agisce solo sui
 record marcati come esempio (is_demo).
@@ -24,7 +26,8 @@ import sys
 from app.config import get_settings
 from app.db import create_db_engine, make_session_factory
 from app.i18n import MESSAGES, reset_language, set_language, tr
-from app.migrations import upgrade_database
+from app.migrations import schema_status, upgrade_database
+from app import backup as backups
 from app.seed import AlreadySeededError, plan_demo_removal, remove_demo, seed
 
 USAGE = """Administration commands.
@@ -38,6 +41,8 @@ USAGE = """Administration commands.
     python -m app.cli users admin LOGIN  make the user (email or username) an administrator
                                          and set the password (prompted, or --temporary)
     python -m app.cli users create-admin --name "Name" --email x@example.com [--username u] [--temporary]
+    python -m app.cli backup [--scheduled] [--list]   verified database backup (+ rotation)
+    python -m app.cli restore FILE [--yes]            restore a backup (with the service stopped)
 
 No command deletes data entered by users: "demo remove" acts only on records
 marked as sample data (is_demo).
@@ -195,6 +200,71 @@ def _users(factory, args) -> int:
     return 1
 
 
+def _size(n: int) -> str:
+    return f"{n / 1024:.0f} KB" if n < 1024 * 1024 else f"{n / 1024 / 1024:.1f} MB"
+
+
+def _backup(settings, args) -> int:
+    if args.list:
+        items = backups.list_backups(settings)
+        folder = backups.backup_dir(settings)
+        if not items:
+            print(tr("cli.backup_list_empty", folder=folder))
+            return 0
+        print(tr("cli.backup_list_head", folder=folder))
+        for b in items:
+            print(f"  {b.created:%Y-%m-%d %H:%M}  {b.kind:<13}  {_size(b.size):>8}  {b.name}")
+        return 0
+    try:
+        info = backups.create_backup(settings, "daily" if args.scheduled else "manual")
+    except backups.BackupError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(tr("cli.backup_done", path=info.path, size=_size(info.size)))
+    removed = backups.rotate(settings)
+    if removed:
+        print(tr("cli.backup_rotated", n=len(removed), names=", ".join(b.name for b in removed)))
+    return 0
+
+
+def _backup_before_migration(settings, engine) -> None:
+    """Before a schema upgrade of an existing database, a verified backup (kind pre-migration)."""
+    if not settings.database_path.is_file():
+        return
+    with engine.connect() as conn:
+        status = schema_status(conn)
+    if status["revision"] is None or status["up_to_date"]:
+        return  # new/empty database, or nothing to migrate
+    info = backups.create_backup(settings, "pre-migration")
+    print(tr("cli.backup_pre_migration", path=info.path))
+
+
+def _restore(settings, engine, args) -> int:
+    from pathlib import Path
+
+    found = backups.find_backup(settings, args.file)
+    source = found.path if found else Path(args.file).expanduser().resolve()
+    print(tr("cli.restore_warning", db=settings.database_path, file=source))
+    if not args.yes:
+        if not sys.stdin.isatty():
+            print(tr("cli.confirm_with_yes"), file=sys.stderr)
+            return 1
+        if input(tr("cli.restore_confirm")).strip().lower() not in ("si", "sì", "s", "yes", "y"):
+            print(tr("cli.restore_cancelled"))
+            return 1
+    engine.dispose()
+    try:
+        saved = backups.restore_backup(settings, source)
+    except backups.BackupError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    if saved:
+        print(tr("cli.restore_saved", path=saved.path))
+    upgrade_database(engine)  # the backup may come from an older version
+    print(tr("cli.restore_done"))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     token = set_language(language_from_env())
     try:
@@ -226,6 +296,12 @@ def _main(argv: list[str] | None) -> int:
     p_create.add_argument("--email")
     p_create.add_argument("--username")
     p_create.add_argument("--temporary", action="store_true", help="generate a temporary password")
+    p_backup = sub.add_parser("backup", help="verified backup of the database, then rotation of old backups")
+    p_backup.add_argument("--scheduled", action="store_true", help="nightly backup (used by the systemd timer)")
+    p_backup.add_argument("--list", action="store_true", help="only list the existing backups")
+    p_restore = sub.add_parser("restore", help="replace the database with a backup (stop the service first)")
+    p_restore.add_argument("file", help="backup file (a name in data/backups/ or a path)")
+    p_restore.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     args = parser.parse_args(argv)
 
     settings = get_settings()
@@ -233,7 +309,12 @@ def _main(argv: list[str] | None) -> int:
     print(f"Database: {settings.database_path}")
     factory = make_session_factory(engine)
     try:
+        if args.command == "backup":
+            return _backup(settings, args)
+        if args.command == "restore":
+            return _restore(settings, engine, args)
         if args.command in ("migrate", "init"):
+            _backup_before_migration(settings, engine)
             upgrade_database(engine)
             print(tr("cli.migrated"))
         if args.command == "init" and args.demo:

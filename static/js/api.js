@@ -97,6 +97,10 @@ async function downloadFile(url) {
 export const exportProject = (id) => downloadFile(`/api/export/projects/${encodeURIComponent(id)}`);
 export const exportCustomer = (id) => downloadFile(`/api/export/customers/${encodeURIComponent(id)}`);
 export const importPreview = (data, onConflict) => request("POST", "/api/import/preview", { data, on_conflict: onConflict });
+// --- database backups (administrators) ---------------------------------------------------
+export const fetchBackups = () => getJSON("/api/backups");
+export const createBackup = () => request("POST", "/api/backups");
+export const downloadBackup = (name) => downloadFile(`/api/backups/${encodeURIComponent(name)}`);
 export const importRun = (data, onConflict) => request("POST", "/api/import", { data, on_conflict: onConflict });
 const q = encodeURIComponent;
 

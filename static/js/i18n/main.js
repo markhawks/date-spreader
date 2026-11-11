@@ -1,4 +1,3 @@
-// Translations for main.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
     "main.schema_outdated": "The database is not up to date. Run: {command}",
@@ -29,7 +28,9 @@ export default {
     "main.project_created_empty": "Project \"{name}\" created, with no interventions.",
     "main.load_projects_error": "Could not load the projects: {message}",
     "main.load_people_error": "Could not load the technicians: {message}",
-    "main.link_event_missing": "The intervention in the link no longer exists."
+    "main.link_event_missing": "The intervention in the link no longer exists.",
+    "main.admin_backups": "Database backups",
+    "main.admin_backups_hint": "Nightly verified copies of the database: list, back up now, download; how to restore."
   },
   "it": {
     "main.schema_outdated": "Il database non è aggiornato. Esegui: {command}",
@@ -60,6 +61,8 @@ export default {
     "main.project_created_empty": "Progetto \"{name}\" creato, senza interventi.",
     "main.load_projects_error": "Impossibile caricare i progetti: {message}",
     "main.load_people_error": "Impossibile caricare i tecnici: {message}",
-    "main.link_event_missing": "L'intervento del link non esiste più."
+    "main.link_event_missing": "L'intervento del link non esiste più.",
+    "main.admin_backups": "Backup del database",
+    "main.admin_backups_hint": "Copie verificate del database ogni notte: elenco, backup adesso, download; come ripristinare."
   }
 };

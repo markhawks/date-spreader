@@ -308,6 +308,19 @@ systemctl enable --quiet "$SERVICE"
 systemctl restart "$SERVICE"
 ok "Servizio $SERVICE abilitato al boot e avviato ($UNIT)"
 
+# Backup notturno del database (timer systemd): copia verificata in data/backups/ + rotazione
+for ext in service timer; do
+  sed -e "s#/var/www/html/DateSpreader#$INSTALL_DIR#g" \
+      -e "s#^User=.*#User=$SVC_USER#" -e "s#^Group=.*#Group=$SVC_USER#" \
+      -e "s#^Documentation=.*#Documentation=file://$INSTALL_DIR/docs/INSTALL.md#" \
+      -e "s#^Unit=datespreader-backup.service#Unit=$SERVICE-backup.service#" \
+      "$INSTALL_DIR/deploy/datespreader-backup.$ext" > "/etc/systemd/system/$SERVICE-backup.$ext"
+  chmod 644 "/etc/systemd/system/$SERVICE-backup.$ext"
+done
+systemctl daemon-reload
+systemctl enable --quiet --now "$SERVICE-backup.timer"
+ok "Backup notturno attivo ($SERVICE-backup.timer, verso le 02:30; elenco: app.cli backup --list)"
+
 # --- 7. firewall e verifica ---------------------------------------------------------------------------
 step "7/7 Firewall e verifica"
 if (( OPEN_FIREWALL )) && [[ "$HOST_ADDR" != "127.0.0.1" ]] && systemctl is-active --quiet firewalld; then

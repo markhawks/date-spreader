@@ -130,15 +130,44 @@ Data, users and configuration (`.env`) stay as they are.
 
 ## Backup
 
-The database is the `data/datespreader.sqlite3` file. Copy it with SQLite's backup API, which is safe even while
-the service is running:
+**Automatic.** The database (`data/datespreader.sqlite3`) is backed up to `data/backups/`:
+
+- **every night** at about 02:30, by the `datespreader-backup.timer` systemd timer installed by the script (if the
+  server was off, the backup runs at the next boot);
+- **before every schema upgrade** (when a new version changes the database, at service start);
+- **on demand**: Settings → Administration → "Database backups" → "Back up now", or
+  `sudo -u datespreader .venv/bin/python -m app.cli backup`.
+
+Every backup is a consistent copy made with SQLite's backup API (safe while the portal is running) and checked
+with `PRAGMA integrity_check`. **Rotation:** everything from the last 48 hours, then one backup per day for 7 days,
+one per week for 4 weeks and one per month for 12 months (`BACKUP_KEEP_DAILY`, `BACKUP_KEEP_WEEKLY`,
+`BACKUP_KEEP_MONTHLY` in `.env`). Other files in the folder (e.g. the `…-pre-aggiornamento` copies made by the
+install script before an update, or copies made by hand) are never deleted automatically.
+
+**Off the machine:** a backup on the same disk does not protect against a broken server. Make sure the company
+backup system copies `/opt/datespreader/data/backups/` (or the whole `data/` folder) to another machine.
+
+Administrators can also **download** any backup from Settings → Administration → "Database backups".
 
 ```bash
 cd /opt/datespreader
-sudo -u datespreader .venv/bin/python -c "import sqlite3; s=sqlite3.connect('data/datespreader.sqlite3'); d=sqlite3.connect('data/backups/backup-$(date +%Y%m%d).sqlite3'); s.backup(d)"
+sudo -u datespreader .venv/bin/python -m app.cli backup --list     # list the backups
+systemctl list-timers datespreader-backup.timer                     # next nightly run
+journalctl -u datespreader-backup                                    # log of the nightly backups
 ```
 
-It is a good idea to copy `data/backups/` to another machine periodically.
+### Restoring a backup
+
+```bash
+sudo systemctl stop datespreader
+cd /opt/datespreader
+sudo -u datespreader .venv/bin/python -m app.cli restore datespreader-backup-20261111-023012-daily.sqlite3
+sudo systemctl start datespreader
+```
+
+The file (a name in `data/backups/` or a path) is checked first; the current database is saved as a
+"pre-restore" backup, so a restore can always be undone; then the backup is copied in and brought to the current
+schema (a backup from an older version works too).
 
 ## Security
 
@@ -158,8 +187,9 @@ It is a good idea to copy `data/backups/` to another machine periodically.
 ## Uninstalling
 
 ```bash
-sudo systemctl disable --now datespreader
-sudo rm /etc/systemd/system/datespreader.service && sudo systemctl daemon-reload
+sudo systemctl disable --now datespreader datespreader-backup.timer
+sudo rm /etc/systemd/system/datespreader.service /etc/systemd/system/datespreader-backup.{service,timer}
+sudo systemctl daemon-reload
 sudo firewall-cmd --permanent --remove-port=8000/tcp && sudo firewall-cmd --reload   # if it had been opened
 sudo userdel datespreader
 sudo rm -rf /opt/datespreader        # WARNING: also deletes the database and backups in data/

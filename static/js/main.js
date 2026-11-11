@@ -21,6 +21,7 @@ import { Sheet } from "./sheet.js";
 import { showShareDialog } from "./share.js";
 import { Sidebar, attachSidebarResizer } from "./sidebar.js";
 import { showImportDialog } from "./transfer.js";
+import { showBackupsDialog } from "./backups.js";
 import { adoptLanguagePreference, t, translateStatic } from "./i18n.js";
 
 const $ = (id) => document.getElementById(id);
@@ -364,6 +365,7 @@ async function main() {
           await calendar.reload();
         },
       })],
+      [t("main.admin_backups"), t("main.admin_backups_hint"), () => showBackupsDialog({ toast })],
     ],
   }));
   // Pulsante nella barra dell'anteprima: in basso ↔ a destra (stessa preferenza delle Impostazioni)

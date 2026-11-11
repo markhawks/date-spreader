@@ -407,10 +407,15 @@ Progetti, server e tecnici di esempio hanno il campo `is_demo`. Nell'interfaccia
 - Chi ha il portale aperto vede sparire progetti e tecnici entro circa 10 secondi; per ripulire anche il calendario serve ricaricare la pagina (Ctrl+F5).
 
 ### Backup
-Prima di operazioni importanti conviene copiare il database con l'API di backup di SQLite, sicura anche a servizio acceso:
+Il database viene copiato in automatico in `data/backups/`: ogni notte (timer systemd `datespreader-backup.timer`),
+prima di ogni aggiornamento dello schema e a richiesta (Impostazioni → Amministrazione → «Backup del database», dove
+gli amministratori possono anche scaricarli). Ogni copia è verificata; la rotazione tiene 7 backup giornalieri,
+4 settimanali e 12 mensili. Dettagli, ripristino e copie fuori dalla macchina: [guida di installazione, «Backup»](docs/INSTALLAZIONE.md#backup).
 
 ```bash
-sudo -u datespreader .venv/bin/python -c "import sqlite3; s=sqlite3.connect('data/datespreader.sqlite3'); d=sqlite3.connect('data/backups/datespreader-$(date +%Y%m%d-%H%M).sqlite3'); s.backup(d)"
+sudo -u datespreader .venv/bin/python -m app.cli backup            # backup adesso (+ rotazione)
+sudo -u datespreader .venv/bin/python -m app.cli backup --list     # elenco
+sudo -u datespreader .venv/bin/python -m app.cli restore FILE      # ripristino (prima ferma il servizio)
 ```
 
 `data/` (database e backup) è escluso da git: **non deve mai finire nel repository**, perché contiene dati reali dei clienti. Il database di prova pubblico è `demo/datespreader-demo.sqlite3`, generato da zero con `scripts/make_demo_db.py` (mai copiato da un database reale).

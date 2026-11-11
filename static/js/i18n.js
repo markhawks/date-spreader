@@ -20,6 +20,7 @@
 import common from "./i18n/common.js";
 import api from "./i18n/api.js";
 import auth from "./i18n/auth.js";
+import backups from "./i18n/backups.js";
 import calendar from "./i18n/calendar.js";
 import chooser from "./i18n/chooser.js";
 import clock from "./i18n/clock.js";
@@ -49,7 +50,7 @@ import sidebar from "./i18n/sidebar.js";
 import timepick from "./i18n/timepick.js";
 import transfer from "./i18n/transfer.js";
 
-const DICTS = [common, api, auth, calendar, chooser, clock, colors, confirm, contextmenu, customers, dates, detail, eventstatus, filters, index, inventory, labels, main, osdialog, people, prefs, projectdialog, projectform, resize, session, settings, share, sheet, sidebar, timepick, transfer];
+const DICTS = [common, api, auth, backups, calendar, chooser, clock, colors, confirm, contextmenu, customers, dates, detail, eventstatus, filters, index, inventory, labels, main, osdialog, people, prefs, projectdialog, projectform, resize, session, settings, share, sheet, sidebar, timepick, transfer];
 const CATALOG = { en: {}, it: {} };
 for (const d of DICTS) {
   Object.assign(CATALOG.en, d.en);

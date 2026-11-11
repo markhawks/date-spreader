@@ -17,6 +17,51 @@ DEFAULT_LANGUAGE = "en"
 _current: ContextVar[str] = ContextVar("language", default=DEFAULT_LANGUAGE)
 
 MESSAGES: dict[str, dict[str, str]] = {
+    # --- database backups (app/backup.py, CLI, admin API) ---
+    "backup.db_missing": {"en": "Database not found: {path}", "it": "Database non trovato: {path}"},
+    "backup.copy_corrupt": {
+        "en": "The backup copy failed the integrity check ({result}): it was discarded.",
+        "it": "La copia di backup non ha superato il controllo di integrità ({result}): è stata scartata.",
+    },
+    "backup.file_missing": {"en": "File not found: {path}", "it": "File non trovato: {path}"},
+    "backup.not_sqlite": {"en": "Not a valid SQLite database: {error}", "it": "Non è un database SQLite valido: {error}"},
+    "backup.file_corrupt": {
+        "en": "The backup file failed the integrity check: {result}",
+        "it": "Il file di backup non ha superato il controllo di integrità: {result}",
+    },
+    "backup.not_datespreader": {
+        "en": "This file is not a Date Spreader database (tables missing).",
+        "it": "Questo file non è un database di Date Spreader (mancano delle tabelle).",
+    },
+    "backup.not_found": {"en": "Backup not found.", "it": "Backup non trovato."},
+    "cli.backup_done": {
+        "en": "Backup created: {path} ({size})",
+        "it": "Backup creato: {path} ({size})",
+    },
+    "cli.backup_rotated": {
+        "en": "Rotation: removed {n} old backup(s): {names}",
+        "it": "Rotazione: tolti {n} backup vecchi: {names}",
+    },
+    "cli.backup_list_head": {
+        "en": "Backups in {folder} (newest first):",
+        "it": "Backup in {folder} (dal più recente):",
+    },
+    "cli.backup_list_empty": {"en": "No backups in {folder}.", "it": "Nessun backup in {folder}."},
+    "cli.backup_pre_migration": {
+        "en": "The database schema will be upgraded: backup first → {path}",
+        "it": "Lo schema del database verrà aggiornato: prima un backup → {path}",
+    },
+    "cli.restore_warning": {
+        "en": "The current database ({db}) will be REPLACED by {file}.\nStop the service first (sudo systemctl stop datespreader); the current state is saved as a \"pre-restore\" backup.",
+        "it": "Il database attuale ({db}) verrà SOSTITUITO da {file}.\nFerma prima il servizio (sudo systemctl stop datespreader); lo stato attuale viene salvato come backup \"pre-restore\".",
+    },
+    "cli.restore_confirm": {"en": "Restore this backup? Type 'yes' to confirm: ", "it": "Ripristinare questo backup? Scrivi 'si' per confermare: "},
+    "cli.restore_cancelled": {"en": "Restore cancelled.", "it": "Ripristino annullato."},
+    "cli.restore_saved": {"en": "Current state saved in {path}", "it": "Stato attuale salvato in {path}"},
+    "cli.restore_done": {
+        "en": "Backup restored and database upgraded to the current schema. Now start the service: sudo systemctl start datespreader",
+        "it": "Backup ripristinato e database portato allo schema attuale. Ora avvia il servizio: sudo systemctl start datespreader",
+    },
     "common.changelog_missing": {
         "en": "Changelog not available.",
         "it": "Changelog non disponibile.",

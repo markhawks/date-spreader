@@ -581,11 +581,15 @@ label, both on the project tiles and in the "Technicians" list.
   calendar as well, reload the page (Ctrl+F5).
 
 ### Backup
-Before important operations, copy the database with SQLite's backup API, which is safe even while the service is
-running:
+The database is backed up automatically to `data/backups/`: every night (systemd timer `datespreader-backup.timer`),
+before every schema upgrade and on demand (Settings → Administration → "Database backups", where administrators
+can also download them). Every copy is verified; rotation keeps 7 daily, 4 weekly and 12 monthly backups. Details,
+restore and off-machine copies: [install guide, "Backup"](docs/INSTALL.md#backup).
 
 ```bash
-sudo -u datespreader .venv/bin/python -c "import sqlite3; s=sqlite3.connect('data/datespreader.sqlite3'); d=sqlite3.connect('data/backups/datespreader-$(date +%Y%m%d-%H%M).sqlite3'); s.backup(d)"
+sudo -u datespreader .venv/bin/python -m app.cli backup            # backup now (+ rotation)
+sudo -u datespreader .venv/bin/python -m app.cli backup --list     # list
+sudo -u datespreader .venv/bin/python -m app.cli restore FILE      # restore (stop the service first)
 ```
 
 `data/` (database and backups) is excluded from git: **it must never end up in the repository**, because it holds
