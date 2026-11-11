@@ -165,7 +165,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - **Tasto destro su un giorno** (su telefono/tablet: tenere premuto): menu per creare un **nuovo progetto** con il primo intervento in quella data, un **nuovo intervento** in un progetto esistente, o aprire gli interventi del giorno. Data e orario proposto sono già compilati.
 - **«+ Intervento»** nella barra dell'anteprima (in basso o a destra, accanto a ✕): nuovo intervento nel giorno mostrato in un progetto esistente, con la data già compilata.
 - **Clic su un giorno** con interventi, o Invio da tastiera: apre il dettaglio di **tutti gli interventi del giorno**. Il clic su un singolo evento porta in vista la sua scheda.
-- **Scheda**: stato e tipo, orario, partecipanti, note, un riepilogo ("check OK 2/3 · migrati 1/3") e la tabella server compatta, in sola lettura, che scorre in orizzontale. Sopra i 1100 px è una colonna a destra e il calendario si restringe; sotto, si sovrappone a tutto lo schermo. Si chiude con ✕ o Esc.
+- **Scheda**: stato e tipo, orario, partecipanti, note, un riepilogo ("check OK 2/3 · migrati 1/3"; la colonna di stato e il riepilogo prendono il nome dal tipo: Migrazione/migrati, Upgrading/aggiornati, Patching/patchati, Esecuzione/completati per «Altro») e la tabella server compatta, in sola lettura, che scorre in orizzontale. Sopra i 1100 px è una colonna a destra e il calendario si restringe; sotto, si sovrappone a tutto lo schermo. Si chiude con ✕ o Esc.
 
 ### Anagrafica server
 - I server sono un'**anagrafica** a sé: togliere un server da un intervento non lo cancella. Resta nel database, con i suoi dati e il suo storico, pronto per interventi futuri.

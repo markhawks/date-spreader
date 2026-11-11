@@ -13,6 +13,18 @@ export const EVENT_TYPE = {
   migrazione: "Migrazione", upgrade: "Upgrade", patching: "Patching", configurazione: "Configurazione", altro: "Altro",
 };
 
+/**
+ * Colonna dello stato di lavorazione di ogni server: prende il nome dal tipo di intervento
+ * (il dato è sempre `migration_status`). Con `done` la parola del riepilogo («migrati 2/4»).
+ */
+const STAGE = {
+  migrazione: ["Migrazione", "migrati"],
+  upgrade: ["Upgrading", "aggiornati"],
+  patching: ["Patching", "patchati"],
+};
+export const stageLabel = (ev) => (STAGE[ev?.event_type] ?? ["Esecuzione"])[0];
+export const stageDone = (ev) => (STAGE[ev?.event_type] ?? [null, "completati"])[1];
+
 export const CHECK_STATUS = {
   da_fare: "Da fare", in_corso: "In corso", ok: "OK", ko: "KO", non_applicabile: "N/A",
 };

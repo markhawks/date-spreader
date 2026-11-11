@@ -10,7 +10,7 @@ import { fetchEvent } from "./api.js";
 import { colorFor, textOn } from "./colors.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import {
-  CHECK_STATUS, EVENT_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, toneOf,
+  CHECK_STATUS, EVENT_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, stageDone, stageLabel, toneOf,
 } from "./labels.js";
 import { people } from "./people.js";
 import { prefs } from "./prefs.js";
@@ -55,7 +55,7 @@ export function buildEmail(ev) {
   const count = (k, v) => ev.servers.filter((s) => s[k] === v).length;
   const summary = !n ? "Nessun server associato"
     : config ? `${n} server · eseguiti ${ev.servers.filter((s) => s.executed_date).length}/${n}`
-    : `${n} server · check OK ${count("check_status", "ok")}/${n}${count("check_status", "ko") ? ` · check KO ${count("check_status", "ko")}` : ""} · migrati ${count("migration_status", "completata")}/${n}`
+    : `${n} server · check OK ${count("check_status", "ok")}/${n}${count("check_status", "ko") ? ` · check KO ${count("check_status", "ko")}` : ""} · ${stageDone(ev)} ${count("migration_status", "completata")}/${n}`
 
   const td = "padding:6px 8px;border-bottom:1px solid #e3e6eb;vertical-align:top;font-size:13px";
   const mono = "font-family:Consolas,Menlo,monospace;font-size:12px";
@@ -68,7 +68,7 @@ export function buildEmail(ev) {
     ["SO target", (s) => esc(shortOs(s.target_operating_system))],
     ["Kernel target", (s) => `<span style="${mono}">${esc(s.target_kernel ?? "")}</span>`],
     ["Check", (s) => badgeHtml(s.check_status, CHECK_STATUS)],
-    ["Migrazione", (s) => badgeHtml(s.migration_status, MIGRATION_STATUS)],
+    [stageLabel(ev), (s) => badgeHtml(s.migration_status, MIGRATION_STATUS)],
     ["Eseguito il", (s) => esc(s.executed_date ? formatShortDate(s.executed_date) : "")],
     ["Tecnico", (s) => esc(s.assigned_user?.display_name ?? "")],
     ["Note", (s) => esc(s.notes ?? "")],
@@ -132,7 +132,7 @@ export function buildEmail(ev) {
     ].join("\n") : [
       s.hostname, s.ip_address, shortOs(s.operating_system), s.environment,
       `${s.current_kernel ?? "?"} → ${shortOs(s.target_operating_system) || ""} ${s.target_kernel ?? ""}`.trim(),
-      `check ${CHECK_STATUS[s.check_status] ?? s.check_status}`, `migrazione ${MIGRATION_STATUS[s.migration_status] ?? s.migration_status}`,
+      `check ${CHECK_STATUS[s.check_status] ?? s.check_status}`, `${stageLabel(ev).toLowerCase()} ${MIGRATION_STATUS[s.migration_status] ?? s.migration_status}`,
       s.assigned_user?.display_name, s.notes,
     ].filter(Boolean).join(" | "))),
     "", `Apri nel portale: ${eventLink(ev.id)}`,

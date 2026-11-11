@@ -16,7 +16,7 @@ import { session } from "./session.js";
 import { makeResizable } from "./resize.js";
 import { formatLongDate, formatTime } from "./dates.js";
 import {
-  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, toneOf,
+  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, stageLabel, toneOf,
 } from "./labels.js";
 
 /** Minuscolo e senza accenti, per il filtro delle righe. */
@@ -191,7 +191,8 @@ export class Sheet {
     const ev = this.event;
     this.root.style.setProperty("--c", colorFor(ev.project.id));
     this.config = isConfigEvent(ev);
-    this.columns = this.config ? CONFIG_COLUMNS : COLUMNS;
+    this.columns = (this.config ? CONFIG_COLUMNS : COLUMNS)
+      .map((c) => (c.field === "migration_status" ? { ...c, label: stageLabel(ev) } : c));
 
     const table = el("table", `edit-table${this.config ? " config-table" : ""}`);
     const colgroup = el("colgroup");
@@ -321,7 +322,7 @@ export class Sheet {
     reset.title = "Riporta tutte le colonne alla larghezza iniziale";
     reset.addEventListener("click", () => this.resizer?.reset());
     bar.append(text);
-    if (!this.config) bar.append(mk("Check", "check", this.lookups.check), mk("Migrazione", "migration", this.lookups.migration));
+    if (!this.config) bar.append(mk("Check", "check", this.lookups.check), mk(stageLabel(this.event), "migration", this.lookups.migration));
     bar.append(this.visibleEl);
     if (this.embedded) {
       // Nell'anteprima non c'è l'intestazione: conteggio e stato del salvataggio stanno qui.
@@ -376,8 +377,10 @@ export class Sheet {
       return false; // riproverà al prossimo giro
     }
     if (!this.isOpen || this.pending > 0 || fresh.id !== this.event.id) return false;
-    if (isConfigEvent(fresh) !== this.config) {
-      // Tipo cambiato (es. in «Configurazione»): le colonne sono diverse, si ridisegna tutto
+    this.remoteVersion = fresh.version; // versione dell'intervento (non delle righe) vista sul server
+    if (fresh.event_type !== this.event.event_type) {
+      // Tipo cambiato: in «Configurazione» cambiano le colonne, tra migrazione/upgrade/patching
+      // il nome della colonna di stato e l'intestazione. Si ridisegna tutto.
       if (this.root.contains(document.activeElement)) return false; // non interrompere chi scrive
       this.event = fresh;
       this.rows.clear();

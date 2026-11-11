@@ -9,7 +9,7 @@ import { makeResizable } from "./resize.js";
 import { Sheet } from "./sheet.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import {
-  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent,
+  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent, stageDone, stageLabel,
 } from "./labels.js";
 
 const el = (tag, className, text) => {
@@ -126,7 +126,11 @@ export class DetailPanel {
     for (const sheet of this.embedded) {
       if (sheet.isOpen && ids.includes(sheet.event?.id)) {
         await sheet.syncFromServer();
-        handled.add(sheet.event.id);
+        // Cambiati i dati dell'intervento (tipo, titolo, ora, note…) e non solo le righe:
+        // si ridisegna anche la scheda, se nessuno ci sta scrivendo dentro.
+        const card = this.bodyEl.querySelector(`.event-card[data-event-id="${sheet.event.id}"]`);
+        const stale = card && sheet.remoteVersion != null && String(sheet.remoteVersion) !== card.dataset.version;
+        if (!stale || card.contains(document.activeElement)) handled.add(sheet.event.id);
       }
     }
     const shown = [...this.bodyEl.querySelectorAll(".event-card")].map((c) => Number(c.dataset.eventId));
@@ -276,6 +280,7 @@ export class DetailPanel {
   #eventCard(ev, withSiblings) {
     const card = el("article", "event-card");
     card.dataset.eventId = ev.id;
+    card.dataset.version = ev.version;
     paint(card, ev.project.id);
 
     // Intestazione
@@ -403,7 +408,7 @@ export class DetailPanel {
       parts.push(`check OK ${count("check_status", "ok")}/${n}`);
       const ko = count("check_status", "ko");
       if (ko) parts.push(`check KO ${ko}`);
-      parts.push(`migrati ${count("migration_status", "completata")}/${n}`);
+      parts.push(`${stageDone(ev)} ${count("migration_status", "completata")}/${n}`);
     }
     return el("p", "server-summary", parts.join(" · "));
   }
@@ -442,7 +447,8 @@ export class DetailPanel {
     const thead = el("thead");
     const hr = el("tr");
     for (const [label] of columns) {
-      const th = el("th", null, label);
+      // "Migrazione" è la chiave stabile della colonna (larghezze salvate); il testo segue il tipo
+      const th = el("th", null, label === "Migrazione" ? stageLabel(ev) : label);
       th.dataset.col = label;
       if (label === "SO · kernel") th.title = "Sistema operativo e kernel: attuali e, dopo la freccia, target";
       hr.append(th);
