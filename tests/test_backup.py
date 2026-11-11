@@ -29,7 +29,7 @@ def test_backup_is_a_verified_copy_and_is_listed(settings, engine, accounts):  #
     assert info.name.startswith("datespreader-backup-") and info.name.endswith("-manual.sqlite3")
     assert _count_users(info.path) == _count_users(settings.database_path) > 0
     assert [b.name for b in backups.list_backups(settings)] == [info.name]
-    assert not list(info.path.parent.glob(".*.tmp"))  # no temporary file left
+    assert sorted(p.name for p in info.path.parent.iterdir()) == [info.name]  # one self-contained file, no -wal/-shm/.tmp
     # two backups in the same second get different names
     again = backups.create_backup(settings, "manual", now=info.created)
     assert again.name != info.name

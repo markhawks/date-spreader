@@ -93,6 +93,8 @@ def create_backup(settings: Settings, kind: str = "manual", now: datetime | None
     dst = sqlite3.connect(tmp)
     try:
         src.backup(dst)
+        # The copy inherits WAL mode: switch it back to a single self-contained file (no -wal/-shm)
+        dst.execute("PRAGMA journal_mode=DELETE")
     finally:
         dst.close()
         src.close()
