@@ -10,7 +10,7 @@ import { Inventory } from "./inventory.js";
 import { PeopleDialog, people } from "./people.js";
 import { ProjectDialog, duplicateEventFlow, editEvent, newEventOnDate } from "./projectdialog.js";
 import { showContextMenu } from "./contextmenu.js";
-import { formatMediumDate } from "./dates.js";
+import { formatMediumDate, todayIso } from "./dates.js";
 import { TopbarClock } from "./clock.js";
 import { ProjectForm } from "./projectform.js";
 import { showOsDialog } from "./osdialog.js";
@@ -22,6 +22,7 @@ import { showShareDialog } from "./share.js";
 import { Sidebar, attachSidebarResizer } from "./sidebar.js";
 import { showImportDialog } from "./transfer.js";
 import { showBackupsDialog } from "./backups.js";
+import { Workload } from "./workload.js";
 import { adoptLanguagePreference, t, translateStatic } from "./i18n.js";
 
 const $ = (id) => document.getElementById(id);
@@ -222,6 +223,12 @@ async function main() {
   async function showProjectEvent(projectEvent, { highlightRowId = null } = {}) {
     calendar.setSelected(projectEvent.event_date);
     await detail.openEvent(projectEvent.id, { highlightRowId });
+    if (workload.isOpen) {
+      // Technicians view: show the week of the intervention, highlighted
+      workload.selectedId = projectEvent.id;
+      await workload.open(projectEvent.event_date);
+      return;
+    }
     // Dopo l'apertura del pannello il calendario può aver cambiato larghezza: ricentra ora.
     await calendar.goToDate(projectEvent.event_date);
   }
@@ -257,7 +264,16 @@ async function main() {
     },
   });
 
-  $("btn-today").addEventListener("click", () => calendar.scrollToToday());
+  // Technicians' workload: a third view, over the calendar area
+  const workload = new Workload($("workload"), {
+    onError: (err) => showError(err.message),
+    onOpenEvent: (ev) => {
+      sidebar.setActive(null);
+      calendar.setSelected(ev.event_date);
+      detail.openEvent(ev.id);
+    },
+  });
+  $("btn-today").addEventListener("click", () => (workload.isOpen ? workload.goToday() : calendar.scrollToToday()));
 
   // Zoom del calendario: tasto centrale + mouse avanti/indietro, pizzico sul touchpad, pulsanti − % +.
   // Il livello è una preferenza personale.
@@ -281,22 +297,34 @@ async function main() {
   // Vista del calendario: Mese | Settimana (preferenza personale)
   const viewSwitch = [...document.querySelectorAll(".view-switch-btn")];
   const showView = (view) => viewSwitch.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
+  let currentView = prefs.get().calendar_view;
   const applyView = async (view) => {
+    currentView = view;
     showView(view);
+    const team = view === "team";
+    document.body.classList.toggle("view-team", team);
+    calendar.setPaused(team);
+    if (team) {
+      await workload.open(calendar.selected ?? todayIso());
+      return;
+    }
+    workload.close();
     await calendar.setView(view);
     if (calendar.selected) calendar.setSelected(calendar.selected);
   };
   viewSwitch.forEach((b) => b.addEventListener("click", () => {
     const view = b.dataset.view;
-    if (view === calendar.view) return;
+    if (view === currentView) return;
     applyView(view);
     prefs.set({ calendar_view: view }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
   }));
   prefs.onChange((p, changes) => {
-    if ("calendar_view" in changes && p.calendar_view !== calendar.view) applyView(p.calendar_view);
+    if ("calendar_view" in changes && p.calendar_view !== currentView) applyView(p.calendar_view);
   });
-  calendar.useView(prefs.get().calendar_view);
-  showView(calendar.view);
+  // The calendar underneath keeps month or week; "team" covers it
+  calendar.useView(currentView === "team" ? "month" : currentView);
+  calendar.setPaused(currentView === "team");
+  showView(currentView);
 
   // Colonna progetti: vista (quadrati/rettangoli), ordinamento, larghezza — preferenze personali.
   const viewBtns = [...document.querySelectorAll(".view-btn")];
@@ -467,6 +495,7 @@ async function main() {
     // Il filtro per cliente vale per il calendario e per la colonna progetti
     onChange: (predicate) => {
       calendar.setFilter(predicate);
+      workload.setFilter(predicate);
       sidebar.setCustomerFilter(filters.state.customerId);
     },
   });
@@ -491,9 +520,10 @@ async function main() {
         if (inventory.isOpen && (res.events.length || res.projects_changed)) await inventory.refresh();
         if (!res.events.length && !(res.dates ?? []).length) return;
         const ids = res.events.map((e) => e.id);
-        // Mesi da ridisegnare: date attuali degli interventi toccati + vecchie date (spostati/eliminati)
-        const months = new Map([...res.events.map((e) => e.event_date), ...(res.dates ?? [])].map((d) => [d.slice(0, 7), d]));
-        await Promise.all([...months.values()].map((iso) => calendar.refreshDate(iso)));
+        // Periods to redraw: current dates of the touched interventions + old dates (moved/deleted)
+        const changed = [...res.events.map((e) => e.event_date), ...(res.dates ?? [])];
+        await calendar.refreshDates(changed);
+        if (workload.isOpen) await workload.refresh();
         if (calendar.selected) calendar.setSelected(calendar.selected);
         if (sheet.isOpen && ids.includes(sheet.event?.id)) await sheet.syncFromServer();
         else if (!sheet.isOpen && detail.showsAnyEvent(ids)) await detail.sync(ids);
@@ -519,6 +549,7 @@ async function main() {
     showError(t("main.load_people_error", { message: err.message }));
   }
   await calendar.init();
+  if (currentView === "team") await applyView("team");
   startLiveUpdates();
 
   // Link diretto a un intervento (es. dall'email condivisa): #intervento-123

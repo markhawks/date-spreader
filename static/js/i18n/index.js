@@ -1,4 +1,3 @@
-// Translations for index.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
     "index.version_title": "What's new in the portal (changelog)",
@@ -43,7 +42,9 @@ export default {
     "index.new_event": "+ Intervention",
     "index.move_preview": "Move the preview",
     "index.close_detail": "Close details",
-    "index.close_detail_title": "Close (Esc)"
+    "index.close_detail_title": "Close (Esc)",
+    "index.team": "Technicians",
+    "index.team_title": "Technicians' workload: who is busy when, with conflicts highlighted"
   },
   "it": {
     "index.version_title": "Novità del portale (changelog)",
@@ -88,6 +89,8 @@ export default {
     "index.new_event": "+ Intervento",
     "index.move_preview": "Sposta l'anteprima",
     "index.close_detail": "Chiudi dettaglio",
-    "index.close_detail_title": "Chiudi (Esc)"
+    "index.close_detail_title": "Chiudi (Esc)",
+    "index.team": "Tecnici",
+    "index.team_title": "Carico dei tecnici: chi è impegnato e quando, con i conflitti evidenziati"
   }
 };

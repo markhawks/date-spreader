@@ -24,6 +24,8 @@ class EventSummary(BaseModel):
     customer_id: int | None = None  # cliente del progetto (per il filtro per cliente)
     customer_name: str | None = None
     customer_color: str | None = None
+    conflict_users: list[int] = []  # technicians also busy in another intervention at the same time
+    conflict_servers: int = 0       # servers also in another intervention on the same day
 
 
 class ProjectEventRef(BaseModel):
@@ -108,6 +110,25 @@ class ServerRow(BaseModel):
         )
 
 
+class ConflictEvent(BaseModel):
+    id: int
+    event_date: date
+    start_time: time | None
+    end_time: time | None
+    title: str | None
+    project_name: str
+    customer_name: str | None
+
+
+class Conflict(BaseModel):
+    """A scheduling conflict of an intervention (app/repositories/conflicts.py)."""
+
+    kind: str          # "server" | "technician"
+    ref_id: int        # server id or user id
+    name: str          # hostname or technician name
+    other: ConflictEvent
+
+
 class EventDetail(BaseModel):
     id: int
     version: int
@@ -121,6 +142,7 @@ class EventDetail(BaseModel):
     notes: str | None
     participants: list[UserRef]
     servers: list[ServerRow]
+    conflicts: list[Conflict] = []
 
     @classmethod
     def from_event(cls, e) -> EventDetail:

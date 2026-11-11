@@ -22,6 +22,7 @@ from app.i18n import tr
 from app.models import Event, statuses
 from app.repositories import servers as repo
 from app.repositories import calendar as calendar_repo
+from app.api.calendar import event_detail
 from app.models import Project
 from app.schemas.calendar import EventDetail, ProjectSummary, ServerRow, project_summary
 from app.schemas.edit import (
@@ -159,7 +160,7 @@ def update_event(session: SessionDep, event_id: int, patch: EventPatch) -> Event
         raise _event_conflict(session, event_id) from None
     except repo.ValidationProblem as exc:
         raise HTTPException(422, str(exc)) from None
-    return EventDetail.from_event(calendar_repo.get_event_detail(session, event_id))
+    return event_detail(session, calendar_repo.get_event_detail(session, event_id))
 
 
 @router.post("/projects", response_model=ProjectSummary, status_code=status.HTTP_201_CREATED)
@@ -223,7 +224,7 @@ def add_event(session: SessionDep, project_id: int, data: EventCreate) -> EventD
     except repo.ValidationProblem as exc:
         session.rollback()
         raise HTTPException(422, str(exc)) from None
-    return EventDetail.from_event(calendar_repo.get_event_detail(session, event.id))
+    return event_detail(session, calendar_repo.get_event_detail(session, event.id))
 
 
 @router.post("/events/{event_id}/duplicate", response_model=EventDetail, status_code=status.HTTP_201_CREATED)
@@ -238,7 +239,7 @@ def duplicate_event(session: SessionDep, event_id: int, data: EventDuplicate) ->
     except repo.ValidationProblem as exc:
         session.rollback()
         raise HTTPException(422, str(exc)) from None
-    return EventDetail.from_event(calendar_repo.get_event_detail(session, event.id))
+    return event_detail(session, calendar_repo.get_event_detail(session, event.id))
 
 
 # Ruoli che possono eliminare progetti e interventi che contengono server

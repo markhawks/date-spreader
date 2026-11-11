@@ -22,6 +22,8 @@ Highlights:
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
+- **scheduling conflicts**: a warning when the same server is in two interventions on the same day, or a technician
+  is busy in two interventions at overlapping times, plus a **Technicians** view with each technician's week;
 - **duplicate an intervention** to another date (e.g. when it must be run again), with every status reset;
 - **calendar zoom**, Blender style: hold the **middle mouse button and move forward/back** (or pinch on a touchpad,
   or use the − % + control);
@@ -199,6 +201,16 @@ to **recover access** if the administrator forgets the password.
   bar, brings you back to today's month (or week).
 - **Date and time** in the top bar, next to the portal name. What to show (date and time, with seconds, date only,
   time only, nothing) is chosen in Settings → Appearance.
+- **Scheduling conflicts**: the portal warns when the **same server** is in two interventions on the **same day**, or
+  a **technician** (participant or assigned to a server row) is in two interventions whose times **overlap** (an
+  intervention without a time counts as the whole day; cancelled interventions are ignored). The calendar marks
+  those interventions with a warning icon; the intervention card and the full-screen table list the conflicts, with a
+  link to the other intervention.
+- **Technicians view** (the **Technicians** button, next to Month and Week): one row per technician and one column per
+  day of the week, with the interventions each technician is in. Double-booked technicians are highlighted; a last
+  row lists the interventions without technicians; "Show all technicians" also shows those with a free week. Arrows
+  move by week, "Today" goes back to the current week, a click opens the intervention, filters apply. When the area
+  is narrow (preview on the right, phone) each technician becomes a block with only the busy days.
 - **Month or week view**: the **Month** and **Week** buttons, next to "Today" and with the same look (the active
   one is solid blue), switch view staying on the same day (the choice is a personal preference). In the week view
   each week is a block with a title ("Week 46 · 9 – 15 November 2026") and seven columns as tall as needed:

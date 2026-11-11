@@ -9,8 +9,10 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_session
 from app.i18n import tr
 from app.repositories import calendar as repo
+from app.repositories import conflicts as conflicts_repo
 from app.schemas.calendar import (
     ChangedEvent,
+    Conflict,
     Changes,
     EventDetail,
     EventSummary,
@@ -22,6 +24,13 @@ from app.schemas.calendar import (
 )
 
 router = APIRouter(tags=["calendario"])
+
+
+def event_detail(session: Session, event) -> EventDetail:
+    """EventDetail with its scheduling conflicts."""
+    detail = EventDetail.from_event(event)
+    detail.conflicts = [Conflict.model_validate(c) for c in conflicts_repo.describe(session, event)]
+    return detail
 
 MAX_RANGE_DAYS = 400
 
@@ -45,6 +54,8 @@ def list_events(
         raise HTTPException(422, tr("calendar.end_before_start"))
     if (end - start).days > MAX_RANGE_DAYS:
         raise HTTPException(422, tr("calendar.max_range", days=MAX_RANGE_DAYS))
+    rows = repo.list_events_between(session, start, end)
+    found = conflicts_repo.conflicts_on(session, {r["event"].event_date for r in rows})
     return [
         EventSummary(
             id=r["event"].id,
@@ -65,8 +76,10 @@ def list_events(
             customer_id=r["customer_id"],
             customer_name=r["customer_name"],
             customer_color=r["customer_color"],
+            conflict_users=sorted(found[r["event"].id].users) if r["event"].id in found else [],
+            conflict_servers=len(found[r["event"].id].servers) if r["event"].id in found else 0,
         )
-        for r in repo.list_events_between(session, start, end)
+        for r in rows
     ]
 
 
@@ -76,13 +89,13 @@ def get_event(session: SessionDep, event_id: int) -> EventDetail:
     event = repo.get_event_detail(session, event_id)
     if event is None:
         raise HTTPException(404, tr("events.not_found"))
-    return EventDetail.from_event(event)
+    return event_detail(session, event)
 
 
 @router.get("/days/{day}", response_model=list[EventDetail])
 def get_day(session: SessionDep, day: date) -> list[EventDetail]:
     """Tutti gli interventi di un giorno, con dettaglio (lista vuota se non ce ne sono)."""
-    return [EventDetail.from_event(e) for e in repo.list_event_details_on(session, day)]
+    return [event_detail(session, e) for e in repo.list_event_details_on(session, day)]
 
 
 @router.get("/search", response_model=SearchResult)

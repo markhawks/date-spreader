@@ -1968,3 +1968,87 @@ body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
 .bk-restore ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.5; }
 .bk-restore code { font-size: 0.8rem; background: var(--panel-2, var(--bg)); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
 @media (max-width: 560px) { .bk-row { grid-template-columns: minmax(0, 1fr) auto; } .bk-size { display: none; } }
+
+/* Conflitti di pianificazione */
+.conflict-box {
+  margin: 10px 0 4px; padding: 8px 12px; border-radius: 8px;
+  background: var(--warn-bg); color: var(--warn-fg); border: 1px solid color-mix(in srgb, var(--warn-fg) 30%, transparent);
+  font-size: 0.85rem;
+}
+.conflict-title { display: block; margin-bottom: 4px; }
+.conflict-box ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.conflict-box li { line-height: 1.45; }
+.link-btn {
+  border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: inherit;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+}
+.link-btn:hover { color: var(--accent); }
+.sheet-head .conflict-box { margin: 6px 0 0; }
+.chip.has-conflict { box-shadow: inset 0 0 0 1.5px var(--warn-fg); }
+.calendar-scroll[data-zoom-mode="compact"] .chip.has-conflict { box-shadow: 0 0 0 1.5px var(--warn-fg); }
+
+/* ---------- Vista «Tecnici»: carico della settimana ------------------------------------ */
+body.view-team #months, body.view-team .zoom-ctl { display: none; }
+.workload[hidden] { display: none; }
+.workload { padding: 8px 0 24px; }
+.wl-bar {
+  position: sticky; top: 0; z-index: 3; background: var(--bg);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0;
+}
+.wl-title { margin: 0; font-size: 1.05rem; }
+.wl-title.is-current { color: var(--accent); }
+.wl-summary { margin-left: 6px; }
+.wl-all { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; cursor: pointer; }
+.wl-scroll { overflow-x: auto; }
+.wl-grid {
+  display: grid; min-width: 860px;
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel);
+}
+.wl-row { display: grid; grid-template-columns: 190px repeat(7, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.wl-row:last-child { border-bottom: 0; }
+.wl-head { background: var(--panel-2, var(--bg)); font-size: 0.8rem; color: var(--muted); }
+.wl-head > div { padding: 8px; }
+.wl-day { text-transform: capitalize; border-left: 1px solid var(--border); }
+.wl-day.today { color: var(--accent); font-weight: 700; }
+.wl-name { padding: 8px 10px; display: grid; align-content: start; gap: 2px; min-width: 0; }
+.wl-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl-nobody .wl-name strong { font-style: italic; color: var(--muted); }
+.wl-cell { border-left: 1px solid var(--border); padding: 5px; display: grid; align-content: start; gap: 4px; min-height: 52px; }
+.wl-cell.weekend, .wl-day.weekend { background: var(--weekend); }
+.wl-cell.today { background: color-mix(in srgb, var(--accent) 6%, var(--panel)); }
+.wl-cell.wl-overbooked { background: color-mix(in srgb, var(--warn-bg) 70%, var(--panel)); }
+.wl-chip {
+  display: grid; gap: 1px; text-align: left; width: 100%; min-width: 0;
+  font: inherit; font-size: 0.75rem; line-height: 1.3; color: var(--text); cursor: pointer;
+  padding: 3px 6px; border: 0; border-left: 3px solid var(--c); border-radius: 4px;
+  background: color-mix(in srgb, var(--c) 16%, var(--panel));
+}
+.wl-chip:hover { background: color-mix(in srgb, var(--c) 26%, var(--panel)); }
+.wl-chip.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.wl-chip.has-conflict { box-shadow: inset 0 0 0 1.5px var(--warn-fg); }
+.wl-chip.status-completato { opacity: 0.6; }
+.wl-chip.status-annullato .wl-chip-name { text-decoration: line-through; }
+.wl-chip-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl-chip-meta { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl-empty { padding: 16px; margin: 0; }
+@media (max-width: 760px) { .view-switch-btn span { display: none; } }
+
+/* Icona di avviso disegnata in CSS (il carattere ⚠ manca in alcuni font) */
+.warn-icon {
+  display: inline-grid; place-items: center; flex: none;
+  width: 1.15em; height: 1.15em; margin-right: 4px; vertical-align: -0.15em;
+  border-radius: 50%; background: var(--warn-fg); color: var(--warn-bg);
+  font-size: 0.85em; font-weight: 800; line-height: 1; font-style: normal;
+}
+/* Vista «Tecnici» stretta (anteprima a destra, telefono): un blocco per tecnico, solo i giorni impegnati */
+.workload { container: workload / inline-size; }
+@container workload (max-width: 720px) {
+  .wl-grid { min-width: 0; }
+  .wl-head { display: none; }
+  .wl-row { grid-template-columns: minmax(0, 1fr); }
+  .wl-name { grid-template-columns: 1fr auto; align-items: baseline; background: var(--panel-2, var(--bg)); }
+  .wl-cell { border-left: 0; min-height: 0; grid-template-columns: 70px minmax(0, 1fr); align-items: start; padding: 4px 10px; }
+  .wl-cell::before { content: attr(data-day); color: var(--muted); font-size: 0.8rem; text-transform: capitalize; grid-row: span 10; padding-top: 3px; }
+  .wl-cell:empty { display: none; }
+  .wl-cell > .wl-chip { grid-column: 2; }
+}

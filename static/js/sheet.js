@@ -9,6 +9,7 @@ import {
   addServerRow, deleteServerRow, fetchEvent, fetchOperatingSystems, fetchOptions, listServers, patchServerRow,
 } from "./api.js";
 import { colorFor } from "./colors.js";
+import { conflictBox } from "./conflicts.js";
 import { eventStatusControl } from "./eventstatus.js";
 import { promptNewOsVersions } from "./osdialog.js";
 import { people } from "./people.js";
@@ -270,6 +271,8 @@ export class Sheet {
         EVENT_TYPE[ev.event_type] ?? ev.event_type,
       ].filter(Boolean);
       info.append(titleRow, el("p", "sheet-facts muted", facts.join(" · ")));
+      const conflicts = conflictBox(ev.conflicts);
+      if (conflicts) info.append(conflicts);
     }
     this.statusEl = el("span", "sheet-status muted", "");
     this.statusEl.setAttribute("aria-live", "polite");

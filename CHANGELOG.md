@@ -5,6 +5,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Added
+- **Scheduling conflicts**: warning when the same server is in two interventions on the same day, or a technician (participant or assigned to a server row) is in two interventions at overlapping times (no time = whole day; cancelled interventions ignored). Warning icon on the calendar, list of conflicts with a link to the other intervention in the card and in the full-screen table. API: `conflict_users` and `conflict_servers` in `GET /api/events`, `conflicts` in the intervention details.
+- **Technicians view** (button next to Month and Week): each technician's week, one column per day, with double-booked technicians highlighted, a row for interventions without technicians, week navigation, filters, and a compact layout when the area is narrow. The chosen view is remembered (`calendar_view: "team"`).
+
+### Fixed
+- Week view: live updates from other users redraw every changed week (before, two changed weeks in the same month redrew only one).
 
 ## [0.23.0] - 2026-11-11
 ### Added

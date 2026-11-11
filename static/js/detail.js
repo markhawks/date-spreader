@@ -7,6 +7,7 @@ import { eventStatusControl } from "./eventstatus.js";
 import { participantPicker } from "./people.js";
 import { makeResizable } from "./resize.js";
 import { Sheet } from "./sheet.js";
+import { conflictBox } from "./conflicts.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import { t } from "./i18n.js";
 import {
@@ -409,6 +410,9 @@ export class DetailPanel {
       if (project && project.events.length > 1) head.append(this.#siblings(project, ev.id));
     }
     card.append(head);
+    // Scheduling conflicts (same server on the same day, technician busy elsewhere at the same time)
+    const conflicts = conflictBox(ev.conflicts, { onOpen: (o) => this.onPickEvent({ id: o.id, event_date: o.event_date }) });
+    if (conflicts) card.append(conflicts);
 
     // Riepilogo e tabella server
     if (this.bottomMode) {

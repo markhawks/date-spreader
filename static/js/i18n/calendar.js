@@ -1,4 +1,3 @@
-// Translations for calendar.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
     "calendar.week_title": "Week {n} · {range}",
@@ -9,7 +8,11 @@ export default {
     "calendar.no_servers_short": "0 srv",
     "calendar.chip_time": "at {time}",
     "calendar.chip_done": "{done}/{n} servers completed",
-    "calendar.chip_no_servers": "no servers"
+    "calendar.chip_no_servers": "no servers",
+    "calendar.chip_conflicts": {
+      "one": "1 scheduling conflict",
+      "other": "{n} scheduling conflicts"
+    }
   },
   "it": {
     "calendar.week_title": "Settimana {n} · {range}",
@@ -20,6 +23,10 @@ export default {
     "calendar.no_servers_short": "0 srv",
     "calendar.chip_time": "ore {time}",
     "calendar.chip_done": "completati {done}/{n} server",
-    "calendar.chip_no_servers": "nessun server"
+    "calendar.chip_no_servers": "nessun server",
+    "calendar.chip_conflicts": {
+      "one": "1 conflitto di pianificazione",
+      "other": "{n} conflitti di pianificazione"
+    }
   }
 };

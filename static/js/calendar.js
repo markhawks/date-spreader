@@ -10,6 +10,7 @@ import {
 } from "./dates.js";
 import { EVENT_STATUS, EVENT_TYPE, isConfigEvent } from "./labels.js";
 import { people } from "./people.js";
+import { warnIcon } from "./conflicts.js";
 import { locale, t } from "./i18n.js";
 
 const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
@@ -236,7 +237,7 @@ export class Calendar {
   #setupZoomGestures() {
     let drag = null;
     this.scrollEl.addEventListener("mousedown", (e) => {
-      if (e.button !== 1) return;
+      if (e.button !== 1 || this.paused) return;
       e.preventDefault(); // niente scorrimento automatico del browser
       drag = { y: e.clientY, x: e.clientX, z: this.zoom };
       this.scrollEl.classList.add("zooming");
@@ -263,7 +264,7 @@ export class Calendar {
 
     let wheelTimer = null;
     this.scrollEl.addEventListener("wheel", (e) => {
-      if (!e.ctrlKey) return;
+      if (!e.ctrlKey || this.paused) return;
       const pinch = e.deltaMode === 0 && (!Number.isInteger(e.deltaY) || Math.abs(e.deltaY) < 50);
       if (!pinch) return; // Ctrl + rotellina del mouse: zoom della pagina, come sempre
       e.preventDefault();
@@ -383,6 +384,18 @@ export class Calendar {
   async reload() {
     const sections = [...this.monthsEl.querySelectorAll(".month")];
     await Promise.all(sections.map((section) => this.#loadEvents(this.unit.parse(section.dataset.period), section)));
+  }
+
+  /** Reloads every period (month or week) containing one of the dates, once per period. */
+  async refreshDates(isos) {
+    const byPeriod = new Map(isos.map((iso) => [this.unit.key(this.unit.ofIso(iso)), iso]));
+    await Promise.all([...byPeriod.values()].map((iso) => this.refreshDate(iso)));
+  }
+
+  /** While another view covers the calendar (technicians' workload): no loading on scroll, no zoom gestures. */
+  setPaused(paused) {
+    this.paused = paused;
+    if (!paused) this.#onScroll();
   }
 
   /** Ricarica dal server gli eventi del periodo (mese o settimana) che contiene `iso`. */
@@ -590,6 +603,11 @@ export class Calendar {
     const name = document.createElement("span");
     name.className = "chip-name";
     name.textContent = ev.project_name;
+    const conflictCount = (ev.conflict_users?.length ?? 0) + (ev.conflict_servers ?? 0);
+    if (conflictCount) {
+      li.classList.add("has-conflict");
+      name.prepend(warnIcon());
+    }
     const meta = document.createElement("span");
     meta.className = "chip-meta";
     // Seconda riga: avanzamento, cliente (se c'è), ora
@@ -620,6 +638,7 @@ export class Calendar {
       ev.start_time && t("calendar.chip_time", { time: `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` }),
       n ? t("calendar.chip_done", { done, n }) : t("calendar.chip_no_servers"),
       EVENT_STATUS[ev.status] ?? ev.status,
+      conflictCount && t("calendar.chip_conflicts", { n: conflictCount }),
     ].filter(Boolean).join(" · ");
     return li;
   }
@@ -655,7 +674,7 @@ export class Calendar {
   }
 
   #onScroll() {
-    if (this.extending || this.autoScrolling || !this.first) return;
+    if (this.paused || this.extending || this.autoScrolling || !this.first) return;
     const { scrollTop, scrollHeight, clientHeight } = this.scrollEl;
     if (scrollTop < EDGE_PX) this.#extend(-1);
     else if (scrollHeight - scrollTop - clientHeight < EDGE_PX) this.#extend(1);

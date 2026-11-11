@@ -5,6 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Aggiunto
+- **Conflitti di pianificazione**: avviso quando lo stesso server è in due interventi nello stesso giorno, o un tecnico (partecipante o assegnato a una riga server) è in due interventi con orari sovrapposti (senza orario = tutto il giorno; interventi annullati esclusi). Icona di avviso nel calendario, elenco dei conflitti con link all'altro intervento nella scheda e nella tabella a tutto schermo. API: `conflict_users` e `conflict_servers` in `GET /api/events`, `conflicts` nel dettaglio dell'intervento.
+- **Vista «Tecnici»** (pulsante accanto a Mese e Settimana): la settimana di ogni tecnico, una colonna per giorno, con i tecnici impegnati due volte evidenziati, una riga per gli interventi senza tecnico, navigazione per settimana, filtri e impaginazione compatta quando lo spazio è stretto. La vista scelta viene ricordata (`calendar_view: "team"`).
+
+### Corretto
+- Vista settimanale: gli aggiornamenti degli altri utenti ridisegnano tutte le settimane cambiate (prima, con due settimane cambiate nello stesso mese, se ne ridisegnava una sola).
 
 ## [0.23.0] - 2026-11-11
 ### Aggiunto

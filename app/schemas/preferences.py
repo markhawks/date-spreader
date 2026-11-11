@@ -37,7 +37,7 @@ class Preferences(BaseModel):
     # Zoom del calendario (altezza dei giorni): 1 = normale, da 0.5 a 2.5
     calendar_zoom: float = Field(default=1.0, ge=0.5, le=2.5)
     # Vista del calendario: mesi (griglia classica) o settimane (colonne alte, interventi in dettaglio)
-    calendar_view: Literal["month", "week"] = "month"
+    calendar_view: Literal["month", "week", "team"] = "month"
     # Data e orologio nella barra in alto
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] = "date_time"
     # Interface language: "auto" = the browser's (Italian if preferred, otherwise English)
@@ -60,6 +60,6 @@ class PreferencesPatch(BaseModel):
     gmail_account: str | None = Field(default=None, max_length=254, pattern=GMAIL_ACCOUNT)
     gmail_choose_account: bool | None = None
     calendar_zoom: float | None = Field(default=None, ge=0.5, le=2.5)
-    calendar_view: Literal["month", "week"] | None = None
+    calendar_view: Literal["month", "week", "team"] | None = None
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] | None = None
     language: Literal["auto", "en", "it"] | None = None
