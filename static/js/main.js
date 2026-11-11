@@ -323,8 +323,10 @@ async function main() {
   });
   // Days shown: 7 days or Mon–Fri (weekends only where there are interventions), personal preference
   const daysBtns = [...document.querySelectorAll(".days-btn")];
+  const workweekBtn = $("btn-workweek");
   const applyDays = (mode) => {
     daysBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.days === mode)));
+    workweekBtn.setAttribute("aria-pressed", String(mode === "workweek"));
     calendar.setDays(mode);
     workload.setDays(mode);
   };
@@ -332,6 +334,11 @@ async function main() {
     if (b.getAttribute("aria-pressed") === "true") return;
     prefs.set({ calendar_days: b.dataset.days }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
   }));
+  // Top bar: "Mon–Fri" on/off
+  workweekBtn.addEventListener("click", () => {
+    const next = prefs.get().calendar_days === "workweek" ? "all" : "workweek";
+    prefs.set({ calendar_days: next }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
+  });
   prefs.onChange((p, changes) => { if ("calendar_days" in changes) applyDays(p.calendar_days); });
   applyDays(prefs.get().calendar_days);
 

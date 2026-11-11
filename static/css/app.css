@@ -770,13 +770,16 @@ tr.added td { animation: cell-saved 1.6s ease-out; }
 /* Mese | Settimana: due pulsanti come «Oggi»; quello della vista attiva è blu pieno,
    l'altro ha solo il bordo blu */
 .view-switch { display: inline-flex; gap: 8px; }
+.btn-today.days-toggle[aria-pressed="false"],
 .btn-today.view-switch-btn[aria-pressed="false"] {
   background: var(--panel); color: var(--accent); box-shadow: none;
 }
+.btn-today.days-toggle[aria-pressed="false"]:hover,
 .btn-today.view-switch-btn[aria-pressed="false"]:hover {
   background: color-mix(in srgb, var(--accent) 12%, var(--panel)); color: var(--accent); filter: none;
 }
-:root[data-theme="dark"] .btn-today.view-switch-btn[aria-pressed="false"] { color: var(--accent); }
+:root[data-theme="dark"] .btn-today.view-switch-btn[aria-pressed="false"],
+:root[data-theme="dark"] .btn-today.days-toggle[aria-pressed="false"] { color: var(--accent); }
 .view-switch-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* «Oggi»: blu pieno come il mese corrente, ben riconoscibile */
 .btn-today {
@@ -1942,7 +1945,7 @@ body .calendar-scroll[data-view="week"] .chip-meta { display: block; }
 .clock-time { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .clock-date:not([hidden]) + .clock-time:not([hidden])::before { content: "·"; color: var(--muted); font-weight: 400; margin-right: 8px; }
 /* Schermi medi: solo l'ora; telefono: niente (resta il pulsante Oggi) */
-@media (max-width: 1180px) {
+@media (max-width: 1500px) {
   .topbar-clock:not([data-mode="date"]) .clock-date { display: none; }
   .topbar-clock .clock-date:not([hidden]) + .clock-time:not([hidden])::before { display: none; }
 }
@@ -2103,4 +2106,16 @@ body.view-team .zoom-ctl { display: none; }
 .calendar-scroll[data-days="workweek"] .month:not(.has-weekend-events) :is(.weekdays, .month-grid) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 @container calweek (max-width: 820px) {
   .calendar-scroll[data-days] .month.week .month-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* «Lun–Ven» nella barra in alto: separato dai pulsanti di vista */
+.days-toggle { margin-left: 6px; }
+.days-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 760px) { .days-toggle span { display: none; } .days-toggle { padding: 6px 10px; margin-left: 0; } }
+
+/* Barra in alto su schermi medi: nome su una riga, pulsanti di vista solo icona (il nome resta nel tooltip) */
+.brand { white-space: nowrap; }
+@media (max-width: 1360px) {
+  .view-switch-btn span, .days-toggle span { display: none; }
+  .view-switch-btn, .days-toggle { padding: 7px 12px; }
 }
