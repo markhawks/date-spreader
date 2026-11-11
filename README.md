@@ -123,7 +123,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - Per un rilascio: aggiornare `__version__`, `pyproject.toml` e `CHANGELOG.md`, poi riavviare il servizio. Un test verifica che le tre versioni coincidano.
 
 ## Interfaccia (home)
-- **Calendario verticale**: un blocco per mese, dall'alto in basso, settimana da lunedì. All'apertura mostra mese precedente, corrente e successivo, con il **mese corrente centrato** nella vista. Scorrendo vicino al bordo superiore o inferiore si caricano altri mesi senza che la vista salti. Il pulsante **Oggi** riporta al mese corrente.
+- **Calendario verticale**: un blocco per mese, dall'alto in basso, settimana da lunedì. All'apertura mostra mese precedente, corrente e successivo, con il **mese corrente centrato** nella vista. Scorrendo vicino al bordo superiore o inferiore si caricano altri mesi senza che la vista salti. Il pulsante blu **Oggi**, al centro della barra in alto, riporta al mese corrente.
 - **Giorni con interventi**: sono evidenziati e mostrano, nel colore del progetto, nome, ora e numero di server (al massimo 2 eventi per cella, poi "+N"). Passando il mouse si vedono i dettagli. Un intervento completato è attenuato, uno rinviato ha il bordo tratteggiato, uno annullato è barrato.
 - **Sidebar dei progetti**: riquadri con «**Prossimo**: data» (il prossimo intervento in programma) oppure, se il progetto ha solo interventi passati, «**Ultimo**: data» (il più recente); «Nessun intervento» se non ne ha. Le date hanno sempre l'anno. L'etichetta "N date" indica più interventi. La ricerca istantanea non distingue maiuscole e accenti.
 - **Telefono** (sotto 760 px): i progetti diventano una riga scorrevole e gli eventi delle barre colorate.

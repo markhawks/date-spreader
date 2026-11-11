@@ -9,6 +9,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 - Pulsante **«+ Intervento»** nella barra dell'anteprima (accanto a sposta-anteprima e ✕, in basso e a destra): crea un intervento nel giorno mostrato, scegliendo il progetto; il modulo ha la data già compilata, come dal tasto destro sul calendario.
 - **Tecnico nuovo direttamente dai partecipanti**: in fondo al menu «+ Aggiungi tecnico…» c'è **«+ Nuovo tecnico…»**, che apre un campo per il nome (Invio aggiunge, Esc annulla). Il tecnico viene salvato nel database e compare subito in tutti i menu; se il nome esiste già (anche con maiuscole o spazi diversi) si usa quello, senza doppioni. Funziona nella scheda dell'intervento, nel «Nuovo progetto» e nel modulo dell'intervento, per tutti gli utenti: crea solo il nome, con ruolo tecnico e senza accesso al portale. API: `POST /api/users/technicians`.
 ### Modificato
+- Il pulsante **«Oggi»** è al **centro della barra in alto**, blu pieno come il titolo del mese corrente e con un'icona calendario, per trovarlo subito. Su telefono sta accanto al nome del portale.
 - Le note di una riga server accettano fino a 20.000 caratteri (prima 2.000).
 
 ## [0.21.0] - 2026-11-10
