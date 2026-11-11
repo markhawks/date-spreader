@@ -72,7 +72,7 @@ that folder can be deleted.
 | `--port N` | Portal port (default `8000`) |
 | `--local-only` | Reachable only from the machine itself (`127.0.0.1`), for example behind an HTTPS proxy |
 | `--dir PATH` | Installation folder (default `/opt/datespreader`). `/tmp` and home directories are not allowed |
-| `--source URL\|PATH`, `--ref BRANCH\|TAG` | Where to download the code from and which version (defaults: GitHub, `main`). E.g. `--ref v0.22.0` |
+| `--source URL\|PATH`, `--ref BRANCH\|TAG` | Where to download the code from and which version (defaults: GitHub, `main`). E.g. `--ref v0.23.0` |
 | `--service NAME`, `--user NAME` | Name of the systemd service and of the system user. Used to install a second instance on the same machine |
 | `--no-firewall` | Does not change the firewall |
 | `--force` | Goes ahead on a system that has not been tested yet |
@@ -122,7 +122,7 @@ sudo /opt/datespreader/deploy/install.sh
 
 What happens:
 1. **database backup** in `data/backups/…-pre-aggiornamento.sqlite3`;
-2. the new version is downloaded from GitHub. For a specific version: `--ref v0.22.0`;
+2. the new version is downloaded from GitHub. For a specific version: `--ref v0.23.0`;
 3. the dependencies are updated and the service is restarted;
 4. at startup, the service brings the database to the new schema (migrations).
 

@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+
+## [0.23.0] - 2026-11-11
 ### Added
 - **Automatic database backups**: a verified copy (SQLite backup API + integrity check) every night at about 02:30 (systemd timer `datespreader-backup.timer`, installed by `deploy/install.sh`), before every schema upgrade and on demand. Rotation: everything from the last 48 hours, then 7 daily, 4 weekly and 12 monthly backups (configurable); other files in `data/backups/` are never deleted. New commands `app.cli backup [--list]` and `app.cli restore FILE` (the current state is saved first as a "pre-restore" backup). Administrators: Settings → Administration → "Database backups", with the list, "Back up now", download and restore instructions. Copying the backups to another machine is left to the company backup system.
 - **Interface in English and Italian**. Each user picks the language in Settings → Appearance → "Language": "Same as the browser" (default: Italian if the browser prefers it, otherwise English), English or Italiano. Server messages, the sharing email and the "What's new" changelog (`CHANGELOG.md` in English, `CHANGELOG.it.md` in Italian) follow the chosen language too. Personal preference `language`.

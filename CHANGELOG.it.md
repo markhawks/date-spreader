@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+
+## [0.23.0] - 2026-11-11
 ### Aggiunto
 - **Backup automatici del database**: una copia verificata (API di backup di SQLite + controllo di integrità) ogni notte verso le 02:30 (timer systemd `datespreader-backup.timer`, installato da `deploy/install.sh`), prima di ogni aggiornamento dello schema e a richiesta. Rotazione: tutto delle ultime 48 ore, poi 7 backup giornalieri, 4 settimanali e 12 mensili (configurabile); gli altri file di `data/backups/` non vengono mai cancellati. Nuovi comandi `app.cli backup [--list]` e `app.cli restore FILE` (prima lo stato attuale viene salvato come backup «pre-restore»). Amministratori: Impostazioni → Amministrazione → «Backup del database», con elenco, «Backup adesso», download e istruzioni per il ripristino. La copia dei backup su un'altra macchina è affidata al backup aziendale.
 - **Interfaccia in inglese e in italiano**. Ogni utente sceglie la lingua in Impostazioni → Aspetto → «Lingua»: «Come il browser» (predefinito: italiano se il browser lo preferisce, altrimenti inglese), English o Italiano. Seguono la lingua scelta anche i messaggi del server, l'email di condivisione e il changelog delle «Novità» (`CHANGELOG.md` in inglese, `CHANGELOG.it.md` in italiano). Preferenza personale `language`.
