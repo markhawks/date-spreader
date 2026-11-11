@@ -155,6 +155,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
   - Ingrandendo ogni giorno mostra più interventi; dove c'è spazio compaiono anche titolo e orario completo.
   - Ogni giorno sceglie da solo come disegnare i suoi interventi (dettagliato, due righe, solo il nome) senza mai tagliare il testo; quelli che non entrano diventano «+N».
 - **Giorni con interventi**: sono evidenziati e mostrano, nel colore del progetto, nome, **avanzamento** («2/4»: server completati sul totale, con una barra in fondo che si riempie; verde con ✓ a lavoro finito), cliente e ora (quanti ne stanno nella cella, poi "+N"). Passando il mouse si vedono i dettagli. Un intervento completato è attenuato, uno rinviato ha il bordo tratteggiato, uno annullato è barrato.
+- **Giorni vuoti**: anche un giorno senza interventi si seleziona con un clic e apre l'anteprima vuota, con i pulsanti per creare un intervento in un progetto esistente o un nuovo progetto in quella data.
 - **Sidebar dei progetti**: riquadri con «**Prossimo**: data» (il prossimo intervento in programma) oppure, se il progetto ha solo interventi passati, «**Ultimo**: data» (il più recente); «Nessun intervento» se non ne ha. Le date hanno sempre l'anno. L'etichetta "N date" indica più interventi. La ricerca istantanea non distingue maiuscole e accenti.
 - **Telefono** (sotto 760 px): i progetti diventano una riga scorrevole e gli eventi delle barre colorate.
 - **Tema scuro**: segue l'impostazione del sistema operativo.

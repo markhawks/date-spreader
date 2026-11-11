@@ -625,7 +625,8 @@ export class Calendar {
 
   #onClick(e) {
     if (this.suppressClick) { this.suppressClick = false; return; }
-    const cell = e.target.closest(".day.has-events");
+    // Anche i giorni vuoti: si selezionano e aprono l'anteprima (vuota, con i pulsanti per creare)
+    const cell = e.target.closest(".day[data-date]");
     if (!cell) return;
     const chip = e.target.closest(".chip[data-event-id]");
     this.onDayClick(cell.dataset.date, chip ? Number(chip.dataset.eventId) : null);

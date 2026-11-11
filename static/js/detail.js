@@ -89,6 +89,8 @@ export class DetailPanel {
     this.onEditProject = opts.onEditProject ?? null;
     this.onShare = opts.onShare ?? null;
     this.onDuplicate = opts.onDuplicate ?? null;
+    this.onNewEvent = opts.onNewEvent ?? null;     // giorno vuoto: nuovo intervento in un progetto esistente
+    this.onNewProject = opts.onNewProject ?? null; // giorno vuoto: nuovo progetto in quella data
     this.toast = opts.toast ?? (() => {});
     this.onRowsChanged = opts.onRowsChanged ?? (() => {});
     this.onResizeEnd = opts.onResizeEnd ?? (() => {});
@@ -147,9 +149,9 @@ export class DetailPanel {
     try {
       const events = await fetchDay(iso);
       if (req !== this.request) return;
-      this.subEl.textContent = events.length === 1 ? "1 intervento" : `${events.length} interventi`;
+      this.subEl.textContent = !events.length ? "Nessun intervento" : events.length === 1 ? "1 intervento" : `${events.length} interventi`;
       this.bodyEl.replaceChildren(
-        ...(events.length ? events.map((ev) => this.#eventCard(ev, false)) : [el("p", "muted", "Nessun intervento in questa data.")]),
+        ...(events.length ? events.map((ev) => this.#eventCard(ev, false)) : [this.#emptyDay(iso)]),
       );
       this.#afterRender();
       this.#focusEvent(focusEventId);
@@ -276,6 +278,28 @@ export class DetailPanel {
     } else {
       this.bodyEl.scrollTop = 0;
     }
+  }
+
+  /** Anteprima di un giorno senza interventi: messaggio e pulsanti per crearne uno. */
+  #emptyDay(iso) {
+    const box = el("div", "empty-day");
+    box.append(el("p", "empty-day-title", "Nessun intervento in questa data."));
+    const actions = el("div", "empty-day-actions");
+    if (this.onNewEvent) {
+      const b = el("button", "btn btn-primary btn-small", "+ Intervento in un progetto esistente");
+      b.type = "button";
+      b.addEventListener("click", () => this.onNewEvent(iso));
+      actions.append(b);
+    }
+    if (this.onNewProject) {
+      const b = el("button", "btn btn-small", "Nuovo progetto in questa data");
+      b.type = "button";
+      b.addEventListener("click", () => this.onNewProject(iso));
+      actions.append(b);
+    }
+    if (actions.childElementCount) box.append(actions);
+    box.append(el("p", "muted small", "Puoi anche usare il tasto destro su un giorno del calendario."));
+    return box;
   }
 
   #eventCard(ev, withSiblings) {

@@ -163,6 +163,8 @@ async function main() {
     toast,
     // Stato dell'intervento cambiato dalla scheda: aggiorna il calendario (stile della chip).
     onEventChanged: (ev) => calendar.refreshDate(ev.event_date),
+    onNewEvent: (iso) => addEventOnDate(iso),
+    onNewProject: (iso) => projectForm.open({ date: iso }),
     onDuplicate: async (ev) => {
       let copy;
       try {
