@@ -17,6 +17,33 @@ DEFAULT_LANGUAGE = "en"
 _current: ContextVar[str] = ContextVar("language", default=DEFAULT_LANGUAGE)
 
 MESSAGES: dict[str, dict[str, str]] = {
+    # --- import of a server list into an intervention (app/server_import.py) ---
+    "import.bad_file": {"en": "The file could not be read.", "it": "Il file non si riesce a leggere."},
+    "import.too_big": {"en": "The file is too big (5 MB at most).", "it": "Il file è troppo grande (al massimo 5 MB)."},
+    "import.bad_xlsx": {
+        "en": "This is not a readable Excel file (.xlsx). Save it as .xlsx or CSV, or copy and paste the rows.",
+        "it": "Non è un file Excel leggibile (.xlsx). Salvalo come .xlsx o CSV, oppure copia e incolla le righe.",
+    },
+    "import.too_many": {"en": "Too many rows: {n} at most per import.", "it": "Troppe righe: al massimo {n} per import."},
+    "import.no_hostname": {
+        "en": "Choose which column contains the hostname.",
+        "it": "Scegli quale colonna contiene l'hostname.",
+    },
+    "import.row_no_hostname": {"en": "No hostname.", "it": "Manca l'hostname."},
+    "import.row_duplicate": {"en": "Already earlier in the list.", "it": "Già presente più sopra nell'elenco."},
+    "import.row_in_event": {"en": "Already in this intervention.", "it": "Già presente in questo intervento."},
+    "import.row_unknown_os": {
+        "en": "Operating system \"{value}\" is not in the list: left empty.",
+        "it": "Il sistema operativo \"{value}\" non è nell'elenco: lasciato vuoto.",
+    },
+    "import.row_unknown_env": {
+        "en": "Environment \"{value}\" not recognised (DEV, TEST, PROD, OTHER): left empty.",
+        "it": "Ambiente \"{value}\" non riconosciuto (DEV, TEST, PROD, ALTRO): lasciato vuoto.",
+    },
+    "import.row_unknown_user": {
+        "en": "Technician \"{value}\" not found: left empty.",
+        "it": "Tecnico \"{value}\" non trovato: lasciato vuoto.",
+    },
     # --- database backups (app/backup.py, CLI, admin API) ---
     "backup.db_missing": {"en": "Database not found: {path}", "it": "Database non trovato: {path}"},
     "backup.copy_corrupt": {

@@ -194,6 +194,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
   - **Apri intervento** porta all'intervento con la riga del server evidenziata;
   - sotto c'è la cronologia delle **modifiche ai dati del server** (es. IP cambiato: vecchio → nuovo, con data e ora).
 - **Riusare un server**: nella tabella a tutto schermo, scrivendo l'hostname in "Aggiungi server" compaiono i **suggerimenti** dall'anagrafica (IP, SO, ambiente, numero di interventi). Si sceglie con il mouse o con ↓ e Invio, e il server viene collegato con tutti i suoi dati. Quelli già nell'intervento sono indicati e non selezionabili. Se l'hostname non esiste, Invio crea un server nuovo.
+- **Importare tanti server** («Importa da CSV/Excel…», accanto ad «Aggiungi server», nella tabella a tutto schermo e nell'anteprima in basso): si sceglie un file **CSV** o **Excel (.xlsx)**, oppure si **incollano le righe** copiate da un foglio di calcolo. Le colonne si riconoscono dal nome, in italiano o in inglese (hostname/server, IP, SO, ambiente, kernel, SO/kernel target, tecnico, note) o, senza intestazione, dal contenuto; ogni colonna si può cambiare o ignorare. Un'**anteprima** mostra cosa succederà a ogni riga (server nuovo, server dall'anagrafica, saltato, errore) prima di salvare qualsiasi cosa. I sistemi operativi vengono riconosciuti anche se scritti diversamente («RHEL 9.8» = «Red Hat Enterprise Linux 9.8»); SO, ambienti o tecnici sconosciuti restano vuoti con un avviso. I server già in anagrafica mantengono i loro dati, a meno di spuntare «Aggiorna i dati dei server già in anagrafica» (le differenze vengono mostrate).
 
 ### Tecnici
 - Le persone stanno nel database (tabella `users`) e si gestiscono dal pulsante **Tecnici** in alto: nome, email aziendale (facoltativa), ruolo (tecnico, coordinatore, amministratore) e **Attivo**. Le modifiche si salvano da sole.
@@ -361,6 +362,7 @@ Per portare progetti da un'installazione di Date Spreader a un'altra: per esempi
 | `GET /api/days/YYYY-MM-DD` | Dettaglio di tutti gli interventi di un giorno (lista vuota se non ce ne sono) |
 | `PATCH /api/event-servers/{id}` | Modifica parziale di una riga. Richiede `version` (e `server_version` se si toccano campi del server). Risponde **409** con `detail.current` se i dati sono cambiati, **422** se un valore non è valido |
 | `POST /api/events/{id}/servers` | Aggiunge un server all'intervento (riusa il server se l'hostname esiste). 409 se è già presente |
+| `POST /api/events/{id}/servers/import` | Importa un elenco di server (`kind`: `text` per CSV/TSV/righe incollate, `xlsx` per un file Excel in base64; facoltativi `mapping`, `has_header`, `update_existing`). `dry_run: true` (predefinito) = anteprima, non salva nulla |
 | `DELETE /api/event-servers/{id}?version=N` | Toglie il server dall'intervento (resta in anagrafica). 409 se la riga è cambiata |
 | `GET /api/users[?all=true]` | Tecnici attivi (con `all=true` anche i disattivati) |
 | `POST /api/users` | Nuovo tecnico (`display_name`, `email`, `role`). 409 se nome o email esistono già |

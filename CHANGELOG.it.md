@@ -6,6 +6,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Aggiunto
+- **Import dei server da CSV/Excel** in un intervento («Importa da CSV/Excel…» accanto ad «Aggiungi server»): un file CSV o .xlsx, oppure righe incollate da un foglio di calcolo. Colonne riconosciute dal nome in italiano o in inglese (o dal contenuto), modificabili; un'anteprima mostra l'esito di ogni riga prima di salvare; SO riconosciuti anche se scritti diversamente; i server già in anagrafica vengono collegati e aggiornati solo su richiesta; le righe sbagliate non bloccano le altre. Nuova dipendenza: `openpyxl` (lettura dei file .xlsx). API: `POST /api/events/{id}/servers/import`.
 - **Conflitti di pianificazione**: avviso quando lo stesso server è in due interventi nello stesso giorno, o un tecnico (partecipante o assegnato a una riga server) è in due interventi con orari sovrapposti (senza orario = tutto il giorno; interventi annullati esclusi). Icona di avviso nel calendario, elenco dei conflitti con link all'altro intervento nella scheda e nella tabella a tutto schermo. API: `conflict_users` e `conflict_servers` in `GET /api/events`, `conflicts` nel dettaglio dell'intervento.
 - **Vista «Tecnici»** (pulsante accanto a Mese e Settimana): la settimana di ogni tecnico, una colonna per giorno, con i tecnici impegnati due volte evidenziati, una riga per gli interventi senza tecnico, navigazione per settimana, filtri e impaginazione compatta quando lo spazio è stretto. La vista scelta viene ricordata (`calendar_view: "team"`).
 

@@ -118,6 +118,29 @@ class ServerRowCreate(_RowFields):
         return _valid_hostname(v)
 
 
+class ServerImportRequest(BaseModel):
+    """Server list to import into an intervention (CSV/TSV/pasted text, or an .xlsx file in base64)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["text", "xlsx"]
+    content: str = Field(max_length=8 * 1024 * 1024)
+    # Field of each column ("hostname", "ip_address", …, or null to ignore it); omitted = detected
+    mapping: list[str | None] | None = Field(default=None, max_length=100)
+    has_header: bool | None = None
+    update_existing: bool = False      # also update the data of servers already in the inventory
+    dry_run: bool = True               # preview: nothing is saved
+
+    @field_validator("mapping")
+    @classmethod
+    def _fields(cls, v):
+        from app.server_import import FIELDS
+
+        if v is not None and any(f is not None and f not in FIELDS for f in v):
+            raise ValueError("unknown field in mapping")
+        return v
+
+
 class ServerRowCreated(ServerRow):
     server_reused: bool = Field(description="True se l'hostname esisteva già ed è stato collegato quel server")
 

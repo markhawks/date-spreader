@@ -277,6 +277,14 @@ to **recover access** if the administrator forgets the password.
   inventory (IP, OS, environment, number of interventions). Pick one with the mouse or with ↓ and Enter, and the
   server is linked with all its data. Those already in the intervention are marked and cannot be selected. If the
   hostname does not exist, Enter creates a new server.
+- **Importing many servers** ("Import from CSV/Excel…", next to "Add server", in the full-screen table and in the
+  bottom preview): choose a **CSV** or **Excel (.xlsx)** file, or **paste rows** copied from a spreadsheet. Columns are
+  recognised from their names, in English or Italian (hostname/server, IP, OS, environment, kernel, target OS/kernel,
+  technician, notes) or, without a header, from the content; each column can be changed or ignored. A **preview**
+  shows what will happen to every row (new server, server from the inventory, skipped, error) before anything is
+  saved. Operating systems are matched to the list even when written differently ("RHEL 9.8" = "Red Hat Enterprise
+  Linux 9.8"); unknown OS, environments or technicians are left empty with a warning. Servers already in the inventory
+  keep their data unless "Update the data of servers already in the inventory" is ticked (differences are shown).
 
 ### Technicians
 - People live in the database (`users` table) and are managed from the **Technicians** button at the top: name,
@@ -536,6 +544,7 @@ installation on a PC or at a customer's site.
 | `GET /api/days/YYYY-MM-DD` | Details of all the interventions of a day (empty list if there are none) |
 | `PATCH /api/event-servers/{id}` | Partial update of a row. Requires `version` (and `server_version` if server fields are touched). Returns **409** with `detail.current` if the data changed, **422** if a value is invalid |
 | `POST /api/events/{id}/servers` | Adds a server to the intervention (reuses the server if the hostname exists). 409 if already present |
+| `POST /api/events/{id}/servers/import` | Imports a server list (`kind`: `text` for CSV/TSV/pasted rows, `xlsx` for a base64 Excel file; optional `mapping`, `has_header`, `update_existing`). `dry_run: true` (default) = preview, nothing saved |
 | `DELETE /api/event-servers/{id}?version=N` | Removes the server from the intervention (it stays in the inventory). 409 if the row changed |
 | `GET /api/users[?all=true]` | Active technicians (with `all=true` also deactivated ones) |
 | `POST /api/users` | New technician (`display_name`, `email`, `role`). 409 if the name or email already exists |

@@ -121,6 +121,7 @@ export const fetchOptions = () => getJSON("/api/options");
 
 /** Modifica parziale di una riga server. `changes` contiene solo i campi cambiati. */
 export const patchServerRow = (rowId, changes) => request("PATCH", `/api/event-servers/${q(rowId)}`, changes);
+export const importServers = (eventId, data) => request("POST", `/api/events/${q(eventId)}/servers/import`, data);
 export const addServerRow = (eventId, data) => request("POST", `/api/events/${q(eventId)}/servers`, data);
 export const deleteServerRow = (rowId, version) =>
   request("DELETE", `/api/event-servers/${q(rowId)}?version=${q(version)}`);

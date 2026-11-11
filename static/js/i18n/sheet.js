@@ -50,10 +50,16 @@ export default {
     "sheet.add_label": "Hostname of the server to add",
     "sheet.add_server": "+ Add server",
     "sheet.suggest_present": "already in the intervention",
-    "sheet.suggest_events": { "one": "{n} intervention", "other": "{n} interventions" },
+    "sheet.suggest_events": {
+      "one": "{n} intervention",
+      "other": "{n} interventions"
+    },
     "sheet.suggest_new": "New server: “{hostname}” (Enter to create it)",
     "sheet.required": "{label}: required field.",
-    "sheet.os_added": { "one": "Added: {list}.", "other": "Added: {list}." },
+    "sheet.os_added": {
+      "one": "Added: {list}.",
+      "other": "Added: {list}."
+    },
     "sheet.saved_at": "Saved at {time}",
     "sheet.conflict_status": "{hostname}: changed by another user",
     "sheet.conflict_toast": "{message} Your change was not saved: make it again if needed.",
@@ -65,7 +71,13 @@ export default {
     "sheet.added_reused": "{hostname} already existed: linked with its data.",
     "sheet.added_new": "{hostname} added: fill in its data in the row.",
     "sheet.saving": "Saving…",
-    "sheet.server_count": { "one": "{n} server", "other": "{n} servers" }
+    "sheet.server_count": {
+      "one": "{n} server",
+      "other": "{n} servers"
+    },
+    "sheet.import_servers": "Import from CSV/Excel…",
+    "sheet.import_servers_hint": "Add many servers at once from a CSV or Excel file, or from rows pasted from a spreadsheet",
+    "sheet.status_imported": "Servers imported ({time})"
   },
   "it": {
     "sheet.server_hint": "Attributo del server: vale per tutti gli interventi in cui compare.",
@@ -117,10 +129,16 @@ export default {
     "sheet.add_label": "Hostname del server da aggiungere",
     "sheet.add_server": "+ Aggiungi server",
     "sheet.suggest_present": "già nell'intervento",
-    "sheet.suggest_events": { "one": "{n} intervento", "other": "{n} interventi" },
+    "sheet.suggest_events": {
+      "one": "{n} intervento",
+      "other": "{n} interventi"
+    },
     "sheet.suggest_new": "Nuovo server: «{hostname}» (Invio per crearlo)",
     "sheet.required": "{label}: campo obbligatorio.",
-    "sheet.os_added": { "one": "Aggiunta: {list}.", "other": "Aggiunte: {list}." },
+    "sheet.os_added": {
+      "one": "Aggiunta: {list}.",
+      "other": "Aggiunte: {list}."
+    },
     "sheet.saved_at": "Salvato alle {time}",
     "sheet.conflict_status": "{hostname}: modificato da un altro utente",
     "sheet.conflict_toast": "{message} La tua modifica non è stata salvata: ripetila se serve.",
@@ -132,6 +150,12 @@ export default {
     "sheet.added_reused": "{hostname} esisteva già: collegato con i suoi dati.",
     "sheet.added_new": "{hostname} aggiunto: completa i dati nella riga.",
     "sheet.saving": "Salvataggio…",
-    "sheet.server_count": { "one": "{n} server", "other": "{n} server" }
+    "sheet.server_count": {
+      "one": "{n} server",
+      "other": "{n} server"
+    },
+    "sheet.import_servers": "Importa da CSV/Excel…",
+    "sheet.import_servers_hint": "Aggiungi tanti server in una volta da un file CSV o Excel, o da righe incollate da un foglio di calcolo",
+    "sheet.status_imported": "Server importati ({time})"
   }
 };

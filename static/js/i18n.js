@@ -43,6 +43,7 @@ import prefs from "./i18n/prefs.js";
 import projectdialog from "./i18n/projectdialog.js";
 import projectform from "./i18n/projectform.js";
 import resize from "./i18n/resize.js";
+import serverimport from "./i18n/serverimport.js";
 import session from "./i18n/session.js";
 import settings from "./i18n/settings.js";
 import share from "./i18n/share.js";
@@ -52,7 +53,7 @@ import timepick from "./i18n/timepick.js";
 import transfer from "./i18n/transfer.js";
 import workload from "./i18n/workload.js";
 
-const DICTS = [common, api, auth, backups, calendar, chooser, clock, colors, confirm, conflicts, contextmenu, customers, dates, detail, eventstatus, filters, index, inventory, labels, main, osdialog, people, prefs, projectdialog, projectform, resize, session, settings, share, sheet, sidebar, timepick, transfer, workload];
+const DICTS = [common, api, auth, backups, calendar, chooser, clock, colors, confirm, conflicts, contextmenu, customers, dates, detail, eventstatus, filters, index, inventory, labels, main, osdialog, people, prefs, projectdialog, projectform, resize, serverimport, session, settings, share, sheet, sidebar, timepick, transfer, workload];
 const CATALOG = { en: {}, it: {} };
 for (const d of DICTS) {
   Object.assign(CATALOG.en, d.en);

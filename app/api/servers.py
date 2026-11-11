@@ -33,6 +33,7 @@ from app.schemas.edit import (
     ProjectCreate,
     ProjectPatch,
     Options,
+    ServerImportRequest,
     ServerRowCreate,
     ServerRowCreated,
     ServerRowPatch,
@@ -102,6 +103,38 @@ def add_row(session: SessionDep, event_id: int, data: ServerRowCreate) -> Server
         raise HTTPException(422, str(exc)) from None
     row = repo.get_row(session, row.id)
     return ServerRowCreated(**ServerRow.from_link(row).model_dump(), server_reused=reused)
+
+
+@router.post("/events/{event_id}/servers/import")
+def import_servers(session: SessionDep, event_id: int, data: ServerImportRequest) -> dict:
+    """Adds a list of servers (CSV, pasted rows or .xlsx) to the intervention.
+
+    With `dry_run` (default) nothing is saved: the same import runs and is rolled back, so the
+    preview shows exactly what would happen. Every row is independent: bad rows are reported,
+    the others are imported.
+    """
+    from app import server_import
+
+    event = calendar_repo.get_event_detail(session, event_id)
+    if event is None:
+        raise HTTPException(404, tr("events.not_found"))
+    try:
+        rows = server_import.read_table(data.kind, data.content)
+        detected, header = server_import.detect_columns(rows)
+        mapping = data.mapping if data.mapping is not None else detected
+        mapping = (list(mapping) + [None] * len(rows[0] if rows else []))[: len(rows[0]) if rows else 0]
+        has_header = header if data.has_header is None else data.has_header
+        report = server_import.import_servers(session, event, rows, mapping, has_header, data.update_existing)
+    except server_import.ServerImportError as exc:
+        session.rollback()
+        raise HTTPException(422, str(exc)) from None
+    report["detected"] = {"mapping": detected, "has_header": header}
+    report["dry_run"] = data.dry_run
+    if data.dry_run:
+        session.rollback()
+    else:
+        session.commit()
+    return report
 
 
 @router.delete("/event-servers/{row_id}", status_code=status.HTTP_204_NO_CONTENT)

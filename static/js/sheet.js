@@ -10,6 +10,7 @@ import {
 } from "./api.js";
 import { colorFor } from "./colors.js";
 import { conflictBox } from "./conflicts.js";
+import { showServerImport } from "./serverimport.js";
 import { eventStatusControl } from "./eventstatus.js";
 import { promptNewOsVersions } from "./osdialog.js";
 import { people } from "./people.js";
@@ -372,7 +373,7 @@ export class Sheet {
    * Non tocca le celle in modifica né le righe con un salvataggio in corso.
    * @returns {Promise<boolean>} true se qualcosa è cambiato
    */
-  async syncFromServer() {
+  async syncFromServer({ status = null } = {}) {
     if (!this.isOpen || !this.event || this.pending > 0) return false;
     let fresh;
     try {
@@ -421,7 +422,7 @@ export class Sheet {
     if (touched) {
       this.changed = true;
       this.#applyRowFilter();
-      this.#setStatus(t("sheet.status_remote", { time: nowHm() }));
+      this.#setStatus(status ?? t("sheet.status_remote", { time: nowHm() }));
     }
     return touched;
   }
@@ -541,7 +542,17 @@ export class Sheet {
     const btn = el("button", "btn", t("sheet.add_server"));
     btn.type = "submit";
     this.addMsg = el("span", "add-msg muted");
-    form.append(input, btn, this.addMsg);
+    const imp = el("button", "btn import-btn", t("sheet.import_servers"));
+    imp.type = "button";
+    imp.title = t("sheet.import_servers_hint");
+    imp.addEventListener("click", async () => {
+      if (await showServerImport({ event: this.event, toast: this.toast })) {
+        await this.syncFromServer({ status: t("sheet.status_imported", { time: nowHm() }) });
+        this.changed = true;
+        this.onChange();
+      }
+    });
+    form.append(input, btn, imp, this.addMsg);
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       this.#onAdd(input, btn);
