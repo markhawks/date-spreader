@@ -18,6 +18,9 @@ this job with:
 - **configuration interventions** (type «Configurazione»): a reduced table (hostname, IP, OS, environment,
   execution date, technician) with a full-width, auto-growing **notes row under each server** for the
   configuration details;
+- **export and import between installations**: export a project or a whole customer to a JSON file and import
+  it into another Date Spreader (e.g. a laptop or an on-site install), with a faithful preview; existing customers,
+  servers and technicians are recognised and reused, never overwritten;
 - **sharing by email**: a formatted email with the full server table, ready to paste into Gmail.
 
 The user interface is in **Italian**. The stack is deliberately small: **FastAPI + SQLite** on the backend and

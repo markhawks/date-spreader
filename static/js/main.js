@@ -19,6 +19,7 @@ import { session } from "./session.js";
 import { Sheet } from "./sheet.js";
 import { showShareDialog } from "./share.js";
 import { Sidebar, attachSidebarResizer } from "./sidebar.js";
+import { showImportDialog } from "./transfer.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -315,7 +316,14 @@ async function main() {
     adminActions: [
       ["Utenti", "Account, ruoli, accessi al portale e password temporanee.", () => peopleDialog.open()],
       ["Sistemi operativi", "Versioni selezionabili nella tabella server (nuove minor/major, disattivazione).", () => showOsDialog({ toast })],
-      ["Clienti", "Rinomina i clienti o elimina quelli senza progetti.", () => showCustomersDialog({ toast, onChanged: () => reloadProjects() })],
+      ["Clienti", "Rinomina i clienti, scegli i colori, esporta un cliente intero o elimina quelli senza progetti.", () => showCustomersDialog({ toast, onChanged: () => reloadProjects() })],
+      ["Importa progetti", "Da un file esportato da un'altra installazione di Date Spreader, con anteprima prima di importare.", () => showImportDialog({
+        toast,
+        onImported: async () => {
+          await Promise.all([reloadProjects(), people.load(true)]);
+          await calendar.reload();
+        },
+      })],
     ],
   }));
   // Pulsante nella barra dell'anteprima: in basso ↔ a destra (stessa preferenza delle Impostazioni)

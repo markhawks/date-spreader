@@ -60,6 +60,37 @@ async function request(method, url, body) {
 }
 
 const getJSON = (url) => request("GET", url);
+
+/** Scarica un file prodotto dal server (export) con il nome che indica il server. */
+async function downloadFile(url) {
+  let res;
+  try {
+    res = await fetch(url, { credentials: "same-origin", headers: { "X-Requested-With": "datespreader" } });
+  } catch {
+    throw new ApiError("Server non raggiungibile.", 0, null);
+  }
+  if (!res.ok) {
+    let data = null;
+    try { data = await res.json(); } catch { /* risposta non JSON */ }
+    if (res.status === 401) window.dispatchEvent(new CustomEvent(AUTH_REQUIRED));
+    throw new ApiError(detailMessage(data?.detail, `HTTP ${res.status}`), res.status, data);
+  }
+  const name = /filename="([^"]+)"/.exec(res.headers.get("Content-Disposition") ?? "")?.[1] ?? "datespreader-export.json";
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(await res.blob());
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+  return name;
+}
+
+// --- export / import tra installazioni di Date Spreader -----------------------------------
+export const exportProject = (id) => downloadFile(`/api/export/projects/${encodeURIComponent(id)}`);
+export const exportCustomer = (id) => downloadFile(`/api/export/customers/${encodeURIComponent(id)}`);
+export const importPreview = (data, onConflict) => request("POST", "/api/import/preview", { data, on_conflict: onConflict });
+export const importRun = (data, onConflict) => request("POST", "/api/import", { data, on_conflict: onConflict });
 const q = encodeURIComponent;
 
 export const fetchHealth = () => getJSON("/api/health");

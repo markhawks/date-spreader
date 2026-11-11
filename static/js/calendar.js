@@ -285,6 +285,15 @@ export class Calendar {
     this.setFilter(this.filter);
   }
 
+  /** Ricarica dal server gli eventi di tutti i mesi a video (es. dopo un import). */
+  async reload() {
+    const sections = [...this.monthsEl.querySelectorAll(".month")];
+    await Promise.all(sections.map((section) => {
+      const [year, month] = section.dataset.month.split("-").map(Number);
+      return this.#loadMonthEvents({ year, month }, section);
+    }));
+  }
+
   /** Ricarica dal server gli eventi del mese che contiene `iso`. */
   async refreshDate(iso) {
     const ym = ymFromIso(iso);

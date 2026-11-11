@@ -6,4 +6,8 @@ export const session = {
   get canDeleteAll() {
     return ["admin", "coordinatore"].includes(this.me?.role);
   },
+  /** Esportare progetti e clienti (porta fuori dati dei clienti): coordinatori e amministratori. */
+  get canExport() {
+    return ["admin", "coordinatore"].includes(this.me?.role);
+  },
 };

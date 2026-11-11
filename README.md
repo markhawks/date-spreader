@@ -290,6 +290,22 @@ Da 1300 px circa le colonne sono tutte visibili; sotto, la tabella scorre in ori
 - **Cronologia**: ogni modifica, aggiunta e rimozione è registrata in `audit_log` (campo, valore vecchio e nuovo, data e ora). Senza login l'utente è vuoto.
 - Chiudendo la tabella si aggiornano la scheda laterale e il calendario (numero di server).
 
+### Export e import tra installazioni
+Per portare progetti da un'installazione di Date Spreader a un'altra: per esempio dal portale aziendale a un'installazione su un PC o presso il cliente.
+
+- **Esportare** (coordinatori e amministratori):
+  - un **progetto**: scheda progetto → «Questo progetto»;
+  - un **cliente intero**, con tutti i suoi progetti: scheda progetto → «Tutto il cliente …», oppure Impostazioni → Amministrazione → Clienti → «Esporta».
+
+  Si scarica un file `datespreader-progetto-….json` o `datespreader-cliente-….json` con interventi, tabelle server complete, partecipanti, cliente (con il colore) e versioni dei sistemi operativi usate. **Non contiene mai** password, accessi, preferenze o cronologia. Ogni export resta nella cronologia (chi, cosa, quando). Il file contiene dati dei clienti (hostname, IP): va trattato con la stessa cura del database.
+- **Importare** (amministratori): Impostazioni → Amministrazione → **«Importa progetti»**, scegliendo o trascinando il file.
+  - L'**anteprima** mostra cosa verrà creato: progetti, interventi e righe server, clienti, server, tecnici e versioni SO nuovi o già presenti. È fedele: il server esegue l'import e lo annulla.
+  - Ciò che esiste già viene **riconosciuto e riusato, senza modificarlo**: clienti per nome, server per hostname, tecnici per email e poi per nome, versioni SO per famiglia e numero. Se un server esistente ha dati diversi nel file (es. un altro IP), l'anteprima lo segnala e qui restano i dati attuali.
+  - **Progetti con lo stesso nome**: si saltano, oppure si importano come copia «… (importato)».
+  - I tecnici nuovi vengono creati con ruolo *tecnico* e senza accesso al portale.
+  - L'import avviene in un'unica transazione: o tutto, o niente.
+- Il formato (`"format": "datespreader-export"`, `"format_version": 1`) è descritto in `app/schemas/transfer.py`. Un file creato da una versione più recente con un formato incompatibile viene rifiutato con un messaggio chiaro.
+
 ## API
 
 | Endpoint | Descrizione |
@@ -324,6 +340,8 @@ Da 1300 px circa le colonne sono tutte visibili; sotto, la tabella scorre in ori
 | `DELETE /api/projects/{id}?version=N` | Elimina un progetto con i suoi interventi (solo coordinatori e amministratori) |
 | `GET /api/servers[?q=…&limit=…]` | Anagrafica: tutti i server (anche senza interventi) con numero di interventi, ultimo e prossimo. `total` = corrispondenze totali |
 | `GET /api/servers/{id}` | Dati del server, storico degli interventi (dal più recente) e modifiche ai suoi dati |
+| `GET /api/export/projects/{id}` · `GET /api/export/customers/{id}` | File JSON con un progetto, o con tutti i progetti di un cliente (coordinatori e amministratori) |
+| `POST /api/import/preview` · `POST /api/import` | Anteprima (non scrive nulla) e import di un file di export (`data`, `on_conflict`: `skip` o `copy`; solo amministratori) |
 | `GET /api/search?q=…` | Progetti (nome, descrizione) e righe server (hostname, IP, SO) che contengono il testo |
 | `GET /api/changes[?since=N]` | Feed delle modifiche. Senza `since` restituisce il punto di partenza (`last_id`); con `since` anche gli interventi toccati dopo quell'id, `projects_changed` (nuovi progetti o interventi: ricaricare la sidebar) e `users_changed` (tecnici cambiati: ricaricare i menu) |
 
@@ -436,6 +454,7 @@ app/
   seed.py          dati di esempio (caricamento, anteprima e rimozione)
   api/             router HTTP sotto /api (health, calendar, servers)
   audit.py         scrittura della cronologia delle modifiche (con l'autore)
+  transfer.py      export e import di progetti tra installazioni (formato in schemas/transfer.py)
   auth.py          controllo d'accesso: sessione, ruoli, CSRF
   security.py      password (scrypt), token, limite ai tentativi
   models/          modelli ORM e valori di stato ammessi
@@ -463,6 +482,7 @@ static/            frontend senza fasi di build
   js/timepick.js   orari a menu (passi di 30 minuti) e orario proposto
   js/contextmenu.js menu contestuale (tasto destro / pressione prolungata)
   js/share.js      condivisione di un intervento via email (Gmail)
+  js/transfer.js   import di progetti da un file di export (anteprima e import)
   js/people.js     tecnici: elenco condiviso, selettore partecipanti, finestra "Tecnici"
   js/inventory.js  anagrafica server con ricerca e storico
   js/auth.js       login, cambio password, menu utente, changelog

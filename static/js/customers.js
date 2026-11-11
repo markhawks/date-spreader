@@ -1,6 +1,6 @@
 // Clienti: elenco condiviso, menu a tendina (con "nuovo cliente"), finestra di gestione (amministratori).
 
-import { createCustomer, deleteCustomer, fetchCustomers, patchCustomer, renameCustomer } from "./api.js";
+import { createCustomer, deleteCustomer, exportCustomer, fetchCustomers, patchCustomer, renameCustomer } from "./api.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -187,7 +187,16 @@ export async function showCustomersDialog({ toast = () => {}, onChanged = () => 
       });
       const tags = el("span");
       if (c.is_demo) tags.append(el("span", "tag-demo", "esempio"));
-      row.append(name, colorBox, tags, count, del);
+      // Export del cliente intero, da importare in un'altra installazione di Date Spreader
+      const exp = el("button", "btn btn-small", "Esporta");
+      exp.type = "button";
+      exp.disabled = !c.project_count;
+      exp.title = c.project_count ? `Scarica un file con tutti i progetti di ${c.name}, da importare in un'altra installazione di Date Spreader` : "Nessun progetto da esportare";
+      exp.addEventListener("click", async () => {
+        exp.disabled = true;
+        try { toast(`Scaricato ${await exportCustomer(c.id)}.`); } catch (ex) { toast(ex.message); } finally { exp.disabled = false; }
+      });
+      row.append(name, colorBox, tags, count, exp, del);
       return row;
     }));
   }

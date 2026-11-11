@@ -1,6 +1,8 @@
 // Scheda progetto (nome, descrizione, stato, elenco interventi) e modulo intervento (nuovo / modifica).
 
-import { addEvent, deleteEvent, deleteProject, fetchEvent, patchEvent, patchProject } from "./api.js";
+import {
+  addEvent, deleteEvent, deleteProject, exportCustomer, exportProject, fetchEvent, patchEvent, patchProject,
+} from "./api.js";
 import { confirmDanger } from "./confirm.js";
 import { session } from "./session.js";
 import { colorFor } from "./colors.js";
@@ -289,7 +291,28 @@ export class ProjectDialog {
     }
     if (!project.events.length) list.append(el("li", "muted pd-empty", "Nessun intervento: aggiungine uno perché il progetto compaia nel calendario."));
 
-    d.body.append(grid, evHead, list, d.error);
+    d.body.append(grid, evHead, list);
+    // Export (coordinatori e amministratori): file da importare in un'altra installazione di Date Spreader
+    if (session.canExport) {
+      const box = el("div", "pd-export");
+      box.append(el("span", "muted small", "Esporta per un'altra installazione di Date Spreader:"));
+      const download = async (btn, fn) => {
+        btn.disabled = true;
+        try { this.opts.toast?.(`Scaricato ${await fn()}.`); } catch (err) { d.showError(err.message); } finally { btn.disabled = false; }
+      };
+      const expProject = button("Questo progetto", "btn btn-small");
+      expProject.title = "Scarica un file con il progetto, i suoi interventi e le tabelle server";
+      expProject.addEventListener("click", () => download(expProject, () => exportProject(project.id)));
+      box.append(expProject);
+      if (project.customer_id) {
+        const expCustomer = button(`Tutto il cliente «${project.customer_name}»`, "btn btn-small");
+        expCustomer.title = "Scarica un file con tutti i progetti di questo cliente";
+        expCustomer.addEventListener("click", () => download(expCustomer, () => exportCustomer(project.customer_id)));
+        box.append(expCustomer);
+      }
+      d.body.append(box);
+    }
+    d.body.append(d.error);
     add.addEventListener("click", async () => {
       d.dialog.close();
       const res = await openEventForm({ project: current });

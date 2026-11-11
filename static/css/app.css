@@ -1708,7 +1708,7 @@ body.row-resizing, body.row-resizing * { cursor: row-resize !important; user-sel
 /* Testo sopra i fondi pieni del colore del progetto: chiaro o scuro a seconda del colore */
 .tile-badge, .date-pill.current { color: var(--c-on, #fff); }
 /* Colore del cliente nella finestra Clienti */
-.cust-row { grid-template-columns: 1fr auto auto auto auto; }
+.cust-row { grid-template-columns: 1fr auto auto auto auto auto; }
 .cust-color { display: inline-flex; align-items: center; gap: 6px; }
 .cust-color input[type="color"] { width: 34px; height: 28px; padding: 2px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); cursor: pointer; }
 .cust-color input[type="color"].auto { opacity: 0.45; border-style: dashed; }
@@ -1823,3 +1823,31 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
   border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
 .zoom-btn:hover:not(:disabled), .zoom-value:hover { background: var(--panel-2); color: var(--accent); }
 .zoom-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* Export dalla scheda progetto */
+.pd-export { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+/* Import di progetti */
+.import-dialog { width: min(820px, calc(100vw - 24px)); }
+.imp-drop {
+  display: grid; gap: 4px; place-items: center; text-align: center; padding: 22px 16px; margin: 12px 0;
+  border: 2px dashed var(--border); border-radius: var(--radius); cursor: pointer; background: var(--panel-2);
+}
+.imp-drop:hover, .imp-drop.over { border-color: var(--accent); color: var(--accent); }
+.imp-conflict { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; display: grid; gap: 4px; font-size: 0.88rem; }
+.imp-conflict legend { font-weight: 600; font-size: 0.82rem; color: var(--muted); padding: 0 4px; }
+.imp-conflict:disabled { opacity: 0.5; }
+.imp-preview { margin-top: 12px; display: grid; gap: 8px; font-size: 0.88rem; }
+.imp-preview:empty { display: none; }
+.imp-source { margin: 0; font-weight: 600; }
+.imp-projects { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.imp-projects th, .imp-projects td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+.imp-projects th { color: var(--muted); font-size: 0.78rem; }
+.imp-projects tr.imp-saltato td { color: var(--muted); }
+.imp-projects tr.imp-creato td:last-child { color: var(--ok-fg); font-weight: 600; }
+.imp-projects tr.imp-copia td:last-child { color: var(--warn-fg); font-weight: 600; }
+.imp-facts { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.imp-diff, .imp-warn { border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+.imp-diff summary, .imp-warn summary { cursor: pointer; font-weight: 600; }
+.imp-diff ul, .imp-warn ul { margin: 6px 0 0; padding-left: 18px; font-size: 0.82rem; }
+.imp-total { margin: 0; font-weight: 600; }
