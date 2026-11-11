@@ -26,6 +26,13 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
   dopo ogni nuova migrazione (lo verifica un test).
 - README in italiano (`README.md`) e in inglese (`README.en.md`): aggiornarli entrambi.
 
+## Installazione su altri server (deploy/install.sh)
+- Testato **solo su Fedora 44**; RHEL 10.2, Fedora 45, installatore e RPM sono pianificati. Tenere aggiornata la
+  tabella «Piattaforme» in `docs/INSTALLAZIONE.md` e `docs/INSTALL.en.md`.
+- Per provarlo su questa macchina senza toccare il servizio reale: istanza separata
+  `--source <repo> --dir /opt/datespreader-test --port 8011 --service datespreader-test --user dstest`
+  (lo script clona l'HEAD *committato*), poi disinstallarla come da guida.
+
 ## Prima di toccare il database reale
 1. Nuova migrazione: `.venv/bin/alembic revision --autogenerate -m "…"`, rileggerla, usare `sa.false()`
    per i default booleani.

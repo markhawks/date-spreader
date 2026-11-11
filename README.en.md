@@ -26,6 +26,18 @@ this job with:
 The user interface is in **Italian**. The stack is deliberately small: **FastAPI + SQLite** on the backend and
 plain ES-module JavaScript (no framework, no build step) on the frontend.
 
+## Installing on a server
+**Full guide: [docs/INSTALL.en.md](docs/INSTALL.en.md).** In short, on **Fedora 44** (the only system tested so far):
+
+```bash
+git clone https://github.com/markhawks/date-spreader.git && cd date-spreader
+sudo ./deploy/install.sh --admin-name "Jane Doe" --admin-email jane.doe@example.com
+```
+
+The script installs the portal in `/opt/datespreader` as a systemd service and creates the first administrator.
+Running it again upgrades the installation, after backing up the database. **Coming soon:** a guided installer,
+an RPM package, and support for Red Hat Enterprise Linux 10.2 and Fedora 45.
+
 ## Quick start with the demo database
 
 The repository ships `demo/datespreader-demo.sqlite3`, which contains **only sample data** (fictitious customers,

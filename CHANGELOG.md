@@ -13,6 +13,11 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 - **Export e import tra installazioni di Date Spreader** (es. dal portale aziendale a un'installazione su PC o presso il cliente):
   - **export** di un progetto, o di un **cliente intero** con tutti i suoi progetti, in un file JSON: interventi, tabelle server complete, partecipanti, cliente con il suo colore, versioni SO usate. Dalla scheda progetto («Questo progetto» / «Tutto il cliente») e da Impostazioni → Amministrazione → Clienti («Esporta»). Riservato a coordinatori e amministratori; ogni export resta nella cronologia. Mai password, accessi o cronologia nel file;
   - **import** (amministratori) da Impostazioni → Amministrazione → «Importa progetti», con **anteprima** fedele prima di importare. Clienti, server, tecnici e versioni SO già presenti vengono riconosciuti e riusati, senza modificarne i dati (le differenze sui server sono segnalate). I progetti con lo stesso nome si saltano o si importano come copia «… (importato)». L'import è tutto o niente.
+- **Script di installazione** `deploy/install.sh`, **testato su Fedora 44**:
+  - installa il portale in `/opt/datespreader` con utente di sistema dedicato, servizio systemd, firewall e primo amministratore;
+  - rilanciato, **aggiorna** l'installazione, con un backup del database prima;
+  - opzioni per porta, dati di esempio, password temporanea, versione da installare e seconda istanza sulla stessa macchina.
+- **Guida di installazione**: `docs/INSTALLAZIONE.md` (in inglese `docs/INSTALL.en.md`), con aggiornamento, backup, HTTPS, disinstallazione e problemi frequenti. In arrivo: installatore guidato, pacchetto RPM e supporto di RHEL 10.2 e Fedora 45.
 ### Modificato
 - Il pulsante **«Oggi»** è al **centro della barra in alto**, blu pieno come il titolo del mese corrente e con un'icona calendario, per trovarlo subito. Su telefono sta accanto al nome del portale.
 - Le note di una riga server accettano fino a 20.000 caratteri (prima 2.000).

@@ -7,6 +7,19 @@ calendario verticale, progetti per cliente, tabella server modificabile per ogni
 con storico, più utenti in contemporanea con controllo dei conflitti e cronologia delle modifiche.
 Specifica iniziale: [DateWeaver.md](DateWeaver.md) (documento originale, scritto quando il progetto si chiamava ancora "Time Dot").
 
+## Installazione su un server
+**Guida completa: [docs/INSTALLAZIONE.md](docs/INSTALLAZIONE.md).** In breve, su **Fedora 44** (l'unico sistema
+testato finora):
+
+```bash
+git clone https://github.com/markhawks/date-spreader.git && cd date-spreader
+sudo ./deploy/install.sh --admin-name "Mario Rossi" --admin-email mario.rossi@azienda.it
+```
+
+Lo script installa il portale in `/opt/datespreader` con un servizio systemd e crea il primo amministratore.
+Rilanciato, aggiorna l'installazione, con un backup del database prima. **In arrivo**: un installatore guidato,
+un pacchetto RPM e il supporto di Red Hat Enterprise Linux 10.2 e Fedora 45.
+
 ## Prova veloce con il database demo
 Il repository contiene `demo/datespreader-demo.sqlite3`, con **soli dati di esempio** (clienti, progetti,
 server e tecnici di fantasia) e un amministratore demo:
@@ -493,7 +506,8 @@ static/            frontend senza fasi di build
 tests/             test automatici (pytest)
 demo/              database di prova con i soli dati di esempio
 scripts/           make_demo_db.py (rigenera il database di prova)
-deploy/            unità systemd
+deploy/            unità systemd e install.sh (installazione e aggiornamento)
+docs/              guida di installazione (INSTALLAZIONE.md, INSTALL.en.md)
 data/              database locale (escluso da git)
 ```
 
