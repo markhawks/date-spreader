@@ -159,6 +159,7 @@ export const savePreferences = (changes) => request("PATCH", "/api/me/preference
 export const fetchCustomers = () => getJSON("/api/customers");
 export const createCustomer = (name) => request("POST", "/api/customers", { name });
 export const renameCustomer = (id, version, name) => request("PATCH", `/api/customers/${q(id)}`, { version, name });
+export const fetchCustomerOrders = (customerId) => getJSON(`/api/customers/${q(customerId)}/orders`);
 export const deleteCustomer = (id) => request("DELETE", `/api/customers/${q(id)}`);
 export const deleteProject = (projectId, version) => request("DELETE", `/api/projects/${q(projectId)}?version=${q(version)}`);
 export const patchCustomer = (id, version, changes) => request("PATCH", `/api/customers/${q(id)}`, { version, ...changes });

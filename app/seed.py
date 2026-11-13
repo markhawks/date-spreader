@@ -23,7 +23,7 @@ from sqlalchemy import exists, func, or_, select
 from sqlalchemy.orm import Session
 
 from app import audit
-from app.models import AuditLog, Customer, Event, EventServer, EventUser, Project, Server, User
+from app.models import AuditLog, Customer, CustomerOrder, Event, EventServer, EventUser, Project, Server, User
 
 RHEL7 = ("Red Hat Enterprise Linux 7.9", "3.10.0-1160.119.1.el7.x86_64")
 RHEL8_8 = ("Red Hat Enterprise Linux 8.8", "4.18.0-477.10.1.el8_8.x86_64")
@@ -98,6 +98,11 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
     beta_spa = Customer(name="Beta Assicurazioni S.p.A.", is_demo=True)
     session.add_all([gruppo, beta_spa])
     session.add(Customer(name="Delta Energia (esempio)", is_demo=True))
+    # Commesse (job numbers) of the customers: the interventions refer to them
+    order_alfa = CustomerOrder(customer=gruppo, code="C-2026-014")
+    order_gamma = CustomerOrder(customer=gruppo, code="C-2026-021")
+    order_beta = CustomerOrder(customer=beta_spa, code="BA-2026/07")
+    session.add_all([order_alfa, order_gamma, order_beta])
 
     alfa = Project(name="Alfa Logistica", description="Migrazione RHEL 7 → RHEL 8 in due finestre.", is_demo=True, customer=gruppo)
     beta = Project(name="Beta Assicurazioni", description="Aggiornamento kernel RHEL 8.8 → 8.10.", is_demo=True, customer=beta_spa)
@@ -113,6 +118,7 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
         end_time=time(23, 59),
         event_type="migrazione",
         status="completato",
+        order=order_alfa,
         notes="alfa-db01 rinviato alla seconda finestra su richiesta del cliente.",
     )
     e2 = Event(
@@ -122,6 +128,7 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
         start_time=time(21, 0),
         event_type="migrazione",
         status="confermato",
+        order=order_alfa,
     )
     e3 = Event(
         project=beta,
@@ -131,6 +138,7 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
         end_time=time(22, 0),
         event_type="upgrade",
         status="pianificato",
+        order=order_beta,
     )
     e4 = Event(
         project=gamma,
@@ -138,6 +146,7 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
         event_date=month_day(today, 1, 12),
         event_type="migrazione",
         status="pianificato",
+        order=order_gamma,
         notes="In attesa di conferma della finestra da parte del cliente.",
     )
     session.add_all([e1, e2, e3, e4])

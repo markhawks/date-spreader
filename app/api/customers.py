@@ -55,6 +55,20 @@ def _errors(session: Session, exc: Exception) -> HTTPException:
     return HTTPException(422, str(exc))
 
 
+class OrderOut(BaseModel):
+    id: int
+    code: str
+    event_count: int       # interventions that use this commessa
+
+
+@router.get("/customers/{customer_id}/orders", response_model=list[OrderOut])
+def list_orders(session: SessionDep, customer_id: int) -> list[OrderOut]:
+    """Commesse of a customer (proposed in the intervention form), by code."""
+    if session.get(Customer, customer_id) is None:
+        raise HTTPException(404, tr("customers.not_found"))
+    return [OrderOut(id=o.id, code=o.code, event_count=n) for o, n in repo.list_orders(session, customer_id)]
+
+
 @router.get("/customers", response_model=list[CustomerOut])
 def list_customers(session: SessionDep) -> list[CustomerOut]:
     """Clienti in ordine alfabetico, con il numero di progetti."""

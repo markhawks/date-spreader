@@ -414,7 +414,15 @@ export class DetailPanel {
         cust.title = t("detail.customer_pick", { name: ev.project.customer_name });
         cust.addEventListener("click", () => this.onCustomerPick(ev.project.customer_id));
       }
-      projTitle.prepend(cust);
+      // Customer and, next to it, the commessa of the intervention
+      const line = el("span", "event-customer-line");
+      line.append(cust);
+      if (ev.order_code) {
+        const order = el("span", "event-order", t("detail.order", { code: ev.order_code }));
+        order.title = t("detail.order_title");
+        line.append(order);
+      }
+      projTitle.prepend(line);
     }
     titleRow.append(projTitle, status, tools);
     head.append(titleRow);

@@ -7,7 +7,7 @@ from datetime import date
 from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.models import AuditLog, Customer, Event, EventServer, EventUser, Project, Server
+from app.models import AuditLog, Customer, CustomerOrder, Event, EventServer, EventUser, Project, Server
 
 
 def load_project(session: Session, project_id: int) -> Project | None:
@@ -59,9 +59,11 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             func.coalesce(counts.c.failed, 0),
             func.coalesce(counts.c.done, 0),
             func.coalesce(counts.c.executed, 0),
+            CustomerOrder.code,
         )
         .join(Project, Project.id == Event.project_id)
         .outerjoin(Customer, Customer.id == Project.customer_id)
+        .outerjoin(CustomerOrder, CustomerOrder.id == Event.order_id)
         .outerjoin(counts, counts.c.event_id == Event.id)
         .where(Event.event_date.between(start, end))
         .order_by(Event.event_date, Event.start_time, Project.name)
@@ -91,18 +93,20 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             "migration_failed": failed,
             "migrated": done,
             "executed": executed,
+            "order_code": order_code,
             "user_ids": sorted(people[e.id]),
             "customer_id": customer_id,
             "customer_name": customer_name,
             "customer_color": customer_color,
         }
-        for e, name, customer_id, customer_name, customer_color, n, ko, failed, done, executed in rows
+        for e, name, customer_id, customer_name, customer_color, n, ko, failed, done, executed, order_code in rows
     ]
 
 
 def _detail_options():
     return (
         selectinload(Event.project).selectinload(Project.customer),
+        selectinload(Event.order),
         selectinload(Event.participants).selectinload(EventUser.user),
         selectinload(Event.server_links).selectinload(EventServer.server),
         selectinload(Event.server_links).selectinload(EventServer.assigned_user),

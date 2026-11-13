@@ -9,9 +9,15 @@ export default {
     "projectdialog.event_has_servers": "The intervention has servers: only coordinators and administrators can delete it.",
     "projectdialog.delete_event_title": "Delete the intervention?",
     "projectdialog.delete_event_item_event": "the intervention, with its status, times and notes",
-    "projectdialog.delete_event_item_rows": { "one": "the server table row (check, migration, target kernel, technician, notes for this intervention)", "other": "the {n} server table rows (check, migration, target kernel, technician, notes for this intervention)" },
+    "projectdialog.delete_event_item_rows": {
+      "one": "the server table row (check, migration, target kernel, technician, notes for this intervention)",
+      "other": "the {n} server table rows (check, migration, target kernel, technician, notes for this intervention)"
+    },
     "projectdialog.delete_event_item_participants": "the assigned participants ({names})",
-    "projectdialog.delete_event_keep_servers": { "one": "the server in the inventory, with its data and its other interventions", "other": "the {n} servers in the inventory, with their data and their other interventions" },
+    "projectdialog.delete_event_keep_servers": {
+      "one": "the server in the inventory, with its data and its other interventions",
+      "other": "the {n} servers in the inventory, with their data and their other interventions"
+    },
     "projectdialog.delete_event_keep_project": "the project and its other interventions",
     "projectdialog.keep_history": "the record of the deletion in the history",
     "projectdialog.delete_event": "Delete intervention",
@@ -42,7 +48,10 @@ export default {
     "projectdialog.demo_hint": "Sample project: remove it with “python -m app.cli demo remove”.",
     "projectdialog.events_heading": "Interventions ({n})",
     "projectdialog.add_event": "+ New intervention",
-    "projectdialog.servers_count": { "one": "1 server", "other": "{n} servers" },
+    "projectdialog.servers_count": {
+      "one": "1 server",
+      "other": "{n} servers"
+    },
     "projectdialog.delete_this_event": "Delete this intervention",
     "projectdialog.delete_event_of": "Delete the intervention of {date}",
     "projectdialog.delete_event_disabled_short": "It has servers: only coordinators and administrators can delete it",
@@ -56,8 +65,14 @@ export default {
     "projectdialog.delete_project": "Delete project",
     "projectdialog.delete_project_title": "Delete the project?",
     "projectdialog.delete_project_item_project": "the project, with its description and status",
-    "projectdialog.delete_project_item_events": { "one": "the intervention ({dates})", "other": "the {n} interventions ({dates})" },
-    "projectdialog.delete_project_item_rows": { "one": "the server row of those interventions", "other": "the {n} server rows of those interventions" },
+    "projectdialog.delete_project_item_events": {
+      "one": "the intervention ({dates})",
+      "other": "the {n} interventions ({dates})"
+    },
+    "projectdialog.delete_project_item_rows": {
+      "one": "the server row of those interventions",
+      "other": "the {n} server rows of those interventions"
+    },
     "projectdialog.delete_project_keep_customer": "the customer “{customer}”",
     "projectdialog.delete_project_keep_servers": "the servers in the inventory, with their data and their other interventions",
     "projectdialog.project_conflict": "The project was changed by another user in the meantime: close and reopen it.",
@@ -67,7 +82,10 @@ export default {
     "projectdialog.duplicate_title": "Duplicate intervention",
     "projectdialog.duplicate_intro": "Copy {what} of {date} to another date.",
     "projectdialog.new_date": "New date",
-    "projectdialog.duplicate_with_servers": { "one": "Also copy the server table (1 server)", "other": "Also copy the server table ({n} servers)" },
+    "projectdialog.duplicate_with_servers": {
+      "one": "Also copy the server table (1 server)",
+      "other": "Also copy the server table ({n} servers)"
+    },
     "projectdialog.duplicate_no_servers": "The intervention has no servers to copy",
     "projectdialog.duplicate_copies": "Type, title and notes are copied; the new intervention is “{planned}”.",
     "projectdialog.duplicate_copies_people": "Type, title, notes and technicians ({names}) are copied; the new intervention is “{planned}”.",
@@ -78,7 +96,15 @@ export default {
     "projectdialog.new_event_on": "New intervention · {date}",
     "projectdialog.choose_project": "Choose the project…",
     "projectdialog.no_customer": "No customer",
-    "projectdialog.project_required": "Choose the project."
+    "projectdialog.project_required": "Choose the project.",
+    "projectdialog.order": "Commessa (job number)",
+    "projectdialog.order_placeholder": "Choose from the list or type a new one",
+    "projectdialog.order_no_customer": "The project has no customer: assign one to use commesse",
+    "projectdialog.order_hint": {
+      "one": "1 commessa of this customer in the list; a new code is saved on the customer.",
+      "other": "{n} commesse of this customer in the list; a new code is saved on the customer."
+    },
+    "projectdialog.order_hint_none": "No commesse for this customer yet: the code you type is saved on the customer."
   },
   "it": {
     "projectdialog.close": "Chiudi",
@@ -89,9 +115,15 @@ export default {
     "projectdialog.event_has_servers": "L'intervento contiene dei server: solo coordinatori e amministratori possono eliminarlo.",
     "projectdialog.delete_event_title": "Eliminare l'intervento?",
     "projectdialog.delete_event_item_event": "l'intervento, con stato, orari e note",
-    "projectdialog.delete_event_item_rows": { "one": "la riga della tabella server (check, migrazione, kernel target, tecnico, note di questo intervento)", "other": "le {n} righe della tabella server (check, migrazione, kernel target, tecnico, note di questo intervento)" },
+    "projectdialog.delete_event_item_rows": {
+      "one": "la riga della tabella server (check, migrazione, kernel target, tecnico, note di questo intervento)",
+      "other": "le {n} righe della tabella server (check, migrazione, kernel target, tecnico, note di questo intervento)"
+    },
     "projectdialog.delete_event_item_participants": "i partecipanti assegnati ({names})",
-    "projectdialog.delete_event_keep_servers": { "one": "i server in anagrafica, con i loro dati e gli altri interventi", "other": "i {n} server in anagrafica, con i loro dati e gli altri interventi" },
+    "projectdialog.delete_event_keep_servers": {
+      "one": "i server in anagrafica, con i loro dati e gli altri interventi",
+      "other": "i {n} server in anagrafica, con i loro dati e gli altri interventi"
+    },
     "projectdialog.delete_event_keep_project": "il progetto e gli altri suoi interventi",
     "projectdialog.keep_history": "la registrazione dell'eliminazione nella cronologia",
     "projectdialog.delete_event": "Elimina intervento",
@@ -122,7 +154,10 @@ export default {
     "projectdialog.demo_hint": "Progetto di esempio: si toglie con «python -m app.cli demo remove».",
     "projectdialog.events_heading": "Interventi ({n})",
     "projectdialog.add_event": "+ Nuovo intervento",
-    "projectdialog.servers_count": { "one": "1 server", "other": "{n} server" },
+    "projectdialog.servers_count": {
+      "one": "1 server",
+      "other": "{n} server"
+    },
     "projectdialog.delete_this_event": "Elimina questo intervento",
     "projectdialog.delete_event_of": "Elimina l'intervento del {date}",
     "projectdialog.delete_event_disabled_short": "Contiene dei server: solo coordinatori e amministratori possono eliminarlo",
@@ -136,8 +171,14 @@ export default {
     "projectdialog.delete_project": "Elimina progetto",
     "projectdialog.delete_project_title": "Eliminare il progetto?",
     "projectdialog.delete_project_item_project": "il progetto, con descrizione e stato",
-    "projectdialog.delete_project_item_events": { "one": "l'intervento ({dates})", "other": "i {n} interventi ({dates})" },
-    "projectdialog.delete_project_item_rows": { "one": "la riga server di quegli interventi", "other": "le {n} righe server di quegli interventi" },
+    "projectdialog.delete_project_item_events": {
+      "one": "l'intervento ({dates})",
+      "other": "i {n} interventi ({dates})"
+    },
+    "projectdialog.delete_project_item_rows": {
+      "one": "la riga server di quegli interventi",
+      "other": "le {n} righe server di quegli interventi"
+    },
     "projectdialog.delete_project_keep_customer": "il cliente «{customer}»",
     "projectdialog.delete_project_keep_servers": "i server in anagrafica, con i loro dati e gli altri interventi",
     "projectdialog.project_conflict": "Il progetto è stato modificato da un altro utente nel frattempo: chiudi e riapri.",
@@ -147,7 +188,10 @@ export default {
     "projectdialog.duplicate_title": "Duplica intervento",
     "projectdialog.duplicate_intro": "Copia di {what} del {date} in un'altra data.",
     "projectdialog.new_date": "Nuova data",
-    "projectdialog.duplicate_with_servers": { "one": "Copia anche la tabella server (1 server)", "other": "Copia anche la tabella server ({n} server)" },
+    "projectdialog.duplicate_with_servers": {
+      "one": "Copia anche la tabella server (1 server)",
+      "other": "Copia anche la tabella server ({n} server)"
+    },
     "projectdialog.duplicate_no_servers": "L'intervento non ha server da copiare",
     "projectdialog.duplicate_copies": "Si copiano tipo, titolo, note; il nuovo intervento è «{planned}».",
     "projectdialog.duplicate_copies_people": "Si copiano tipo, titolo, note e tecnici ({names}); il nuovo intervento è «{planned}».",
@@ -158,6 +202,14 @@ export default {
     "projectdialog.new_event_on": "Nuovo intervento · {date}",
     "projectdialog.choose_project": "Scegli il progetto…",
     "projectdialog.no_customer": "Senza cliente",
-    "projectdialog.project_required": "Scegli il progetto."
+    "projectdialog.project_required": "Scegli il progetto.",
+    "projectdialog.order": "Commessa",
+    "projectdialog.order_placeholder": "Scegli dall'elenco o scrivine una nuova",
+    "projectdialog.order_no_customer": "Il progetto non ha un cliente: assegnane uno per usare le commesse",
+    "projectdialog.order_hint": {
+      "one": "1 commessa del cliente nell'elenco; un codice nuovo viene memorizzato sul cliente.",
+      "other": "{n} commesse del cliente nell'elenco; un codice nuovo viene memorizzato sul cliente."
+    },
+    "projectdialog.order_hint_none": "Ancora nessuna commessa per questo cliente: il codice che scrivi viene memorizzato sul cliente."
   }
 };

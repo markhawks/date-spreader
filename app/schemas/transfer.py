@@ -115,6 +115,7 @@ class XEvent(_In):
     event_type: EventType = statuses.EVENT_TYPES[0]
     status: EventStatus = statuses.EVENT_STATUSES[0]
     title: str | None = Field(default=None, max_length=200)
+    order_code: str | None = Field(default=None, max_length=100)  # commessa of the customer
     notes: str | None = Field(default=None, max_length=4000)
     participants: list[str] = Field(default_factory=list)  # chiavi di XTechnician
     servers: list[XRow] = Field(default_factory=list)

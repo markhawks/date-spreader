@@ -24,6 +24,7 @@ class EventSummary(BaseModel):
     customer_id: int | None = None  # cliente del progetto (per il filtro per cliente)
     customer_name: str | None = None
     customer_color: str | None = None
+    order_code: str | None = None   # commessa of the customer
     conflict_users: list[int] = []  # technicians also busy in another intervention at the same time
     conflict_servers: int = 0       # servers also in another intervention on the same day
 
@@ -146,6 +147,7 @@ class EventDetail(BaseModel):
     participants: list[UserRef]
     servers: list[ServerRow]
     conflicts: list[Conflict] = []
+    order_code: str | None = None   # commessa of the customer
 
     @classmethod
     def from_event(cls, e) -> EventDetail:
@@ -162,6 +164,7 @@ class EventDetail(BaseModel):
             end_time=e.end_time,
             event_type=e.event_type,
             status=e.status,
+            order_code=e.order.code if e.order else None,
             notes=e.notes,
             participants=sorted(
                 (UserRef(id=p.user.id, display_name=p.user.display_name) for p in e.participants),

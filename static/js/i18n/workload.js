@@ -21,7 +21,8 @@ export default {
     "workload.free": "free",
     "workload.all_day": "all day",
     "workload.conflict_tip": "The technician is also busy in another intervention at the same time",
-    "workload.load_error": "Could not load the technicians' workload: {message}"
+    "workload.load_error": "Could not load the technicians' workload: {message}",
+    "workload.order": "Commessa {code}"
   },
   "it": {
     "workload.title": "Settimana {n} · {range}",
@@ -44,6 +45,7 @@ export default {
     "workload.free": "libero",
     "workload.all_day": "tutto il giorno",
     "workload.conflict_tip": "Il tecnico è impegnato anche in un altro intervento alla stessa ora",
-    "workload.load_error": "Impossibile caricare il carico dei tecnici: {message}"
+    "workload.load_error": "Impossibile caricare il carico dei tecnici: {message}",
+    "workload.order": "Commessa {code}"
   }
 };

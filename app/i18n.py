@@ -17,6 +17,10 @@ DEFAULT_LANGUAGE = "en"
 _current: ContextVar[str] = ContextVar("language", default=DEFAULT_LANGUAGE)
 
 MESSAGES: dict[str, dict[str, str]] = {
+    "orders.no_customer": {
+        "en": "A commessa belongs to a customer: first assign a customer to the project.",
+        "it": "Una commessa appartiene a un cliente: prima assegna un cliente al progetto.",
+    },
     # --- import of a server list into an intervention (app/server_import.py) ---
     "import.bad_file": {"en": "The file could not be read.", "it": "Il file non si riesce a leggere."},
     "import.too_big": {"en": "The file is too big (5 MB at most).", "it": "Il file è troppo grande (al massimo 5 MB)."},

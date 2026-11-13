@@ -23,7 +23,8 @@ export default {
     "projectform.name_required": "The project name is required.",
     "projectform.customer_error": "Customer: {error}",
     "projectform.date_required": "Enter the intervention date.",
-    "projectform.end_before_start": "The end time must be later than the start time."
+    "projectform.end_before_start": "The end time must be later than the start time.",
+    "projectform.order": "Commessa (job number)"
   },
   "it": {
     "projectform.title": "Nuovo progetto",
@@ -48,6 +49,7 @@ export default {
     "projectform.name_required": "Il nome del progetto è obbligatorio.",
     "projectform.customer_error": "Cliente: {error}",
     "projectform.date_required": "Indica la data dell'intervento.",
-    "projectform.end_before_start": "L'ora di fine deve essere successiva all'ora di inizio."
+    "projectform.end_before_start": "L'ora di fine deve essere successiva all'ora di inizio.",
+    "projectform.order": "Commessa"
   }
 };

@@ -272,6 +272,7 @@ export class Sheet {
           ? t("sheet.time_range", { start: formatTime(ev.start_time), end: formatTime(ev.end_time) })
           : t("sheet.time_at", { start: formatTime(ev.start_time) })),
         ev.title,
+        ev.order_code && t("sheet.order", { code: ev.order_code }),
         EVENT_TYPE[ev.event_type] ?? ev.event_type,
       ].filter(Boolean);
       info.append(titleRow, el("p", "sheet-facts muted", facts.join(" · ")));

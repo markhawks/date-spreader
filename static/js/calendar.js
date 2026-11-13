@@ -636,7 +636,8 @@ export class Calendar {
       // Vista settimanale: anche tipo di intervento e tecnici (partecipanti e assegnati alle righe)
       const names = (ev.user_ids ?? []).map((id) => people.byId(id)?.display_name).filter(Boolean);
       li.append(Object.assign(document.createElement("span"), {
-        className: "chip-week", textContent: EVENT_TYPE[ev.event_type] ?? ev.event_type,
+        className: "chip-week",
+        textContent: [EVENT_TYPE[ev.event_type] ?? ev.event_type, ev.order_code && t("calendar.chip_order", { code: ev.order_code })].filter(Boolean).join(" · "),
       }));
       if (names.length) {
         li.append(Object.assign(document.createElement("span"), { className: "chip-people", textContent: names.join(", ") }));
@@ -645,6 +646,7 @@ export class Calendar {
 
     li.title = [
       ev.customer_name,
+      ev.order_code && t("calendar.chip_order", { code: ev.order_code }),
       ev.project_name,
       ev.title,
       ev.start_time && t("calendar.chip_time", { time: `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` }),

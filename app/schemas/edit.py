@@ -283,6 +283,7 @@ class EventPatch(BaseModel):
     event_type: EventType | None = None
     start_time: time | None = None
     end_time: time | None = None
+    order_code: str | None = Field(default=None, max_length=100)  # "" or null = no commessa
 
     @field_validator("notes", "title", mode="before")
     @classmethod
@@ -332,6 +333,8 @@ class EventCreate(BaseModel):
     end_time: time | None = None
     notes: str | None = Field(default=None, max_length=4000)
     participant_ids: list[int] = Field(default_factory=list, max_length=50)
+    # Commessa of the project's customer: existing code (any case) or a new one, created on the customer
+    order_code: str | None = Field(default=None, max_length=100)
 
     @field_validator("title", "notes", mode="before")
     @classmethod

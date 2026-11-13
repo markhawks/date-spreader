@@ -59,7 +59,9 @@ export default {
       "one": "1 intervention of another customer is hidden by the customer filter.",
       "other": "{n} interventions of other customers are hidden by the customer filter."
     },
-    "detail.show_all_customers": "Show all customers"
+    "detail.show_all_customers": "Show all customers",
+    "detail.order": "Commessa {code}",
+    "detail.order_title": "Commessa (job number) of the customer"
   },
   "it": {
     "detail.col_server": "Server",
@@ -120,6 +122,8 @@ export default {
       "one": "1 intervento di un altro cliente è nascosto dal filtro cliente.",
       "other": "{n} interventi di altri clienti sono nascosti dal filtro cliente."
     },
-    "detail.show_all_customers": "Mostra tutti i clienti"
+    "detail.show_all_customers": "Mostra tutti i clienti",
+    "detail.order": "Commessa {code}",
+    "detail.order_title": "Commessa del cliente"
   }
 };

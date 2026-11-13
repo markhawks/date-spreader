@@ -24,7 +24,8 @@ export default {
     "recap.today": "Today",
     "recap.today_empty": "No interventions today.",
     "recap.next_days": "Next {n} days",
-    "recap.next_empty": "No interventions in the next days."
+    "recap.next_empty": "No interventions in the next days.",
+    "recap.order": "Commessa {code}"
   },
   "it": {
     "recap.refresh": "Aggiorna",
@@ -50,6 +51,7 @@ export default {
     "recap.today": "Oggi",
     "recap.today_empty": "Nessun intervento oggi.",
     "recap.next_days": "Prossimi {n} giorni",
-    "recap.next_empty": "Nessun intervento nei prossimi giorni."
+    "recap.next_empty": "Nessun intervento nei prossimi giorni.",
+    "recap.order": "Commessa {code}"
   }
 };

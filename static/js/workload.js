@@ -200,7 +200,7 @@ export class Workload {
     if (conflict) nameEl.prepend(warnIcon());
     b.append(nameEl, el("span", "wl-chip-meta", [time, ev.customer_name].filter(Boolean).join(" · ")));
     b.title = [
-      ev.customer_name, ev.project_name, ev.title, time, EVENT_STATUS[ev.status] ?? ev.status,
+      ev.customer_name, ev.order_code && t("workload.order", { code: ev.order_code }), ev.project_name, ev.title, time, EVENT_STATUS[ev.status] ?? ev.status,
       conflict && t("workload.conflict_tip"),
     ].filter(Boolean).join(" · ");
     b.addEventListener("click", () => { this.setSelected(ev.id); this.onOpenEvent(ev); });

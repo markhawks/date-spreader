@@ -49,7 +49,7 @@ export function buildEmail(ev) {
   const customer = ev.project.customer_name;
   const when = [formatLongDate(ev.event_date), timeRange(ev)].filter(Boolean).join(", ");
   const subject = t("share.subject", {
-    details: [customer, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`,
+    details: [customer, ev.order_code, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`,
       EVENT_STATUS[ev.status] ?? ev.status].filter(Boolean).join(" · "),
   });
 
@@ -93,6 +93,7 @@ export function buildEmail(ev) {
     [t("share.fact_type"), esc(EVENT_TYPE[ev.event_type] ?? ev.event_type)],
     [t("share.fact_status"), badgeHtml(ev.status, EVENT_STATUS)],
     ...(ev.title ? [[t("share.fact_title"), esc(ev.title)]] : []),
+    ...(ev.order_code ? [[t("share.fact_order"), esc(ev.order_code)]] : []),
     ...(ev.participants.length ? [[t("share.fact_participants"), esc(ev.participants.map((p) => p.display_name).join(", "))]] : []),
     ...(ev.notes ? [[t("share.fact_notes"), esc(ev.notes).replace(/\n/g, "<br>")]] : []),
   ];
@@ -101,7 +102,7 @@ export function buildEmail(ev) {
 <div style="font-family:Arial,Helvetica,sans-serif;color:#1d2330;font-size:14px;line-height:1.4">
   <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:1100px;border-left:5px solid ${color}">
     <tr><td style="padding:10px 14px;background:#f6f7f9">
-      ${customer ? `<div style="font-size:12px;font-weight:bold;color:#6b7280;text-transform:uppercase;letter-spacing:.04em">${esc(customer)}</div>` : ""}
+      ${customer ? `<div style="font-size:12px;font-weight:bold;color:#6b7280;text-transform:uppercase;letter-spacing:.04em">${esc(customer)}${ev.order_code ? ` · ${esc(t("share.order_short", { code: ev.order_code }))}` : ""}</div>` : ""}
       <div style="font-size:18px;font-weight:bold">${esc(ev.project.name)}</div>
       <div style="color:#4b5563">${esc(when)}</div>
     </td></tr>
@@ -129,6 +130,7 @@ export function buildEmail(ev) {
     t("share.text_type", { value: EVENT_TYPE[ev.event_type] ?? ev.event_type }),
     t("share.text_status", { value: EVENT_STATUS[ev.status] ?? ev.status }),
     ...(ev.title ? [t("share.text_title", { value: ev.title })] : []),
+    ...(ev.order_code ? [t("share.text_order", { value: ev.order_code })] : []),
     ...(ev.participants.length ? [t("share.text_participants", { value: ev.participants.map((p) => p.display_name).join(", ") })] : []),
     ...(ev.notes ? [t("share.text_notes", { value: ev.notes })] : []),
     "", summary, "",

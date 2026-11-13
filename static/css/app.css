@@ -2194,3 +2194,11 @@ button.event-customer:hover { color: var(--accent); text-decoration: underline; 
 
 /* Anteprima del giorno con il filtro cliente: interventi di altri clienti nascosti */
 .hidden-note { margin: 10px 2px 0; padding: 8px 10px; border: 1px dashed var(--border); border-radius: 8px; }
+
+/* Commessa accanto al nome del cliente, nella scheda dell'intervento */
+.event-customer-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.event-order {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel)); padding: 1px 8px; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}

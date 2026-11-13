@@ -65,7 +65,10 @@ export default {
     "share.email_copied_gmail": "Email copied: in the new Gmail message press Ctrl+V in the body.",
     "share.gmail_copy_failed": "Gmail opened, but copying failed: copy the preview manually.",
     "share.text_stage": "{stage} {status}",
-    "share.col_location": "Location"
+    "share.col_location": "Location",
+    "share.fact_order": "Commessa",
+    "share.text_order": "Commessa: {value}",
+    "share.order_short": "Commessa {code}"
   },
   "it": {
     "share.subject": "Intervento: {details}",
@@ -132,6 +135,9 @@ export default {
     "share.email_copied_gmail": "Email copiata: nel nuovo messaggio di Gmail premi Ctrl+V nel corpo.",
     "share.gmail_copy_failed": "Gmail aperto, ma la copia non è riuscita: copia l'anteprima a mano.",
     "share.text_stage": "{stage} {status}",
-    "share.col_location": "Location"
+    "share.col_location": "Location",
+    "share.fact_order": "Commessa",
+    "share.text_order": "Commessa: {value}",
+    "share.order_short": "Commessa {code}"
   }
 };

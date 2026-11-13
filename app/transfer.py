@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app import __version__, audit
 from app.i18n import current_language, tr
+from app.repositories.customers import resolve_order
 from app.models import (
     Customer, Event, EventServer, EventUser, OperatingSystem, Project, Server, User,
 )
@@ -39,6 +40,7 @@ def load_projects(session: Session, ids: list[int]) -> list[Project]:
             selectinload(Project.events).selectinload(Event.server_links).selectinload(EventServer.server),
             selectinload(Project.events).selectinload(Event.server_links).selectinload(EventServer.assigned_user),
             selectinload(Project.events).selectinload(Event.participants).selectinload(EventUser.user),
+            selectinload(Project.events).selectinload(Event.order),
         )
     )
     return list(session.scalars(stmt))
@@ -94,6 +96,7 @@ def export_projects(session: Session, projects: list[Project], scope: dict[str, 
                 "event_type": e.event_type,
                 "status": e.status,
                 "title": e.title,
+                "order_code": e.order.code if e.order else None,
                 "notes": e.notes,
                 "participants": [tech_key(pu.user) for pu in sorted(e.participants, key=lambda x: x.user.display_name)],
                 "servers": rows,
@@ -277,7 +280,9 @@ def _import_project(session, xp: XProject, on_conflict, report, customer, server
             warn(tr("transfer.end_time_dropped", where=where))
             end = None
         event = Event(project=project, event_date=xe.event_date, start_time=xe.start_time, end_time=end,
-                      event_type=xe.event_type, status=xe.status, title=xe.title, notes=xe.notes)
+                      event_type=xe.event_type, status=xe.status, title=xe.title, notes=xe.notes,
+                      # the commessa goes on the (existing or new) customer of the imported project
+                      order=resolve_order(session, project.customer_id, xe.order_code) if project.customer_id else None)
         session.add(event)
         session.flush()
         audit.record(session, "create", "events", event.id, {"event_date": (None, event.event_date)}, event_id=event.id)

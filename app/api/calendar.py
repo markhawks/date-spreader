@@ -76,6 +76,7 @@ def list_events(
             customer_id=r["customer_id"],
             customer_name=r["customer_name"],
             customer_color=r["customer_color"],
+            order_code=r["order_code"],
             conflict_users=sorted(found[r["event"].id].users) if r["event"].id in found else [],
             conflict_servers=len(found[r["event"].id].servers) if r["event"].id in found else 0,
         )

@@ -162,7 +162,19 @@ def update_event(session: Session, event: Event, values: dict[str, Any]) -> None
     if start and end and end <= start:
         raise ValidationProblem(tr("events.end_before_start"))
     old_date = event.event_date
+    order_change = None
+    if "order_code" in values:
+        from app.repositories.customers import resolve_order
+
+        values = dict(values)
+        order = resolve_order(session, event.project.customer_id, values.pop("order_code"))
+        old_code = event.order.code if event.order else None
+        if (order.id if order else None) != event.order_id:
+            event.order = order
+            order_change = (old_code, order.code if order else None)
     changes = _apply(event, values)
+    if order_change:
+        changes["commessa"] = order_change
     if "event_date" in changes:
         for link in event.server_links:
             if link.planned_date == old_date:
@@ -176,9 +188,12 @@ def add_event(session: Session, project: Project, data) -> Event:
     """Nuovo intervento in un progetto esistente (data: EventCreate)."""
     if data.start_time and data.end_time and data.end_time <= data.start_time:
         raise ValidationProblem(tr("events.end_before_start"))
+    from app.repositories.customers import resolve_order
+
     event = Event(
         project=project, event_date=data.event_date, title=data.title, event_type=data.event_type,
         status=data.status, start_time=data.start_time, end_time=data.end_time, notes=data.notes,
+        order=resolve_order(session, project.customer_id, data.order_code),
     )
     session.add(event)
     if data.participant_ids:
@@ -204,6 +219,7 @@ def duplicate_event(session: Session, source: Event, data) -> Event:
     event = Event(
         project=source.project, event_date=data.event_date, title=source.title, event_type=source.event_type,
         status=statuses.EVENT_STATUSES[0], start_time=start, end_time=end, notes=source.notes,
+        order_id=source.order_id,
     )
     session.add(event)
     for p in source.participants:
@@ -296,7 +312,7 @@ def create_project(session: Session, data: ProjectCreate) -> Project:
     exists = session.scalar(select(Project.id).where(func.lower(Project.name) == data.name.lower()))
     if exists is not None:
         raise Conflict(tr("projects.name_taken"))
-    from app.repositories.customers import check_customer
+    from app.repositories.customers import check_customer, resolve_order
 
     check_customer(session, data.customer_id)
     project = Project(name=data.name, description=data.description, status=data.status, customer_id=data.customer_id)
@@ -315,6 +331,7 @@ def create_project(session: Session, data: ProjectCreate) -> Project:
             start_time=fe.start_time,
             end_time=fe.end_time,
             notes=fe.notes,
+            order=resolve_order(session, project.customer_id, fe.order_code),
         )
         session.add(event)
         if fe.participant_ids:

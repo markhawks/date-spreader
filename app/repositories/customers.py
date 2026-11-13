@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app import audit
 from app.i18n import tr
-from app.models import Customer, Project
+from app.models import Customer, CustomerOrder, Event, Project
 from app.repositories.servers import Conflict, ValidationProblem
 
 
@@ -86,3 +86,45 @@ def set_color(session: Session, customer: Customer, color: str | None) -> None:
         audit.record(session, "update", "customers", customer.id, {"color": (customer.color, color)})
         customer.color = color
         session.flush()
+
+
+# --- commesse (job / order numbers) of a customer ------------------------------------------
+
+
+def clean_order_code(code: str | None) -> str | None:
+    """Spaces trimmed and collapsed; empty → None."""
+    code = " ".join(str(code or "").split())
+    return code[:100] or None
+
+
+def list_orders(session: Session, customer_id: int) -> list[tuple[CustomerOrder, int]]:
+    """Commesse of a customer with the number of interventions that use them, by code."""
+    count = (
+        select(func.count(Event.id)).where(Event.order_id == CustomerOrder.id).correlate(CustomerOrder).scalar_subquery()
+    )
+    rows = session.execute(
+        select(CustomerOrder, count).where(CustomerOrder.customer_id == customer_id)
+        .order_by(func.lower(CustomerOrder.code))
+    ).all()
+    return [(o, n) for o, n in rows]
+
+
+def resolve_order(session: Session, customer_id: int | None, code: str | None) -> CustomerOrder | None:
+    """The customer's commessa with this code (case-insensitive), created if it does not exist yet.
+
+    None for an empty code. A commessa belongs to a customer: a project without customer cannot have one.
+    """
+    code = clean_order_code(code)
+    if code is None:
+        return None
+    if customer_id is None:
+        raise ValidationProblem(tr("orders.no_customer"))
+    found = session.scalar(select(CustomerOrder).where(
+        CustomerOrder.customer_id == customer_id, func.lower(CustomerOrder.code) == code.lower()))
+    if found is not None:
+        return found
+    order = CustomerOrder(customer_id=customer_id, code=code)
+    session.add(order)
+    session.flush()
+    audit.record(session, "create", "customer_orders", order.id, {"code": (None, code)})
+    return order

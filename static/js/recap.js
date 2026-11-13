@@ -135,7 +135,7 @@ export async function startRecap({ me, toast }) {
     const conflicts = (ev.conflict_users?.length ?? 0) + (ev.conflict_servers ?? 0);
     if (conflicts) line1.append(el("span", "rc-warn", t("recap.conflicts", { n: conflicts })));
     const title = el("div", "rc-title", ev.project_name);
-    const meta = el("div", "rc-meta muted", [ev.customer_name, ev.title, EVENT_TYPE[ev.event_type] ?? ev.event_type].filter(Boolean).join(" · "));
+    const meta = el("div", "rc-meta muted", [ev.customer_name, ev.order_code && t("recap.order", { code: ev.order_code }), ev.title, EVENT_TYPE[ev.event_type] ?? ev.event_type].filter(Boolean).join(" · "));
     const n = ev.server_count;
     const prog = el("div", "rc-progress");
     if (n) {

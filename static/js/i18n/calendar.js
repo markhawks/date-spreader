@@ -12,7 +12,8 @@ export default {
     "calendar.chip_conflicts": {
       "one": "1 scheduling conflict",
       "other": "{n} scheduling conflicts"
-    }
+    },
+    "calendar.chip_order": "Commessa {code}"
   },
   "it": {
     "calendar.week_title": "Settimana {n} · {range}",
@@ -27,6 +28,7 @@ export default {
     "calendar.chip_conflicts": {
       "one": "1 conflitto di pianificazione",
       "other": "{n} conflitti di pianificazione"
-    }
+    },
+    "calendar.chip_order": "Commessa {code}"
   }
 };

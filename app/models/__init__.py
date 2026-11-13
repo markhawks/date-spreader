@@ -56,6 +56,25 @@ class Customer(VersionedMixin, TimestampMixin, Base):
     color: Mapped[str | None] = mapped_column(String(7))
 
     projects: Mapped[list[Project]] = relationship(back_populates="customer")
+    orders: Mapped[list[CustomerOrder]] = relationship(
+        back_populates="customer", cascade="all, delete-orphan", passive_deletes=True, order_by="CustomerOrder.code"
+    )
+
+
+class CustomerOrder(TimestampMixin, Base):
+    """Commessa (job / order number) of a customer. Interventions of the customer's projects refer to it.
+
+    Codes are unique per customer, without distinguishing case (checked in app.repositories.customers).
+    """
+
+    __tablename__ = "customer_orders"
+    __table_args__ = (UniqueConstraint("customer_id", "code"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id", ondelete="CASCADE"), index=True)
+    code: Mapped[str] = mapped_column(String(100))
+
+    customer: Mapped[Customer] = relationship(back_populates="orders")
 
 
 class Project(VersionedMixin, TimestampMixin, Base):
@@ -90,8 +109,11 @@ class Event(VersionedMixin, TimestampMixin, Base):
     event_type: Mapped[str] = mapped_column(String(30), default=statuses.EVENT_TYPES[0])
     status: Mapped[str] = mapped_column(String(30), default=statuses.EVENT_STATUSES[0])
     notes: Mapped[str | None] = mapped_column(Text)
+    # Commessa of the customer (optional); SET NULL if the commessa is deleted
+    order_id: Mapped[int | None] = mapped_column(ForeignKey("customer_orders.id", ondelete="SET NULL"), index=True)
 
     project: Mapped[Project] = relationship(back_populates="events")
+    order: Mapped[CustomerOrder | None] = relationship()
     server_links: Mapped[list[EventServer]] = relationship(
         back_populates="event", cascade="all, delete-orphan", order_by="EventServer.position"
     )

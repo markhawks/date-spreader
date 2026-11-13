@@ -5,6 +5,7 @@ import { todayIso } from "./dates.js";
 import { EVENT_TYPE } from "./labels.js";
 import { t } from "./i18n.js";
 import { customerSelect, customers } from "./customers.js";
+import { orderField } from "./projectdialog.js";
 import { participantPicker, people } from "./people.js";
 import { linkTimes, timeSelect } from "./timepick.js";
 
@@ -40,6 +41,8 @@ const html = `
           <label class="pf-field"><span>${t("projectform.date")} <em>*</em></span><input type="date" name="event_date" required></label>
           <label class="pf-field"><span>${t("projectform.type")}</span><select name="event_type"></select></label>
           <label class="pf-field pf-wide"><span>${t("projectform.event_title")}</span><input name="title" maxlength="200" autocomplete="off" placeholder="${t("projectform.event_title_placeholder")}"></label>
+          <label class="pf-field pf-wide"><span>${t("projectform.order")}</span><span class="pf-order"></span></label>
+          <div class="pf-order-hint pf-wide"></div>
           <label class="pf-field"><span>${t("projectform.start")}</span><span class="pf-start"></span></label>
           <label class="pf-field"><span>${t("projectform.end")}</span><span class="pf-end"></span></label>
           <div class="pf-time-hint pf-wide"></div>
@@ -88,6 +91,15 @@ export class ProjectForm {
     await Promise.all([people.load(), customers.load(true)]);
     this.customer = customerSelect(null);
     this.dialog.querySelector(".pf-customer").replaceChildren(this.customer);
+    // Commessa of the first intervention: follows the customer chosen above
+    this.order?.dispose();
+    this.order = orderField(null);
+    this.dialog.querySelector(".pf-order").replaceChildren(this.order.input);
+    this.dialog.querySelector(".pf-order-hint").replaceChildren(this.order.hint);
+    this.customer.addEventListener("change", (e) => {
+      const v = e.target.value;
+      this.order.setCustomer(!v ? null : /^\d+$/.test(v) ? Number(v) : "new");
+    });
     this.picker = participantPicker([], { label: t("projectform.technicians") });
     this.dialog.querySelector(".pf-people").replaceChildren(this.picker);
     this.form.elements.event_date.value = date ?? todayIso();
@@ -111,6 +123,8 @@ export class ProjectForm {
     const box = this.dialog.querySelector(".pf-grid");
     box.querySelectorAll("input, select, button").forEach((el) => { el.disabled = !on; });
     box.classList.toggle("off", !on);
+    // the commessa also needs a customer
+    if (on && this.order) this.order.input.disabled = this.order.disabledByCustomer();
   }
 
   #error(message, field = null) {
@@ -149,6 +163,7 @@ export class ProjectForm {
         start_time: this.start.value,
         end_time: this.end.value,
         participant_ids: this.picker.getIds(),
+        ...(customerId != null && { order_code: this.order.input.value.trim() }),
       };
     }
 
