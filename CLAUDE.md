@@ -59,4 +59,29 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
 - Interfaccia: Playwright in un venv dello scratchpad, su un'istanza separata (porta 8001, DB temporaneo
   con `init --demo`), mai sul servizio reale. Attenzione ai selettori `text=…` di Playwright: sono parziali
   e non distinguono maiuscole.
+  - Avvio: `DATABASE_PATH=<scratchpad>/x.sqlite3 HOST=127.0.0.1 PORT=8001 .venv/bin/python -m app.main`
+    (non `uvicorn app.main:app`). `users create-admin` vuole un terminale: impostare utente e password
+    con un breve script Python (`hash_password`) oppure usare l'account del DB demo (`admin` / `demo-password-2026`).
+  - Fermarla con `pgrep -u root -f "^.venv/bin/python -m app.main$"`: un `pkill -f app.main` generico
+    uccide anche la shell che lo esegue.
+  - Browser: `PLAYWRIGHT_BROWSERS_PATH=<scratchpad>/pw-browsers`.
 - I file statici sono serviti con `Cache-Control: no-cache` (niente Ctrl+F5 dopo gli aggiornamenti).
+
+## Immagini, schermate e banner
+- `docs/images/screenshots/`: schermate dei README (`<nome>-en.png` / `<nome>-it.png`), prodotte **solo** da
+  `scripts/make_screenshots.py` (DB demo temporaneo, istanza separata; serve Playwright). Rigenerarle quando
+  l'interfaccia cambia molto. Mai schermate del portale reale.
+- `docs/images/branding/`: `wallpaper-01.png` (originale dell'utente), `banner.webp` (1600 px, in cima ai README),
+  `social-preview.png` (1280×640: l'utente la carica a mano in GitHub → Settings → Social preview).
+  Niente loghi di terzi (Red Hat, Fedora…) come badge promozionali.
+- Immagini nuove: mostrarle all'utente **prima** di pubblicarle; controllare nomi e affermazioni (es. «RHEL
+  compatible» finché RHEL non è testato).
+
+## Rilascio di una versione (quando l'utente lo chiede)
+1. Versione in `app/__init__.py` e `pyproject.toml`; intestazioni `## [x.y.z] - data` in entrambi i changelog;
+   esempi `--ref vX.Y.Z` in `docs/INSTALL.md` e `docs/INSTALLAZIONE.md`; «Highlights» dei due README.
+2. Controllo dati reali su `git diff origin/main..HEAD`, messaggi di commit e DB demo: elenco di termini dal DB
+   reale (lettura con `sudo -u datespreader`, stampato su stdout: quell'utente non scrive in /root) cercato con
+   `grep -iowFf`, più gli IP privati. Autore dei commit: l'email noreply.
+3. `git tag -a vX.Y.Z`, push di `main` e del tag; `gh release create` con note in inglese e sezione italiana
+   richiudibile (come le precedenti); se servono, descrizione e argomenti del repository (`gh repo edit`).
