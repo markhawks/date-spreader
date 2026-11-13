@@ -114,23 +114,21 @@ export class Sidebar {
   }
 
   /**
-   * Ordinamento "per data": prima i progetti con il prossimo intervento più vicino,
-   * poi quelli con soli interventi passati (dal più recente), infine quelli senza interventi.
+   * "By date" sort: chronological, from top to bottom, by the first intervention of each project
+   * (so with the projects expanded the dates go upwards); same first date: the next intervention,
+   * then the name. Projects without interventions at the bottom.
    */
   #sorted(projects, today) {
     const byName = (a, b) => a.name.localeCompare(b.name, locale(), { sensitivity: "base" });
     if (this.sort !== "date") return [...projects].sort(byName);
-    const key = (p) => {
-      const next = p.events.find((e) => e.event_date >= today);
-      if (next) return [0, next.event_date];
-      if (p.events.length) return [1, p.events.at(-1).event_date];
-      return [2, ""];
-    };
+    const first = (p) => p.events.reduce((min, e) => (min === null || e.event_date < min ? e.event_date : min), null);
+    const next = (p) => p.events.filter((e) => e.event_date >= today).map((e) => e.event_date).sort()[0] ?? "";
     return [...projects].sort((a, b) => {
-      const [ga, da] = key(a);
-      const [gb, db] = key(b);
-      if (ga !== gb) return ga - gb;
-      if (da !== db) return ga === 1 ? (da < db ? 1 : -1) : (da < db ? -1 : 1); // passati: dal più recente
+      const fa = first(a), fb = first(b);
+      if ((fa === null) !== (fb === null)) return fa === null ? 1 : -1;
+      if (fa !== fb) return fa < fb ? -1 : 1;
+      const na = next(a), nb = next(b);
+      if (na !== nb) return na < nb ? -1 : 1;
       return byName(a, b);
     });
   }
@@ -220,7 +218,8 @@ export class Sidebar {
     const ul = document.createElement("ul");
     ul.setAttribute("aria-label", t("sidebar.events_of", { name: project.name }));
     const next = project.events.find((e) => e.event_date >= today);
-    for (const ev of project.events) {
+    const byTime = (e) => `${e.event_date} ${e.start_time ?? ""}`;
+    for (const ev of [...project.events].sort((x, y) => byTime(x).localeCompare(byTime(y)))) {
       const item = document.createElement("li");
       const btn = document.createElement("button");
       btn.type = "button";

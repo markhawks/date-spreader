@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Modificato
+- **L'ordinamento «Per data» della colonna progetti è ora cronologico**, dall'alto verso il basso, in base al primo intervento di ogni progetto (prima: i progetti con interventi futuri in testa, poi quelli con soli interventi passati), così con i progetti espansi le date vanno in ordine crescente. Gli interventi dello stesso giorno sono in ordine di orario.
+
 ### Aggiunto
 - **Progetti espandibili nella colonna progetti**: la freccia su un progetto mostra sotto di esso i suoi interventi (data, titolo, stato, orario, commessa, numero di server; il prossimo è evidenziato, i passati sono attenuati); un clic su uno lo apre, e l'intervento aperto nell'anteprima resta evidenziato. Il pulsante accanto al menu dell'ordinamento espande o comprime tutti i progetti visibili. Funziona con quadrati e rettangoli, raggruppamento per cliente, ricerca e filtro cliente; i progetti espansi vengono ricordati nel browser. API: `start_time`, `end_time` e `order_code` sugli interventi di `GET /api/projects`.
 - **Commessa modificabile dall'anteprima** (a destra o in basso): un clic su «Commessa …» accanto al nome del cliente, o su «+ Commessa», apre un campo con le commesse del cliente in un menu a tendina; Invio o l'uscita dal campo salvano (il campo vuoto la toglie), Esc annulla.

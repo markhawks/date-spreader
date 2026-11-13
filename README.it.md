@@ -244,7 +244,7 @@ L'icona **⚙** in alto apre le Impostazioni, la sezione in cui raccogliere man 
 
 - **Colonna progetti**:
   - *vista* a quadrati o a rettangoli (uno per riga);
-  - *ordinamento* alfabetico o per data (prima il prossimo intervento più vicino, poi i progetti con soli interventi passati, infine quelli senza interventi);
+  - *ordinamento* alfabetico o per data (cronologico, dall'alto verso il basso, in base al primo intervento di ogni progetto; quelli senza interventi in fondo);
   - *larghezza*: si trascina il bordo destro della colonna (frecce ←/→ da tastiera, doppio clic per tornare a 280 px).
   Vista e ordinamento si cambiano anche con i pulsanti in testa alla colonna.
 

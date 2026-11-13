@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Changed
+- **"By date" sort of the project column is now chronological**, from top to bottom, by the first intervention of each project (before: projects with upcoming interventions first, then those with only past ones), so with the projects expanded the dates go upwards. Interventions on the same day are listed by start time.
+
 ### Added
 - **Projects expandable in the project column**: the arrow on a project shows its interventions under it (date, title, status, time, commessa, number of servers; the next one is highlighted, past ones are faded); a click on one opens it, and the intervention open in the preview is highlighted. The button next to the sort menu expands or collapses all the visible projects. Works with squares and rectangles, grouping by customer, search and the customer filter; the expanded projects are remembered in the browser. API: `start_time`, `end_time` and `order_code` on the interventions of `GET /api/projects`.
 - **Commessa editable from the preview** (on the right or at the bottom): a click on "Commessa …" next to the customer name, or on "+ Commessa", opens a field with the customer's commesse in a drop-down list; Enter or leaving the field saves (an empty field removes it), Esc cancels.

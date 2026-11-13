@@ -351,8 +351,8 @@ The **⚙** icon at the top opens Settings, the place where configuration and cu
 - **Date and time in the top bar**: date and time (default), with seconds, date only, time only, or hidden.
 - **Project column**:
   - *view* as squares or as rectangles (one per row);
-  - *sorting* alphabetical or by date (first the nearest next intervention, then projects with only past
-    interventions, finally those without interventions);
+  - *sorting* alphabetical or by date (chronological, from top to bottom, by the first intervention of each
+    project; those without interventions at the bottom);
   - *width*: drag the right edge of the column (←/→ arrows from the keyboard, double click to go back to 280 px).
   View and sorting can also be changed with the buttons at the top of the column.
 
