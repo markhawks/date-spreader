@@ -2202,3 +2202,15 @@ button.event-customer:hover { color: var(--accent); text-decoration: underline; 
   background: color-mix(in srgb, var(--accent) 10%, var(--panel)); padding: 1px 8px; border-radius: 999px;
   font-variant-numeric: tabular-nums;
 }
+
+/* Commessa modificabile nella scheda */
+.order-edit { display: inline-flex; }
+button.event-order { border: 0; cursor: pointer; font-family: inherit; }
+button.event-order:hover { background: color-mix(in srgb, var(--accent) 20%, var(--panel)); }
+button.event-order.add { background: none; color: var(--muted); border: 1px dashed var(--border); }
+button.event-order.add:hover { color: var(--accent); border-color: var(--accent); }
+.order-input {
+  font: inherit; font-size: 0.8rem; font-weight: 500; letter-spacing: 0; text-transform: none;
+  padding: 3px 10px; width: 17rem; max-width: 100%; border-radius: 999px;
+  border: 1px solid var(--accent); background: var(--panel); color: var(--text); outline: none;
+}

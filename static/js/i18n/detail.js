@@ -61,7 +61,11 @@ export default {
     },
     "detail.show_all_customers": "Show all customers",
     "detail.order": "Commessa {code}",
-    "detail.order_title": "Commessa (job number) of the customer"
+    "detail.order_add": "+ Commessa",
+    "detail.order_edit_title": "Commessa of the customer: click to choose another one from the list, type a new one, or clear it",
+    "detail.order_label": "Commessa",
+    "detail.order_saved": "Commessa: {code}",
+    "detail.order_removed": "Commessa removed from the intervention."
   },
   "it": {
     "detail.col_server": "Server",
@@ -124,6 +128,10 @@ export default {
     },
     "detail.show_all_customers": "Mostra tutti i clienti",
     "detail.order": "Commessa {code}",
-    "detail.order_title": "Commessa del cliente"
+    "detail.order_add": "+ Commessa",
+    "detail.order_edit_title": "Commessa del cliente: clic per sceglierne un'altra dall'elenco, scriverne una nuova o toglierla",
+    "detail.order_label": "Commessa",
+    "detail.order_saved": "Commessa: {code}",
+    "detail.order_removed": "Commessa tolta dall'intervento."
   }
 };

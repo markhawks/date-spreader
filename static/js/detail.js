@@ -1,7 +1,8 @@
 // Pannello di dettaglio: interventi di un giorno (o un singolo intervento) con la tabella server.
 // In sola lettura: la modifica in tabella arriva al punto 5.
 
-import { fetchDay, fetchEvent, setParticipants } from "./api.js";
+import { fetchDay, fetchEvent, patchEvent, setParticipants } from "./api.js";
+import { orderField } from "./projectdialog.js";
 import { paint } from "./colors.js";
 import { eventStatusControl } from "./eventstatus.js";
 import { participantPicker } from "./people.js";
@@ -183,6 +184,56 @@ export class DetailPanel {
     } catch (err) {
       if (req === this.request) this.#error(err);
     }
+  }
+
+  /**
+   * Commessa of the intervention, editable in place: the label (or "+ Commessa") opens a field with
+   * the customer's commesse in a drop-down list; Enter or leaving the field saves, Esc cancels.
+   */
+  #orderControl(ev) {
+    const box = el("span", "order-edit");
+    const show = () => {
+      const b = el("button", ev.order_code ? "event-order" : "event-order add", ev.order_code
+        ? t("detail.order", { code: ev.order_code }) : t("detail.order_add"));
+      b.type = "button";
+      b.title = t("detail.order_edit_title");
+      b.addEventListener("click", edit);
+      box.replaceChildren(b);
+    };
+    const edit = () => {
+      const field = orderField(ev.project.customer_id, ev.order_code ?? "");
+      field.input.classList.add("order-input");
+      field.input.setAttribute("aria-label", t("detail.order_label"));
+      let done = false;
+      const finish = async (save) => {
+        if (done) return;
+        done = true;
+        const value = field.input.value.trim();
+        field.dispose();
+        if (!save || value === (ev.order_code ?? "")) { show(); return; }
+        field.input.disabled = true;
+        try {
+          const updated = await patchEvent(ev.id, { version: ev.version, order_code: value });
+          Object.assign(ev, { version: updated.version, order_code: updated.order_code });
+          this.toast(updated.order_code ? t("detail.order_saved", { code: updated.order_code }) : t("detail.order_removed"));
+          this.onEventChanged(updated);
+        } catch (err) {
+          this.toast(err.message);
+          if (err.isConflict) this.reload();
+        }
+        show();
+      };
+      field.input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); finish(true); }
+        if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); finish(false); }
+      });
+      field.input.addEventListener("blur", () => finish(true));
+      box.replaceChildren(field.input);
+      field.input.focus();
+      field.input.select();
+    };
+    show();
+    return box;
   }
 
   /** Shows only the interventions of one customer in the day preview (null = all) and redraws it. */
@@ -416,12 +467,7 @@ export class DetailPanel {
       }
       // Customer and, next to it, the commessa of the intervention
       const line = el("span", "event-customer-line");
-      line.append(cust);
-      if (ev.order_code) {
-        const order = el("span", "event-order", t("detail.order", { code: ev.order_code }));
-        order.title = t("detail.order_title");
-        line.append(order);
-      }
+      line.append(cust, this.#orderControl(ev));
       projTitle.prepend(line);
     }
     titleRow.append(projTitle, status, tools);
