@@ -54,6 +54,21 @@ Highlights:
 
 Planned and proposed features: [docs/ROADMAP.md](docs/ROADMAP.md).
 
+## Screenshots
+
+Calendar with the project column (projects expanded to show their interventions):
+
+![Calendar and project column](docs/images/screenshots/calendar-en.png)
+
+| | |
+|---|---|
+| ![Intervention preview](docs/images/screenshots/preview-en.png) **Preview** of a day: customer, commessa, participants, server table | ![Full-screen server table](docs/images/screenshots/server-table-en.png) **Server table**, full screen, saved automatically |
+| ![Gantt per customer](docs/images/screenshots/gantt-en.png) **Gantt per customer**: commesse, hours, man-hours, hours per technician | ![Technicians view](docs/images/screenshots/technicians-en.png) **Technicians view**: who is busy when, with conflicts highlighted |
+
+![Dark theme](docs/images/screenshots/calendar-dark-en.png)
+
+<sub>Sample data only. The images are made by `scripts/make_screenshots.py`.</sub>
+
 The stack is deliberately small: **FastAPI + SQLite** on the backend and plain ES-module JavaScript (no framework,
 no build step) on the frontend.
 

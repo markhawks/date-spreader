@@ -33,6 +33,21 @@ In breve:
 - **data e ora** nella barra in alto, personalizzabili.
 
 Funzioni previste e proposte: [docs/ROADMAP.it.md](docs/ROADMAP.it.md).
+
+## Schermate
+
+Calendario con la colonna progetti (progetti espansi con i loro interventi):
+
+![Calendario e colonna progetti](docs/images/screenshots/calendar-it.png)
+
+| | |
+|---|---|
+| ![Anteprima dell'intervento](docs/images/screenshots/preview-it.png) **Anteprima** di un giorno: cliente, commessa, partecipanti, tabella server | ![Tabella server a tutto schermo](docs/images/screenshots/server-table-it.png) **Tabella server** a tutto schermo, con salvataggio automatico |
+| ![Gantt per cliente](docs/images/screenshots/gantt-it.png) **Gantt per cliente**: commesse, ore, ore-uomo, ore per tecnico | ![Vista Tecnici](docs/images/screenshots/technicians-it.png) **Vista Tecnici**: chi è impegnato e quando, con i conflitti evidenziati |
+
+![Tema scuro](docs/images/screenshots/calendar-dark-it.png)
+
+<sub>Solo dati di esempio. Le immagini sono prodotte da `scripts/make_screenshots.py`.</sub>
 Specifica iniziale: [DateWeaver.md](DateWeaver.md) (documento originale, scritto quando il progetto si chiamava ancora "Time Dot").
 
 ## Installazione su un server
