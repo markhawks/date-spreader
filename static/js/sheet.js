@@ -43,6 +43,8 @@ const COLUMNS = [
   { field: "ip_address", label: t("sheet.col_ip"), kind: "text", scope: "server", mono: true, width: "7.5rem" },
   { field: "operating_system", label: t("sheet.col_os"), title: t("sheet.col_os_title"), kind: "select", scope: "server", width: "7rem", options: "os" },
   { field: "environment", label: t("sheet.col_environment"), kind: "select", scope: "server", width: "5.5rem", options: "environments" },
+  // Location: free text, with the locations already used proposed in a drop-down list
+  { field: "location", label: t("sheet.col_location"), title: t("sheet.col_location_title"), kind: "combo", scope: "server", width: "8rem" },
   { field: "current_kernel", label: t("sheet.col_current_kernel"), kind: "text", scope: "server", mono: true, width: "12rem" },
   { field: "target_operating_system", label: t("sheet.col_target_os"), title: t("sheet.col_target_os_title"), kind: "select", scope: "row", width: "7rem", options: "os" },
   { field: "target_kernel", label: t("sheet.col_target_kernel"), kind: "text", scope: "row", mono: true, width: "12rem" },
@@ -56,7 +58,7 @@ const COLUMNS = [
 
 // Interventi di «Configurazione»: solo queste colonne; le note vanno in una riga a tutta larghezza
 // sotto ogni server (alta due righe, cresce con il testo). L'ultima colonna resta elastica.
-const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "migration_status", "executed_date", "assigned_user_id"];
+const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "location", "migration_status", "executed_date", "assigned_user_id"];
 const CONFIG_COLUMNS = CONFIG_FIELDS.map((f, i, all) => {
   const c = COLUMNS.find((x) => x.field === f);
   return i === all.length - 1 ? { ...c, width: undefined } : c;
@@ -177,7 +179,7 @@ export class Sheet {
 
   /** Valori dei menu. Le opzioni fisse si caricano una volta; tecnici e sistemi operativi a ogni apertura. */
   async #loadLookups() {
-    this.options ??= await fetchOptions();
+    this.options = await fetchOptions(); // fresh each time: the locations used change
     const [osList] = await Promise.all([fetchOperatingSystems(), people.load()]);
     const options = this.options;
     const users = people.active();
@@ -187,6 +189,7 @@ export class Sheet {
       check: options.check_statuses.map((v) => [v, CHECK_STATUS[v] ?? v]),
       migration: options.migration_statuses.map((v) => [v, MIGRATION_STATUS[v] ?? v]),
       users: [["", t("sheet.user_none")], ...users.map((u) => [String(u.id), u.display_name])],
+      locations: [...(options.locations ?? [])],
     };
   }
 
@@ -513,6 +516,10 @@ export class Sheet {
     } else {
       control = el("input", "cell-input");
       control.type = col.kind === "date" ? "date" : "text";
+      if (col.kind === "combo") {
+        control.setAttribute("list", this.#locationList().id); // drop-down list of the locations already used
+        control.title = col.title;
+      }
       control.autocomplete = "off";
       control.spellcheck = false;
     }
@@ -521,11 +528,35 @@ export class Sheet {
     control.setAttribute("aria-label", col.label);
     control.value = controlValue(state.data, col.field);
     if (col.kind === "text") control.title = control.value;
+    if (col.kind === "combo" && control.value) control.title = `${control.value} — ${col.title}`;
 
     control.addEventListener("input", () => control.parentElement.classList.add("dirty"));
     control.addEventListener("change", () => this.#commit(state, col, control));
     control.addEventListener("keydown", (e) => this.#onKey(e, state, col, control));
     return control;
+  }
+
+  /** <datalist> with the locations already used (one per table), kept up to date after each save. */
+  #locationList() {
+    // Kept in <body>, not in the table: redrawing the table replaces all of its content
+    if (!this.locationsEl) {
+      this.locationsEl = el("datalist");
+      this.locationsEl.id = `ds-locations-${Math.random().toString(36).slice(2)}`;
+      document.body.append(this.locationsEl);
+    }
+    if (this.locationsFor !== this.lookups) {
+      this.locationsFor = this.lookups; // new lookups (table reopened): refresh the list
+      this.locationsEl.replaceChildren(...(this.lookups.locations ?? []).map((l) => new Option(l, l)));
+    }
+    return this.locationsEl;
+  }
+
+  #rememberLocation(value) {
+    const v = (value ?? "").trim();
+    if (!v || (this.lookups.locations ?? []).some((l) => l.toLowerCase() === v.toLowerCase())) return;
+    this.lookups.locations = [...(this.lookups.locations ?? []), v].sort((a, b) => a.localeCompare(b, locale()));
+    this.locationsFor = null;
+    this.#locationList();
   }
 
   #addRowFoot() {
@@ -753,6 +784,7 @@ export class Sheet {
     try {
       const updated = await patchServerRow(state.data.id, body);
       state.data = updated;
+      if (col.field === "location") this.#rememberLocation(updated.location);
       this.changed = true;
       this.#refreshRow(state, td);
       this.#flash(td, "saved");

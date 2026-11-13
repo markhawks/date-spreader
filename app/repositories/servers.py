@@ -94,6 +94,14 @@ def update_row(session: Session, row: EventServer, values: dict[str, Any]) -> No
         audit.record(session, "update", "event_servers", row.id, row_changes, event_id=row.event_id)
 
 
+def known_locations(session: Session) -> list[str]:
+    """Locations already used by servers, without duplicates (case-insensitive), alphabetical."""
+    seen: dict[str, str] = {}
+    for (loc,) in session.execute(select(Server.location).where(Server.location.is_not(None)).distinct()):
+        seen.setdefault(loc.strip().lower(), loc.strip())
+    return sorted(seen.values(), key=str.lower)
+
+
 def add_row(session: Session, event: Event, data: ServerRowCreate) -> tuple[EventServer, bool]:
     """Aggiunge un server all'intervento. Restituisce (riga, server_già_esistente)."""
     server = find_server_by_hostname(session, data.hostname)

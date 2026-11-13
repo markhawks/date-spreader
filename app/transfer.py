@@ -25,7 +25,7 @@ from app.models import (
 )
 from app.schemas.transfer import FORMAT, FORMAT_VERSION, ExportFile, XProject
 
-SERVER_EXPORT_FIELDS = ("ip_address", "operating_system", "environment", "current_kernel", "notes")
+SERVER_EXPORT_FIELDS = ("ip_address", "operating_system", "environment", "location", "current_kernel", "notes")
 
 
 # --- export ------------------------------------------------------------------------------

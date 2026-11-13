@@ -73,11 +73,12 @@ class XServer(_In):
     operating_system: str | None = Field(default=None, max_length=100)
     environment: Environment | None = None
     current_kernel: str | None = Field(default=None, max_length=100)
+    location: str | None = Field(default=None, max_length=100)
     notes: str | None = Field(default=None, max_length=20000)
     is_demo: bool = False
 
     _host = field_validator("hostname", mode="before")(classmethod(lambda cls, v: _valid_hostname(str(v or ""))))
-    _clean = field_validator("ip_address", "operating_system", "current_kernel", "notes", "environment",
+    _clean = field_validator("ip_address", "operating_system", "current_kernel", "location", "notes", "environment",
                              mode="before")(classmethod(lambda cls, v: _text(v)))
 
     @field_validator("ip_address")

@@ -66,7 +66,8 @@ export default {
     "serverimport.field.target_operating_system": "Target OS",
     "serverimport.field.target_kernel": "Target kernel",
     "serverimport.field.assigned_user": "Technician",
-    "serverimport.field.notes": "Notes"
+    "serverimport.field.notes": "Notes",
+    "serverimport.field.location": "Location"
   },
   "it": {
     "serverimport.title": "Importa server",
@@ -134,6 +135,7 @@ export default {
     "serverimport.field.target_operating_system": "SO target",
     "serverimport.field.target_kernel": "Kernel target",
     "serverimport.field.assigned_user": "Tecnico",
-    "serverimport.field.notes": "Note"
+    "serverimport.field.notes": "Note",
+    "serverimport.field.location": "Location"
   }
 };

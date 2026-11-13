@@ -50,7 +50,9 @@ export default {
     "inventory.changes": "Changes to the server data ({n})",
     "inventory.created": "created",
     "inventory.change": "{field}: {old} → {new}",
-    "inventory.labeled": "{label}:"
+    "inventory.labeled": "{label}:",
+    "inventory.field.location": "Location",
+    "inventory.col.location": "Location"
   },
   "it": {
     "inventory.field.hostname": "Hostname",
@@ -102,6 +104,8 @@ export default {
     "inventory.changes": "Modifiche ai dati del server ({n})",
     "inventory.created": "creato",
     "inventory.change": "{field}: {old} → {new}",
-    "inventory.labeled": "{label}:"
+    "inventory.labeled": "{label}:",
+    "inventory.field.location": "Location",
+    "inventory.col.location": "Location"
   }
 };

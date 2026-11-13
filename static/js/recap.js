@@ -198,7 +198,7 @@ export async function startRecap({ me, toast }) {
         const l1 = el("div", "rc-srv1");
         l1.append(el("span", "mono", s.hostname), badge(s.migration_status, MIGRATION_STATUS));
         li.append(l1);
-        const extra = [s.environment, shortOs(s.operating_system), s.assigned_user?.display_name].filter(Boolean).join(" · ");
+        const extra = [s.environment, s.location, shortOs(s.operating_system), s.assigned_user?.display_name].filter(Boolean).join(" · ");
         if (extra) li.append(el("div", "muted small", extra));
         if (s.notes) li.append(el("div", "rc-srv-notes small", s.notes));
         li.title = `${stageLabel(ev)}: ${MIGRATION_STATUS[s.migration_status] ?? s.migration_status}`;

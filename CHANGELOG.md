@@ -6,6 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
+- **"Location" column** in the server table (where the server is: site, datacenter, room…), after "Environment", also for configuration interventions. It is server data, shared by all its interventions and kept in the server inventory. The locations already used are proposed in a drop-down list, and a new one can be typed. Also shown in the intervention card, the sharing email, the server inventory (searchable) and the smartphone recap, and recognised by the CSV/Excel import (headers location, site, sede, datacenter…). Exported and imported between installations. Database: new column `servers.location` (migration `f5834fb4d654`). API: `locations` in `GET /api/options`.
 - **Filter by customer, always at hand**: a customer menu at the top of the project column (with the customer color and ✕ to clear it) and, while a customer is chosen, a colored label "Customer: … ✕" at the top of the calendar and of the Technicians view. A customer can also be picked by clicking its group header or its name in the project column, with a right click on an intervention ("Show only …") or by clicking the customer name in the intervention card. Calendar, Technicians view, project column and the day preview (on the right or at the bottom) then show only that customer; the preview says how many interventions of other customers are hidden, with "Show all customers". The choice is the same as in the Filters panel and is remembered.
 
 ## [0.24.0] - 2026-11-11

@@ -11,7 +11,7 @@ const SEARCH_DELAY_MS = 200;
 
 const FIELD_LABEL = {
   hostname: t("inventory.field.hostname"), ip_address: t("inventory.field.ip_address"), operating_system: t("inventory.field.operating_system"),
-  environment: t("inventory.field.environment"), current_kernel: t("inventory.field.current_kernel"), notes: t("inventory.field.notes"),
+  environment: t("inventory.field.environment"), location: t("inventory.field.location"), current_kernel: t("inventory.field.current_kernel"), notes: t("inventory.field.notes"),
 };
 
 const el = (tag, className, text) => {
@@ -30,6 +30,7 @@ const COLUMNS = [
   ["ip", t("inventory.col.ip"), (s) => el("span", "mono", s.ip_address ?? "")],
   ["os", t("inventory.col.os"), (s) => withTitle(el("span", null, shortOs(s.operating_system)), s.operating_system)],
   ["env", t("inventory.col.env"), (s) => (s.environment ? el("span", `env env-${s.environment.toLowerCase()}`, s.environment) : "")],
+  ["location", t("inventory.col.location"), (s) => el("span", "small", s.location ?? "")],
   ["kernel", t("inventory.col.kernel"), (s) => withTitle(el("span", "mono small", shortKernel(s.current_kernel)), s.current_kernel)],
   ["count", t("inventory.col.count"), (s) => el("span", s.event_count ? "num" : "num muted", String(s.event_count))],
   ["last", t("inventory.col.last"), (s) => (s.last_event_date
@@ -232,6 +233,7 @@ export class Inventory {
     fact(t("inventory.field.ip_address"), s.ip_address, "mono");
     fact(t("inventory.field.operating_system"), s.operating_system);
     fact(t("inventory.field.environment"), s.environment);
+    fact(t("inventory.field.location"), s.location);
     fact(t("inventory.field.current_kernel"), s.current_kernel, "mono");
     fact(t("inventory.field.notes"), s.notes);
     head.append(facts);

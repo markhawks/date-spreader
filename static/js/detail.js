@@ -49,7 +49,10 @@ const COLUMN_LABELS = {
 // Vista compatta in sola lettura: le informazioni secondarie stanno sotto quelle principali.
 const COLUMNS = [
   ["Server", (s) => stack(el("span", "mono strong", s.hostname), el("span", "mono sub", s.ip_address ?? ""))],
-  ["Amb.", (s) => (s.environment ? el("span", `env env-${s.environment.toLowerCase()}`, s.environment) : "")],
+  ["Amb.", (s) => stack(
+    s.environment ? el("span", `env env-${s.environment.toLowerCase()}`, s.environment) : null,
+    s.location ? el("span", "sub location", s.location) : null,
+  )],
   ["SO · kernel", (s) => {
     const os = el("span", null, shortOs(s.operating_system) || "—");
     const wrap = stack(os, el("span", "mono sub", shortKernel(s.current_kernel) || "—"));

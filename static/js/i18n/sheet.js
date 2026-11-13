@@ -77,7 +77,9 @@ export default {
     },
     "sheet.import_servers": "Import from CSV/Excel…",
     "sheet.import_servers_hint": "Add many servers at once from a CSV or Excel file, or from rows pasted from a spreadsheet",
-    "sheet.status_imported": "Servers imported ({time})"
+    "sheet.status_imported": "Servers imported ({time})",
+    "sheet.col_location": "Location",
+    "sheet.col_location_title": "Where the server is (site, datacenter, room…): pick one already used from the list or type a new one"
   },
   "it": {
     "sheet.server_hint": "Attributo del server: vale per tutti gli interventi in cui compare.",
@@ -156,6 +158,8 @@ export default {
     },
     "sheet.import_servers": "Importa da CSV/Excel…",
     "sheet.import_servers_hint": "Aggiungi tanti server in una volta da un file CSV o Excel, o da righe incollate da un foglio di calcolo",
-    "sheet.status_imported": "Server importati ({time})"
+    "sheet.status_imported": "Server importati ({time})",
+    "sheet.col_location": "Location",
+    "sheet.col_location_title": "Dove si trova il server (sede, datacenter, sala…): scegline una già usata dall'elenco o scrivine una nuova"
   }
 };

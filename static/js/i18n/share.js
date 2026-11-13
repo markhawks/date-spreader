@@ -64,7 +64,8 @@ export default {
     "share.account_invalid": "Gmail account: enter a valid email address (or leave it empty).",
     "share.email_copied_gmail": "Email copied: in the new Gmail message press Ctrl+V in the body.",
     "share.gmail_copy_failed": "Gmail opened, but copying failed: copy the preview manually.",
-    "share.text_stage": "{stage} {status}"
+    "share.text_stage": "{stage} {status}",
+    "share.col_location": "Location"
   },
   "it": {
     "share.subject": "Intervento: {details}",
@@ -130,6 +131,7 @@ export default {
     "share.account_invalid": "Account Gmail: scrivi un indirizzo email valido (oppure lascia vuoto).",
     "share.email_copied_gmail": "Email copiata: nel nuovo messaggio di Gmail premi Ctrl+V nel corpo.",
     "share.gmail_copy_failed": "Gmail aperto, ma la copia non è riuscita: copia l'anteprima a mano.",
-    "share.text_stage": "{stage} {status}"
+    "share.text_stage": "{stage} {status}",
+    "share.col_location": "Location"
   }
 };

@@ -18,6 +18,7 @@ In breve:
 - **calendario verticale** con l'**avanzamento** di ogni intervento («2/4» e una barra), vista **mensile o settimanale**, **7 giorni o Lun–Ven** (il weekend compare solo dove ci sono interventi);
 - **colonna dei progetti** raggruppati e colorati per **cliente**;
 - **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico;
+- colonna **Location** per ogni server (sede, datacenter…), con le location già usate proposte in un elenco;
 - **import dei server da CSV o Excel** (o righe incollate da un foglio di calcolo), con anteprima di ogni riga;
 - **conflitti di pianificazione** (stesso server nello stesso giorno, tecnico impegnato due volte) e vista **«Tecnici»** con la settimana di ognuno;
 - **Duplica intervento**, **interventi di configurazione** con note estese, **zoom** del calendario;

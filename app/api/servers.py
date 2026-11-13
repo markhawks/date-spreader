@@ -156,13 +156,14 @@ def delete_row(
 
 
 @router.get("/options", response_model=Options)
-def options() -> Options:
-    """Valori ammessi per le colonne a scelta della tabella."""
+def options(session: SessionDep) -> Options:
+    """Valori ammessi per le colonne a scelta della tabella, e le location già usate."""
     return Options(
         check_statuses=list(statuses.CHECK_STATUSES),
         migration_statuses=list(statuses.MIGRATION_STATUSES),
         environments=list(statuses.ENVIRONMENTS),
         event_statuses=list(statuses.EVENT_STATUSES),
+        locations=repo.known_locations(session),
     )
 
 

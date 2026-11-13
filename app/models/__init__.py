@@ -111,6 +111,8 @@ class Server(VersionedMixin, TimestampMixin, Base):
     operating_system: Mapped[str | None] = mapped_column(String(100))
     environment: Mapped[str | None] = mapped_column(String(30))
     current_kernel: Mapped[str | None] = mapped_column(String(100))
+    # Where the machine is (site, datacenter, room…): free text; values already used are proposed in a menu
+    location: Mapped[str | None] = mapped_column(String(100), index=True)
     notes: Mapped[str | None] = mapped_column(Text)
     # Dato di esempio (demo): rimovibile con `python -m app.cli demo remove`.
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())

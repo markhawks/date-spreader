@@ -14,7 +14,7 @@ const el = (tag, className, text) => {
 };
 
 const CLOSE_SVG = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const FIELDS = ["hostname", "ip_address", "operating_system", "environment", "current_kernel",
+const FIELDS = ["hostname", "ip_address", "operating_system", "environment", "location", "current_kernel",
   "target_operating_system", "target_kernel", "assigned_user", "notes"];
 const TONE = { added_new: "ok", added_existing: "info", updated: "info", skipped: "neutral", errors: "bad" };
 

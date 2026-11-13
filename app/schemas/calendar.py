@@ -75,6 +75,7 @@ class ServerRow(BaseModel):
     operating_system: str | None
     environment: str | None
     current_kernel: str | None
+    location: str | None = None
     target_kernel: str | None
     target_operating_system: str | None = None
     check_status: str
@@ -100,6 +101,7 @@ class ServerRow(BaseModel):
             operating_system=srv.operating_system,
             environment=srv.environment,
             current_kernel=srv.current_kernel,
+            location=srv.location,
             target_kernel=link.target_kernel,
             target_operating_system=link.target_operating_system,
             check_status=link.check_status,

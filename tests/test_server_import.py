@@ -125,3 +125,23 @@ def test_xlsx_file(api):
 
 def test_unknown_intervention(api):
     assert run(api, 999999, content="a.example.com").status_code == 404
+
+
+def test_location_is_imported_saved_and_proposed(api):
+    ev = new_event(api)
+    text = "hostname;sede\nloc1.example.com;Milano DC1\nloc2.example.com;Roma DC2\nloc3.example.com;milano dc1\n"
+    r = run(api, ev["id"], content=text, dry_run=False).json()
+    assert [c["field"] for c in r["columns"]] == ["hostname", "location"]
+    rows = {s["hostname"]: s for s in api.get(f"/api/events/{ev['id']}").json()["servers"]}
+    assert rows["loc1.example.com"]["location"] == "Milano DC1"
+    # the locations already used are proposed once each (case-insensitive), alphabetically
+    assert api.get("/api/options").json()["locations"] == ["Milano DC1", "Roma DC2"]
+    # editing the location of a row changes the server (shared by all its interventions)
+    row = rows["loc2.example.com"]
+    res = api.patch(f"/api/event-servers/{row['id']}", json={
+        "version": row["version"], "server_version": row["server_version"], "location": "Torino"})
+    assert res.status_code == 200, res.text and res.json()["location"] == "Torino"
+    srv = api.get(f"/api/servers/{row['server_id']}").json()["server"]
+    assert srv["location"] == "Torino"
+    assert "Torino" in api.get("/api/options").json()["locations"]
+    assert api.get("/api/servers", params={"q": "torino"}).json()["total"] == 1

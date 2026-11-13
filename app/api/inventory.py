@@ -23,7 +23,7 @@ def _summary(item: dict) -> ServerSummary:
     return ServerSummary(
         id=s.id, version=s.version, hostname=s.hostname, ip_address=s.ip_address,
         operating_system=s.operating_system, environment=s.environment, current_kernel=s.current_kernel,
-        notes=s.notes, event_count=item["event_count"], last_event_date=item["last_event_date"],
+        location=s.location, notes=s.notes, event_count=item["event_count"], last_event_date=item["last_event_date"],
         last_migration_status=item["last_migration_status"], next_event_date=item["next_event_date"],
     )
 
@@ -53,7 +53,7 @@ def server_detail(session: SessionDep, server_id: int) -> ServerDetail:
     summary = ServerSummary(
         id=server.id, version=server.version, hostname=server.hostname, ip_address=server.ip_address,
         operating_system=server.operating_system, environment=server.environment,
-        current_kernel=server.current_kernel, notes=server.notes, event_count=len(history),
+        current_kernel=server.current_kernel, location=server.location, notes=server.notes, event_count=len(history),
         last_event_date=max(past) if past else None,
         last_migration_status=last[0].migration_status if last else None,
         next_event_date=min(future) if future else None,
