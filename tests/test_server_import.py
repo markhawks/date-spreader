@@ -135,7 +135,9 @@ def test_location_is_imported_saved_and_proposed(api):
     rows = {s["hostname"]: s for s in api.get(f"/api/events/{ev['id']}").json()["servers"]}
     assert rows["loc1.example.com"]["location"] == "Milano DC1"
     # the locations already used are proposed once each (case-insensitive), alphabetically
-    assert api.get("/api/options").json()["locations"] == ["Milano DC1", "Roma DC2"]
+    locations = api.get("/api/options").json()["locations"]
+    assert locations == sorted(locations, key=str.lower)
+    assert "Milano DC1" in locations and "Roma DC2" in locations and "milano dc1" not in locations
     # editing the location of a row changes the server (shared by all its interventions)
     row = rows["loc2.example.com"]
     res = api.patch(f"/api/event-servers/{row['id']}", json={

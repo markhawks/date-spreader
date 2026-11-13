@@ -5,6 +5,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Added
+- `scripts/make_screenshots.py`: screenshots for the READMEs (calendar, preview, server table, Gantt, Technicians view, dark theme; English and Italian), taken from a temporary instance with the sample data only. Needs Playwright.
+- Sample data: some servers have a Location (DC1, DC2, Sede Gamma).
+
 
 ## [0.25.0] - 2026-11-13
 ### Changed

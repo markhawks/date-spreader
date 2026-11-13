@@ -67,8 +67,9 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
     session.add_all(users.values())
 
     # --- Server (10) ------------------------------------------------------
-    def srv(name: str, ip: str, env: str, os_kernel: tuple[str, str], notes: str | None = None):
+    def srv(name: str, ip: str, env: str, os_kernel: tuple[str, str], notes: str | None = None, location: str | None = None):
         return Server(
+            location=location,
             hostname=f"{name}.example.com",
             ip_address=ip,
             environment=env,
@@ -79,14 +80,14 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
         )
 
     s = {
-        "alfa-app01-test": srv("alfa-app01-test", "192.0.2.21", "TEST", RHEL8_10),
-        "alfa-web01": srv("alfa-web01", "192.0.2.11", "PROD", RHEL8_10),
-        "alfa-web02": srv("alfa-web02", "192.0.2.12", "PROD", RHEL7),
-        "alfa-db01": srv("alfa-db01", "192.0.2.31", "PROD", RHEL7, "Database: richiede finestra concordata"),
-        "beta-app01": srv("beta-app01", "198.51.100.11", "PROD", RHEL8_8),
-        "beta-app02": srv("beta-app02", "198.51.100.12", "PROD", RHEL8_8),
+        "alfa-app01-test": srv("alfa-app01-test", "192.0.2.21", "TEST", RHEL8_10, location="DC1"),
+        "alfa-web01": srv("alfa-web01", "192.0.2.11", "PROD", RHEL8_10, location="DC1"),
+        "alfa-web02": srv("alfa-web02", "192.0.2.12", "PROD", RHEL7, location="DC1"),
+        "alfa-db01": srv("alfa-db01", "192.0.2.31", "PROD", RHEL7, "Database: richiede finestra concordata", "DC1"),
+        "beta-app01": srv("beta-app01", "198.51.100.11", "PROD", RHEL8_8, location="DC2"),
+        "beta-app02": srv("beta-app02", "198.51.100.12", "PROD", RHEL8_8, location="DC2"),
         "beta-dev01": srv("beta-dev01", "198.51.100.51", "DEV", RHEL8_8),
-        "gamma-pos01": srv("gamma-pos01", "203.0.113.11", "PROD", RHEL8_10),
+        "gamma-pos01": srv("gamma-pos01", "203.0.113.11", "PROD", RHEL8_10, location="Sede Gamma"),
         "gamma-pos02": srv("gamma-pos02", "203.0.113.12", "PROD", RHEL8_10),
         "gamma-test01": srv("gamma-test01", "203.0.113.41", "TEST", RHEL8_10),
     }
