@@ -6,7 +6,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Aggiunto
-- **Filtro per cliente sempre a portata di mano**: un menu clienti in cima alla colonna progetti (con il colore del cliente e ✕ per toglierlo) e, quando un cliente è scelto, un'etichetta colorata «Cliente: … ✕» in cima al calendario e alla vista Tecnici. Il cliente si sceglie anche con un clic sulla sua intestazione o sul suo nome nella colonna progetti, con il tasto destro su un intervento («Mostra solo …») o con un clic sul nome del cliente nella scheda dell'intervento. Calendario, vista Tecnici e colonna progetti mostrano allora solo quel cliente; la scelta è la stessa del pannello Filtri e viene ricordata.
+- **Filtro per cliente sempre a portata di mano**: un menu clienti in cima alla colonna progetti (con il colore del cliente e ✕ per toglierlo) e, quando un cliente è scelto, un'etichetta colorata «Cliente: … ✕» in cima al calendario e alla vista Tecnici. Il cliente si sceglie anche con un clic sulla sua intestazione o sul suo nome nella colonna progetti, con il tasto destro su un intervento («Mostra solo …») o con un clic sul nome del cliente nella scheda dell'intervento. Calendario, vista Tecnici, colonna progetti e anteprima del giorno (a destra o in basso) mostrano allora solo quel cliente; l'anteprima indica quanti interventi di altri clienti sono nascosti, con «Mostra tutti i clienti». La scelta è la stessa del pannello Filtri e viene ricordata.
 
 ## [0.24.0] - 2026-11-11
 ### Modificato

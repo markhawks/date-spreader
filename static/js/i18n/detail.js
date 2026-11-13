@@ -54,7 +54,12 @@ export default {
     "detail.table_unavailable": "Table not available: {message}",
     "detail.no_servers": "No servers assigned.",
     "detail.no_notes": "No notes.",
-    "detail.customer_pick": "Show only “{name}” in the calendar and in the project column"
+    "detail.customer_pick": "Show only “{name}” in the calendar and in the project column",
+    "detail.hidden_by_customer": {
+      "one": "1 intervention of another customer is hidden by the customer filter.",
+      "other": "{n} interventions of other customers are hidden by the customer filter."
+    },
+    "detail.show_all_customers": "Show all customers"
   },
   "it": {
     "detail.col_server": "Server",
@@ -110,6 +115,11 @@ export default {
     "detail.table_unavailable": "Tabella non disponibile: {message}",
     "detail.no_servers": "Nessun server associato.",
     "detail.no_notes": "Nessuna nota.",
-    "detail.customer_pick": "Mostra solo «{name}» nel calendario e nella colonna progetti"
+    "detail.customer_pick": "Mostra solo «{name}» nel calendario e nella colonna progetti",
+    "detail.hidden_by_customer": {
+      "one": "1 intervento di un altro cliente è nascosto dal filtro cliente.",
+      "other": "{n} interventi di altri clienti sono nascosti dal filtro cliente."
+    },
+    "detail.show_all_customers": "Mostra tutti i clienti"
   }
 };

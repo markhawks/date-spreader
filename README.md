@@ -213,7 +213,7 @@ to **recover access** if the administrator forgets the password.
   time only, nothing) is chosen in Settings → Appearance.
 - **Filter by customer**: the customer menu at the top of the project column, or a click on a customer's group
   header or name in the project column, a right click on an intervention ("Show only …"), or a click on the customer
-  name in the intervention card. Calendar, Technicians view and project column then show only that customer; a
+  name in the intervention card. Calendar, Technicians view, project column and day preview then show only that customer; a
   colored label "Customer: … ✕" at the top of the calendar shows it and clears it.
 - **7 days or Mon–Fri**: the **"Mon–Fri"** button in the top bar, next to Month, Week and Technicians (also the
   "7 days / Mon–Fri" switch at the bottom right of the calendar and Settings → Appearance; personal preference). With **Mon–Fri**, Saturday and Sunday are hidden and come back only where

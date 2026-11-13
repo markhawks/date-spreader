@@ -6,7 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
-- **Filter by customer, always at hand**: a customer menu at the top of the project column (with the customer color and ✕ to clear it) and, while a customer is chosen, a colored label "Customer: … ✕" at the top of the calendar and of the Technicians view. A customer can also be picked by clicking its group header or its name in the project column, with a right click on an intervention ("Show only …") or by clicking the customer name in the intervention card. Calendar, Technicians view and project column then show only that customer; the choice is the same as in the Filters panel and is remembered.
+- **Filter by customer, always at hand**: a customer menu at the top of the project column (with the customer color and ✕ to clear it) and, while a customer is chosen, a colored label "Customer: … ✕" at the top of the calendar and of the Technicians view. A customer can also be picked by clicking its group header or its name in the project column, with a right click on an intervention ("Show only …") or by clicking the customer name in the intervention card. Calendar, Technicians view, project column and the day preview (on the right or at the bottom) then show only that customer; the preview says how many interventions of other customers are hidden, with "Show all customers". The choice is the same as in the Filters panel and is remembered.
 
 ## [0.24.0] - 2026-11-11
 ### Changed

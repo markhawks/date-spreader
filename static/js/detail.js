@@ -105,6 +105,7 @@ export class DetailPanel {
     this.onShare = opts.onShare ?? null;
     this.onDuplicate = opts.onDuplicate ?? null;
     this.onCustomerPick = opts.onCustomerPick ?? null; // click on the customer name: show only that customer
+    this.customerFilter = null; // customer id: the day preview shows only its interventions
     this.onNewEvent = opts.onNewEvent ?? null;     // giorno vuoto: nuovo intervento in un progetto esistente
     this.onNewProject = opts.onNewProject ?? null; // giorno vuoto: nuovo progetto in quella data
     this.toast = opts.toast ?? (() => {});
@@ -159,16 +160,21 @@ export class DetailPanel {
   /** Tutti gli interventi di un giorno; se `focusEventId`, porta in vista quello. */
   async openDay(iso, focusEventId = null) {
     this.last = () => this.openDay(iso, focusEventId);
+    this.currentDay = true; // day view (the customer filter applies), not a single intervention
     this.currentDate = iso; // giorno mostrato: serve al pulsante «+ Intervento» della barra
     this.#show(formatLongDate(iso), "");
     const req = ++this.request;
     try {
-      const events = await fetchDay(iso);
+      const all = await fetchDay(iso);
       if (req !== this.request) return;
+      // Customer filter: only the interventions of the chosen customer (the others are counted)
+      const events = this.customerFilter ? all.filter((ev) => ev.project.customer_id === this.customerFilter) : all;
+      const hidden = all.length - events.length;
       this.subEl.textContent = !events.length ? t("detail.no_events") : t("detail.events_count", { n: events.length });
       this.bodyEl.replaceChildren(
         ...(events.length ? events.map((ev) => this.#eventCard(ev, false)) : [this.#emptyDay(iso)]),
       );
+      if (hidden) this.bodyEl.append(this.#hiddenNote(hidden));
       this.#afterRender();
       this.#focusEvent(focusEventId);
     } catch (err) {
@@ -176,9 +182,31 @@ export class DetailPanel {
     }
   }
 
+  /** Shows only the interventions of one customer in the day preview (null = all) and redraws it. */
+  setCustomerFilter(customerId) {
+    const next = customerId ? Number(customerId) : null;
+    if (next === this.customerFilter) return;
+    this.customerFilter = next;
+    if (this.isOpen && this.currentDay) this.reload();
+  }
+
+  /** "N interventions of other customers hidden by the filter · Show all customers". */
+  #hiddenNote(n) {
+    const note = el("p", "hidden-note muted small");
+    note.append(t("detail.hidden_by_customer", { n }), " ");
+    if (this.onCustomerPick) {
+      const b = el("button", "link-btn", t("detail.show_all_customers"));
+      b.type = "button";
+      b.addEventListener("click", () => this.onCustomerPick(""));
+      note.append(b);
+    }
+    return note;
+  }
+
   /** Un singolo intervento, con i collegamenti alle altre date dello stesso progetto. */
   async openEvent(eventId, { highlightRowId = null } = {}) {
     this.last = () => this.openEvent(eventId);
+    this.currentDay = false;
     this.#show(t("detail.loading"), "");
     const req = ++this.request;
     try {

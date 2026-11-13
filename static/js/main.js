@@ -554,6 +554,7 @@ async function main() {
       workload.setFilter(predicate);
       sidebar.setCustomerFilter(filters.state.customerId);
       customerUI.update(filters.state.customerId, customers.list, customerColor);
+      detail.setCustomerFilter(filters.state.customerId);
     },
   });
 
