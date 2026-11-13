@@ -6,6 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
+- **Banner** at the top of the READMEs and project images in `docs/images/branding/` (wallpaper, social preview).
 - **Screenshots** in the READMEs (`docs/images/screenshots/`): calendar, preview, server table, Gantt, Technicians view, dark theme.
 - `scripts/make_screenshots.py`: screenshots for the READMEs (calendar, preview, server table, Gantt, Technicians view, dark theme; English and Italian), taken from a temporary instance with the sample data only. Needs Playwright.
 - Sample data: some servers have a Location (DC1, DC2, Sede Gamma).

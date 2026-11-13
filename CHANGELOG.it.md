@@ -6,6 +6,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Aggiunto
+- **Banner** in cima ai README e immagini del progetto in `docs/images/branding/` (wallpaper, anteprima social).
 - **Schermate** nei README (`docs/images/screenshots/`): calendario, anteprima, tabella server, Gantt, vista Tecnici, tema scuro.
 - `scripts/make_screenshots.py`: screenshot per i README (calendario, anteprima, tabella server, Gantt, vista Tecnici, tema scuro; inglese e italiano), presi da un'istanza temporanea con i soli dati di esempio. Richiede Playwright.
 - Dati di esempio: alcuni server hanno una Location (DC1, DC2, Sede Gamma).

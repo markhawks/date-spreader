@@ -1,3 +1,5 @@
+![Date Spreader – open-source planning of technical interventions, with Gantt charts](docs/images/branding/banner.webp)
+
 # Date Spreader
 
 [Italiano](README.it.md) · License: [GNU AGPL-3.0-only](LICENSE)
