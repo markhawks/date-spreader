@@ -19,7 +19,9 @@ In breve:
 - **colonna dei progetti** raggruppati e colorati per **cliente**, espandibili per vedere i loro **interventi**
   (data, stato, orario, commessa) e aprirli con un clic;
 - **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico;
-- **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco;
+- **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco, e **ore effettive** facoltative;
+- **Gantt per cliente**: commesse, progetti e interventi in un periodo, con tecnici, ore, ore-uomo, macchine e stati, ore per tecnico e commessa, stampabile (PDF) ed esportabile in **Excel**;
+- **filtro per cliente** sempre a portata di mano (menu, clic su un cliente, tasto destro), applicato a calendario, vista Tecnici, colonna progetti e anteprime;
 - colonna **Location** per ogni server (sede, datacenter…), con le location già usate proposte in un elenco;
 - **import dei server da CSV o Excel** (o righe incollate da un foglio di calcolo), con anteprima di ogni riga;
 - **conflitti di pianificazione** (stesso server nello stesso giorno, tecnico impegnato due volte) e vista **«Tecnici»** con la settimana di ognuno;

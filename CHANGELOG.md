@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+
+## [0.25.0] - 2026-11-13
 ### Changed
 - **"By date" sort of the project column is now chronological**, from top to bottom, by the first intervention of each project (before: projects with upcoming interventions first, then those with only past ones), so with the projects expanded the dates go upwards. Interventions on the same day are listed by start time.
 

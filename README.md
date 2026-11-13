@@ -24,7 +24,12 @@ Highlights:
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
-- a **commessa** (job number) on every intervention, stored on the customer and proposed in a list;
+- a **commessa** (job number) on every intervention, stored on the customer and proposed in a list, and optional
+  **hours worked**;
+- a **Gantt per customer**: commesse, projects and interventions over a period, with technicians, hours, man-hours,
+  machines and statuses, hours per technician and commessa, printable (PDF) and exportable to **Excel**;
+- a **customer filter** always at hand (menu, click on a customer, right click), applied to calendar, Technicians
+  view, project column and previews;
 - a **Location** column for each server (site, datacenter…), with the locations already used proposed in a list;
 - **import servers from CSV or Excel** (or rows pasted from a spreadsheet) into an intervention, with column
   recognition and a preview of every row before saving;

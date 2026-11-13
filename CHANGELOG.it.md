@@ -5,6 +5,8 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+
+## [0.25.0] - 2026-11-13
 ### Modificato
 - **L'ordinamento «Per data» della colonna progetti è ora cronologico**, dall'alto verso il basso, in base al primo intervento di ogni progetto (prima: i progetti con interventi futuri in testa, poi quelli con soli interventi passati), così con i progetti espansi le date vanno in ordine crescente. Gli interventi dello stesso giorno sono in ordine di orario.
 
