@@ -79,3 +79,13 @@ def test_export_import_keeps_the_commessa(api):
     assert any(e["project_id"] == copy["id"] and e["order_code"] == "C-2026-021" for e in ev)
     # no duplicate commessa on the customer
     assert [o["code"] for o in orders(api, gamma["customer_id"])].count("C-2026-021") == 1
+
+
+def test_project_list_carries_commessa_and_times_of_each_intervention(api):
+    # the projects column shows them when a project is expanded
+    gamma = project(api, "Gamma Retail")
+    ev = api.post(f"/api/projects/{gamma['id']}/events", json={
+        "event_date": "2027-02-01", "start_time": "09:00", "end_time": "11:30", "order_code": "C-2027-050"}).json()
+    ref = next(e for e in project(api, "Gamma Retail")["events"] if e["id"] == ev["id"])
+    assert (ref["order_code"], ref["start_time"], ref["end_time"]) == ("C-2027-050", "09:00:00", "11:30:00")
+    assert {"order_code", "start_time", "server_count"} <= set(project(api, "Gamma Retail")["events"][0])

@@ -242,6 +242,7 @@ async function main() {
   /** Apre la scheda di un intervento e porta il calendario sulla sua data. */
   async function showProjectEvent(projectEvent, { highlightRowId = null } = {}) {
     calendar.setSelected(projectEvent.event_date);
+    sidebar.setActiveEvent(projectEvent.id);
     await detail.openEvent(projectEvent.id, { highlightRowId });
     if (workload.isOpen) {
       // Technicians view: show the week of the intervention, highlighted
@@ -260,6 +261,12 @@ async function main() {
     emptyEl: $("project-empty"),
     countEl: $("project-count"),
     serversEl: $("server-hits"),
+    expandAllEl: $("project-expand"),
+    // Intervention in an expanded project: open it directly
+    onEventPick: async (project, ev) => {
+      sidebar.setActive(project.id);
+      await showProjectEvent(ev);
+    },
     // Risultato della ricerca server: apre l'intervento ed evidenzia la riga.
     onServerHit: (hit) => {
       sidebar.setActive(hit.project_id);

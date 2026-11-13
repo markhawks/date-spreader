@@ -2,11 +2,17 @@
 
 import { search } from "./api.js";
 import { colorFor, paint } from "./colors.js";
-import { formatShortDate, todayIso } from "./dates.js";
-import { CHECK_STATUS, MIGRATION_STATUS, badge } from "./labels.js";
+import { formatShortDate, formatTime, todayIso } from "./dates.js";
+import { CHECK_STATUS, EVENT_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge } from "./labels.js";
 import { locale, t } from "./i18n.js";
 
 const SEARCH_DELAY_MS = 250;
+const EXPANDED_KEY = "datespreader.sidebar.expanded"; // projects opened to show their interventions (this browser only)
+const CHEVRON_SVG = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function loadExpanded() {
+  try { return new Set(JSON.parse(localStorage.getItem(EXPANDED_KEY) ?? "[]").map(Number)); } catch { return new Set(); }
+}
 const MAX_HITS = 30;
 
 /** Minuscolo e senza accenti, per una ricerca tollerante. */
@@ -30,8 +36,12 @@ export class Sidebar {
    *           onSelect?: (project, tileEl: HTMLElement) => void,
    *           onServerHit?: (hit) => void }} opts
    */
-  constructor({ listEl, searchEl, emptyEl, countEl, serversEl, onSelect, onServerHit, onCreate, onEdit, onCustomerPick }) {
-    Object.assign(this, { listEl, searchEl, emptyEl, countEl, serversEl });
+  constructor({ listEl, searchEl, emptyEl, countEl, serversEl, expandAllEl, onSelect, onServerHit, onCreate, onEdit, onCustomerPick, onEventPick }) {
+    Object.assign(this, { listEl, searchEl, emptyEl, countEl, serversEl, expandAllEl });
+    this.onEventPick = onEventPick ?? null; // click on an intervention of an expanded project
+    this.expanded = loadExpanded();
+    this.activeEventId = null;
+    expandAllEl?.addEventListener("click", () => this.#toggleAll());
     this.onSelect = onSelect ?? (() => {});
     this.onEdit = onEdit ?? null;
     this.onCreate = onCreate ?? null;
@@ -57,6 +67,18 @@ export class Sidebar {
         e.preventDefault();
         e.stopPropagation();
         this.onCustomerPick(pick.dataset.customer);
+        return;
+      }
+      const toggle = e.target.closest(".tile-expand");
+      if (toggle) {
+        this.#toggle(Number(toggle.dataset.projectId));
+        return;
+      }
+      const row = e.target.closest(".tile-event");
+      if (row) {
+        const project = this.projects.find((p) => p.id === Number(row.dataset.projectId));
+        const ev = project?.events.find((x) => x.id === Number(row.dataset.eventId));
+        if (ev) this.onEventPick?.(project, ev);
         return;
       }
       if (e.target.closest(".add-tile")) {
@@ -128,18 +150,112 @@ export class Sidebar {
         groups.get(key).push(p);
       }
       const keys = [...groups.keys()].sort((a, b) => (a === "") - (b === "") || a.localeCompare(b, locale(), { sensitivity: "base" }));
-      tiles = keys.flatMap((key) => [this.#groupHead(key, groups.get(key)), ...groups.get(key).map((p) => this.#tile(p, today))]);
+      tiles = keys.flatMap((key) => [this.#groupHead(key, groups.get(key)), ...groups.get(key).flatMap((p) => this.#tileWithEvents(p, today))]);
     } else {
-      tiles = sorted.map((p) => this.#tile(p, today));
+      tiles = sorted.flatMap((p) => this.#tileWithEvents(p, today));
     }
     if (this.onCreate) tiles.push(this.#addTile());
     this.listEl.replaceChildren(...tiles);
     if (active) this.setActive(Number(active));
+    this.setActiveEvent(this.activeEventId);
     this.#applyFilter();
+  }
+
+  /** Highlights the intervention open in the detail panel, in the expanded projects (null = none). */
+  setActiveEvent(eventId) {
+    this.activeEventId = eventId ?? null;
+    for (const row of this.listEl.querySelectorAll(".tile-event")) {
+      const on = Number(row.dataset.eventId) === this.activeEventId;
+      row.classList.toggle("active", on);
+      if (on) row.setAttribute("aria-current", "true"); else row.removeAttribute("aria-current");
+    }
+  }
+
+  #tileWithEvents(project, today) {
+    const tile = this.#tile(project, today);
+    return this.onEventPick && this.expanded.has(project.id) && project.events.length
+      ? [tile, this.#eventList(project, today)]
+      : [tile];
+  }
+
+  #saveExpanded() {
+    try { localStorage.setItem(EXPANDED_KEY, JSON.stringify([...this.expanded])); } catch { /* optional */ }
+  }
+
+  #toggle(projectId) {
+    if (this.expanded.has(projectId)) this.expanded.delete(projectId); else this.expanded.add(projectId);
+    this.#saveExpanded();
+    this.setProjects(this.projects);
+    this.listEl.querySelector(`.tile-expand[data-project-id="${projectId}"]`)?.focus();
+  }
+
+  /** Expands all the visible projects with interventions; if they are all expanded, collapses them. */
+  #toggleAll() {
+    const visible = [...this.listEl.querySelectorAll("li:not([hidden]) > .tile-expand")].map((b) => Number(b.dataset.projectId));
+    const allOpen = visible.length > 0 && visible.every((id) => this.expanded.has(id));
+    for (const id of visible) {
+      if (allOpen) this.expanded.delete(id); else this.expanded.add(id);
+    }
+    this.#saveExpanded();
+    this.setProjects(this.projects);
+  }
+
+  #syncExpandAll() {
+    if (!this.expandAllEl) return;
+    const visible = [...this.listEl.querySelectorAll("li:not([hidden]) > .tile-expand")];
+    const allOpen = visible.length > 0 && visible.every((b) => b.getAttribute("aria-expanded") === "true");
+    this.expandAllEl.disabled = visible.length === 0;
+    this.expandAllEl.setAttribute("aria-pressed", String(allOpen));
+    const label = t(allOpen ? "sidebar.collapse_all" : "sidebar.expand_all");
+    this.expandAllEl.title = label;
+    this.expandAllEl.setAttribute("aria-label", label);
+  }
+
+  /** The interventions of an expanded project, under its tile: date, time, title, status, servers, commessa. */
+  #eventList(project, today) {
+    const li = document.createElement("li");
+    li.className = "tile-events";
+    li.dataset.projectId = project.id;
+    paint(li, project.id);
+    const ul = document.createElement("ul");
+    ul.setAttribute("aria-label", t("sidebar.events_of", { name: project.name }));
+    const next = project.events.find((e) => e.event_date >= today);
+    for (const ev of project.events) {
+      const item = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `tile-event status-${ev.status}`;
+      if (ev.event_date < today) btn.classList.add("past");
+      if (ev === next) btn.classList.add("next");
+      btn.dataset.projectId = project.id;
+      btn.dataset.eventId = ev.id;
+      const time = ev.start_time ? `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` : "";
+      const what = ev.title || EVENT_TYPE[ev.event_type] || t("sidebar.event_untitled");
+      const date = Object.assign(document.createElement("span"), { className: "te-date", textContent: formatShortDate(ev.event_date) });
+      const title = Object.assign(document.createElement("span"), { className: "te-title", textContent: what });
+      const line2 = document.createElement("span");
+      line2.className = "te-meta";
+      const st = badge(ev.status, EVENT_STATUS);
+      st.classList.add("te-status");
+      line2.append(st);
+      for (const fact of [time, ev.order_code && t("sidebar.event_order", { code: ev.order_code }),
+        t("sidebar.event_servers", { n: ev.server_count })].filter(Boolean)) {
+        line2.append(Object.assign(document.createElement("span"), { className: "te-fact", textContent: fact }));
+      }
+      btn.append(date, title, line2);
+      btn.title = [formatShortDate(ev.event_date), time, what, EVENT_STATUS[ev.status] ?? ev.status,
+        ev.order_code && t("sidebar.event_order", { code: ev.order_code }), t("sidebar.event_servers", { n: ev.server_count })]
+        .filter(Boolean).join(" · ");
+      item.append(btn);
+      ul.append(item);
+    }
+    li.append(ul);
+    return li;
   }
 
   /** Evidenzia il progetto attivo (null per nessuno). */
   setActive(projectId) {
+    if (projectId == null) this.setActiveEvent(null);
     for (const tile of this.listEl.querySelectorAll(".project-tile")) {
       const on = Number(tile.dataset.projectId) === projectId;
       tile.classList.toggle("active", on);
@@ -247,6 +363,21 @@ export class Sidebar {
     }
     if (tags.childElementCount) btn.append(tags);
     li.append(btn);
+    if (this.onEventPick && n) {
+      // Separate button (no nested buttons): shows the interventions under the tile
+      const open = this.expanded.has(project.id);
+      const exp = document.createElement("button");
+      exp.type = "button";
+      exp.className = "tile-expand";
+      exp.dataset.projectId = project.id;
+      exp.setAttribute("aria-expanded", String(open));
+      const label = t(open ? "sidebar.collapse_label" : "sidebar.expand_label", { name: project.name, n });
+      exp.title = label;
+      exp.setAttribute("aria-label", label);
+      exp.innerHTML = CHEVRON_SVG;
+      li.append(exp);
+      li.classList.toggle("expanded", open);
+    }
     if (this.onEdit) {
       // Pulsante separato (non dentro il riquadro: niente pulsanti annidati)
       const edit = document.createElement("button");
@@ -322,6 +453,10 @@ export class Sidebar {
     const perGroup = new Map();
     for (const li of this.listEl.children) {
       if (li.classList.contains("add-item") || li.classList.contains("group-head")) continue; // il "+" resta sempre visibile
+      if (li.classList.contains("tile-events")) {
+        li.hidden = li.previousElementSibling?.hidden ?? false; // follows the tile above it
+        continue;
+      }
       const show = (!q || li.dataset.search.includes(q))
         && (!this.customerFilter || Number(li.dataset.customer) === this.customerFilter);
       li.hidden = !show;
@@ -338,6 +473,7 @@ export class Sidebar {
     }
     this.emptyEl.hidden = visible > 0 || this.projects.length === 0;
     this.countEl.textContent = q ? `${visible}/${this.projects.length}` : `${this.projects.length}`;
+    this.#syncExpandAll();
   }
 }
 

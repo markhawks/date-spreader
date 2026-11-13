@@ -36,6 +36,9 @@ class ProjectEventRef(BaseModel):
     status: str
     event_type: str | None = None
     server_count: int = 0
+    start_time: time | None = None
+    end_time: time | None = None
+    order_code: str | None = None   # commessa of the customer
 
 
 class ProjectSummary(BaseModel):
@@ -215,7 +218,9 @@ def project_summary(p) -> ProjectSummary:
         customer_color=p.customer.color if p.customer else None,
         events=[
             ProjectEventRef(id=e.id, event_date=e.event_date, title=e.title, status=e.status,
-                            event_type=e.event_type, server_count=len(e.server_links))
+                            event_type=e.event_type, server_count=len(e.server_links),
+                            start_time=e.start_time, end_time=e.end_time,
+                            order_code=e.order.code if e.order else None)
             for e in p.events
         ],
     )

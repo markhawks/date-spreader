@@ -14,7 +14,11 @@ def load_project(session: Session, project_id: int) -> Project | None:
     stmt = (
         select(Project)
         .where(Project.id == project_id)
-        .options(selectinload(Project.events).selectinload(Event.server_links), selectinload(Project.customer))
+        .options(
+            selectinload(Project.events).selectinload(Event.server_links),
+            selectinload(Project.events).selectinload(Event.order),
+            selectinload(Project.customer),
+        )
     )
     return session.scalars(stmt).one_or_none()
 
@@ -22,7 +26,11 @@ def load_project(session: Session, project_id: int) -> Project | None:
 def list_projects_with_events(session: Session) -> list[Project]:
     stmt = (
         select(Project)
-        .options(selectinload(Project.events).selectinload(Event.server_links), selectinload(Project.customer))
+        .options(
+            selectinload(Project.events).selectinload(Event.server_links),
+            selectinload(Project.events).selectinload(Event.order),
+            selectinload(Project.customer),
+        )
         .order_by(Project.name)
     )
     return list(session.scalars(stmt))

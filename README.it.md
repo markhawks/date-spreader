@@ -16,7 +16,8 @@ L'interfaccia è disponibile in **inglese** e **italiano**: ogni utente sceglie 
 In breve:
 
 - **calendario verticale** con l'**avanzamento** di ogni intervento («2/4» e una barra), vista **mensile o settimanale**, **7 giorni o Lun–Ven** (il weekend compare solo dove ci sono interventi);
-- **colonna dei progetti** raggruppati e colorati per **cliente**;
+- **colonna dei progetti** raggruppati e colorati per **cliente**, espandibili per vedere i loro **interventi**
+  (data, stato, orario, commessa) e aprirli con un clic;
 - **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico;
 - **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco;
 - colonna **Location** per ogni server (sede, datacenter…), con le location già usate proposte in un elenco;

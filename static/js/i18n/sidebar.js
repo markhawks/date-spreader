@@ -22,7 +22,21 @@ export default {
     "sidebar.servers_title": "Servers ({count})",
     "sidebar.no_servers": "No servers found.",
     "sidebar.too_many": "Showing the first {n}: refine your search.",
-    "sidebar.customer_pick": "Show only “{name}”"
+    "sidebar.customer_pick": "Show only “{name}”",
+    "sidebar.expand_label": {
+      "one": "Show the intervention of {name}",
+      "other": "Show the {n} interventions of {name}"
+    },
+    "sidebar.collapse_label": "Hide the interventions of {name}",
+    "sidebar.expand_all": "Expand all projects (show their interventions)",
+    "sidebar.collapse_all": "Collapse all projects",
+    "sidebar.events_of": "Interventions of {name}",
+    "sidebar.event_untitled": "Intervention",
+    "sidebar.event_order": "Commessa {code}",
+    "sidebar.event_servers": {
+      "one": "{n} server",
+      "other": "{n} servers"
+    }
   },
   "it": {
     "sidebar.no_customer": "Senza cliente",
@@ -46,6 +60,20 @@ export default {
     "sidebar.servers_title": "Server ({count})",
     "sidebar.no_servers": "Nessun server trovato.",
     "sidebar.too_many": "Mostrati i primi {n}: affina la ricerca.",
-    "sidebar.customer_pick": "Mostra solo «{name}»"
+    "sidebar.customer_pick": "Mostra solo «{name}»",
+    "sidebar.expand_label": {
+      "one": "Mostra l'intervento di {name}",
+      "other": "Mostra i {n} interventi di {name}"
+    },
+    "sidebar.collapse_label": "Nascondi gli interventi di {name}",
+    "sidebar.expand_all": "Espandi tutti i progetti (mostra i loro interventi)",
+    "sidebar.collapse_all": "Comprimi tutti i progetti",
+    "sidebar.events_of": "Interventi di {name}",
+    "sidebar.event_untitled": "Intervento",
+    "sidebar.event_order": "Commessa {code}",
+    "sidebar.event_servers": {
+      "one": "{n} server",
+      "other": "{n} server"
+    }
   }
 };

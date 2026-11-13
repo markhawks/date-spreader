@@ -1570,7 +1570,10 @@ body.row-resizing, body.row-resizing * { cursor: row-resize !important; user-sel
 
 .sidebar-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
 .sidebar-title h2 { margin: 0; white-space: nowrap; }
-.sidebar-tools { display: flex; align-items: center; gap: 6px; }
+.sidebar-tools { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.sidebar-tools .mini-select { min-width: 0; flex: 0 1 auto; }
+.sidebar-title .sidebar-tools { flex-shrink: 1; }
+.sidebar-tools .view-toggle, .sidebar-tools .expand-all-btn { flex-shrink: 0; }
 .mini-select {
   font: inherit;
   font-size: 0.78rem;
@@ -2214,3 +2217,99 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
   padding: 3px 10px; width: 17rem; max-width: 100%; border-radius: 999px;
   border: 1px solid var(--accent); background: var(--panel); color: var(--text); outline: none;
 }
+
+/* =========================================================================
+   Projects column: projects expanded to show their interventions
+   ========================================================================= */
+.expand-all-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--muted);
+  cursor: pointer;
+}
+.expand-all-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.expand-all-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.expand-all-btn:disabled { opacity: 0.4; cursor: default; }
+
+.tile-expand {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+}
+.tile-expand svg { transition: transform 0.15s; }
+.tile-expand[aria-expanded="true"] svg { transform: rotate(90deg); }
+.tile-expand:hover { color: var(--accent); border-color: var(--accent); }
+.tile-expand[aria-expanded="true"] { color: var(--c, var(--accent)); }
+/* Squares: the button sits in the bottom-left corner, the date moves right a little */
+.project-grid:not(.list) > li:has(.tile-expand) .tile-meta { padding-left: 24px; }
+/* Rectangles: the button sits on the right, under the pencil (which moves up) */
+.project-grid.list .tile-expand { left: auto; right: 10px; bottom: 6px; }
+.project-grid.list > li:has(.tile-expand) .tile-edit { top: 6px; transform: none; right: 8px; }
+.project-grid > li.expanded .project-tile { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+.project-grid > li.tile-events {
+  grid-column: 1 / -1;
+  margin-top: -10px;      /* attached to the tile above (grid gap) */
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-left: 4px solid var(--c);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--panel);
+  padding: 4px;
+}
+.project-grid.list > li.tile-events { margin-top: -6px; }
+.tile-events ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.tile-event {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "date title" "date meta";
+  column-gap: 8px;
+  align-items: center;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.tile-event:hover { background: color-mix(in srgb, var(--c) 8%, var(--panel)); border-color: color-mix(in srgb, var(--c) 30%, var(--border)); }
+.tile-event:focus-visible { outline: 2px solid var(--c); outline-offset: 1px; }
+.tile-event.active { background: color-mix(in srgb, var(--c) 14%, var(--panel)); border-color: var(--c); }
+.te-date {
+  grid-area: date;
+  align-self: start;
+  min-width: 4.6rem;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, var(--panel));
+}
+.tile-event.next .te-date { color: var(--c-on, #fff); background: var(--c); }
+.te-title { grid-area: title; font-size: 0.82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.te-meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 1px 8px; min-width: 0; font-size: 0.72rem; color: var(--muted); }
+.te-meta .badge { font-size: 0.68rem; padding: 0 6px; }
+.te-fact { white-space: nowrap; }
+.tile-event.past { opacity: 0.72; }
+.tile-event.status-annullato .te-title { text-decoration: line-through; }

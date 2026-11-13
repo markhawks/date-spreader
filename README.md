@@ -19,7 +19,8 @@ Highlights:
 - a **vertical calendar** centered on the current month, showing every intervention with its **progress** ("2/4"
   servers done, plus a thin bar that fills up), in a **month or week view**, with **7 days or Mon–Fri** (weekends
   shown only where there are interventions);
-- a **project sidebar**, with projects grouped and filtered by **customer** and colored per customer;
+- a **project sidebar**, with projects grouped and filtered by **customer** and colored per customer, and expandable
+  to list their **interventions** (date, status, time, commessa) and open one with a click;
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search and full history;
