@@ -280,10 +280,11 @@ export class Calendar {
     }, { passive: false });
   }
 
-  #openContext(cell, x, y) {
+  #openContext(cell, x, y, eventId = null) {
     if (!this.onDayContext) return;
     cell.classList.add("ctx-target");
-    this.onDayContext(cell.dataset.date, { x, y, hasEvents: cell.classList.contains("has-events"),
+    const ev = eventId ? (this.eventsByDate.get(cell.dataset.date) ?? []).find((e) => e.id === eventId) : null;
+    this.onDayContext(cell.dataset.date, { x, y, hasEvents: cell.classList.contains("has-events"), event: ev ?? null,
       done: () => cell.classList.remove("ctx-target") });
   }
 
@@ -293,7 +294,8 @@ export class Calendar {
       const cell = e.target.closest(".day[data-date]");
       if (!cell || !this.onDayContext) return;
       e.preventDefault();
-      this.#openContext(cell, e.clientX, e.clientY);
+      const chip = e.target.closest(".chip[data-event-id]");
+      this.#openContext(cell, e.clientX, e.clientY, chip ? Number(chip.dataset.eventId) : null);
     });
     let timer = null;
     let start = null;

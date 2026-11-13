@@ -30,7 +30,9 @@ export default {
     "main.load_people_error": "Could not load the technicians: {message}",
     "main.link_event_missing": "The intervention in the link no longer exists.",
     "main.admin_backups": "Database backups",
-    "main.admin_backups_hint": "Nightly verified copies of the database: list, back up now, download; how to restore."
+    "main.admin_backups_hint": "Nightly verified copies of the database: list, back up now, download; how to restore.",
+    "main.ctx_only_customer": "Show only “{name}”",
+    "main.ctx_all_customers": "Show all customers"
   },
   "it": {
     "main.schema_outdated": "Il database non è aggiornato. Esegui: {command}",
@@ -63,6 +65,8 @@ export default {
     "main.load_people_error": "Impossibile caricare i tecnici: {message}",
     "main.link_event_missing": "L'intervento del link non esiste più.",
     "main.admin_backups": "Backup del database",
-    "main.admin_backups_hint": "Copie verificate del database ogni notte: elenco, backup adesso, download; come ripristinare."
+    "main.admin_backups_hint": "Copie verificate del database ogni notte: elenco, backup adesso, download; come ripristinare.",
+    "main.ctx_only_customer": "Mostra solo «{name}»",
+    "main.ctx_all_customers": "Mostra tutti i clienti"
   }
 };

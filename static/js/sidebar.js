@@ -30,11 +30,12 @@ export class Sidebar {
    *           onSelect?: (project, tileEl: HTMLElement) => void,
    *           onServerHit?: (hit) => void }} opts
    */
-  constructor({ listEl, searchEl, emptyEl, countEl, serversEl, onSelect, onServerHit, onCreate, onEdit }) {
+  constructor({ listEl, searchEl, emptyEl, countEl, serversEl, onSelect, onServerHit, onCreate, onEdit, onCustomerPick }) {
     Object.assign(this, { listEl, searchEl, emptyEl, countEl, serversEl });
     this.onSelect = onSelect ?? (() => {});
     this.onEdit = onEdit ?? null;
     this.onCreate = onCreate ?? null;
+    this.onCustomerPick = onCustomerPick ?? null; // click on a customer: show only that customer
     this.onServerHit = onServerHit ?? (() => {});
     this.projects = [];
     this.query = "";
@@ -50,6 +51,14 @@ export class Sidebar {
       this.searchTimer = setTimeout(() => this.#searchServers(), SEARCH_DELAY_MS);
     });
     listEl.addEventListener("click", (e) => {
+      // Customer group header, or customer name on a tile: filter by that customer
+      const pick = e.target.closest(".group-head[data-customer], .tile-customer[data-customer]");
+      if (pick && this.onCustomerPick && pick.dataset.customer) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.onCustomerPick(pick.dataset.customer);
+        return;
+      }
       if (e.target.closest(".add-tile")) {
         this.onCreate?.();
         return;
@@ -142,6 +151,12 @@ export class Sidebar {
     const li = document.createElement("li");
     li.className = "group-head";
     li.dataset.group = name;
+    const customerId = projects[0]?.customer_id;
+    if (customerId != null && this.onCustomerPick) {
+      li.dataset.customer = customerId;
+      li.classList.add("clickable");
+      li.title = t("sidebar.customer_pick", { name });
+    }
     const title = document.createElement("span");
     title.className = "group-name";
     title.textContent = name || t("sidebar.no_customer");
@@ -208,6 +223,10 @@ export class Sidebar {
       const cust = document.createElement("span");
       cust.className = "tile-customer";
       cust.textContent = project.customer_name;
+      if (project.customer_id != null && this.onCustomerPick) {
+        cust.dataset.customer = project.customer_id;
+        cust.title = t("sidebar.customer_pick", { name: project.customer_name });
+      }
       btn.append(cust);
     }
     const tags = document.createElement("span");

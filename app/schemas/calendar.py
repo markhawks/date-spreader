@@ -59,6 +59,7 @@ class ProjectRef(BaseModel):
     id: int
     name: str
     customer_name: str | None = None
+    customer_id: int | None = None
 
 
 class ServerRow(BaseModel):
@@ -151,7 +152,8 @@ class EventDetail(BaseModel):
             id=e.id,
             version=e.version,
             project=ProjectRef(id=e.project.id, name=e.project.name,
-                               customer_name=e.project.customer.name if e.project.customer else None),
+                               customer_name=e.project.customer.name if e.project.customer else None,
+                               customer_id=e.project.customer_id),
             title=e.title,
             event_date=e.event_date,
             start_time=e.start_time,

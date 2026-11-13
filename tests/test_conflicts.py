@@ -82,3 +82,10 @@ def test_cancelled_interventions_are_ignored(api):
     api.patch(f"/api/events/{other['id']}", json={"version": other["version"], "status": "annullato"})
     assert summaries(api, "2026-11-26")[beta["id"]]["conflict_servers"] == 0
     assert api.get(f"/api/events/{beta['id']}").json()["conflicts"] == []
+
+
+def test_event_detail_carries_the_customer_id(api):
+    """The card needs the customer id to filter by customer from the customer name."""
+    ev = event_on(api, "2026-11-26")
+    project = next(p for p in api.get("/api/projects").json() if p["id"] == ev["project"]["id"])
+    assert ev["project"]["customer_id"] == project["customer_id"] is not None

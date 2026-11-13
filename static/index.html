@@ -98,6 +98,7 @@
         </div>
         <input id="project-search" type="search" placeholder="Search project, hostname, IP…" data-i18n-placeholder="index.search_placeholder"
                autocomplete="off" aria-label="Search project or server" data-i18n-aria-label="index.search_aria">
+        <div id="customer-menu" class="customer-menu"></div>
       </div>
       <ul id="project-list" class="project-grid" aria-live="polite"></ul>
       <p id="project-empty" class="muted empty" data-i18n="index.no_projects" hidden>No projects found.</p>
@@ -105,6 +106,7 @@
     </aside>
 
     <main id="calendar-scroll" class="calendar-scroll" aria-label="Calendar" data-i18n-aria-label="index.calendar" tabindex="-1">
+      <div id="customer-pill" class="customer-pill-slot" hidden></div>
       <section id="workload" class="workload" aria-label="Technicians' workload" data-i18n-aria-label="index.team_title" hidden></section>
       <div id="months" class="months"></div>
       <div class="cal-tools">

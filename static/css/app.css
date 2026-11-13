@@ -2160,3 +2160,34 @@ body.recap-mode { overflow: auto; height: auto; }
 .rc-srv-notes { white-space: pre-wrap; margin-top: 2px; }
 .rc-foot { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
 .rc-foot .btn { padding: 10px 16px; }
+
+/* ---------- Filtro per cliente: menu nella colonna progetti ed etichetta sul calendario ---------- */
+.customer-menu { margin: 8px 0 10px; }
+.cf-menu {
+  display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--panel);
+}
+.cf-menu.active { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent); }
+.cf-select { flex: 1; min-width: 0; font: inherit; font-size: 0.88rem; border: 0; background: transparent; color: var(--text); padding: 4px 0; cursor: pointer; }
+.cf-menu.active .cf-select { font-weight: 600; }
+.cf-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; border: 1px solid var(--border); }
+.cf-clear {
+  flex: none; width: 24px; height: 24px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; background: var(--panel-2, var(--bg)); color: var(--muted);
+}
+.cf-clear[hidden] { display: none; }
+.cf-clear:hover { color: var(--bad-fg); background: var(--bad-bg); }
+.customer-pill-slot[hidden] { display: none; }
+.customer-pill-slot { position: sticky; top: 0; z-index: 5; padding: 8px 0 4px; background: var(--bg); }
+.cf-pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 6px 4px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--cf, var(--accent)) 16%, var(--panel)); border: 1px solid color-mix(in srgb, var(--cf, var(--accent)) 50%, var(--border));
+  font-weight: 600; font-size: 0.9rem;
+}
+body.customer-filtered .calendar-scroll .month-title, body.customer-filtered .wl-bar { top: 42px; }
+.group-head.clickable { cursor: pointer; }
+.group-head.clickable:hover .group-name { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.tile-customer[data-customer] { cursor: pointer; }
+.tile-customer[data-customer]:hover { color: var(--accent); text-decoration: underline; }
+button.event-customer { border: 0; background: none; padding: 0; font-family: inherit; line-height: inherit; text-align: left; cursor: pointer; }
+button.event-customer:hover { color: var(--accent); text-decoration: underline; }

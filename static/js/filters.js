@@ -49,6 +49,13 @@ export class FilterBar {
     }
   }
 
+  /** Chooses the customer ("" = all) from outside the panel: menu, project column, calendar, card. */
+  setCustomer(customerId) {
+    this.state.customerId = customerId ? String(customerId) : "";
+    if (this.clearBtn) this.#render();
+    this.#emit();
+  }
+
   get activeCount() {
     const s = this.state;
     return (s.statuses.length ? 1 : 0) + (s.userId ? 1 : 0) + (s.customerId ? 1 : 0) + (s.problems ? 1 : 0);

@@ -104,6 +104,7 @@ export class DetailPanel {
     this.onEditProject = opts.onEditProject ?? null;
     this.onShare = opts.onShare ?? null;
     this.onDuplicate = opts.onDuplicate ?? null;
+    this.onCustomerPick = opts.onCustomerPick ?? null; // click on the customer name: show only that customer
     this.onNewEvent = opts.onNewEvent ?? null;     // giorno vuoto: nuovo intervento in un progetto esistente
     this.onNewProject = opts.onNewProject ?? null; // giorno vuoto: nuovo progetto in quella data
     this.toast = opts.toast ?? (() => {});
@@ -376,7 +377,13 @@ export class DetailPanel {
     tools.append(expand);
     const projTitle = el("h3", "event-project", ev.project.name);
     if (ev.project.customer_name) {
-      projTitle.prepend(el("span", "event-customer", ev.project.customer_name));
+      const cust = el(ev.project.customer_id != null && this.onCustomerPick ? "button" : "span", "event-customer", ev.project.customer_name);
+      if (cust.tagName === "BUTTON") {
+        cust.type = "button";
+        cust.title = t("detail.customer_pick", { name: ev.project.customer_name });
+        cust.addEventListener("click", () => this.onCustomerPick(ev.project.customer_id));
+      }
+      projTitle.prepend(cust);
     }
     titleRow.append(projTitle, status, tools);
     head.append(titleRow);

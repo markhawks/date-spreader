@@ -2,7 +2,7 @@ import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, 
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
 import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
-import { assignColors } from "./colors.js";
+import { assignColors, colorFor } from "./colors.js";
 import { DetailPanel } from "./detail.js";
 import { customers, showCustomersDialog } from "./customers.js";
 import { FilterBar } from "./filters.js";
@@ -23,6 +23,7 @@ import { Sidebar, attachSidebarResizer } from "./sidebar.js";
 import { showImportDialog } from "./transfer.js";
 import { showBackupsDialog } from "./backups.js";
 import { Workload } from "./workload.js";
+import { customerFilterUI } from "./customerfilter.js";
 import { isSmallScreen, startRecap, switchToRecap, wantsRecap } from "./recap.js";
 import { adoptLanguagePreference, t, translateStatic } from "./i18n.js";
 
@@ -135,11 +136,18 @@ async function main() {
   const calendar = new Calendar($("calendar-scroll"), $("months"), {
     onError: (err) => showError(err.message),
     // Tasto destro (o pressione prolungata) su un giorno: crea un progetto o un intervento in quella data
-    onDayContext: (iso, { x, y, hasEvents, done }) => {
+    onDayContext: (iso, { x, y, hasEvents, event, done }) => {
+      const filteredCustomer = filters.state.customerId;
       showContextMenu(x, y, {
         title: formatMediumDate(iso),
         onClose: done,
         items: [
+          // Right click on an intervention: show only its customer
+          ...(event?.customer_id != null && String(event.customer_id) !== filteredCustomer ? [{
+            label: t("main.ctx_only_customer", { name: event.customer_name }),
+            onSelect: () => filters.setCustomer(event.customer_id),
+          }] : []),
+          ...(filteredCustomer ? [{ label: t("main.ctx_all_customers"), onSelect: () => filters.setCustomer("") }] : []),
           { label: t("main.ctx_new_project"), hint: t("main.ctx_new_project_hint"), onSelect: () => projectForm.open({ date: iso }) },
           {
             label: t("main.ctx_new_event"),
@@ -182,6 +190,7 @@ async function main() {
     // Stato dell'intervento cambiato dalla scheda: aggiorna il calendario (stile della chip).
     onEventChanged: (ev) => calendar.refreshDate(ev.event_date),
     onNewEvent: (iso) => addEventOnDate(iso),
+    onCustomerPick: (customerId) => filters.setCustomer(customerId),
     onNewProject: (iso) => projectForm.open({ date: iso }),
     onDuplicate: async (ev) => {
       let copy;
@@ -245,6 +254,7 @@ async function main() {
   }
 
   const sidebar = new Sidebar({
+    onCustomerPick: (customerId) => filters.setCustomer(customerId),
     listEl: $("project-list"),
     searchEl: $("project-search"),
     emptyEl: $("project-empty"),
@@ -472,7 +482,10 @@ async function main() {
   }));
   // Menu del filtro per tecnico: tutti, anche i disattivati (per rivedere interventi passati).
   people.onChange((users) => filters.setUsers(users));
-  customers.onChange((list) => filters.setCustomers(list));
+  customers.onChange((list) => {
+    filters.setCustomers(list);
+    customerUI.update(filters.state.customerId, list, customerColor);
+  });
 
   const projectDialog = new ProjectDialog({
     onSaved: async (p) => {
@@ -521,6 +534,17 @@ async function main() {
     },
   });
 
+  // Color of a customer: its own, otherwise the one of its first project (as in the calendar)
+  const customerColor = (c) => c.color || (() => {
+    const p = projects.find((x) => x.customer_id === c.id);
+    return p ? colorFor(p.id) : null;
+  })();
+  // Customer menu in the project column + label on the calendar (same filter as the Filters panel)
+  const customerUI = customerFilterUI({
+    menuSlot: $("customer-menu"),
+    pillSlot: $("customer-pill"),
+    onPick: (customerId) => filters.setCustomer(customerId),
+  });
   const filters = new FilterBar({
     barEl: $("filter-bar"),
     toggleBtn: $("btn-filters"),
@@ -529,6 +553,7 @@ async function main() {
       calendar.setFilter(predicate);
       workload.setFilter(predicate);
       sidebar.setCustomerFilter(filters.state.customerId);
+      customerUI.update(filters.state.customerId, customers.list, customerColor);
     },
   });
 

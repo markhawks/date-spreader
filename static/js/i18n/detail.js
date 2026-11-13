@@ -16,7 +16,10 @@ export default {
     "detail.os_kernel_title": "Operating system and kernel: current and, after the arrow, target",
     "detail.executed_on": "executed {date}",
     "detail.no_events": "No interventions",
-    "detail.events_count": { "one": "1 intervention", "other": "{n} interventions" },
+    "detail.events_count": {
+      "one": "1 intervention",
+      "other": "{n} interventions"
+    },
     "detail.loading": "Loading…",
     "detail.load_error": "Could not load the details: {message}",
     "detail.empty_day": "No interventions on this date.",
@@ -40,14 +43,18 @@ export default {
     "detail.participants_not_saved": "Participants not saved: {message}",
     "detail.project_dates_label": "Other dates of the project",
     "detail.project_dates": "Project dates:",
-    "detail.servers_count": { "one": "1 server", "other": "{n} servers" },
+    "detail.servers_count": {
+      "one": "1 server",
+      "other": "{n} servers"
+    },
     "detail.summary_executed": "executed {done}/{n}",
     "detail.summary_check_ok": "check OK {done}/{n}",
     "detail.summary_check_ko": "check KO {ko}",
     "detail.summary_stage": "{stage} {done}/{n}",
     "detail.table_unavailable": "Table not available: {message}",
     "detail.no_servers": "No servers assigned.",
-    "detail.no_notes": "No notes."
+    "detail.no_notes": "No notes.",
+    "detail.customer_pick": "Show only “{name}” in the calendar and in the project column"
   },
   "it": {
     "detail.col_server": "Server",
@@ -65,7 +72,10 @@ export default {
     "detail.os_kernel_title": "Sistema operativo e kernel: attuali e, dopo la freccia, target",
     "detail.executed_on": "eseguita {date}",
     "detail.no_events": "Nessun intervento",
-    "detail.events_count": { "one": "1 intervento", "other": "{n} interventi" },
+    "detail.events_count": {
+      "one": "1 intervento",
+      "other": "{n} interventi"
+    },
     "detail.loading": "Caricamento…",
     "detail.load_error": "Impossibile caricare il dettaglio: {message}",
     "detail.empty_day": "Nessun intervento in questa data.",
@@ -89,13 +99,17 @@ export default {
     "detail.participants_not_saved": "Partecipanti non salvati: {message}",
     "detail.project_dates_label": "Altre date del progetto",
     "detail.project_dates": "Date del progetto:",
-    "detail.servers_count": { "one": "1 server", "other": "{n} server" },
+    "detail.servers_count": {
+      "one": "1 server",
+      "other": "{n} server"
+    },
     "detail.summary_executed": "eseguiti {done}/{n}",
     "detail.summary_check_ok": "check OK {done}/{n}",
     "detail.summary_check_ko": "check KO {ko}",
     "detail.summary_stage": "{stage} {done}/{n}",
     "detail.table_unavailable": "Tabella non disponibile: {message}",
     "detail.no_servers": "Nessun server associato.",
-    "detail.no_notes": "Nessuna nota."
+    "detail.no_notes": "Nessuna nota.",
+    "detail.customer_pick": "Mostra solo «{name}» nel calendario e nella colonna progetti"
   }
 };
