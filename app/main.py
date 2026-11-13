@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.api import auth as auth_api
-from app.api import backups, calendar, customers, health, inventory, meta, oslist, servers, transfer, users
+from app.api import backups, calendar, customers, health, inventory, meta, oslist, reports, servers, transfer, users
 from app.auth import csrf_protect, require_user
 from app import __version__
 from app.config import PROJECT_ROOT, Settings, get_settings
@@ -45,7 +45,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_api.router, prefix="/api")
     # Tutto il resto richiede un utente autenticato (e l'intestazione anti-CSRF per le modifiche).
     protected = [Depends(require_user), Depends(csrf_protect)]
-    for module in (calendar, servers, users, inventory, oslist, customers, transfer, backups):
+    for module in (calendar, servers, users, inventory, oslist, customers, transfer, backups, reports):
         app.include_router(module.router, prefix="/api", dependencies=protected)
 
     # Il frontend statico va montato per ultimo, così non copre le rotte /api.

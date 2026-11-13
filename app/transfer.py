@@ -97,6 +97,7 @@ def export_projects(session: Session, projects: list[Project], scope: dict[str, 
                 "status": e.status,
                 "title": e.title,
                 "order_code": e.order.code if e.order else None,
+                "worked_hours": e.worked_hours,
                 "notes": e.notes,
                 "participants": [tech_key(pu.user) for pu in sorted(e.participants, key=lambda x: x.user.display_name)],
                 "servers": rows,
@@ -281,6 +282,7 @@ def _import_project(session, xp: XProject, on_conflict, report, customer, server
             end = None
         event = Event(project=project, event_date=xe.event_date, start_time=xe.start_time, end_time=end,
                       event_type=xe.event_type, status=xe.status, title=xe.title, notes=xe.notes,
+                      worked_hours=xe.worked_hours,
                       # the commessa goes on the (existing or new) customer of the imported project
                       order=resolve_order(session, project.customer_id, xe.order_code) if project.customer_id else None)
         session.add(event)

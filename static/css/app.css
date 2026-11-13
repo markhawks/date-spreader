@@ -2314,3 +2314,140 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
 .te-fact { white-space: nowrap; }
 .tile-event.past { opacity: 0.72; }
 .tile-event.status-annullato .te-title { text-decoration: line-through; }
+
+/* Intervention form: hours worked */
+.pf-hours-box { display: flex; align-items: center; gap: 10px; }
+.pf-hours-box .pf-hours { width: 6.5rem; flex: none; }
+.pf-hours-box .pf-hours-hint { line-height: 1.3; font-weight: 400; }
+
+/* =========================================================================
+   Gantt (static/js/gantt.js): full-screen sheet, printable in landscape
+   ========================================================================= */
+.gantt .sheet-header { align-items: center; }
+.gt-toolbar { gap: 8px 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); background: var(--panel); }
+.gt-toolbar .gt-customer { font-size: 0.85rem; padding: 5px 8px; max-width: 18rem; }
+.gt-period { display: inline-flex; align-items: center; gap: 6px; }
+.gt-date { font: inherit; font-size: 0.85rem; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel-2); color: var(--text); }
+.gt-presets { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.gt-toolbar .gt-presets .btn-small { margin-left: 0; }
+.gt-zoom { margin-left: auto; }
+.gt-body { flex: 1; min-height: 0; overflow: auto; padding: 14px 20px 24px; }
+.gt-print-title { display: none; }
+
+.gt-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.gt-card { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); min-width: 0; }
+.gt-card-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.gt-card-value { font-size: 1.45rem; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.gt-card-statuses { display: flex; flex-wrap: wrap; gap: 3px; }
+.gt-card-statuses .badge { font-size: 0.68rem; padding: 0 6px; }
+.gt-warn { color: var(--warn-fg); font-weight: 600; }
+
+.gt-wrap { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); }
+.gt-scroll { overflow: auto; max-height: calc(100vh - 330px); min-height: 220px; }
+.gt-grid { width: calc(var(--gt-left) + var(--gt-width)); position: relative; font-size: 0.8rem; }
+.gt-row { display: flex; min-height: 30px; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.gt-left {
+  position: sticky; left: 0; z-index: 3;
+  flex: none; width: var(--gt-left);
+  display: grid; grid-template-columns: minmax(0, 1fr) 150px 52px 56px 62px 92px;
+  align-items: center; column-gap: 8px;
+  padding: 3px 10px 3px 8px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+}
+.gt-left > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-c-num { text-align: right; font-variant-numeric: tabular-nums; }
+.gt-c-tech { color: var(--muted); font-size: 0.75rem; }
+.gt-c-status .badge { font-size: 0.68rem; padding: 0 6px; }
+.gt-track { position: relative; flex: none; width: var(--gt-width); }
+
+/* header */
+.gt-head { position: sticky; top: 0; z-index: 5; min-height: 46px; background: var(--panel-2); border-bottom: 1px solid var(--border); }
+.gt-head .gt-left { background: var(--panel-2); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); align-items: end; padding-bottom: 6px; }
+.gt-days { height: 46px; }
+.gt-month { position: absolute; top: 0; height: 20px; padding: 2px 6px; font-size: 0.72rem; font-weight: 700; text-transform: capitalize; color: var(--text); border-left: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
+.gt-day { position: absolute; top: 20px; width: var(--gt-dw); height: 26px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; font-size: 0.68rem; color: var(--muted); border-left: 1px solid color-mix(in srgb, var(--border) 50%, transparent); }
+.gt-day b { font-weight: 600; color: var(--text); }
+.gt-day i { font-style: normal; font-size: 0.6rem; text-transform: uppercase; }
+.gt-day.weekend { background: color-mix(in srgb, var(--muted) 10%, transparent); }
+.gt-day.today { background: var(--accent); }
+.gt-day.today b, .gt-day.today i { color: #fff; }
+
+/* background columns: weekends and today, over all the rows */
+.gt-rows { position: relative; }
+.gt-bg { position: absolute; top: 0; bottom: 0; left: var(--gt-left); width: var(--gt-width); pointer-events: none; z-index: 1; }
+.gt-bg-weekend { position: absolute; top: 0; bottom: 0; width: var(--gt-dw); background: color-mix(in srgb, var(--muted) 8%, transparent); }
+.gt-bg-today { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--accent); opacity: 0.7; }
+.gt-row .gt-track { z-index: 2; }
+
+/* bars */
+.gt-bar { position: absolute; top: 50%; transform: translateY(-50%); border-radius: 5px; }
+.gt-bar-order { height: 10px; background: color-mix(in srgb, var(--text) 30%, transparent); }
+.gt-bar-project { height: 14px; background: color-mix(in srgb, var(--c) 28%, transparent); border: 1.5px solid var(--c); }
+.gt-block {
+  position: absolute; top: 4px; bottom: 4px; padding: 0;
+  border: 1.5px solid var(--c); border-radius: 4px;
+  font: inherit; font-size: 0.68rem; font-weight: 700; cursor: pointer;
+  display: grid; place-items: center; overflow: hidden;
+}
+.gt-block:hover, .gt-block:focus-visible { outline: 2px solid var(--c); outline-offset: 1px; z-index: 3; }
+.gt-event.status-annullato .gt-block { opacity: 0.55; }
+
+/* rows */
+.gt-order { background: color-mix(in srgb, var(--text) 5%, var(--panel)); min-height: 34px; }
+.gt-order .gt-left { background: color-mix(in srgb, var(--text) 5%, var(--panel)); font-weight: 600; }
+.gt-toggle { display: inline-flex; align-items: baseline; gap: 6px; max-width: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; overflow: hidden; white-space: nowrap; }
+.gt-toggle strong { flex: none; }
+.gt-toggle > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.gt-toggle .gt-chev { flex: none; overflow: visible; }
+@media (max-width: 1299px) { .gt-left { grid-template-columns: minmax(0, 1fr) 104px 48px 52px 56px 86px; column-gap: 6px; } }
+.gt-chev { display: inline-block; transition: transform 0.15s; color: var(--muted); }
+.gt-toggle[aria-expanded="true"] .gt-chev { transform: rotate(90deg); }
+.gt-toggle:hover strong { color: var(--accent); }
+.gt-project-name { display: inline-flex; align-items: center; gap: 6px; padding-left: 14px; font-weight: 600; overflow: hidden; }
+.gt-project-name > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.gt-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+.gt-event-name { display: inline-flex; align-items: baseline; gap: 8px; max-width: 100%; padding: 0 0 0 30px; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; overflow: hidden; white-space: nowrap; }
+.gt-event-name:hover .gt-event-title { color: var(--accent); text-decoration: underline; }
+.gt-event-date { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.75rem; flex: none; }
+.gt-event-title { overflow: hidden; text-overflow: ellipsis; }
+.gt-worked { font-weight: 700; }
+.gt-total, .gt-total .gt-left { background: var(--panel-2); font-weight: 700; }
+.gt-total { border-top: 2px solid var(--border); }
+
+.gt-status-bar { display: flex; height: 10px; width: 100%; border-radius: 999px; overflow: hidden; background: var(--neutral-bg); }
+.gt-status-bar > span { min-width: 4px; }
+
+.gt-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 8px 12px; border-top: 1px solid var(--border); }
+.gt-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.gt-swatch { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
+.gt-legend-note { margin-left: auto; }
+
+.gt-techs { margin-top: 18px; }
+.gt-techs h3 { margin: 0 0 8px; font-size: 1rem; }
+.gt-tech-wrap { overflow-x: auto; }
+.gt-tech-table { border-collapse: collapse; font-size: 0.85rem; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); }
+.gt-tech-table th, .gt-tech-table td { padding: 5px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.gt-tech-table thead th { background: var(--panel-2); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+.gt-tech-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.gt-tech-table tfoot th, .gt-tech-table tfoot td { font-weight: 700; background: var(--panel-2); border-bottom: 0; }
+.gt-tech-table .strong { font-weight: 700; }
+
+/* print: only the Gantt, landscape, the whole period in the page width (gantt.js redraws it) */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  body.gantt-open > *:not(#gantt) { display: none !important; }
+  html:has(body.gantt-open), body.gantt-open { overflow: visible; background: #fff; }
+  body.gantt-open .gt-left { grid-template-columns: minmax(0, 1fr) 118px 46px 50px 54px 80px; column-gap: 6px; }
+  body.gantt-open #gantt { position: static; display: block; border: 0; background: #fff; }
+  body.gantt-open #gantt .sheet-header, body.gantt-open #gantt .gt-toolbar { display: none; }
+  body.gantt-open .gt-body { overflow: visible; padding: 0; }
+  body.gantt-open .gt-print-title { display: block; font-size: 14pt; margin: 0 0 8px; }
+  body.gantt-open .gt-scroll { overflow: visible; max-height: none; }
+  body.gantt-open .gt-left, body.gantt-open .gt-head { position: static; }
+  body.gantt-open .gt-row { break-inside: avoid; }
+  body.gantt-open .gt-techs { break-inside: avoid; }
+  body.gantt-open .gt-summary { grid-template-columns: repeat(6, 1fr); }
+  body.gantt-open .gt-wrap, body.gantt-open .gt-card { border-color: #ccc; }
+  body.gantt-open * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

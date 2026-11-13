@@ -98,6 +98,10 @@ export default {
     "projectdialog.no_customer": "No customer",
     "projectdialog.project_required": "Choose the project.",
     "projectdialog.order": "Commessa (job number)",
+    "projectdialog.worked_hours": "Hours worked",
+    "projectdialog.worked_hours_hint": "Empty = {h} h from the times. Fill in only if the hours actually worked were different.",
+    "projectdialog.worked_hours_hint_none": "Without a start and end time, the reports count 0 hours unless you enter them here.",
+    "projectdialog.worked_hours_invalid": "Hours worked: a number from 0 to 1000 (e.g. 3.5).",
     "projectdialog.order_placeholder": "Choose from the list or type a new one",
     "projectdialog.order_no_customer": "The project has no customer: assign one to use commesse",
     "projectdialog.order_hint": {
@@ -204,6 +208,10 @@ export default {
     "projectdialog.no_customer": "Senza cliente",
     "projectdialog.project_required": "Scegli il progetto.",
     "projectdialog.order": "Commessa",
+    "projectdialog.worked_hours": "Ore effettive",
+    "projectdialog.worked_hours_hint": "Vuoto = {h} h dall'orario. Compila solo se le ore lavorate sono state diverse.",
+    "projectdialog.worked_hours_hint_none": "Senza orario di inizio e fine, nei report contano 0 ore se non le inserisci qui.",
+    "projectdialog.worked_hours_invalid": "Ore effettive: un numero da 0 a 1000 (es. 3,5).",
     "projectdialog.order_placeholder": "Scegli dall'elenco o scrivine una nuova",
     "projectdialog.order_no_customer": "Il progetto non ha un cliente: assegnane uno per usare le commesse",
     "projectdialog.order_hint": {

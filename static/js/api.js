@@ -163,3 +163,9 @@ export const fetchCustomerOrders = (customerId) => getJSON(`/api/customers/${q(c
 export const deleteCustomer = (id) => request("DELETE", `/api/customers/${q(id)}`);
 export const deleteProject = (projectId, version) => request("DELETE", `/api/projects/${q(projectId)}?version=${q(version)}`);
 export const patchCustomer = (id, version, changes) => request("PATCH", `/api/customers/${q(id)}`, { version, ...changes });
+
+// Gantt report (period, optional customer) and its Excel file
+const ganttQuery = (start, end, customerId) =>
+  `start=${q(start)}&end=${q(end)}${customerId ? `&customer_id=${q(customerId)}` : ""}`;
+export const fetchGantt = (start, end, customerId) => getJSON(`/api/reports/gantt?${ganttQuery(start, end, customerId)}`);
+export const downloadGantt = (start, end, customerId) => downloadFile(`/api/reports/gantt.xlsx?${ganttQuery(start, end, customerId)}`);

@@ -11,7 +11,7 @@ impegni: le priorità cambiano secondo le esigenze di chi usa il portale. Le fun
 | Funzione | Perché | Impegno |
 |---|---|---|
 | **Feed del calendario (ICS)** per tecnico, per Outlook e Google Calendar | Ognuno vede i propri interventi nel suo calendario abituale, aggiornati da soli | basso |
-| **Export della tabella server** in Excel/CSV e **report di progetto/cliente** (PDF/Excel) | Completa l'import da CSV/Excel: un documento per il cliente a fine lavori | medio |
+| **Export della tabella server** in Excel/CSV e **report di progetto** (PDF/Excel; il Gantt del cliente c'è già) | Completa l'import da CSV/Excel: un documento per il cliente a fine lavori | medio |
 | **«Eseguito il» compilato da solo** quando lo stato di un server diventa «Completata» | Un clic in meno, e la data del lavoro non si dimentica | basso |
 
 ## Pianificazione e lavoro quotidiano

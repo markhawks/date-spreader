@@ -116,6 +116,7 @@ class XEvent(_In):
     status: EventStatus = statuses.EVENT_STATUSES[0]
     title: str | None = Field(default=None, max_length=200)
     order_code: str | None = Field(default=None, max_length=100)  # commessa of the customer
+    worked_hours: float | None = Field(default=None, ge=0, le=1000)
     notes: str | None = Field(default=None, max_length=4000)
     participants: list[str] = Field(default_factory=list)  # chiavi di XTechnician
     servers: list[XRow] = Field(default_factory=list)

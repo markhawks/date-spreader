@@ -7,6 +7,7 @@ import { DetailPanel } from "./detail.js";
 import { customers, showCustomersDialog } from "./customers.js";
 import { FilterBar } from "./filters.js";
 import { Inventory } from "./inventory.js";
+import { Gantt } from "./gantt.js";
 import { PeopleDialog, people } from "./people.js";
 import { ProjectDialog, duplicateEventFlow, editEvent, newEventOnDate } from "./projectdialog.js";
 import { showContextMenu } from "./contextmenu.js";
@@ -423,6 +424,18 @@ async function main() {
   });
   $("btn-servers").addEventListener("click", () => inventory.open());
 
+  // Gantt of a customer (the one of the filter, if any): a click on an intervention closes it and opens the intervention
+  const gantt = new Gantt($("gantt"), {
+    getProjects: () => projects,
+    onOpenEvent: (ev) => {
+      gantt.close();
+      const p = projects.find((x) => x.events.some((e) => e.id === ev.id));
+      if (p) sidebar.setActive(p.id);
+      showProjectEvent(ev);
+    },
+  });
+  $("btn-gantt").addEventListener("click", () => gantt.open({ customerId: filters.state.customerId }));
+
   const peopleDialog = new PeopleDialog({ toast });
   // Gestione utenti: solo amministratori.
   if (me.is_admin) $("btn-people").addEventListener("click", () => peopleDialog.open());
@@ -583,6 +596,7 @@ async function main() {
         if (res.projects_changed) await reloadProjects();
         if (res.users_changed) await people.load(true);
         if (inventory.isOpen && (res.events.length || res.projects_changed)) await inventory.refresh();
+        if (gantt.isOpen && (res.events.length || res.projects_changed)) await gantt.refresh({ quiet: true });
         if (!res.events.length && !(res.dates ?? []).length) return;
         const ids = res.events.map((e) => e.id);
         // Periods to redraw: current dates of the touched interventions + old dates (moved/deleted)

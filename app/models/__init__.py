@@ -13,6 +13,7 @@ from sqlalchemy import (
     Boolean,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -111,6 +112,8 @@ class Event(VersionedMixin, TimestampMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text)
     # Commessa of the customer (optional); SET NULL if the commessa is deleted
     order_id: Mapped[int | None] = mapped_column(ForeignKey("customer_orders.id", ondelete="SET NULL"), index=True)
+    # hours actually worked on the intervention (optional): when set, replaces end − start in the reports
+    worked_hours: Mapped[float | None] = mapped_column(Float)
 
     project: Mapped[Project] = relationship(back_populates="events")
     order: Mapped[CustomerOrder | None] = relationship()

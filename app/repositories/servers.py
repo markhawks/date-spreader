@@ -193,7 +193,7 @@ def add_event(session: Session, project: Project, data) -> Event:
     event = Event(
         project=project, event_date=data.event_date, title=data.title, event_type=data.event_type,
         status=data.status, start_time=data.start_time, end_time=data.end_time, notes=data.notes,
-        order=resolve_order(session, project.customer_id, data.order_code),
+        order=resolve_order(session, project.customer_id, data.order_code), worked_hours=data.worked_hours,
     )
     session.add(event)
     if data.participant_ids:
@@ -332,6 +332,7 @@ def create_project(session: Session, data: ProjectCreate) -> Project:
             end_time=fe.end_time,
             notes=fe.notes,
             order=resolve_order(session, project.customer_id, fe.order_code),
+            worked_hours=fe.worked_hours,
         )
         session.add(event)
         if fe.participant_ids:

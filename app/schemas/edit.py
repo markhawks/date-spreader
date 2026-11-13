@@ -284,6 +284,7 @@ class EventPatch(BaseModel):
     start_time: time | None = None
     end_time: time | None = None
     order_code: str | None = Field(default=None, max_length=100)  # "" or null = no commessa
+    worked_hours: float | None = Field(default=None, ge=0, le=1000)  # hours actually worked (null = from the times)
 
     @field_validator("notes", "title", mode="before")
     @classmethod
@@ -335,6 +336,7 @@ class EventCreate(BaseModel):
     participant_ids: list[int] = Field(default_factory=list, max_length=50)
     # Commessa of the project's customer: existing code (any case) or a new one, created on the customer
     order_code: str | None = Field(default=None, max_length=100)
+    worked_hours: float | None = Field(default=None, ge=0, le=1000)  # hours actually worked (null = from the times)
 
     @field_validator("title", "notes", mode="before")
     @classmethod

@@ -40,6 +40,7 @@ export function timeSelect(value = "", { label = t("timepick.label"), emptyLabel
       select.insertBefore(opt, after ?? null);
     }
     select.value = hhmm;
+    select.dispatchEvent(new Event("timeset")); // set by code (e.g. suggested times): no "change"
   };
   select.getValue = () => select.value;
   select.setValue(value);

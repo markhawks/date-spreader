@@ -11,7 +11,7 @@ commitments: priorities change with the needs of the people using the portal. Do
 | Feature | Why | Effort |
 |---|---|---|
 | **Calendar feed (ICS)** per technician, for Outlook and Google Calendar | Everyone sees their own interventions in their usual calendar, updated automatically | low |
-| **Export of the server table** to Excel/CSV and **project/customer reports** (PDF/Excel) | Completes the CSV/Excel import: a document for the customer at the end of the work | medium |
+| **Export of the server table** to Excel/CSV and a **project report** (PDF/Excel; the customer Gantt already exists) | Completes the CSV/Excel import: a document for the customer at the end of the work | medium |
 | **"Executed on" filled in automatically** when a server's status becomes "Completed" | One click less, and the date of the work is never forgotten | low |
 
 ## Planning and daily work

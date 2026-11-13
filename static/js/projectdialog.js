@@ -165,6 +165,19 @@ export function orderField(customerId, value = "") {
   return { input, hint, setCustomer: set, disabledByCustomer: () => current == null, dispose: () => list.remove() };
 }
 
+/** Hours between two "HH:MM" times (an end at 23:59 counts as midnight); null without both. */
+export function hoursFromTimes(start, end) {
+  if (!start || !end) return null;
+  const m = (v) => { const [h, mm] = v.slice(0, 5).split(":").map(Number); return h * 60 + mm; };
+  const e = end.slice(0, 5) === "23:59" ? 24 * 60 : m(end);
+  return Math.max(e - m(start), 0) / 60;
+}
+
+/** 3.5 → "3,5" (in the user's language), at most two decimals. */
+export function formatHours(h) {
+  return new Intl.NumberFormat(locale(), { maximumFractionDigits: 2 }).format(h);
+}
+
 export function openEventForm({ project, event = null, date: initialDate = null }) {
   return new Promise(async (resolve) => {
     await people.load();
@@ -191,7 +204,21 @@ export function openEventForm({ project, event = null, date: initialDate = null 
       labeled(t("projectdialog.order"), order.input, { wide: true }), order.hint,
       labeled(t("projectdialog.start_time"), start), labeled(t("projectdialog.end_time"), end));
     times.hint.classList.add("pf-wide");
-    grid.append(times.hint, labeled(t("projectdialog.notes"), notes, { wide: true }));
+    // Hours actually worked (optional): when empty, the reports use end − start
+    const worked = Object.assign(el("input", "pf-hours"), { type: "number", min: "0", max: "1000", step: "0.25", inputMode: "decimal",
+      value: event?.worked_hours ?? "" });
+    const workedHint = el("span", "muted small pf-hours-hint");
+    const syncWorked = () => {
+      const h = hoursFromTimes(start.value, end.value);
+      worked.placeholder = h == null ? "" : formatHours(h);
+      workedHint.textContent = h == null ? t("projectdialog.worked_hours_hint_none") : t("projectdialog.worked_hours_hint", { h: formatHours(h) });
+    };
+    [start, end].forEach((x) => ["change", "timeset"].forEach((type) => x.addEventListener(type, syncWorked)));
+    syncWorked();
+    const workedBox = el("span", "pf-hours-box");
+    workedBox.append(worked, workedHint);
+    grid.append(times.hint, labeled(t("projectdialog.worked_hours"), workedBox, { wide: true }),
+      labeled(t("projectdialog.notes"), notes, { wide: true }));
     let picker = null;
     if (!editing) {
       picker = participantPicker([], { label: t("projectdialog.technicians") });
@@ -232,9 +259,13 @@ export function openEventForm({ project, event = null, date: initialDate = null 
       if (start.value && end.value && end.value <= start.value) {
         return d.showError(t("projectdialog.end_after_start"), end);
       }
+      if (worked.value !== "" && !(Number(worked.value) >= 0 && Number(worked.value) <= 1000)) {
+        return d.showError(t("projectdialog.worked_hours_invalid"), worked);
+      }
       const values = {
         event_date: date.value, event_type: type.value, title: title.value,
         start_time: start.value, end_time: end.value, notes: notes.value,
+        worked_hours: worked.value === "" ? null : Number(worked.value),
         ...(customerId != null && { order_code: order.input.value.trim() }),
       };
       save.disabled = true;
@@ -246,7 +277,7 @@ export function openEventForm({ project, event = null, date: initialDate = null 
           const before = {
             event_date: event.event_date, event_type: event.event_type, title: event.title ?? "",
             start_time: event.start_time?.slice(0, 5) ?? "", end_time: event.end_time?.slice(0, 5) ?? "", notes: event.notes ?? "",
-            order_code: event.order_code ?? "",
+            order_code: event.order_code ?? "", worked_hours: event.worked_hours ?? "",
           };
           const changes = Object.fromEntries(Object.entries(values).filter(([k, v]) => norm(v) !== norm(before[k])));
           if (!Object.keys(changes).length) { d.dialog.close(); return; }

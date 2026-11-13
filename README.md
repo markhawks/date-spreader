@@ -333,6 +333,24 @@ to **recover access** if the administrator forgets the password.
   the sample data: they can be renamed or deactivated.
 - A technician added by a colleague appears in the menus within about 10 seconds.
 
+### Gantt (per customer)
+- The **Gantt** button at the top opens a full-screen Gantt of a customer (the one chosen in the customer filter,
+  if any, or all customers) over a period: from/to dates, or "This month", "Last + this month", "3 months" and
+  "Whole customer" (from its first to its last intervention).
+- **Summary**: interventions (with their statuses), commesse, machines (distinct servers), hours, man-hours and
+  technicians, with the interventions that have no hours or no technicians flagged.
+- **Rows**: one group per **commessa** (interventions without commessa at the bottom; a click collapses or expands
+  it), then its **projects** as a bar from the first to the last intervention, then every **intervention** on its
+  day, colored by status. Next to each row: technicians, hours, man-hours, machines (completed/total for an
+  intervention) and statuses. A click on an intervention opens it. Days narrow, medium or wide (S/M/L).
+- **Hours** of an intervention: the **hours worked**, if entered in the intervention form ("Hours worked"),
+  otherwise end − start (an end at 23:59 counts as midnight); without both, 0 hours and "—". Cancelled and
+  postponed interventions count 0 hours unless hours worked were entered. **Man-hours** = hours × technicians
+  (participants and technicians assigned to the server rows).
+- **Hours per technician and commessa**: a table below the Gantt, with the man-hours of each commessa.
+- **Print** (landscape A4, the whole period in the page width; also "Save as PDF") and **Excel** (sheets Gantt
+  with one column per day, Hours per technician, Summary).
+
 ### Settings
 The **⚙** icon at the top opens Settings, the place where configuration and customization options are collected.
 
@@ -579,6 +597,8 @@ installation on a PC or at a customer's site.
 | `PATCH /api/users/{id}` | Edits name, email, role, `is_active` (with `version`, 409 if changed) |
 | `PUT /api/events/{id}/participants` | Replaces the participants (`user_ids`). A deactivated technician can stay but cannot be added |
 | `GET /api/options` | Allowed values for the choice columns |
+| `GET /api/reports/gantt?start=&end=[&customer_id=]` | Gantt report: interventions of the period grouped by commessa → project, with hours, man-hours, technicians, machines and statuses (at most 400 days) |
+| `GET /api/reports/gantt.xlsx?start=&end=[&customer_id=]` | The same report as an Excel file |
 | `POST /api/projects` | Creates a project (`name`, `description`, `status`), with optional `first_event` (`event_date`, `title`, `event_type`, `start_time`, `end_time`). 409 if the name already exists |
 | `GET /api/me/preferences` · `PATCH /api/me/preferences` | Personal preferences of the current user (preview position and height, theme, `language`: `auto`, `en` or `it`, project column width/view/sorting) |
 | `GET /api/operating-systems[?all=true]` | List of operating systems (active; with `all` also deactivated), with `server_count` |

@@ -230,6 +230,14 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - I 4 tecnici iniziali (Luca Bianchi, Sara Verdi, Marco Neri, Giulia Gallo) sono **fittizi** e vengono dai dati di esempio: si possono rinominare o disattivare.
 - Un tecnico aggiunto da un collega compare nei menu entro circa 10 secondi.
 
+### Gantt (per cliente)
+- Il pulsante **Gantt** in alto apre a tutto schermo il Gantt di un cliente (quello scelto nel filtro clienti, se c'è, oppure tutti i clienti) in un periodo: date dal/al, oppure «Questo mese», «Mese scorso + questo», «3 mesi» e «Tutto il cliente» (dal suo primo all'ultimo intervento).
+- **Riepilogo**: interventi (con i loro stati), commesse, macchine (server distinti), ore, ore-uomo e tecnici, con la segnalazione degli interventi senza ore o senza tecnici.
+- **Righe**: un gruppo per **commessa** (gli interventi senza commessa in fondo; un clic lo chiude o lo apre), poi i suoi **progetti** come barra dal primo all'ultimo intervento, poi ogni **intervento** nel suo giorno, colorato per stato. Accanto a ogni riga: tecnici, ore, ore-uomo, macchine (completate/totali per un intervento) e stati. Un clic su un intervento lo apre. Giorni stretti, medi o larghi (S/M/L).
+- **Ore** di un intervento: le **ore effettive**, se inserite nel modulo dell'intervento («Ore effettive»), altrimenti fine − inizio (la fine alle 23:59 vale mezzanotte); senza né l'una né l'altro, 0 ore e «—». Gli interventi annullati e rinviati contano 0 ore, salvo ore effettive inserite. **Ore-uomo** = ore × tecnici (partecipanti e tecnici assegnati alle righe server).
+- **Ore per tecnico e commessa**: una tabella sotto il Gantt, con le ore-uomo di ogni commessa.
+- **Stampa** (A4 orizzontale, tutto il periodo nella larghezza della pagina; anche «Salva come PDF») ed **Excel** (fogli Gantt con una colonna per giorno, Ore per tecnico, Riepilogo).
+
 ### Impostazioni
 L'icona **⚙** in alto apre le Impostazioni, la sezione in cui raccogliere man mano configurazioni e personalizzazioni.
 
@@ -392,6 +400,8 @@ Per portare progetti da un'installazione di Date Spreader a un'altra: per esempi
 | `PATCH /api/users/{id}` | Modifica nome, email, ruolo, `is_active` (con `version`, 409 se cambiato) |
 | `PUT /api/events/{id}/participants` | Sostituisce i partecipanti (`user_ids`). Un tecnico disattivato può restare ma non essere aggiunto |
 | `GET /api/options` | Valori ammessi per le colonne a scelta |
+| `GET /api/reports/gantt?start=&end=[&customer_id=]` | Report Gantt: interventi del periodo raggruppati per commessa → progetto, con ore, ore-uomo, tecnici, macchine e stati (al massimo 400 giorni) |
+| `GET /api/reports/gantt.xlsx?start=&end=[&customer_id=]` | Lo stesso report come file Excel |
 | `POST /api/projects` | Crea un progetto (`name`, `description`, `status`), con `first_event` facoltativo (`event_date`, `title`, `event_type`, `start_time`, `end_time`). 409 se il nome esiste già |
 | `GET /api/me/preferences` · `PATCH /api/me/preferences` | Preferenze personali dell'utente corrente (posizione e altezza dell'anteprima, tema, lingua `language`: `auto`, `en` o `it`, larghezza/vista/ordinamento della colonna progetti) |
 | `GET /api/operating-systems[?all=true]` | Elenco dei sistemi operativi (attivi; con `all` anche i disattivati), con `server_count` |

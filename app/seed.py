@@ -119,6 +119,7 @@ def seed(session: Session, today: date | None = None) -> dict[str, int]:
         event_type="migrazione",
         status="completato",
         order=order_alfa,
+        worked_hours=4.5,   # finished later than planned: the reports use these hours
         notes="alfa-db01 rinviato alla seconda finestra su richiesta del cliente.",
     )
     e2 = Event(

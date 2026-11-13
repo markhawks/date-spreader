@@ -151,6 +151,7 @@ class EventDetail(BaseModel):
     servers: list[ServerRow]
     conflicts: list[Conflict] = []
     order_code: str | None = None   # commessa of the customer
+    worked_hours: float | None = None  # hours actually worked (null = from the times)
 
     @classmethod
     def from_event(cls, e) -> EventDetail:
@@ -168,6 +169,7 @@ class EventDetail(BaseModel):
             event_type=e.event_type,
             status=e.status,
             order_code=e.order.code if e.order else None,
+            worked_hours=e.worked_hours,
             notes=e.notes,
             participants=sorted(
                 (UserRef(id=p.user.id, display_name=p.user.display_name) for p in e.participants),
