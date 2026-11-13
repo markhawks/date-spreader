@@ -217,14 +217,15 @@ export class Sidebar {
     paint(li, project.id);
     const ul = document.createElement("ul");
     ul.setAttribute("aria-label", t("sidebar.events_of", { name: project.name }));
-    const next = project.events.find((e) => e.event_date >= today);
     const byTime = (e) => `${e.event_date} ${e.start_time ?? ""}`;
-    for (const ev of [...project.events].sort((x, y) => byTime(x).localeCompare(byTime(y)))) {
+    const events = [...project.events].sort((x, y) => byTime(x).localeCompare(byTime(y)));
+    const next = events.find((e) => e.event_date >= today);
+    for (const ev of events) {
       const item = document.createElement("li");
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = `tile-event status-${ev.status}`;
-      if (ev.event_date < today) btn.classList.add("past");
+      btn.classList.add(ev.event_date < today ? "past" : "upcoming");
       if (ev === next) btn.classList.add("next");
       btn.dataset.projectId = project.id;
       btn.dataset.eventId = ev.id;
