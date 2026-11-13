@@ -2306,9 +2306,8 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
   color: var(--c);
   background: color-mix(in srgb, var(--c) 12%, var(--panel));
 }
-/* Upcoming interventions: date filled with the project color; the next one also has a ring */
+/* Upcoming interventions (today included): all with the date filled with the project color */
 .tile-event.upcoming .te-date { color: var(--c-on, #fff); background: var(--c); }
-.tile-event.next .te-date { box-shadow: 0 0 0 2px var(--panel), 0 0 0 3.5px var(--c); }
 .te-title { grid-area: title; font-size: 0.82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .te-meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 1px 8px; min-width: 0; font-size: 0.72rem; color: var(--muted); }
 .te-meta .badge { font-size: 0.68rem; padding: 0 6px; }
