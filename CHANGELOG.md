@@ -6,6 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
+- **RPM package for RHEL 10.3+ with EPEL** (being tested, not published yet): `packaging/rpm/` (spec, systemd units, sysusers, firewalld service, `datespreader` administration command, `build.sh` with mock or rpmbuild). It uses the system Python 3.12 and the python3-* packages of RHEL and EPEL, nothing bundled; code in `/usr/lib/datespreader`, configuration in `/etc/datespreader/datespreader.env`, data and backups in `/var/lib/datespreader`. The test suite passes with the RHEL 10.3 + EPEL versions (Python 3.12, FastAPI 0.115, SQLAlchemy 2.0, Alembic 1.13). New setting `DATESPREADER_CONFIG`: path of the configuration file (default: the project's `.env`).
 - **Banner** at the top of the READMEs and project images in `docs/images/branding/` (wallpaper, social preview).
 - **Screenshots** in the READMEs (`docs/images/screenshots/`): calendar, preview, server table, Gantt, Technicians view, dark theme.
 - `scripts/make_screenshots.py`: screenshots for the READMEs (calendar, preview, server table, Gantt, Technicians view, dark theme; English and Italian), taken from a temporary instance with the sample data only. Needs Playwright.

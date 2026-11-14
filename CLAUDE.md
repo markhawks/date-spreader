@@ -47,6 +47,18 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
   `--source <repo> --dir /opt/datespreader-test --port 8011 --service datespreader-test --user dstest`
   (lo script clona l'HEAD *committato*), poi disinstallarla come da guida.
 
+## Pacchetto RPM per RHEL 10.3+ (packaging/rpm/, in prova dal 2026-11-14)
+- Scelte dell'utente: **solo RHEL 10.3 e successive** (`Requires: redhat-release >= 10.3`), **Python e librerie
+  di sistema** (RHEL AppStream + EPEL), niente librerie incluse; pacchetto `noarch`.
+- Build da qui: `packaging/rpm/build.sh` (mock `alma+epel-10-x86_64`, sorgenti da `git archive` del commit:
+  committare prima) → `dist/rpm/` (escluso da git). Su RHEL: `build.sh --rpmbuild`.
+- Versioni su RHEL 10.3 + EPEL (2026-11-14): Python 3.12, FastAPI 0.115, Starlette 0.47, Pydantic 2.9,
+  SQLAlchemy 2.0.26, Alembic 1.13, uvicorn 0.35, openpyxl 3.1.2. Non usare funzioni più nuove: la build esegue
+  i test in quell'ambiente (`%check`). Per provarle a mano: venv Python 3.12 con quelle versioni (`pip --no-deps`).
+- Sulla RHEL dell'utente i comandi li esegue l'utente: dargli i passi e chiedere l'output.
+- Quando la prova riesce: guida `docs/INSTALL-RPM.md` + italiana, tabella «Piattaforme», `.gitattributes`
+  con `export-ignore` per `docs/images` (il .src.rpm oggi pesa 7 MB), `Version`/`%changelog` dello spec a ogni rilascio.
+
 ## Prima di toccare il database reale
 1. Nuova migrazione: `.venv/bin/alembic revision --autogenerate -m "…"`, rileggerla, usare `sa.false()`
    per i default booleani.
