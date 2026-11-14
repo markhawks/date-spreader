@@ -1,0 +1,13 @@
+# Runs datespreader-backup.service every night at about 02:30.
+# Persistent=true: if the server was off at that time, the backup runs at the next boot.
+[Unit]
+Description=Date Spreader - nightly database backup
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+RandomizedDelaySec=15m
+Persistent=true
+Unit=datespreader-backup.service
+
+[Install]
+WantedBy=timers.target

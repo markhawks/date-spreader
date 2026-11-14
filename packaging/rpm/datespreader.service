@@ -1,0 +1,30 @@
+# Date Spreader (RPM): the web portal. Configuration: /etc/datespreader/datespreader.env
+[Unit]
+Description=Date Spreader - planning of technical interventions
+Documentation=file:///usr/share/doc/datespreader/INSTALL-RPM.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=datespreader
+Group=datespreader
+WorkingDirectory=/usr/lib/datespreader
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=DATESPREADER_CONFIG=/etc/datespreader/datespreader.env
+# New migrations (if any) are applied before starting, after an automatic backup.
+ExecStartPre=/usr/bin/python3 -m app.cli migrate
+ExecStart=/usr/bin/python3 -m app.main
+Restart=on-failure
+RestartSec=5
+
+# Protections: the portal can write only in its data folder.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/datespreader
+
+[Install]
+WantedBy=multi-user.target

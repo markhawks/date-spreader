@@ -12,3 +12,5 @@ data/*
 CLAUDE.local.md
 # impostazioni scritte da deploy/install.sh nella cartella installata
 .install.conf
+# packages built by packaging/rpm/build.sh
+dist/

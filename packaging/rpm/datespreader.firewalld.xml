@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Date Spreader web portal. Not opened automatically:
+     firewall-cmd --permanent --add-service=datespreader && firewall-cmd --reload
+     (if you change PORT in /etc/datespreader/datespreader.env, open that port instead) -->
+<service>
+  <short>Date Spreader</short>
+  <description>Date Spreader web portal (planning of technical interventions), default port 8000/tcp.</description>
+  <port protocol="tcp" port="8000"/>
+</service>

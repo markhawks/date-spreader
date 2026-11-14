@@ -1,0 +1,23 @@
+# Date Spreader (RPM): nightly database backup, started by datespreader-backup.timer.
+# Verified copy in /var/lib/datespreader/backups + rotation (7 daily, 4 weekly, 12 monthly).
+[Unit]
+Description=Date Spreader - nightly database backup
+Documentation=file:///usr/share/doc/datespreader/INSTALL-RPM.md
+
+[Service]
+Type=oneshot
+User=datespreader
+Group=datespreader
+WorkingDirectory=/usr/lib/datespreader
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=DATESPREADER_CONFIG=/etc/datespreader/datespreader.env
+ExecStart=/usr/bin/python3 -m app.cli backup --scheduled
+Nice=10
+IOSchedulingClass=idle
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/datespreader

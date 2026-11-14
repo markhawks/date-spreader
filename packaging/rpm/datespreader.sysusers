@@ -1,0 +1,2 @@
+# System user of the Date Spreader portal (no login, no shell)
+u datespreader - "Date Spreader portal" /var/lib/datespreader /usr/sbin/nologin

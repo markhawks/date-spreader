@@ -42,8 +42,15 @@ class Settings:
         return f"sqlite:///{self.database_path}"
 
 
+def config_file() -> Path:
+    """The configuration file: DATESPREADER_CONFIG (e.g. /etc/datespreader/datespreader.env in the RPM),
+    otherwise the project's .env."""
+    path = os.environ.get("DATESPREADER_CONFIG", "").strip()
+    return Path(path) if path else PROJECT_ROOT / ".env"
+
+
 def get_settings() -> Settings:
-    _load_dotenv(PROJECT_ROOT / ".env")
+    _load_dotenv(config_file())
     db_path = Path(os.environ.get("DATABASE_PATH", "data/datespreader.sqlite3"))
     if not db_path.is_absolute():
         db_path = PROJECT_ROOT / db_path
