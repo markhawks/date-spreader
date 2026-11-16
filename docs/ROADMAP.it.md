@@ -30,6 +30,7 @@ impegni: le priorità cambiano secondo le esigenze di chi usa il portale. Le fun
 |---|---|---|
 | **Token per le API** per l'automazione (Ansible, sistemi di ticketing, script) | Es. un playbook di patching segna da solo «Completata» sui suoi server | medio |
 | **Accesso aziendale**: LDAP/Active Directory, SSO Microsoft o Google | Nessuna password in più per gli utenti | alto |
+| **Sincronizzazione diretta tra installazioni**: si registra l'altra installazione (indirizzo + token API), poi «Sincronizza con …» ne scarica i dati e mostra lo stesso report delle differenze, senza passare file | La sincronizzazione di un cliente di oggi con un passaggio in meno; servono i token API qui sopra e HTTPS tra i server | medio |
 
 ## Installazione e piattaforme
 

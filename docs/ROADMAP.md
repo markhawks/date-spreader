@@ -30,6 +30,7 @@ commitments: priorities change with the needs of the people using the portal. Do
 |---|---|---|
 | **API tokens** for automation (Ansible, ticketing systems, scripts) | E.g. a patching playbook marks its servers "Completed" by itself | medium |
 | **Company sign-in**: LDAP/Active Directory, Microsoft or Google SSO | No extra password for the users | high |
+| **Direct sync between installations**: register the other installation (address + API token), then "Sync with …" fetches its data and shows the same report of the differences, without passing files around | The customer sync of today with one click less; needs the API tokens above and HTTPS between the servers | medium |
 
 ## Installation and platforms
 
