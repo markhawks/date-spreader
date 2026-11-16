@@ -10,14 +10,15 @@ un'installazione all'altra con **export / import**: vedi il README, sezione [«E
 
 | Sistema | Stato |
 |---|---|
-| **Fedora Linux 44** (Server Edition, x86_64) | ✅ **Testato**: script di installazione, servizio, aggiornamento |
-| Red Hat Enterprise Linux 10.2 | 🔜 Previsto, non ancora verificato |
+| **Fedora Linux 44** (Server Edition, x86_64) | ✅ **Testato**: script di installazione, servizio, aggiornamento; **pacchetto RPM** |
+| **Red Hat Enterprise Linux 10.3** (con EPEL) | ✅ **Testato**: **pacchetto RPM** (installazione, aggiornamento, ripristino, sincronizzazione) |
+| Red Hat Enterprise Linux 10.2 o precedenti | ❌ Non supportato dall'RPM (serve la 10.3) |
 | Fedora Linux 45 | 🔜 Previsto, non ancora verificato |
 | Altre distribuzioni con systemd e Python ≥ 3.11 | ⚠️ Installazione manuale (vedi sotto), a proprio rischio |
 
-**In arrivo:** un **installatore** guidato e un **pacchetto RPM** (`dnf install datespreader`), insieme al supporto
-di RHEL 10.2 e Fedora 45. Fino ad allora lo script `deploy/install.sh` è il modo consigliato. Tutte le funzioni
-previste: [ROADMAP.it.md](ROADMAP.it.md).
+**Pacchetto RPM** per RHEL 10.3+ e Fedora 44+ (Python di sistema, niente librerie incluse): vedi
+[INSTALLAZIONE-RPM.md](INSTALLAZIONE-RPM.md). Altrimenti lo script `deploy/install.sh` descritto qui. In arrivo:
+un installatore guidato. Tutte le funzioni previste: [ROADMAP.it.md](ROADMAP.it.md).
 
 Lo script rifiuta i sistemi non ancora testati. Con `--force` procede lo stesso, segnalandolo.
 
@@ -72,7 +73,7 @@ quella si può cancellare.
 | `--port N` | Porta del portale (predefinita `8000`) |
 | `--local-only` | Raggiungibile solo dalla macchina stessa (`127.0.0.1`), per esempio dietro un proxy HTTPS |
 | `--dir PERCORSO` | Cartella di installazione (predefinita `/opt/datespreader`). Non sono ammesse `/tmp` e le home |
-| `--source URL\|PERCORSO`, `--ref RAMO\|TAG` | Da dove scaricare il codice e quale versione (predefiniti: GitHub, `main`). Es. `--ref v0.25.0` |
+| `--source URL\|PERCORSO`, `--ref RAMO\|TAG` | Da dove scaricare il codice e quale versione (predefiniti: GitHub, `main`). Es. `--ref v0.26.0` |
 | `--service NOME`, `--user NOME` | Nome del servizio systemd e dell'utente di sistema. Servono per installare una seconda istanza sulla stessa macchina |
 | `--no-firewall` | Non modifica il firewall |
 | `--force` | Procede su un sistema non ancora testato |
@@ -123,7 +124,7 @@ sudo /opt/datespreader/deploy/install.sh
 
 Cosa succede:
 1. **backup del database** in `data/backups/…-pre-aggiornamento.sqlite3`;
-2. scarica la nuova versione da GitHub. Per una versione precisa: `--ref v0.25.0`;
+2. scarica la nuova versione da GitHub. Per una versione precisa: `--ref v0.26.0`;
 3. aggiorna le dipendenze e riavvia il servizio;
 4. il servizio, all'avvio, porta il database allo schema nuovo (migrazioni).
 

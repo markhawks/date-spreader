@@ -11,6 +11,7 @@ from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.orm import Session
 
 from app import __version__
+from app.build import build_info
 from app.api.deps import get_session
 from app.auth import (
     COOKIE_NAME,
@@ -50,6 +51,8 @@ class MeOut(BaseModel):
     username: str | None
     email: str | None
     version: str
+    release_date: str
+    full_version: str            # with the package release (RPM), see app/build.py
 
 
 class ChangePasswordIn(BaseModel):
@@ -61,7 +64,7 @@ def _me(user: AuthUser) -> MeOut:
     return MeOut(
         id=user.id, display_name=user.display_name, role=user.role, is_admin=user.is_admin,
         must_change_password=user.must_change_password, username=user.username, email=user.email,
-        version=__version__,
+        version=__version__, release_date=build_info()["release_date"], full_version=build_info()["full_version"],
     )
 
 

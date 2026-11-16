@@ -1,6 +1,6 @@
-# Date Spreader – RPM for Red Hat Enterprise Linux 10.3 and later (with EPEL).
-# The portal uses the system Python 3 and the python3-* packages of RHEL (AppStream) and EPEL:
-# nothing is bundled. Build: packaging/rpm/build.sh (mock or rpmbuild), see docs/INSTALL-RPM.md.
+# Date Spreader – RPM for Red Hat Enterprise Linux 10.3 and later (with EPEL) and for Fedora 44 and later.
+# The portal uses the system Python 3 and the python3-* packages of the distribution (RHEL AppStream + EPEL,
+# or Fedora): nothing is bundled. Build: packaging/rpm/build.sh --target rhel|fedora (mock or rpmbuild).
 #
 # Layout:
 #   /usr/lib/datespreader            code, migrations, web interface (read-only)
@@ -8,7 +8,7 @@
 #   /var/lib/datespreader            database; backups in /var/lib/datespreader/backups
 #   /usr/bin/datespreader            administration command (runs as the "datespreader" user)
 
-%{!?ds_version: %global ds_version 0.25.0}
+%{!?ds_version: %global ds_version 0.26.0}
 %global appdir %{_prefix}/lib/datespreader
 
 # Tests during the build (needs python3-pytest and python3-httpx): rpmbuild --without check to skip
@@ -16,7 +16,7 @@
 
 Name:           datespreader
 Version:        %{ds_version}
-Release:        3%{?dist}
+Release:        1%{?dist}
 Summary:        Web portal to plan and track technical interventions on servers
 License:        AGPL-3.0-only
 URL:            https://github.com/markhawks/date-spreader
@@ -38,8 +38,13 @@ BuildRequires:  python3-alembic >= 1.13
 BuildRequires:  python3-openpyxl >= 3.1
 %endif
 
-# Dedicated to RHEL 10.3 and later (not installable on 10.2 or earlier)
+# RHEL: 10.3 and later only (not installable on 10.2 or earlier). Fedora: 44 and later.
+%if 0%{?rhel}
 Requires:       redhat-release >= 10.3
+%endif
+%if 0%{?fedora}
+Requires:       fedora-release-common >= 44
+%endif
 Requires:       python3 >= 3.12
 Requires:       python3-fastapi >= 0.115
 Requires:       python3-starlette >= 0.40
@@ -70,6 +75,8 @@ scheduling conflicts, audit log and verified nightly backups. English and Italia
 install -d %{buildroot}%{appdir}
 cp -a app migrations static alembic.ini CHANGELOG.md CHANGELOG.it.md %{buildroot}%{appdir}/
 find %{buildroot}%{appdir} -name '__pycache__' -prune -exec rm -rf {} +
+# How this copy was installed: the interface shows "VERSION-RELEASE" (app/build.py)
+printf '{"package": "rpm", "release": "%s"}\n' "%{release}" > %{buildroot}%{appdir}/build-info.json
 %py_byte_compile %{python3} %{buildroot}%{appdir}
 
 install -Dpm 0755 packaging/rpm/datespreader-cli.sh %{buildroot}%{_bindir}/datespreader
@@ -117,6 +124,11 @@ install -d %{buildroot}%{_sharedstatedir}/datespreader/backups
 %dir %attr(0750,datespreader,datespreader) %{_sharedstatedir}/datespreader/backups
 
 %changelog
+* Mon Nov 16 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.26.0-1
+- Date Spreader 0.26.0 (see /usr/share/doc/datespreader/CHANGELOG.md).
+- Also built for Fedora 44 and later.
+- build-info.json: the interface shows the package release next to the version.
+
 * Mon Nov 16 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.25.0-3
 - Test build with the sync of a customer between two installations (not released yet):
   migration b7a9629f1729, applied automatically at the restart after a backup.

@@ -14,3 +14,4 @@ CLAUDE.local.md
 .install.conf
 # packages built by packaging/rpm/build.sh
 dist/
+build-info.json

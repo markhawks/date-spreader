@@ -19,8 +19,9 @@ called "Time Dot").
 Highlights:
 
 - a **vertical calendar** centered on the current month, showing every intervention with its **progress** ("2/4"
-  servers done, plus a thin bar that fills up), in a **month or week view**, with **7 days or Mon–Fri** (weekends
-  shown only where there are interventions);
+  servers done, plus a thin bar that fills up), **status, commessa and technicians** when there is room, in a
+  **month or week view**, with **7 days or Mon–Fri** (weekends shown only where there are interventions); height and
+  width of the days change with the middle mouse button;
 - a **project sidebar**, with projects grouped and filtered by **customer** and colored per customer, and expandable
   to list their **interventions** (date, status, time, commessa) and open one with a click;
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
@@ -76,7 +77,10 @@ The stack is deliberately small: **FastAPI + SQLite** on the backend and plain E
 no build step) on the frontend.
 
 ## Installing on a server
-**Full guide: [docs/INSTALL.md](docs/INSTALL.md).** In short, on **Fedora 44** (the only system tested so far):
+**RHEL 10.3+ or Fedora 44+: RPM package** attached to every release, using the system Python:
+[docs/INSTALL-RPM.md](docs/INSTALL-RPM.md).
+
+**With the install script — full guide: [docs/INSTALL.md](docs/INSTALL.md).** In short, on **Fedora 44**:
 
 ```bash
 git clone https://github.com/markhawks/date-spreader.git && cd date-spreader

@@ -17,7 +17,7 @@ L'interfaccia è disponibile in **inglese** e **italiano**: ogni utente sceglie 
 
 In breve:
 
-- **calendario verticale** con l'**avanzamento** di ogni intervento («2/4» e una barra), vista **mensile o settimanale**, **7 giorni o Lun–Ven** (il weekend compare solo dove ci sono interventi);
+- **calendario verticale** con l'**avanzamento** di ogni intervento («2/4» e una barra) e, se c'è spazio, **stato, commessa e tecnici**, vista **mensile o settimanale**, **7 giorni o Lun–Ven** (il weekend compare solo dove ci sono interventi); altezza e larghezza dei giorni si cambiano con il tasto centrale del mouse;
 - **colonna dei progetti** raggruppati e colorati per **cliente**, espandibili per vedere i loro **interventi**
   (data, stato, orario, commessa) e aprirli con un clic;
 - **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico;
@@ -53,8 +53,10 @@ Calendario con la colonna progetti (progetti espansi con i loro interventi):
 Specifica iniziale: [DateWeaver.md](DateWeaver.md) (documento originale, scritto quando il progetto si chiamava ancora "Time Dot").
 
 ## Installazione su un server
-**Guida completa: [docs/INSTALLAZIONE.md](docs/INSTALLAZIONE.md).** In breve, su **Fedora 44** (l'unico sistema
-testato finora):
+**RHEL 10.3+ o Fedora 44+: pacchetto RPM** allegato a ogni release, con il Python di sistema:
+[docs/INSTALLAZIONE-RPM.md](docs/INSTALLAZIONE-RPM.md).
+
+**Con lo script di installazione — guida completa: [docs/INSTALLAZIONE.md](docs/INSTALLAZIONE.md).** In breve, su **Fedora 44**:
 
 ```bash
 git clone https://github.com/markhawks/date-spreader.git && cd date-spreader

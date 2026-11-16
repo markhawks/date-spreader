@@ -11,7 +11,7 @@ import { Gantt } from "./gantt.js";
 import { PeopleDialog, people } from "./people.js";
 import { ProjectDialog, duplicateEventFlow, editEvent, newEventOnDate } from "./projectdialog.js";
 import { showContextMenu } from "./contextmenu.js";
-import { formatMediumDate, todayIso } from "./dates.js";
+import { formatMediumDate, formatShortDate, todayIso } from "./dates.js";
 import { TopbarClock } from "./clock.js";
 import { ProjectForm } from "./projectform.js";
 import { showOsDialog } from "./osdialog.js";
@@ -501,7 +501,17 @@ async function main() {
       detail.reload().then(() => { if (calendar.selected) calendar.goToDate(calendar.selected, { flash: false }); });
     }
   });
-  $("version-link").textContent = `v${me.version}`;
+  // Version in the top bar: version (with the package release, e.g. 0.26.0-1.el10) and release date
+  {
+    const link = $("version-link");
+    const date = me.release_date ? formatShortDate(me.release_date) : "";
+    link.replaceChildren(
+      Object.assign(document.createElement("span"), { className: "vl-version", textContent: `v${me.full_version ?? me.version}` }),
+      Object.assign(document.createElement("span"), { className: "vl-date", textContent: date }),
+    );
+    link.title = [t("main.version_details", { version: me.full_version ?? me.version, date: me.release_date ? formatMediumDate(me.release_date) : "—" }),
+      t("index.version_title")].join("\n");
+  }
 
   // Data e orologio nella barra in alto (preferenza personale)
   const clock = new TopbarClock($("topbar-clock"));

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
 from app import DEFAULT_SOURCE_URL, __license__, __version__
+from app.build import build_info
 from app.config import PROJECT_ROOT
 from app.i18n import current_language, tr
 
@@ -15,6 +16,9 @@ router = APIRouter(tags=["portale"])
 class VersionOut(BaseModel):
     name: str
     version: str
+    release_date: str            # ISO date of the release of this version
+    full_version: str            # with the package release, e.g. "0.26.0-1.el10" (RPM); otherwise = version
+    package: str | None          # "rpm", or None (installed from git)
     license: str
     source_url: str
 
@@ -28,7 +32,9 @@ class ChangelogOut(BaseModel):
 def version(request: Request) -> VersionOut:
     settings = getattr(request.app.state, "settings", None)
     source = (settings.source_url if settings else "") or DEFAULT_SOURCE_URL
-    return VersionOut(name="Date Spreader", version=__version__, license=__license__, source_url=source)
+    b = build_info()
+    return VersionOut(name="Date Spreader", version=__version__, release_date=b["release_date"],
+                      full_version=b["full_version"], package=b["package"], license=__license__, source_url=source)
 
 
 @router.get("/changelog", response_model=ChangelogOut)

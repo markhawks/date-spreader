@@ -1,31 +1,41 @@
 #!/usr/bin/env bash
 # Builds the Date Spreader RPM for RHEL 10.3+ (noarch, system Python + EPEL).
 #
-#   packaging/rpm/build.sh                      # with mock, in a clean EL10 + EPEL chroot (e.g. from Fedora)
-#   packaging/rpm/build.sh --rpmbuild           # with rpmbuild, directly on RHEL 10.3 (EPEL enabled)
+#   packaging/rpm/build.sh                      # RHEL 10.3+: with mock, in a clean EL10 + EPEL chroot
+#   packaging/rpm/build.sh --target fedora      # Fedora 44+: with mock, in a clean Fedora 44 chroot
+#   packaging/rpm/build.sh --rpmbuild           # with rpmbuild, directly on the target system
 #   options: --ref REF (git commit/tag to package, default HEAD)
-#            --mock-config NAME (default alma+epel-10-x86_64)  --without-check (skip the tests)
+#            --mock-config NAME (default: alma+epel-10-x86_64, or fedora-44-x86_64 with --target fedora)
+#            --without-check (skip the tests)
 #
 # The sources are taken from git (committed files only: never data/ or .env).
-# Result: dist/rpm/  (datespreader-VERSION-1.el10.noarch.rpm and the .src.rpm)
+# Result: dist/rpm/  (datespreader-VERSION-RELEASE.el10 or .fc44 .noarch.rpm and the .src.rpm)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REF="HEAD"
 MODE="mock"
-MOCK_CONFIG="alma+epel-10-x86_64"
+MOCK_CONFIG=""
+TARGET="rhel"
 CHECK=(--with check)
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --ref) REF="$2"; shift 2 ;;
     --rpmbuild) MODE="rpmbuild"; shift ;;
+    --target) TARGET="$2"; shift 2 ;;
     --mock-config) MOCK_CONFIG="$2"; shift 2 ;;
     --without-check) CHECK=(--without check); shift ;;
-    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
+
+case "$TARGET" in
+  rhel) : "${MOCK_CONFIG:=alma+epel-10-x86_64}" ;;
+  fedora) : "${MOCK_CONFIG:=fedora-44-x86_64}" ;;
+  *) echo "Unknown target: $TARGET (rhel or fedora)" >&2; exit 2 ;;
+esac
 
 cd "$ROOT"
 VERSION="$(git show "$REF:app/__init__.py" | sed -n 's/^__version__ = "\(.*\)"/\1/p')"
@@ -38,7 +48,7 @@ mkdir -p "$OUT" "$WORK/SOURCES" "$WORK/SPECS"
 git archive --format=tar.gz --prefix="datespreader-$VERSION/" -o "$WORK/SOURCES/datespreader-$VERSION.tar.gz" "$REF"
 git show "$REF:packaging/rpm/datespreader.sysusers" > "$WORK/SOURCES/datespreader.sysusers"
 git show "$REF:packaging/rpm/datespreader.spec" > "$WORK/SPECS/datespreader.spec"
-echo "Date Spreader $VERSION from $(git rev-parse --short "$REF") – $MODE"
+echo "Date Spreader $VERSION from $(git rev-parse --short "$REF") – $MODE ($TARGET)"
 
 if [[ "$MODE" == "mock" ]]; then
   command -v mock >/dev/null || { echo "mock not found (dnf install mock)" >&2; exit 1; }
@@ -47,7 +57,7 @@ if [[ "$MODE" == "mock" ]]; then
   mock -r "$MOCK_CONFIG" --quiet --rebuild "$WORK"/srpm/*.src.rpm --define "ds_version $VERSION" "${CHECK[@]}" \
        --resultdir "$WORK/result"
   cp "$WORK"/result/*.rpm "$OUT/"
-  cp "$WORK"/result/build.log "$OUT/build-$VERSION.log" 2>/dev/null || true
+  cp "$WORK"/result/build.log "$OUT/build-$VERSION-$TARGET.log" 2>/dev/null || true
 else
   command -v rpmbuild >/dev/null || { echo "rpmbuild not found (dnf install rpm-build systemd-rpm-macros python3-devel)" >&2; exit 1; }
   rpmbuild -ba --define "_topdir $WORK" --define "ds_version $VERSION" "${CHECK[@]}" "$WORK/SPECS/datespreader.spec"
