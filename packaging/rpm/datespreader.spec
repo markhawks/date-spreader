@@ -16,7 +16,7 @@
 
 Name:           datespreader
 Version:        %{ds_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Web portal to plan and track technical interventions on servers
 License:        AGPL-3.0-only
 URL:            https://github.com/markhawks/date-spreader
@@ -117,6 +117,10 @@ install -d %{buildroot}%{_sharedstatedir}/datespreader/backups
 %dir %attr(0750,datespreader,datespreader) %{_sharedstatedir}/datespreader/backups
 
 %changelog
+* Mon Nov 16 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.25.0-2
+- Fix the firewalld service file: an XML comment contained "--", the file was invalid
+  and firewalld refused to start. The packaging files are now checked by the tests.
+
 * Sat Nov 14 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.25.0-1
 - First RPM for RHEL 10.3 + EPEL (system Python, no bundled libraries).
   Changes of the portal: see /usr/share/doc/datespreader/CHANGELOG.md
