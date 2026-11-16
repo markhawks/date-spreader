@@ -137,6 +137,8 @@ export const createProject = (data) => request("POST", "/api/projects", data);
 export const listServers = (text = "", limit = 500) =>
   getJSON(`/api/servers?limit=${limit}${text ? `&q=${q(text)}` : ""}`);
 export const fetchServer = (id) => getJSON(`/api/servers/${q(id)}`);
+export const patchServer = (id, changes) => request("PATCH", `/api/servers/${q(id)}`, changes);
+export const deleteServer = (id, version) => request("DELETE", `/api/servers/${q(id)}?version=${q(version)}`);
 
 // --- accesso, versione, utenti ---------------------------------------------------------
 export const fetchMe = () => getJSON("/api/auth/me");

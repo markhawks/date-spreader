@@ -20,8 +20,9 @@ def _filters(q: str | None):
     return [or_(*(func.lower(func.coalesce(c, "")).like(pattern, escape="\\") for c in cols))]
 
 
-def list_servers(session: Session, q: str | None, limit: int, today: date) -> tuple[int, list[dict]]:
-    where = _filters(q)
+def list_servers(session: Session, q: str | None, limit: int, today: date,
+                 ids: list[int] | None = None) -> tuple[int, list[dict]]:
+    where = _filters(q) + ([Server.id.in_(ids)] if ids is not None else [])
     total = session.scalar(select(func.count()).select_from(Server).where(*where))
     servers = list(session.scalars(select(Server).where(*where).order_by(Server.hostname).limit(limit)))
     ids = [s.id for s in servers]

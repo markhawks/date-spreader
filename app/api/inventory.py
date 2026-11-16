@@ -5,13 +5,16 @@ from __future__ import annotations
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.exc import StaleDataError
 
 from app.api.deps import get_session
 from app.i18n import tr
 from app.models import Server
 from app.repositories import inventory as repo
+from app.repositories import servers as servers_repo
+from app.schemas.edit import ServerPatch
 from app.schemas.inventory import ServerChange, ServerDetail, ServerHistoryItem, ServerList, ServerSummary
 
 router = APIRouter(tags=["anagrafica server"])
@@ -76,3 +79,64 @@ def server_detail(session: SessionDep, server_id: int) -> ServerDetail:
             for a in repo.server_changes(session, server_id)
         ],
     )
+
+
+def _current(session: Session, server_id: int) -> dict | None:
+    server = session.get(Server, server_id)
+    if server is None:
+        return None
+    total, items = repo.list_servers(session, None, 1, date.today(), ids=[server_id])
+    return _summary(items[0]).model_dump(mode="json") if items else None
+
+
+def _server_conflict(session: Session, server_id: int, message: str) -> HTTPException:
+    session.rollback()
+    return HTTPException(status.HTTP_409_CONFLICT, {"message": message, "current": _current(session, server_id)})
+
+
+def _load(session: Session, server_id: int) -> Server:
+    server = session.get(Server, server_id)
+    if server is None:
+        raise HTTPException(404, tr("inventory.server_not_found"))
+    return server
+
+
+@router.patch("/servers/{server_id}", response_model=ServerSummary)
+def update_server(session: SessionDep, server_id: int, patch: ServerPatch) -> ServerSummary:
+    """Changes hostname, IP, OS, environment, location or kernel of a server.
+
+    The change applies to every intervention the server is part of (past and future).
+    """
+    server = _load(session, server_id)
+    if patch.version != server.version:
+        raise _server_conflict(session, server_id, tr("inventory.server_conflict"))
+    fields = patch.changed_fields()
+    try:
+        servers_repo.update_server(session, server, {f: getattr(patch, f) for f in fields})
+        session.commit()
+    except StaleDataError:
+        raise _server_conflict(session, server_id, tr("inventory.server_conflict")) from None
+    except servers_repo.ValidationProblem as exc:
+        session.rollback()
+        raise HTTPException(422, str(exc)) from None
+    return ServerSummary.model_validate(_current(session, server_id))
+
+
+@router.delete("/servers/{server_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_server(
+    session: SessionDep,
+    server_id: int,
+    version: Annotated[int, Query(description="Version of the server read by the client")],
+) -> Response:
+    """Deletes a server from the inventory. Refused (409) if it is in any intervention, past or future."""
+    server = _load(session, server_id)
+    if version != server.version:
+        raise _server_conflict(session, server_id, tr("inventory.server_conflict"))
+    try:
+        servers_repo.delete_server(session, server)
+        session.commit()
+    except servers_repo.Conflict as exc:
+        raise _server_conflict(session, server_id, str(exc)) from None
+    except StaleDataError:
+        raise _server_conflict(session, server_id, tr("inventory.server_conflict")) from None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

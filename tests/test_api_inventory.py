@@ -89,3 +89,57 @@ def test_server_stays_after_removal_from_all_events_with_history_of_changes(api)
 
 def test_unknown_server(api):
     assert api.get("/api/servers/9999").status_code == 404
+
+
+# --- changes and deletion from the inventory ---------------------------------------------------
+
+def test_edit_server_applies_to_its_interventions(api):
+    db01 = find(api, "alfa-db01")["servers"][0]
+    res = api.patch(f"/api/servers/{db01['id']}", json={
+        "version": db01["version"], "hostname": "Alfa-DB11.example.com", "ip_address": "192.0.2.211",
+        "environment": "TEST", "location": "Room 2",
+    })
+    assert res.status_code == 200, res.text
+    out = res.json()
+    assert (out["hostname"], out["ip_address"], out["environment"], out["location"]) == (
+        "alfa-db11.example.com", "192.0.2.211", "TEST", "Room 2")
+    assert out["version"] > db01["version"] and out["event_count"] == db01["event_count"]
+    # the interventions show the new values: the server is the same row
+    detail = api.get(f"/api/servers/{db01['id']}").json()
+    for h in detail["history"]:
+        rows = api.get(f"/api/events/{h['event_id']}").json()["servers"]
+        row = next(r for r in rows if r["id"] == h["row_id"])
+        assert (row["hostname"], row["ip_address"]) == ("alfa-db11.example.com", "192.0.2.211")
+    assert {c["field"] for c in detail["changes"]} >= {"hostname", "ip_address", "environment", "location"}
+
+
+def test_edit_server_checks(api):
+    servers = find(api)["servers"]
+    a, b = servers[0], servers[1]
+    url = f"/api/servers/{a['id']}"
+    assert api.patch(url, json={"version": a["version"], "hostname": b["hostname"]}).status_code == 422
+    assert api.patch(url, json={"version": a["version"], "ip_address": "not-an-ip"}).status_code == 422
+    assert api.patch(url, json={"version": a["version"], "operating_system": "Plan 9"}).status_code == 422
+    assert api.patch(url, json={"version": a["version"], "environment": "QA"}).status_code == 422
+    stale = api.patch(url, json={"version": a["version"] - 1, "location": "x"})
+    assert stale.status_code == 409 and stale.json()["detail"]["current"]["hostname"] == a["hostname"]
+    assert api.patch("/api/servers/99999", json={"version": 1}).status_code == 404
+
+
+def test_delete_only_servers_in_no_intervention(api):
+    used = next(s for s in find(api)["servers"] if s["event_count"])
+    res = api.delete(f"/api/servers/{used['id']}", params={"version": used["version"]})
+    assert res.status_code == 409 and used["hostname"] in res.json()["detail"]["message"]
+
+    # a server whose only intervention row has been removed: now it can be deleted
+    detail = api.get(f"/api/servers/{used['id']}").json()
+    for h in detail["history"]:
+        rows = api.get(f"/api/events/{h['event_id']}").json()["servers"]
+        row = next(r for r in rows if r["id"] == h["row_id"])
+        assert api.delete(f"/api/event-servers/{row['id']}", params={"version": row["version"]}).status_code == 204
+    fresh = find(api, used["hostname"])["servers"][0]
+    assert fresh["event_count"] == 0
+    assert api.delete(f"/api/servers/{fresh['id']}", params={"version": fresh["version"] + 1}).status_code == 409
+    assert api.delete(f"/api/servers/{fresh['id']}", params={"version": fresh["version"]}).status_code == 204
+    assert find(api, used["hostname"])["total"] == 0
+    assert api.get(f"/api/servers/{fresh['id']}").status_code == 404

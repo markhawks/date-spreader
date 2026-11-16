@@ -63,16 +63,7 @@ def update_row(session: Session, row: EventServer, values: dict[str, Any]) -> No
     server_values = {k: v for k, v in values.items() if k in SERVER_FIELDS}
     row_values = {k: v for k, v in values.items() if k in ROW_FIELDS}
 
-    if "operating_system" in server_values:
-        from app.repositories.oslist import check_server_os
-
-        check_server_os(session, server_values["operating_system"], current=row.server.operating_system)
-    if "hostname" in server_values:
-        if server_values["hostname"] is None:
-            raise ValidationProblem(tr("servers.hostname_required"))
-        other = find_server_by_hostname(session, server_values["hostname"])
-        if other is not None and other.id != row.server_id:
-            raise ValidationProblem(tr("servers.hostname_taken"))
+    _check_server_values(session, row.server, server_values)
     if "check_status" in row_values and row_values["check_status"] is None:
         raise ValidationProblem(tr("servers.check_status_required"))
     if "migration_status" in row_values and row_values["migration_status"] is None:
@@ -92,6 +83,47 @@ def update_row(session: Session, row: EventServer, values: dict[str, Any]) -> No
         audit.record(session, "update", "servers", row.server.id, server_changes, event_id=row.event_id)
     if row_changes:
         audit.record(session, "update", "event_servers", row.id, row_changes, event_id=row.event_id)
+
+
+def _check_server_values(session: Session, server: Server, values: dict[str, Any]) -> None:
+    """Checks of the fields of a server (from an intervention's table or from the inventory)."""
+    if "operating_system" in values:
+        from app.repositories.oslist import check_server_os
+
+        check_server_os(session, values["operating_system"], current=server.operating_system)
+    if "hostname" in values:
+        if values["hostname"] is None:
+            raise ValidationProblem(tr("servers.hostname_required"))
+        other = find_server_by_hostname(session, values["hostname"])
+        if other is not None and other.id != server.id:
+            raise ValidationProblem(tr("servers.hostname_taken"))
+
+
+def update_server(session: Session, server: Server, values: dict[str, Any]) -> None:
+    """Change from the server inventory (version already checked by the caller).
+
+    Every intervention with this server shows the new values: they are the server's, not the row's.
+    """
+    _check_server_values(session, server, values)
+    changes = _apply(server, values)
+    session.flush()  # StaleDataError if someone saved in the meantime
+    if changes:
+        audit.record(session, "update", "servers", server.id, changes)
+
+
+def server_event_count(session: Session, server: Server) -> int:
+    return session.scalar(select(func.count()).select_from(EventServer).where(EventServer.server_id == server.id))
+
+
+def delete_server(session: Session, server: Server) -> None:
+    """Deletes a server from the inventory: only if it is in no intervention (past or future)."""
+    n = server_event_count(session, server)
+    if n:
+        raise Conflict(tr("inventory.delete_in_use", hostname=server.hostname, n=n))
+    server_id, hostname = server.id, server.hostname
+    session.delete(server)
+    session.flush()
+    audit.record(session, "delete", "servers", server_id, {"hostname": (hostname, None)})
 
 
 def known_locations(session: Session) -> list[str]:

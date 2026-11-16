@@ -319,6 +319,13 @@ to **recover access** if the administrator forgets the password.
   - **Search** on hostname, IP, operating system, environment, kernel and notes.
   - Keyboard navigation: ↓ from the search box to the list, ↑/↓ between rows, Enter to open the history.
   - Resizable columns.
+- **Edit** (in the selected server's card): hostname, IP, operating system, environment, location and current kernel.
+  The server is the same in all its interventions, so the change shows in every one of them, past and future.
+  Same checks as in the server table (unique hostname, valid IP, operating system from the list), and the change
+  goes into the server's history.
+- **Delete** removes a server from the inventory, after a confirmation. Only a server that is in **no
+  intervention**, past or future: otherwise the button is disabled and says in how many it is (remove it from
+  their server tables first).
 - Selecting a server shows its **intervention history**, most recent first:
   - for each one: date, project, intervention status, check, migration, target kernel, execution date,
     technician and notes;
@@ -669,6 +676,8 @@ server), the changes made on one can be brought to the other without duplicates.
 | `DELETE /api/projects/{id}?version=N` | Deletes a project with its interventions (coordinators and administrators only) |
 | `GET /api/servers[?q=…&limit=…]` | Inventory: all servers (even without interventions) with number of interventions, last and next. `total` = total matches |
 | `GET /api/servers/{id}` | Server data, intervention history (most recent first) and changes to its data |
+| `PATCH /api/servers/{id}` | Changes hostname, IP, OS, environment, location or kernel (with `version`); applies to all its interventions. 409 with `detail.current` if changed meanwhile |
+| `DELETE /api/servers/{id}?version=N` | Deletes a server from the inventory: 409 if it is in any intervention |
 | `GET /api/export/projects/{id}` · `GET /api/export/customers/{id}` | JSON file with one project, or with all the projects of a customer (coordinators and administrators) |
 | `POST /api/import/preview` · `POST /api/import` | Preview (writes nothing) and import of an export file (`data`, `on_conflict`: `skip` or `copy`; administrators only) |
 | `POST /api/sync/preview` · `POST /api/sync/apply` | Differences between a customer export file and this installation (writes nothing), then apply the chosen items (`data`, `token` of the preview, `decisions`: item key → take the file's version; backup first; administrators only) |

@@ -1,6 +1,7 @@
 // Anagrafica server: tutti i server nel database, ricerca e storico degli interventi.
 
-import { fetchServer, listServers } from "./api.js";
+import { deleteServer, fetchOperatingSystems, fetchOptions, fetchServer, listServers, patchServer } from "./api.js";
+import { confirmDanger } from "./confirm.js";
 import { homeButton } from "./homebutton.js";
 import { colorFor } from "./colors.js";
 import { locale, t } from "./i18n.js";
@@ -222,6 +223,53 @@ export class Inventory {
     this.detailEl.scrollTop = keepScroll ? scroll : 0;
   }
 
+  /** «Edit» and «Delete» for the selected server. Delete only when it is in no intervention. */
+  #actions(s) {
+    const bar = el("div", "inv-actions");
+    const edit = el("button", "btn btn-small", t("inventory.edit"));
+    edit.type = "button";
+    edit.title = t("inventory.edit_title_hint");
+    edit.addEventListener("click", async () => {
+      let saved;
+      try {
+        saved = await editServerDialog(s);
+      } catch (err) {
+        this.detailEl.prepend(el("p", "error", t("inventory.error", { message: err.message })));
+        return;
+      }
+      if (saved) await this.refresh();
+    });
+    const del = el("button", "btn btn-small btn-danger-outline", t("inventory.delete"));
+    del.type = "button";
+    if (s.event_count) {
+      del.disabled = true;
+      del.title = t("inventory.delete_in_use", { n: s.event_count });
+    } else {
+      del.title = t("inventory.delete_hint");
+    }
+    del.addEventListener("click", async () => {
+      const ok = await confirmDanger({
+        title: t("inventory.delete_title", { hostname: s.hostname }),
+        intro: t("inventory.delete_intro"),
+        items: [t("inventory.delete_item", { hostname: s.hostname })],
+        keep: [t("inventory.delete_keep")],
+      });
+      if (!ok) return;
+      try {
+        await deleteServer(s.id, s.version);
+      } catch (err) {
+        this.detailEl.prepend(el("p", "error", err.message));
+        return;
+      }
+      this.selectedId = null;
+      this.detailEl.replaceChildren(el("p", "muted inv-empty", t("inventory.deleted", { hostname: s.hostname })));
+      await this.#loadList();
+    });
+    bar.append(edit, del);
+    if (s.event_count) bar.append(el("span", "muted", t("inventory.delete_in_use", { n: s.event_count })));
+    return bar;
+  }
+
   #detail({ server: s, history, changes }) {
     const wrap = el("div", "inv-card");
     const head = el("header", "inv-head");
@@ -238,6 +286,7 @@ export class Inventory {
     fact(t("inventory.field.current_kernel"), s.current_kernel, "mono");
     fact(t("inventory.field.notes"), s.notes);
     head.append(facts);
+    head.append(this.#actions(s));
     wrap.append(head);
 
     const today = todayIso();
@@ -301,6 +350,103 @@ export class Inventory {
     }
     return wrap;
   }
+}
+
+/**
+ * Dialog to change the fields of a server. The server is shared by all its interventions, so the
+ * change shows in all of them. Resolves with the saved server, or null if cancelled.
+ */
+async function editServerDialog(s) {
+  const [osList, options] = await Promise.all([fetchOperatingSystems(), fetchOptions()]);
+  return new Promise((resolve) => {
+    const dialog = el("dialog", "pf-dialog inv-edit-dialog");
+    const form = el("form", "pf");
+    form.noValidate = true;
+    const head = el("header", "pf-head");
+    const h = el("h2", null, t("inventory.edit_title", { hostname: s.hostname }));
+    h.id = "inv-edit-title";
+    dialog.setAttribute("aria-labelledby", h.id);
+    head.append(h);
+    const body = el("div", "pf-body");
+    body.append(el("p", "muted pf-note", s.event_count
+      ? t("inventory.edit_note", { n: s.event_count })
+      : t("inventory.edit_note_none")));
+    const grid = el("div", "pf-grid");
+    const field = (label, input, wide = false) => {
+      const lab = el("label", wide ? "pf-field pf-wide" : "pf-field");
+      lab.append(el("span", null, label), input);
+      grid.append(lab);
+      return input;
+    };
+    const text = (name, value, max, cls) => {
+      const input = el("input", cls);
+      input.name = name;
+      input.value = value ?? "";
+      input.maxLength = max;
+      input.autocomplete = "off";
+      return input;
+    };
+    const select = (name, values, current) => {
+      const sel = el("select");
+      sel.name = name;
+      const list = [...values];
+      if (current && !list.some(([v]) => v === current)) list.push([current, current]); // e.g. an OS no longer active
+      for (const [v, label] of list) sel.append(new Option(label, v, false, v === (current ?? "")));
+      return sel;
+    };
+    const hostname = field(t("inventory.field.hostname"), text("hostname", s.hostname, 255, "mono"), true);
+    hostname.required = true;
+    field(t("inventory.field.ip_address"), text("ip_address", s.ip_address, 45, "mono"));
+    field(t("inventory.field.environment"), select("environment", [["", "—"], ...options.environments.map((v) => [v, v])], s.environment));
+    field(t("inventory.field.operating_system"), select("operating_system", [["", "—"], ...osList.map((o) => [o.name, o.name])], s.operating_system), true);
+    const loc = field(t("inventory.field.location"), text("location", s.location, 100));
+    const dl = el("datalist");
+    dl.id = "inv-edit-locations";
+    dl.append(...(options.locations ?? []).map((l) => new Option(l, l)));
+    loc.setAttribute("list", dl.id);
+    field(t("inventory.field.current_kernel"), text("current_kernel", s.current_kernel, 100, "mono"));
+    const err = el("p", "pf-error");
+    err.setAttribute("role", "alert");
+    err.hidden = true;
+    body.append(grid, dl, err);
+    const foot = el("footer", "pf-foot");
+    const cancel = el("button", "btn", t("inventory.cancel"));
+    cancel.type = "button";
+    const save = el("button", "btn btn-primary", t("inventory.save"));
+    save.type = "submit";
+    foot.append(cancel, save);
+    form.append(head, body, foot);
+    dialog.append(form);
+    document.body.append(dialog);
+
+    let result = null;
+    let version = s.version;
+    cancel.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("close", () => { dialog.remove(); resolve(result); });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const changes = {};
+      for (const name of ["hostname", "ip_address", "environment", "operating_system", "location", "current_kernel"]) {
+        const v = form.elements[name].value.trim();
+        if (v !== (s[name] ?? "")) changes[name] = v || null;
+      }
+      if (!Object.keys(changes).length) { dialog.close(); return; }
+      err.hidden = true;
+      save.disabled = true;
+      try {
+        result = await patchServer(s.id, { version, ...changes });
+        dialog.close();
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.hidden = false;
+        if (ex.isConflict && ex.current) { s = ex.current; version = s.version; }
+      } finally {
+        save.disabled = false;
+      }
+    });
+    dialog.showModal();
+    hostname.focus();
+  });
 }
 
 function labeled(label, node) {

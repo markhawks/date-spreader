@@ -272,6 +272,14 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "Server not found.",
         "it": "Server non trovato.",
     },
+    "inventory.server_conflict": {
+        "en": "The server was changed by another user: these are the current values.",
+        "it": "Il server è stato modificato da un altro utente: questi sono i valori attuali.",
+    },
+    "inventory.delete_in_use": {
+        "en": "{hostname} is in {n} intervention(s): remove it from them first, then delete it.",
+        "it": "{hostname} è in {n} interventi: toglilo prima dagli interventi, poi eliminalo.",
+    },
     # --- os
     "os.family_required": {
         "en": "Enter the family (e.g. Red Hat Enterprise Linux).",

@@ -231,6 +231,8 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
   - **Ricerca** su hostname, IP, sistema operativo, ambiente, kernel e note.
   - Navigazione da tastiera: ↓ dalla ricerca all'elenco, ↑/↓ tra le righe, Invio per aprire lo storico.
   - Colonne ridimensionabili.
+- **Modifica** (nella scheda del server selezionato): hostname, IP, sistema operativo, ambiente, location e kernel attuale. Il server è lo stesso in tutti i suoi interventi, quindi la modifica si vede in ognuno, passati e futuri. Valgono gli stessi controlli della tabella server (hostname unico, IP valido, sistema operativo dall'elenco) e la modifica finisce nella cronologia del server.
+- **Elimina** toglie un server dall'anagrafica, dopo una conferma. Solo se il server non è in **nessun intervento**, passato o futuro: altrimenti il pulsante è disattivato e indica in quanti interventi si trova (va tolto prima dalle loro tabelle server).
 - Selezionando un server si vede lo **storico degli interventi**, dal più recente:
   - per ognuno data, progetto, stato dell'intervento, check, migrazione, kernel target, data di esecuzione, tecnico e note;
   - gli interventi futuri sono indicati come "in programma";
@@ -457,6 +459,8 @@ Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un 
 | `DELETE /api/projects/{id}?version=N` | Elimina un progetto con i suoi interventi (solo coordinatori e amministratori) |
 | `GET /api/servers[?q=…&limit=…]` | Anagrafica: tutti i server (anche senza interventi) con numero di interventi, ultimo e prossimo. `total` = corrispondenze totali |
 | `GET /api/servers/{id}` | Dati del server, storico degli interventi (dal più recente) e modifiche ai suoi dati |
+| `PATCH /api/servers/{id}` | Modifica hostname, IP, SO, ambiente, location o kernel (con `version`); vale in tutti i suoi interventi. 409 con `detail.current` se cambiato nel frattempo |
+| `DELETE /api/servers/{id}?version=N` | Elimina un server dall'anagrafica: 409 se è in qualche intervento |
 | `GET /api/export/projects/{id}` · `GET /api/export/customers/{id}` | File JSON con un progetto, o con tutti i progetti di un cliente (coordinatori e amministratori) |
 | `POST /api/import/preview` · `POST /api/import` | Anteprima (non scrive nulla) e import di un file di export (`data`, `on_conflict`: `skip` o `copy`; solo amministratori) |
 | `POST /api/sync/preview` · `POST /api/sync/apply` | Differenze tra un file di export di un cliente e questa installazione (non scrive nulla), poi applica le voci scelte (`data`, `token` dell'anteprima, `decisions`: chiave della voce → prendi la versione del file; prima un backup; solo amministratori) |

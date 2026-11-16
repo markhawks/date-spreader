@@ -106,6 +106,41 @@ class ServerRowPatch(_RowFields):
         return self.model_fields_set - {"version", "server_version"}
 
 
+class ServerPatch(BaseModel):
+    """Change of a server from the server inventory: only the changed fields, with the version read.
+
+    The server is the same in every intervention it is part of, so the change shows there too.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    version: int = Field(description="Version of the server read by the client")
+    hostname: str | None = None
+    ip_address: str | None = Field(default=None, max_length=45)
+    operating_system: str | None = Field(default=None, max_length=100)
+    environment: Environment | None = None
+    current_kernel: str | None = Field(default=None, max_length=100)
+    location: str | None = Field(default=None, max_length=100)
+
+    @field_validator("ip_address", "operating_system", "current_kernel", "location", "environment", mode="before")
+    @classmethod
+    def _strip(cls, v):
+        return _clean_text(v)
+
+    @field_validator("hostname")
+    @classmethod
+    def _host(cls, v):
+        return None if v is None else _valid_hostname(v)
+
+    @field_validator("ip_address")
+    @classmethod
+    def _valid_ip(cls, v):
+        return _RowFields._valid_ip(v)
+
+    def changed_fields(self) -> set[str]:
+        return self.model_fields_set - {"version"}
+
+
 class ServerRowCreate(_RowFields):
     """Nuova riga. Se esiste già un server con lo stesso hostname viene collegato quello."""
 
