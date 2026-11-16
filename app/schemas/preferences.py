@@ -36,6 +36,8 @@ class Preferences(BaseModel):
     gmail_choose_account: bool = False
     # Zoom del calendario (altezza dei giorni): 1 = normale, da 0.5 a 2.5
     calendar_zoom: float = Field(default=1.0, ge=0.5, le=2.5)
+    # Width of the calendar (horizontal zoom, middle mouse button right/left): 1 = the available space
+    calendar_zoom_x: float = Field(default=1.0, ge=0.6, le=2.5)
     # Vista del calendario: mesi (griglia classica) o settimane (colonne alte, interventi in dettaglio)
     calendar_view: Literal["month", "week", "team"] = "month"
     # Days shown in the calendar: the whole week, or Mon–Fri (weekends only where there are interventions)
@@ -62,6 +64,7 @@ class PreferencesPatch(BaseModel):
     gmail_account: str | None = Field(default=None, max_length=254, pattern=GMAIL_ACCOUNT)
     gmail_choose_account: bool | None = None
     calendar_zoom: float | None = Field(default=None, ge=0.5, le=2.5)
+    calendar_zoom_x: float | None = Field(default=None, ge=0.6, le=2.5)
     calendar_view: Literal["month", "week", "team"] | None = None
     calendar_days: Literal["all", "workweek"] | None = None
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] | None = None

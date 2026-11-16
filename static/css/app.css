@@ -177,6 +177,14 @@ h1, h2 { margin: 0; }
 }
 
 .month { padding-top: 8px; }
+/* Width of the calendar (horizontal zoom): wider → horizontal scroll; narrower → centered */
+.calendar-scroll { overflow-x: hidden; }
+.calendar-scroll.is-wide { overflow-x: auto; }
+.calendar-scroll .month { width: calc(100% * var(--zoom-x, 1)); margin-inline: auto; }
+.calendar-scroll.is-wide .month { margin-inline: 0; }
+/* wide calendar: the month titles and the − % + controls stay in view while scrolling sideways */
+.calendar-scroll.is-wide .month-title { left: 0; width: var(--view-w, auto); }
+.calendar-scroll.is-wide .cal-tools { left: 0; width: var(--view-w, auto); }
 
 .month-title {
   position: sticky;
@@ -1820,7 +1828,7 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 #btn-detail-new-event { white-space: nowrap; }
 
 /* ---------- Zoom del calendario -------------------------------------------- */
-.calendar-scroll.zooming, .calendar-scroll.zooming * { cursor: ns-resize !important; user-select: none; }
+.calendar-scroll.zooming, .calendar-scroll.zooming * { cursor: move !important; user-select: none; }
 /* Giorni bassi (zoom ridotto): gli interventi diventano barrette colorate, come su telefono */
 .calendar-scroll[data-zoom-mode="compact"] .day { padding: 3px; gap: 2px; }
 .calendar-scroll[data-zoom-mode="compact"] .day-num { width: 20px; height: 20px; font-size: 0.75rem; }

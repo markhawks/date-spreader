@@ -17,6 +17,9 @@ const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
 const MAX_CHIPS = 2;        // interventi per giorno a zoom normale; oltre, la cella mostra "+N"
 export const ZOOM_MIN = 0.5;
 export const ZOOM_MAX = 2.5;
+export const ZOOM_X_MIN = 0.6;   // width of the calendar: 60% … 250% of the available space
+export const ZOOM_X_MAX = 2.5;
+const AXIS_DEAD_ZONE = 12;  // px of mouse movement before an axis of the middle-button gesture starts to zoom
 const COMPACT_BELOW = 78;   // px di altezza del giorno: sotto, gli interventi diventano barrette colorate
 const DETAILED_FROM = 166;  // px: from here the day height counts as "detailed" (zoom mode of the scroller)
 // Heights (px) of an intervention in each mode, from the richest to the poorest, plus the fixed space
@@ -34,6 +37,7 @@ const MORE_H = 16;          // riga «+N»
 const BAR_H = 6;            // barretta nel modo compatto
 const BAR_GAP = 2;
 const clampZoom = (z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
+const clampZoomX = (z) => Math.min(ZOOM_X_MAX, Math.max(ZOOM_X_MIN, Math.round(z * 100) / 100));
 const AUTO_SCROLL_MS = 1200; // limite massimo di uno scorrimento animato
 
 const ymFromIso = (iso) => ({ year: Number(iso.slice(0, 4)), month: Number(iso.slice(5, 7)) });
@@ -89,6 +93,7 @@ export class Calendar {
     this.selected = null;
     this.filter = null;         // filtro attivo sugli eventi (null = tutti)
     this.zoom = 1;              // altezza dei giorni rispetto al normale
+    this.zoomX = 1;             // width of the calendar compared with the available space
     this.onZoomEnd = opts.onZoomEnd ?? (() => {}); // fine di un gesto di zoom (per salvare la preferenza)
     this.onZoom = opts.onZoom ?? (() => {});       // ogni cambio di zoom (per l'indicatore)
     this.layout = this.#layout();
@@ -110,6 +115,8 @@ export class Calendar {
     this.#setupContextMenu();
     this.#setupZoomGestures();
     addEventListener("resize", () => this.#relayout());
+    // the visible width changes also with the side panels: wide calendar titles and controls follow it
+    new ResizeObserver(() => this.#setViewWidth()).observe(this.scrollEl);
     // Nella vista settimanale gli interventi mostrano i tecnici: ridisegna quando cambiano i nomi
     people.onChange(() => { if (this.unit === WEEK && this.first) this.rerender(); });
   }
@@ -241,8 +248,34 @@ export class Calendar {
   }
 
   /**
+   * Width of the calendar (horizontal zoom), keeping still the point under (clientX): wider than the
+   * available space it scrolls sideways, narrower it stays centered.
+   */
+  setZoomX(z, { x = null } = {}) {
+    z = clampZoomX(z);
+    if (z === this.zoomX && this.scrollEl.style.getPropertyValue("--zoom-x")) return;
+    const box = this.scrollEl.getBoundingClientRect();
+    const px = (x ?? box.left + box.width / 2) - box.left;
+    const frac = (this.scrollEl.scrollLeft + px) / this.scrollEl.scrollWidth;
+    this.zoomX = z;
+    this.scrollEl.style.setProperty("--zoom-x", String(z));
+    this.#setViewWidth();
+    this.scrollEl.classList.toggle("is-wide", z > 1);
+    this.scrollEl.scrollLeft = frac * this.scrollEl.scrollWidth - px;
+    this.onZoom(this.zoom);
+  }
+
+  /** Visible width of the calendar (without the side padding): titles and controls of a wide calendar. */
+  #setViewWidth() {
+    const cs = getComputedStyle(this.scrollEl);
+    const w = this.scrollEl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    this.scrollEl.style.setProperty("--view-w", `${Math.max(0, w)}px`);
+  }
+
+  /**
    * Gesti di zoom sul calendario:
    * - tasto centrale premuto e mouse avanti/indietro (come in Blender): avanti ingrandisce;
+   *   right/left with the middle button: wider/narrower calendar (setZoomX);
    * - pizzico sul touchpad (arriva come rotellina con Ctrl, a scatti piccoli e frazionari).
    * Ctrl + rotellina di un mouse vero resta lo zoom della pagina del browser.
    */
@@ -251,17 +284,24 @@ export class Calendar {
     this.scrollEl.addEventListener("mousedown", (e) => {
       if (e.button !== 1 || this.paused) return;
       e.preventDefault(); // niente scorrimento automatico del browser
-      drag = { y: e.clientY, x: e.clientX, z: this.zoom };
+      // Each axis starts only after a few pixels in its direction (from there, with no jump):
+      // forward/back = height of the days, right/left = width of the calendar.
+      drag = { x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, ax: null, ay: null };
       this.scrollEl.classList.add("zooming");
     });
     addEventListener("mousemove", (e) => {
       if (!drag) return;
       e.preventDefault();
-      const z = drag.z * Math.exp((drag.y - e.clientY) / 180);
+      if (!drag.ay && Math.abs(e.clientY - drag.y0) > AXIS_DEAD_ZONE) drag.ay = { from: e.clientY, z: this.zoom };
+      if (!drag.ax && Math.abs(e.clientX - drag.x0) > AXIS_DEAD_ZONE) drag.ax = { from: e.clientX, z: this.zoomX };
+      const z = drag.ay ? drag.ay.z * Math.exp((drag.ay.from - e.clientY) / 180) : null;
+      const zx = drag.ax ? drag.ax.z * Math.exp((e.clientX - drag.ax.from) / 300) : null;
       if (!this.zoomFrame) {
         this.zoomFrame = requestAnimationFrame(() => {
           this.zoomFrame = null;
-          if (drag) this.setZoom(z, { x: drag.x, y: drag.y });
+          if (!drag) return;
+          if (z !== null) this.setZoom(z, { x: drag.x, y: drag.y });
+          if (zx !== null) this.setZoomX(zx, { x: drag.x });
         });
       }
     });

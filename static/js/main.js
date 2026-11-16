@@ -309,20 +309,27 @@ async function main() {
   // Il livello è una preferenza personale.
   const zoomValue = $("zoom-reset");
   const showZoom = (z) => {
-    zoomValue.textContent = `${Math.round(z * 100)}%`;
+    // height of the days; the width only when it is not 100%
+    const x = Math.round(calendar.zoomX * 100);
+    zoomValue.textContent = x === 100 ? `${Math.round(z * 100)}%` : `${Math.round(z * 100)}% · ↔${x}%`;
     $("zoom-out").disabled = z <= ZOOM_MIN;
     $("zoom-in").disabled = z >= ZOOM_MAX;
   };
   const saveZoom = (z) => {
-    if (z !== prefs.get().calendar_zoom) prefs.set({ calendar_zoom: z }).catch(() => {});
+    const changes = {};
+    if (z !== prefs.get().calendar_zoom) changes.calendar_zoom = z;
+    if (calendar.zoomX !== prefs.get().calendar_zoom_x) changes.calendar_zoom_x = calendar.zoomX;
+    if (Object.keys(changes).length) prefs.set(changes).catch(() => {});
   };
   calendar.onZoom = showZoom;
   calendar.onZoomEnd = saveZoom;
   const stepZoom = (factor) => { calendar.setZoom(calendar.zoom * factor); saveZoom(calendar.zoom); };
   $("zoom-in").addEventListener("click", () => stepZoom(1.25));
   $("zoom-out").addEventListener("click", () => stepZoom(1 / 1.25));
-  zoomValue.addEventListener("click", () => stepZoom(1 / calendar.zoom));
+  // «100%»: back to the normal height and width
+  zoomValue.addEventListener("click", () => { calendar.setZoomX(1); stepZoom(1 / calendar.zoom); });
   calendar.setZoom(prefs.get().calendar_zoom);
+  calendar.setZoomX(prefs.get().calendar_zoom_x ?? 1);
 
   // Vista del calendario: Mese | Settimana (preferenza personale)
   const viewSwitch = [...document.querySelectorAll(".view-switch-btn")];
