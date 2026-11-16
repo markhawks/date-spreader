@@ -166,7 +166,10 @@ export function showSyncDialog({ toast = () => {}, onSynced = () => {} } = {}) {
       ? t("sync.conflicts_open", { n: open })
       : n ? t("sync.selected", { n }) : t("sync.none_selected");
     selectedEl.classList.toggle("sync-warn", open > 0);
-    submit.disabled = open > 0 || n === 0;
+    // nothing to apply: the button still records that the two installations agree (the baseline),
+    // so that the next sync recognizes who changed what
+    submit.disabled = open > 0;
+    if (!submit.classList.contains("busy")) submit.textContent = n ? t("sync.apply") : t("sync.mark_synced");
   }
 
   /** Control of one item: checkbox, or the two choices of a conflict. */
@@ -310,17 +313,20 @@ export function showSyncDialog({ toast = () => {}, onSynced = () => {} } = {}) {
     e.preventDefault();
     if (!diff || submit.disabled) return;
     submit.disabled = true;
+    submit.classList.add("busy");
     submit.textContent = t("sync.applying");
     const decisions = {};
     for (const i of diff.items) if (selectable(i) && choice.has(i.key)) decisions[i.key] = choice.get(i.key);
     try {
       const done = await syncApply(data, diff.token, decisions);
       close();
-      toast(t("sync.done", { created: done.created, updated: done.updated, deleted: done.deleted, backup: done.backup }));
+      toast(done.created || done.updated || done.deleted
+        ? t("sync.done", { created: done.created, updated: done.updated, deleted: done.deleted, backup: done.backup })
+        : t("sync.marked", { name: diff.source.name ?? "?" }));
       onSynced(done);
     } catch (ex) {
       showError(ex.message);
-      submit.textContent = t("sync.apply");
+      submit.classList.remove("busy");
       updateFooter();
       if (ex.status === 409) await preview();       // data changed here: compare again
     }
