@@ -5,6 +5,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Documentation
+- Installation guides brought up to date with the RPM packages: download and checksum check of the RPM, server without Internet access → RPM, Fedora 44 RPM test described precisely; READMEs and roadmap no longer list the RPM and RHEL 10.2 as coming soon.
 
 ## [0.26.0] - 2026-11-16
 ### Fixed

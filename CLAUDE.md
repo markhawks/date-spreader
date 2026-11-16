@@ -41,7 +41,7 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
   sola lettura (`static/js/recap.js`): non investire nella modifica da smartphone. In programma: app Android/PWA.
 
 ## Installazione su altri server (deploy/install.sh)
-- Testato **solo su Fedora 44**; RHEL 10.2, Fedora 45, installatore e RPM sono pianificati. Tenere aggiornata la
+- Lo script è testato **solo su Fedora 44** (RHEL 10.3: solo con l'RPM). Fedora 45 e installatore guidato sono pianificati. Tenere aggiornata la
   tabella «Piattaforme» in `docs/INSTALL.md` e `docs/INSTALLAZIONE.md`.
 - Per provarlo su questa macchina senza toccare il servizio reale: istanza separata
   `--source <repo> --dir /opt/datespreader-test --port 8011 --service datespreader-test --user dstest`

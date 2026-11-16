@@ -10,7 +10,7 @@ un'installazione all'altra con **export / import**: vedi il README, sezione [«E
 
 | Sistema | Stato |
 |---|---|
-| **Fedora Linux 44** (Server Edition, x86_64) | ✅ **Testato**: script di installazione, servizio, aggiornamento; **pacchetto RPM** |
+| **Fedora Linux 44** (Server Edition, x86_64) | ✅ **Testato**: script di installazione, servizio, aggiornamento; **pacchetto RPM** (build, test e installazione in un ambiente Fedora 44 pulito) |
 | **Red Hat Enterprise Linux 10.3** (con EPEL) | ✅ **Testato**: **pacchetto RPM** (installazione, aggiornamento, ripristino, sincronizzazione) |
 | Red Hat Enterprise Linux 10.2 o precedenti | ❌ Non supportato dall'RPM (serve la 10.3) |
 | Fedora Linux 45 | 🔜 Previsto, non ancora verificato |
@@ -27,7 +27,7 @@ Lo script rifiuta i sistemi non ancora testati. Con `--force` procede lo stesso,
 - Fedora 44 con **systemd** e **dnf**; accesso **root** (sudo).
 - **Python 3.11 o superiore**: Fedora 44 ha già Python 3.14.
 - **Accesso a Internet** durante l'installazione, per scaricare il codice da GitHub e le dipendenze Python da PyPI.
-  L'installazione senza rete arriverà con il pacchetto RPM.
+  Se il server non ha accesso a Internet, usa il [pacchetto RPM](INSTALLAZIONE-RPM.md) (con un mirror locale della distribuzione).
 - Spazio: circa 150 MB, più il database (pochi MB anche con migliaia di server).
 - Non serve un database esterno: i dati stanno in un file SQLite, su **disco locale** (mai su una cartella di rete).
 

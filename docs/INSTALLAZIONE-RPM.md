@@ -6,8 +6,14 @@ Il pacchetto usa il **Python e le librerie del sistema** (niente librerie inclus
 - **Red Hat Enterprise Linux 10.3 o successive**, con il repository **EPEL** (da lì arrivano alcune librerie python3-*);
 - **Fedora 44 o successive**: tutto arriva dai repository di Fedora.
 
-Scarica il pacchetto del tuo sistema dalla pagina della release su GitHub:
-`datespreader-VERSIONE-RELEASE.el10.noarch.rpm` (RHEL) oppure `…fc44.noarch.rpm` (Fedora).
+Scarica il pacchetto del tuo sistema dalla [pagina della release](https://github.com/markhawks/date-spreader/releases/latest)
+su GitHub: `datespreader-VERSIONE-RELEASE.el10.noarch.rpm` (RHEL) oppure `…fc44.noarch.rpm` (Fedora), insieme a
+`SHA256SUMS`, e verificalo. Per esempio la versione 0.26.0 per RHEL:
+```
+V=0.26.0; B=https://github.com/markhawks/date-spreader/releases/download/v$V
+curl -LO $B/datespreader-$V-1.el10.noarch.rpm -LO $B/SHA256SUMS
+sha256sum -c SHA256SUMS --ignore-missing          # deve rispondere "OK"
+```
 
 ## Installare
 

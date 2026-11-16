@@ -36,8 +36,8 @@ impegni: le priorità cambiano secondo le esigenze di chi usa il portale. Le fun
 
 | Funzione | Perché | Impegno |
 |---|---|---|
-| Supporto di **Red Hat Enterprise Linux 10.2** e **Fedora 45** (oggi è testato solo Fedora 44) | Più sistemi su cui installare il portale | medio |
-| **Installatore guidato** e **pacchetto RPM** (`dnf install datespreader`, anche senza rete) | Installazioni più semplici, anche senza accesso a Internet | medio-alto |
+| Supporto di **Fedora 45** (oggi testati: Fedora 44, e RHEL 10.3 con l'RPM) | Più sistemi su cui installare il portale | medio |
+| **Installatore guidato** e **repository dnf** per l'RPM (`dnf install datespreader`, aggiornamenti con `dnf upgrade`) | Installazioni e aggiornamenti più semplici | medio-alto |
 | **Immagine Docker** | Provare il portale in un minuto su qualsiasi sistema | basso-medio |
 | **App Android** (o un'app web installabile, PWA), partendo dal riepilogo per smartphone | Controllo veloce degli interventi fuori ufficio, con l'icona sul telefono | medio |
 

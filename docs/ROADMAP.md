@@ -36,8 +36,8 @@ commitments: priorities change with the needs of the people using the portal. Do
 
 | Feature | Why | Effort |
 |---|---|---|
-| Support for **Red Hat Enterprise Linux 10.2** and **Fedora 45** (today only Fedora 44 is tested) | More systems where the portal can be installed | medium |
-| **Guided installer** and **RPM package** (`dnf install datespreader`, also offline) | Simpler installations, also without Internet access | medium-high |
+| Support for **Fedora 45** (tested today: Fedora 44, and RHEL 10.3 with the RPM) | More systems where the portal can be installed | medium |
+| **Guided installer** and a **dnf repository** for the RPM (`dnf install datespreader`, updates with `dnf upgrade`) | Simpler installations and updates | medium-high |
 | **Docker image** | Try the portal in a minute on any system | low-medium |
 | **Android app** (or an installable web app, PWA), starting from the smartphone recap | Quick check of interventions away from the office, with an icon on the phone | medium |
 

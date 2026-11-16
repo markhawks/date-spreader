@@ -88,8 +88,8 @@ sudo ./deploy/install.sh --admin-name "Jane Doe" --admin-email jane.doe@example.
 ```
 
 The script installs the portal in `/opt/datespreader` as a systemd service and creates the first administrator.
-Running it again upgrades the installation, after backing up the database. **Coming soon:** a guided installer,
-an RPM package, and support for Red Hat Enterprise Linux 10.2 and Fedora 45.
+Running it again upgrades the installation, after backing up the database. **Coming soon:** a guided installer
+and support for Fedora 45.
 
 ## Quick start with the demo database
 The repository ships `demo/datespreader-demo.sqlite3`, which contains **only sample data** (fictitious customers,

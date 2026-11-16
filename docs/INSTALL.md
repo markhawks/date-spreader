@@ -11,7 +11,7 @@ installation at a customer's site, and how to upgrade it. Projects are moved fro
 
 | System | Status |
 |---|---|
-| **Fedora Linux 44** (Server Edition, x86_64) | ✅ **Tested**: install script, service, upgrade; **RPM package** |
+| **Fedora Linux 44** (Server Edition, x86_64) | ✅ **Tested**: install script, service, upgrade; **RPM package** (build, tests and installation in a clean Fedora 44 environment) |
 | **Red Hat Enterprise Linux 10.3** (with EPEL) | ✅ **Tested**: **RPM package** (install, upgrade, restore, sync) |
 | Red Hat Enterprise Linux 10.2 or earlier | ❌ Not supported by the RPM (needs 10.3) |
 | Fedora Linux 45 | 🔜 Planned, not verified yet |
@@ -28,7 +28,7 @@ The script refuses systems that have not been tested yet. With `--force` it goes
 - Fedora 44 with **systemd** and **dnf**; **root** access (sudo).
 - **Python 3.11 or later**: Fedora 44 already ships Python 3.14.
 - **Internet access** during installation, to download the code from GitHub and the Python dependencies from PyPI.
-  Offline installation will come with the RPM package.
+  Without Internet access on the server, use the [RPM package](INSTALL-RPM.md) (with a local mirror of the distribution).
 - Disk space: about 150 MB, plus the database (a few MB even with thousands of servers).
 - No external database is needed: data lives in a SQLite file, on a **local disk** (never on a network share).
 
