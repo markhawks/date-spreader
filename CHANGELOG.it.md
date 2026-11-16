@@ -6,6 +6,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Corretto
+- Colonna dei progetti: un intervento di **oggi** già *Completato* o *Annullato* non è più evidenziato come futuro, e «Prossimo» passa al successivo.
 - RPM: il file del servizio firewalld non era un XML valido (due trattini in un commento) e impediva l'avvio di firewalld; corretto nella 0.25.0-2, e i file del pacchetto ora sono controllati dai test (`tests/test_packaging.py`, eseguiti anche durante la build dell'RPM).
 
 ### Aggiunto

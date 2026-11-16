@@ -6,6 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Fixed
+- Project column: an intervention of **today** already *Completed* or *Cancelled* is no longer highlighted as upcoming, and "Next" moves on to the following one.
 - RPM: the firewalld service file was invalid XML (two hyphens in a comment) and stopped firewalld from starting; fixed in 0.25.0-2, and the packaging files are now checked by the tests (`tests/test_packaging.py`, also run during the RPM build).
 
 ### Added

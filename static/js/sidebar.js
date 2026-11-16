@@ -22,11 +22,17 @@ const normalize = (s) => (s ?? "").normalize("NFD").replace(/\p{Diacritic}/gu, "
 const initials = (name) =>
   name.split(/\s+/).filter((w) => /^[\p{L}\p{N}]/u.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
 
+/** Status of an intervention that is over: on its day it no longer counts as upcoming. */
+const CLOSED = new Set(["completato", "annullato"]);
+
+/** Still to come: a future day, or today if not yet completed or cancelled. */
+const isUpcoming = (ev, today) => ev.event_date > today || (ev.event_date === today && !CLOSED.has(ev.status));
+
 /** Prossimo intervento da oggi in poi; altrimenti l'ultimo passato. */
 function referenceEvent(project, today) {
   const events = project.events;
   if (!events.length) return null;
-  const next = events.find((e) => e.event_date >= today);
+  const next = events.find((e) => isUpcoming(e, today));
   return next ? { event: next, upcoming: true } : { event: events.at(-1), upcoming: false };
 }
 
@@ -122,7 +128,7 @@ export class Sidebar {
     const byName = (a, b) => a.name.localeCompare(b.name, locale(), { sensitivity: "base" });
     if (this.sort !== "date") return [...projects].sort(byName);
     const first = (p) => p.events.reduce((min, e) => (min === null || e.event_date < min ? e.event_date : min), null);
-    const next = (p) => p.events.filter((e) => e.event_date >= today).map((e) => e.event_date).sort()[0] ?? "";
+    const next = (p) => p.events.filter((e) => isUpcoming(e, today)).map((e) => e.event_date).sort()[0] ?? "";
     return [...projects].sort((a, b) => {
       const fa = first(a), fb = first(b);
       if ((fa === null) !== (fb === null)) return fa === null ? 1 : -1;
@@ -219,13 +225,13 @@ export class Sidebar {
     ul.setAttribute("aria-label", t("sidebar.events_of", { name: project.name }));
     const byTime = (e) => `${e.event_date} ${e.start_time ?? ""}`;
     const events = [...project.events].sort((x, y) => byTime(x).localeCompare(byTime(y)));
-    const next = events.find((e) => e.event_date >= today);
+    const next = events.find((e) => isUpcoming(e, today));
     for (const ev of events) {
       const item = document.createElement("li");
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = `tile-event status-${ev.status}`;
-      btn.classList.add(ev.event_date < today ? "past" : "upcoming");
+      btn.classList.add(isUpcoming(ev, today) ? "upcoming" : "past");
       if (ev === next) btn.classList.add("next");
       btn.dataset.projectId = project.id;
       btn.dataset.eventId = ev.id;
