@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Corretto
+- Dopo l'aggiornamento del pacchetto RPM il browser poteva continuare a usare il JavaScript della versione precedente (mancavano le novità, per esempio lo zoom orizzontale e la data di rilascio in alto) finché non si svuotava la cache: i pacchetti costruiti nello stesso giorno danno ai file la stessa data e lo Starlette di RHEL 10 confermava la copia vecchia. Ora i file statici si verificano solo con l'ETag, che cambia a ogni versione installata.
+
 ### Documentazione
 - Guide di installazione allineate ai pacchetti RPM: download e verifica del checksum dell'RPM, server senza Internet → RPM, prova dell'RPM su Fedora 44 descritta con precisione; README e roadmap non indicano più RPM e RHEL 10.2 come «in arrivo».
 

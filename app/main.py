@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import hashlib
+
 from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.datastructures import Headers
+from starlette.responses import FileResponse
+from starlette.staticfiles import NotModifiedResponse
 
 from app.api import auth as auth_api
 from app.api import backups, calendar, customers, health, inventory, meta, oslist, reports, servers, sync, transfer, users
 from app.auth import csrf_protect, require_user
 from app import __version__
+from app.build import build_info
 from app.config import PROJECT_ROOT, Settings, get_settings
 from app.db import create_db_engine, make_session_factory
 from app.i18n import LanguageMiddleware
@@ -20,7 +26,26 @@ class RevalidatingStaticFiles(StaticFiles):
     Senza questa intestazione i browser tengono in cache i moduli JS "a occhio": dopo un
     aggiornamento potevano mescolare file vecchi e nuovi e la pagina restava vuota. Se un file
     non è cambiato la risposta è un 304 di pochi byte, quindi non pesa.
+
+    Validation by ETag only, and the ETag also depends on the installed version: the RPM packages
+    give every file the date of the package changelog, so two packages built on the same day have
+    files with the same date. Older Starlette versions (0.47 on RHEL 10) then answered 304 by
+    If-Modified-Since even when the ETag was different, and the browser kept the old JavaScript.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._release = build_info()["full_version"]
+
+    def file_response(self, full_path, stat_result, scope, status_code=200):
+        response = FileResponse(full_path, status_code=status_code, stat_result=stat_result)
+        base = f"{self._release}-{stat_result.st_mtime}-{stat_result.st_size}"
+        etag = f'"{hashlib.md5(base.encode(), usedforsecurity=False).hexdigest()}"'
+        response.headers["etag"] = etag
+        if_none_match = Headers(scope=scope).get("if-none-match")
+        if if_none_match and etag in [t.strip().removeprefix("W/") for t in if_none_match.split(",")]:
+            return NotModifiedResponse(response.headers)
+        return response
 
     async def get_response(self, path, scope):
         response = await super().get_response(path, scope)

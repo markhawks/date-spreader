@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Fixed
+- After upgrading the RPM package, the browser could keep using the JavaScript of the previous version (new features missing, e.g. the horizontal zoom and the release date at the top) until the cache was cleared: packages built on the same day give the files the same date, and the Starlette of RHEL 10 then confirmed the old copy. Static files are now validated by ETag only, and the ETag changes with every installed version.
+
 ### Documentation
 - Installation guides brought up to date with the RPM packages: download and checksum check of the RPM, server without Internet access → RPM, Fedora 44 RPM test described precisely; READMEs and roadmap no longer list the RPM and RHEL 10.2 as coming soon.
 

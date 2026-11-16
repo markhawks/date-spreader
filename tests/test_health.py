@@ -55,3 +55,26 @@ def test_static_files_are_revalidated(client):
         assert res.headers.get("cache-control") == "no-cache", path
     etag = client.get("/js/labels.js").headers["etag"]
     assert client.get("/js/labels.js", headers={"If-None-Match": etag}).status_code == 304
+
+
+def test_static_files_validated_by_etag_only(client):
+    """Same date, different content (RPM packages built on the same day): never a stale 304."""
+    res = client.get("/js/labels.js")
+    etag, last_modified = res.headers["etag"], res.headers["last-modified"]
+    stale = client.get("/js/labels.js", headers={"If-None-Match": '"old"', "If-Modified-Since": last_modified})
+    assert stale.status_code == 200 and stale.headers["etag"] == etag
+    assert client.get("/js/labels.js", headers={"If-Modified-Since": last_modified}).status_code == 200
+    assert client.get("/js/labels.js", headers={"If-None-Match": f"W/{etag}"}).status_code == 304
+
+
+def test_static_etag_changes_with_the_installed_release(monkeypatch, settings):
+    """A new package release gives new ETags even if dates and sizes of the files are the same."""
+    import app.main as main
+    from tests.conftest import authed_app
+    from fastapi.testclient import TestClient
+
+    with TestClient(authed_app(settings)) as c:
+        before = c.get("/js/labels.js").headers["etag"]
+    monkeypatch.setattr(main, "build_info", lambda: {"full_version": "9.9.9-1.el10"})
+    with TestClient(authed_app(settings)) as c:
+        assert c.get("/js/labels.js").headers["etag"] != before
