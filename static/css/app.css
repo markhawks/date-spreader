@@ -1167,6 +1167,36 @@ th[aria-sort] .th-sort { color: var(--text); }
   padding: 14px 16px;
 }
 .inv-empty { margin: 20px 0; text-align: center; }
+/* Right column: history of the selected server, and below it the OS statistics */
+.inv-right { min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.inv-right .inv-detail { flex: 1; }
+.inv-stats {
+  flex: none; max-height: 38%; overflow-y: auto; padding: 8px 10px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); font-size: 0.8rem;
+}
+.inv-stats[hidden] { display: none; }
+.inv-stats-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.inv-stats-head h4 { margin: 0; font-size: 0.85rem; }
+.inv-stats-head .cf-clear { margin-left: auto; width: 20px; height: 20px; }
+.inv-stats-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.inv-stats-list li { display: grid; grid-template-columns: minmax(0, 9rem) 1fr 2.2rem; align-items: center; gap: 8px; }
+.inv-stats-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inv-stats-bar { height: 7px; border-radius: 4px; background: var(--panel-2); position: relative; overflow: hidden; }
+.inv-stats-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); background: var(--accent); border-radius: 4px; }
+.inv-stats-n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.inv-stats-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+/* Customer menu and customer headings ("Divided by customer") */
+.inv-customer {
+  font: inherit; font-size: 0.88rem; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel); color: var(--text); max-width: 18rem;
+}
+.inv-customer.active { border-color: var(--accent); font-weight: 600; }
+.inv-customer option, .inv-customer optgroup { color: var(--text); background: var(--panel); font-weight: normal; }
+.inv-table tr.inv-group td {
+  position: static; background: var(--panel-2); font-weight: 600; padding-top: 8px; padding-bottom: 6px;
+  border-top: 2px solid var(--border); cursor: default;
+}
+.inv-group-name { margin-right: 10px; color: var(--text); }
 .inv-head h3 { font-size: 1.05rem; margin: 0 0 8px; word-break: break-all; }
 .inv-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
 .inv-actions .muted { font-size: 0.8rem; }

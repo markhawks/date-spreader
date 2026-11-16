@@ -1,6 +1,10 @@
 // Translations for settings.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "settings.inventory_title": "Server inventory",
+    "settings.os_stats": "Show the box with the count of the operating system versions (bottom right)",
+    "settings.os_stats_on": "Operating system statistics shown in the server inventory.",
+    "settings.os_stats_off": "Operating system statistics hidden in the server inventory.",
     "settings.title": "Settings",
     "settings.close": "Close",
     "settings.sections": "Settings sections",
@@ -80,6 +84,10 @@ export default {
     "settings.days_done": "Calendar days updated."
   },
   "it": {
+    "settings.inventory_title": "Anagrafica server",
+    "settings.os_stats": "Mostra il riquadro con il conteggio delle versioni dei sistemi operativi (in basso a destra)",
+    "settings.os_stats_on": "Statistiche dei sistemi operativi visibili nell'anagrafica server.",
+    "settings.os_stats_off": "Statistiche dei sistemi operativi nascoste nell'anagrafica server.",
     "settings.title": "Impostazioni",
     "settings.close": "Chiudi",
     "settings.sections": "Sezioni delle impostazioni",

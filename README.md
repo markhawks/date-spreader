@@ -317,6 +317,12 @@ to **recover access** if the administrator forgets the password.
   - For each one: IP, operating system, environment, current kernel, number of interventions, **last**
     intervention (date and migration status) and **next** scheduled one.
   - **Search** on hostname, IP, operating system, environment, kernel and notes.
+  - **Customer** menu next to the search: all customers, **divided by customer** (a heading per customer, servers
+    of no customer at the end; a server of more customers is in each of their groups), only the servers of no
+    customer, or the servers of one customer.
+  - **Operating systems** box at the bottom right: how many servers per operating system version, for the servers
+    in the list (with the search and customer chosen). Visible by default; it is hidden with its ✕ or the
+    **OS stats** button, and in Settings → Appearance → Server inventory.
   - **Sorting**: click a column header (hostname, IP, OS, environment, location, kernel, interventions, last,
     next); click again to reverse. IPs in numeric order, versions in natural order (RHEL 9.8 before 10.2), empty
     values last. The browser remembers the choice.
@@ -677,7 +683,7 @@ server), the changes made on one can be brought to the other without duplicates.
 | `PATCH /api/events/{id}` | Edits date, type, title, times, status, notes of an intervention (`version` required, 409 if changed) |
 | `DELETE /api/events/{id}?version=N` | Deletes an intervention with its server rows (the servers stay). With servers: coordinators and administrators only (403 for technicians) |
 | `DELETE /api/projects/{id}?version=N` | Deletes a project with its interventions (coordinators and administrators only) |
-| `GET /api/servers[?q=…&limit=…]` | Inventory: all servers (even without interventions) with number of interventions, last and next. `total` = total matches |
+| `GET /api/servers[?q=…&limit=…&customer_id=…]` | Inventory: all servers (even without interventions) with number of interventions, last and next, and their customers. `customer_id`: only that customer's servers (0 = of no customer). `total` = total matches |
 | `GET /api/servers/{id}` | Server data, intervention history (most recent first) and changes to its data |
 | `PATCH /api/servers/{id}` | Changes hostname, IP, OS, environment, location or kernel (with `version`); applies to all its interventions. 409 with `detail.current` if changed meanwhile |
 | `DELETE /api/servers/{id}?version=N` | Deletes a server from the inventory: 409 if it is in any intervention |

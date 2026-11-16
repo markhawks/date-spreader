@@ -229,6 +229,8 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - Il pulsante **Server** in alto apre l'anagrafica: tutti i server, anche quelli che non sono più in nessun intervento.
   - Per ognuno: IP, sistema operativo, ambiente, kernel attuale, numero di interventi, **ultimo** intervento (data e stato della migrazione) e **prossimo** in programma.
   - **Ricerca** su hostname, IP, sistema operativo, ambiente, kernel e note.
+  - Menu **Cliente** accanto alla ricerca: tutti i clienti, **divisi per cliente** (un'intestazione per cliente, i server senza cliente in fondo; un server di più clienti compare in ognuno dei loro gruppi), solo i server senza cliente, oppure i server di un cliente.
+  - Riquadro **Sistemi operativi** in basso a destra: quanti server per versione del sistema operativo, sui server dell'elenco (con la ricerca e il cliente scelti). Visibile di default; si nasconde con la sua ✕ o con il pulsante **Statistiche SO**, e da Impostazioni → Aspetto → Anagrafica server.
   - **Ordinamento**: clic sull'intestazione di una colonna (hostname, IP, SO, ambiente, location, kernel, interventi, ultimo, prossimo); un altro clic inverte l'ordine. IP in ordine numerico, versioni in ordine naturale (RHEL 9.8 prima di 10.2), valori vuoti in fondo. Il browser ricorda la scelta.
   - Navigazione da tastiera: ↓ dalla ricerca all'elenco, ↑/↓ tra le righe, Invio per aprire lo storico.
   - Colonne ridimensionabili.
@@ -458,7 +460,7 @@ Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un 
 | `PATCH /api/events/{id}` | Modifica data, tipo, titolo, orari, stato, note di un intervento (`version` obbligatoria, 409 se cambiato) |
 | `DELETE /api/events/{id}?version=N` | Elimina un intervento con le sue righe server (i server restano). Con server: solo coordinatori e amministratori (403 per i tecnici) |
 | `DELETE /api/projects/{id}?version=N` | Elimina un progetto con i suoi interventi (solo coordinatori e amministratori) |
-| `GET /api/servers[?q=…&limit=…]` | Anagrafica: tutti i server (anche senza interventi) con numero di interventi, ultimo e prossimo. `total` = corrispondenze totali |
+| `GET /api/servers[?q=…&limit=…&customer_id=…]` | Anagrafica: tutti i server (anche senza interventi) con numero di interventi, ultimo e prossimo, e i loro clienti. `customer_id`: solo i server di quel cliente (0 = senza cliente). `total` = corrispondenze totali |
 | `GET /api/servers/{id}` | Dati del server, storico degli interventi (dal più recente) e modifiche ai suoi dati |
 | `PATCH /api/servers/{id}` | Modifica hostname, IP, SO, ambiente, location o kernel (con `version`); vale in tutti i suoi interventi. 409 con `detail.current` se cambiato nel frattempo |
 | `DELETE /api/servers/{id}?version=N` | Elimina un server dall'anagrafica: 409 se è in qualche intervento |

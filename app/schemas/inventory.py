@@ -7,6 +7,11 @@ from datetime import date, datetime
 from pydantic import BaseModel
 
 
+class CustomerRef(BaseModel):
+    id: int
+    name: str
+
+
 class ServerSummary(BaseModel):
     id: int
     version: int
@@ -21,6 +26,7 @@ class ServerSummary(BaseModel):
     last_event_date: date | None        # data dell'intervento più recente
     last_migration_status: str | None   # stato della migrazione in quell'intervento
     next_event_date: date | None        # prossimo intervento da oggi in poi
+    customers: list[CustomerRef] = []   # customers of the projects of its interventions, by name
 
 
 class ServerHistoryItem(BaseModel):

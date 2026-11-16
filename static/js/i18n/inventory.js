@@ -1,6 +1,18 @@
 // Translations for inventory.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "inventory.customer_label": "Customer",
+    "inventory.customer_title": "Show the servers of one customer, or all of them divided by customer",
+    "inventory.customer_all": "All customers",
+    "inventory.customer_group": "Divided by customer",
+    "inventory.customer_none": "No customer",
+    "inventory.customer_one": "Only one customer",
+    "inventory.stats_button": "OS stats",
+    "inventory.stats_button_title": "Show or hide the count of the operating system versions",
+    "inventory.stats_title": "Operating systems",
+    "inventory.stats_hide": "Hide (to show it again: «OS stats» button or Settings)",
+    "inventory.stats_unset": "Not set",
+    "inventory.stats_empty": "No servers.",
     "inventory.sort_hint": "Click to sort; click again to reverse the order",
     "inventory.edit": "Edit",
     "inventory.edit_title_hint": "Change hostname, IP, operating system, environment, location or kernel",
@@ -71,6 +83,18 @@ export default {
     "inventory.col.location": "Location"
   },
   "it": {
+    "inventory.customer_label": "Cliente",
+    "inventory.customer_title": "Mostra i server di un cliente, oppure tutti divisi per cliente",
+    "inventory.customer_all": "Tutti i clienti",
+    "inventory.customer_group": "Divisi per cliente",
+    "inventory.customer_none": "Senza cliente",
+    "inventory.customer_one": "Un solo cliente",
+    "inventory.stats_button": "Statistiche SO",
+    "inventory.stats_button_title": "Mostra o nasconde il conteggio delle versioni dei sistemi operativi",
+    "inventory.stats_title": "Sistemi operativi",
+    "inventory.stats_hide": "Nascondi (per rivederlo: pulsante «Statistiche SO» o Impostazioni)",
+    "inventory.stats_unset": "Non indicato",
+    "inventory.stats_empty": "Nessun server.",
     "inventory.sort_hint": "Clic per ordinare; un altro clic inverte l'ordine",
     "inventory.edit": "Modifica",
     "inventory.edit_title_hint": "Modifica hostname, IP, sistema operativo, ambiente, location o kernel",

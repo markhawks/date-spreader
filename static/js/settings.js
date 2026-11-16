@@ -188,7 +188,15 @@ export function showSettings({ me, toast, adminActions = [] }) {
       ], (v) => update({ language: v }, t("settings.language_done")).then((ok) => ok && adoptLanguagePreference(v))),
     );
     const note = el("p", "muted small settings-note", t("settings.note"));
-    return [langField, posField, sideField, daysField, timeField, clockField, themeField, mailField, note];
+    const invField = el("div", "settings-field");
+    const statsLbl = el("label", "share-choose");
+    const statsCb = el("input");
+    Object.assign(statsCb, { type: "checkbox", checked: p.inventory_os_stats });
+    statsCb.addEventListener("change", () => update({ inventory_os_stats: statsCb.checked },
+      statsCb.checked ? t("settings.os_stats_on") : t("settings.os_stats_off")));
+    statsLbl.append(statsCb, " ", t("settings.os_stats"));
+    invField.append(el("h4", null, t("settings.inventory_title")), statsLbl);
+    return [langField, posField, sideField, daysField, timeField, clockField, themeField, invField, mailField, note];
   }
 
   function renderAdmin() {

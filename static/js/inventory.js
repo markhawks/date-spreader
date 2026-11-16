@@ -2,6 +2,8 @@
 
 import { deleteServer, fetchOperatingSystems, fetchOptions, fetchServer, listServers, patchServer } from "./api.js";
 import { confirmDanger } from "./confirm.js";
+import { customers } from "./customers.js";
+import { prefs } from "./prefs.js";
 import { homeButton } from "./homebutton.js";
 import { colorFor } from "./colors.js";
 import { locale, t } from "./i18n.js";
@@ -74,6 +76,20 @@ function sortServers(servers, { col, dir }) {
   });
 }
 
+// Customer menu: "" = all, "group" = divided by customer, "0" = of no customer, otherwise a customer id
+const CUSTOMER_KEY = "datespreader.inventory.customer";
+const GROUP = "group";
+function loadCustomerView() {
+  try { return localStorage.getItem(CUSTOMER_KEY) ?? ""; } catch { return ""; }
+}
+
+/** Count of the operating systems of the servers: [[name, n]], most used first ("" = not set). */
+function osCounts(servers) {
+  const counts = new Map();
+  for (const s of servers) counts.set(s.operating_system ?? "", (counts.get(s.operating_system ?? "") ?? 0) + 1);
+  return [...counts].sort((a, b) => b[1] - a[1] || (a[0] === "" ? 1 : b[0] === "" ? -1 : collator.compare(a[0], b[0])));
+}
+
 function loadSort() {
   try {
     const v = JSON.parse(localStorage.getItem(SORT_KEY));
@@ -101,7 +117,9 @@ export class Inventory {
     this.query = "";
     this.token = 0;
     this.sort = loadSort();
+    this.customerView = loadCustomerView();
     this.servers = [];
+    prefs.onChange((p, changes) => { if ("inventory_os_stats" in changes && this.isOpen) this.#showStats(); });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen && !e.defaultPrevented && !document.querySelector("dialog[open]")) {
         e.preventDefault();
@@ -164,9 +182,21 @@ export class Inventory {
       this.timer = setTimeout(() => { this.query = this.searchEl.value.trim(); this.#loadList(); }, SEARCH_DELAY_MS);
     });
     this.searchEl.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown") { e.preventDefault(); this.tbody.querySelector("tr")?.focus(); }
+      if (e.key === "ArrowDown") { e.preventDefault(); this.tbody.querySelector("tr[data-id]")?.focus(); }
     });
-    bar.append(this.searchEl);
+    this.customerEl = el("select", "inv-customer");
+    this.customerEl.setAttribute("aria-label", t("inventory.customer_label"));
+    this.customerEl.title = t("inventory.customer_title");
+    this.customerEl.addEventListener("change", () => {
+      this.customerView = this.customerEl.value;
+      try { localStorage.setItem(CUSTOMER_KEY, this.customerView); } catch { /* optional */ }
+      this.#loadList();
+    });
+    this.statsBtn = el("button", "btn btn-small inv-stats-toggle", t("inventory.stats_button"));
+    this.statsBtn.type = "button";
+    this.statsBtn.title = t("inventory.stats_button_title");
+    this.statsBtn.addEventListener("click", () => this.#setStats(!prefs.get().inventory_os_stats));
+    bar.append(this.searchEl, this.customerEl, this.statsBtn);
 
     const panes = el("div", "inv-panes");
     const listWrap = el("div", "sheet-table-wrap inv-list");
@@ -190,6 +220,8 @@ export class Inventory {
     listWrap.append(table);
     this.table = table;
     this.#showSort();
+    this.#fillCustomers();
+    this.#showStats();
     this.tbody.addEventListener("click", (e) => {
       const tr = e.target.closest("tr[data-id]");
       if (tr) this.#select(Number(tr.dataset.id));
@@ -198,15 +230,19 @@ export class Inventory {
       const tr = e.target.closest("tr[data-id]");
       if (!tr) return;
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.#select(Number(tr.dataset.id)); }
-      else if (e.key === "ArrowDown") { e.preventDefault(); tr.nextElementSibling?.focus(); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); (tr.previousElementSibling ?? this.searchEl).focus(); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); this.#rowAfter(tr, 1)?.focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); (this.#rowAfter(tr, -1) ?? this.searchEl).focus(); }
     });
 
     this.detailEl = el("section", "inv-detail");
     this.detailEl.setAttribute("aria-live", "polite");
     this.detailEl.append(el("p", "muted inv-empty", t("inventory.select_hint")));
 
-    panes.append(listWrap, this.detailEl);
+    this.statsEl = el("section", "inv-stats");
+    this.statsEl.setAttribute("aria-label", t("inventory.stats_title"));
+    const right = el("div", "inv-right");
+    right.append(this.detailEl, this.statsEl);
+    panes.append(listWrap, right);
     this.root.replaceChildren(head, bar, panes);
     this.resizer = makeResizable(table, { key: "inventory" });
   }
@@ -215,7 +251,8 @@ export class Inventory {
     const token = ++this.token;
     let res;
     try {
-      res = await listServers(this.query);
+      const v = this.customerView;
+      res = await listServers(this.query, 500, v === "" || v === GROUP ? null : Number(v));
     } catch (err) {
       if (token === this.token) this.tbody.replaceChildren(this.#messageRow(t("inventory.load_error", { message: err.message })));
       return;
@@ -225,6 +262,7 @@ export class Inventory {
       ? t("inventory.count", { n: res.total })
       : t("inventory.count_filtered", { shown: res.servers.length, n: res.total });
     this.servers = res.servers;
+    this.#renderStats();
     if (!res.servers.length) {
       this.tbody.replaceChildren(this.#messageRow(this.query ? t("inventory.no_match") : t("inventory.empty")));
       return;
@@ -249,21 +287,119 @@ export class Inventory {
     }
   }
 
+  /** Customer menu: all, divided by customer, of no customer, then each customer. */
+  async #fillCustomers() {
+    const list = await customers.load().catch(() => []);
+    const sel = this.customerEl;
+    if (!sel) return;
+    sel.replaceChildren(
+      new Option(t("inventory.customer_all"), ""),
+      new Option(t("inventory.customer_group"), GROUP),
+      new Option(t("inventory.customer_none"), "0"),
+    );
+    const og = el("optgroup");
+    og.label = t("inventory.customer_one");
+    for (const c of list) og.append(new Option(c.name, String(c.id)));
+    if (list.length) sel.append(og);
+    const known = ["", GROUP, "0", ...list.map((c) => String(c.id))];
+    if (!known.includes(this.customerView)) { this.customerView = ""; this.#loadList(); }
+    sel.value = this.customerView;
+    sel.classList.toggle("active", this.customerView !== "");
+  }
+
   #renderRows() {
-    this.tbody.replaceChildren(...sortServers(this.servers, this.sort).map((s) => {
-      const tr = el("tr");
-      tr.dataset.id = s.id;
-      tr.tabIndex = 0;
-      tr.title = t("inventory.show_history");
-      if (s.id === this.selectedId) tr.classList.add("selected");
-      for (const [, , render] of COLUMNS) {
-        const td = el("td");
-        const v = render(s);
-        if (v instanceof Node) td.append(v); else td.textContent = v;
-        tr.append(td);
+    this.customerEl?.classList.toggle("active", this.customerView !== "");
+    const sorted = sortServers(this.servers, this.sort);
+    if (this.customerView !== GROUP) {
+      this.tbody.replaceChildren(...sorted.map((s) => this.#row(s)));
+      return;
+    }
+    // Divided by customer: a heading row per customer (by name), servers of no customer at the end.
+    // A server of more customers is in each of their groups.
+    const groups = new Map();
+    for (const s of sorted) {
+      const keys = s.customers.length ? s.customers : [{ id: 0, name: t("inventory.customer_none") }];
+      for (const c of keys) {
+        if (!groups.has(c.id)) groups.set(c.id, { name: c.name, servers: [] });
+        groups.get(c.id).servers.push(s);
       }
-      return tr;
-    }));
+    }
+    const ordered = [...groups].sort(([a, ga], [b, gb]) => (a === 0) - (b === 0) || collator.compare(ga.name, gb.name));
+    const rows = [];
+    for (const [, g] of ordered) {
+      const tr = el("tr", "inv-group");
+      const td = el("td");
+      td.colSpan = COLUMNS.length;
+      td.append(el("span", "inv-group-name", g.name), el("span", "muted", t("inventory.count", { n: g.servers.length })));
+      tr.append(td);
+      rows.push(tr, ...g.servers.map((s) => this.#row(s)));
+    }
+    this.tbody.replaceChildren(...rows);
+  }
+
+  // --- OS statistics (small box at the bottom right) ---
+
+  #setStats(on) {
+    prefs.set({ inventory_os_stats: on }).catch(() => {});
+    this.#showStats();
+  }
+
+  #showStats() {
+    if (!this.statsEl) return;
+    const on = prefs.get().inventory_os_stats;
+    this.statsEl.hidden = !on;
+    this.statsBtn.setAttribute("aria-pressed", String(on));
+    if (on) this.#renderStats();
+  }
+
+  /** Versions of the operating systems of the servers in the list (with the search and customer chosen). */
+  #renderStats() {
+    if (!this.statsEl || this.statsEl.hidden) return;
+    const servers = this.servers;
+    const head = el("header", "inv-stats-head");
+    head.append(el("h4", null, t("inventory.stats_title")), el("span", "muted", t("inventory.count", { n: servers.length })));
+    const close = el("button", "cf-clear");
+    close.type = "button";
+    close.title = t("inventory.stats_hide");
+    close.setAttribute("aria-label", t("inventory.stats_hide"));
+    close.innerHTML = '<svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    close.addEventListener("click", () => this.#setStats(false));
+    head.append(close);
+    const list = el("ul", "inv-stats-list");
+    const max = Math.max(1, ...osCounts(servers).map(([, n]) => n));
+    for (const [name, n] of osCounts(servers)) {
+      const li = el("li");
+      li.title = `${name || t("inventory.stats_unset")}: ${n} (${Math.round((n / servers.length) * 100)}%)`;
+      const label = el("span", name ? "inv-stats-name" : "inv-stats-name muted", name ? shortOs(name) : t("inventory.stats_unset"));
+      const bar = el("span", "inv-stats-bar");
+      bar.style.setProperty("--w", `${(n / max) * 100}%`);
+      li.append(label, bar, el("span", "inv-stats-n", String(n)));
+      list.append(li);
+    }
+    if (!servers.length) list.append(el("li", "muted", t("inventory.stats_empty")));
+    this.statsEl.replaceChildren(head, list);
+  }
+
+  #row(s) {
+    const tr = el("tr");
+    tr.dataset.id = s.id;
+    tr.tabIndex = 0;
+    tr.title = t("inventory.show_history");
+    if (s.id === this.selectedId) tr.classList.add("selected");
+    for (const [, , render] of COLUMNS) {
+      const td = el("td");
+      const v = render(s);
+      if (v instanceof Node) td.append(v); else td.textContent = v;
+      tr.append(td);
+    }
+    return tr;
+  }
+
+  /** Next (dir 1) or previous (-1) server row, skipping the customer headings. */
+  #rowAfter(tr, dir) {
+    let n = dir > 0 ? tr.nextElementSibling : tr.previousElementSibling;
+    while (n && !n.dataset.id) n = dir > 0 ? n.nextElementSibling : n.previousElementSibling;
+    return n;
   }
 
   #messageRow(text) {

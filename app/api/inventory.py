@@ -28,6 +28,7 @@ def _summary(item: dict) -> ServerSummary:
         operating_system=s.operating_system, environment=s.environment, current_kernel=s.current_kernel,
         location=s.location, notes=s.notes, event_count=item["event_count"], last_event_date=item["last_event_date"],
         last_migration_status=item["last_migration_status"], next_event_date=item["next_event_date"],
+        customers=item["customers"],
     )
 
 
@@ -36,9 +37,10 @@ def list_servers(
     session: SessionDep,
     q: Annotated[str | None, Query(max_length=100, description="Hostname, IP, SO, ambiente, kernel o note")] = None,
     limit: Annotated[int, Query(ge=1, le=1000)] = 500,
+    customer_id: Annotated[int | None, Query(ge=0, description="Only the servers of this customer (0 = of no customer)")] = None,
 ) -> ServerList:
     """Tutti i server in anagrafica (anche quelli non più in nessun intervento), in ordine di hostname."""
-    total, items = repo.list_servers(session, (q or "").strip() or None, limit, date.today())
+    total, items = repo.list_servers(session, (q or "").strip() or None, limit, date.today(), customer_id=customer_id)
     return ServerList(total=total, servers=[_summary(i) for i in items])
 
 
@@ -60,6 +62,7 @@ def server_detail(session: SessionDep, server_id: int) -> ServerDetail:
         last_event_date=max(past) if past else None,
         last_migration_status=last[0].migration_status if last else None,
         next_event_date=min(future) if future else None,
+        customers=repo.list_servers(session, None, 1, today, ids=[server_id])[1][0]["customers"],
     )
     return ServerDetail(
         server=summary,

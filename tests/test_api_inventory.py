@@ -143,3 +143,17 @@ def test_delete_only_servers_in_no_intervention(api):
     assert api.delete(f"/api/servers/{fresh['id']}", params={"version": fresh["version"]}).status_code == 204
     assert find(api, used["hostname"])["total"] == 0
     assert api.get(f"/api/servers/{fresh['id']}").status_code == 404
+
+
+def test_customers_of_each_server_and_filter(api):
+    servers = find(api)["servers"]
+    assert all(isinstance(s["customers"], list) for s in servers)
+    with_customer = [s for s in servers if s["customers"]]
+    assert with_customer
+    cust = with_customer[0]["customers"][0]
+    only = find(api, customer_id=cust["id"])
+    assert only["total"] == sum(1 for s in servers if any(c["id"] == cust["id"] for c in s["customers"]))
+    assert all(any(c["id"] == cust["id"] for c in s["customers"]) for s in only["servers"])
+    none = find(api, customer_id=0)
+    assert all(not s["customers"] for s in none["servers"])
+    assert api.get(f"/api/servers/{with_customer[0]['id']}").json()["server"]["customers"] == with_customer[0]["customers"]

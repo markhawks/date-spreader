@@ -46,6 +46,8 @@ class Preferences(BaseModel):
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] = "date_time"
     # Interface language: "auto" = the browser's (Italian if preferred, otherwise English)
     language: Literal["auto", "en", "it"] = "auto"
+    # Server inventory: small box with the count of the operating system versions (bottom right)
+    inventory_os_stats: bool = True
 
 
 class PreferencesPatch(BaseModel):
@@ -69,3 +71,4 @@ class PreferencesPatch(BaseModel):
     calendar_days: Literal["all", "workweek"] | None = None
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] | None = None
     language: Literal["auto", "en", "it"] | None = None
+    inventory_os_stats: bool | None = None

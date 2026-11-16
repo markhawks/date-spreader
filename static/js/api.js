@@ -134,8 +134,8 @@ export const search = (text) => getJSON(`/api/search?q=${q(text)}`);
 export const fetchChanges = (since) => getJSON(since == null ? "/api/changes" : `/api/changes?since=${q(since)}`);
 export const createProject = (data) => request("POST", "/api/projects", data);
 /** Anagrafica server: ricerca su tutti i server (anche quelli non più in interventi). */
-export const listServers = (text = "", limit = 500) =>
-  getJSON(`/api/servers?limit=${limit}${text ? `&q=${q(text)}` : ""}`);
+export const listServers = (text = "", limit = 500, customerId = null) =>
+  getJSON(`/api/servers?limit=${limit}${text ? `&q=${q(text)}` : ""}${customerId != null ? `&customer_id=${q(customerId)}` : ""}`);
 export const fetchServer = (id) => getJSON(`/api/servers/${q(id)}`);
 export const patchServer = (id, changes) => request("PATCH", `/api/servers/${q(id)}`, changes);
 export const deleteServer = (id, version) => request("DELETE", `/api/servers/${q(id)}?version=${q(version)}`);
