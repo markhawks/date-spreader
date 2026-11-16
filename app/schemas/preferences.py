@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # Account Gmail: vuoto (= email del profilo nel portale) oppure un indirizzo email
 GMAIL_ACCOUNT = r"^$|^[^@\s]+@[^@\s]+\.[^@\s]+$"
+VERSION = r"^$|^\d+\.\d+\.\d+$"
 
 
 class Preferences(BaseModel):
@@ -48,6 +49,9 @@ class Preferences(BaseModel):
     language: Literal["auto", "en", "it"] = "auto"
     # Server inventory: small box with the count of the operating system versions (bottom right)
     inventory_os_stats: bool = True
+    # What's new: shown once after an update (whats_new_seen = last version shown); off = never
+    whats_new: bool = True
+    whats_new_seen: str = Field(default="", max_length=20, pattern=VERSION)
 
 
 class PreferencesPatch(BaseModel):
@@ -72,3 +76,5 @@ class PreferencesPatch(BaseModel):
     topbar_clock: Literal["date_time", "date_time_seconds", "date", "time", "off"] | None = None
     language: Literal["auto", "en", "it"] | None = None
     inventory_os_stats: bool | None = None
+    whats_new: bool | None = None
+    whats_new_seen: str | None = Field(default=None, max_length=20, pattern=VERSION)

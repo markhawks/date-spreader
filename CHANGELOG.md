@@ -5,8 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+
+## [0.27.0] - 2026-11-16
+> The server inventory becomes a place to work: edit and delete servers, sort the columns, divide them by customer and see which operating system versions you have.
+
 ### Added
-- Server inventory: **Customer** menu (all, divided by customer with a heading per customer, no customer, one customer) and a small **Operating systems** box at the bottom right with the count of the OS versions of the listed servers; visible by default, hidden with its ✕, the «OS stats» button or in Settings (preference `inventory_os_stats`). API: `customer_id` and `customers` in `GET /api/servers`.
+- **What's new after an update**: the first time each user opens the portal after an update, a window shows the changes of the new version (from this changelog, in the user's language, with its message at the top). "Don't show the news after updates any more" turns it off; back on in Settings → Appearance (preferences `whats_new`, `whats_new_seen`).
+- Server inventory: **Customer** menu (all, divided by customer with a heading per customer, no customer, one customer) and a small **Operating systems** box at the bottom right with the count of the OS versions of the listed servers; visible by default, hidden with its ×, the «OS stats» button or in Settings (preference `inventory_os_stats`). API: `customer_id` and `customers` in `GET /api/servers`.
 - Server inventory: **sorting** by clicking a column header (hostname, IP, OS, environment, location, kernel, interventions, last, next), again to reverse; IPs in numeric order, versions in natural order, empty values last.
 - Server inventory: **Edit** a server (hostname, IP, operating system, environment, location, current kernel) from its card; the change applies to all its interventions, past and future. **Delete** a server that is in no intervention (refused, with the number of interventions, otherwise). API: `PATCH` and `DELETE /api/servers/{id}`.
 

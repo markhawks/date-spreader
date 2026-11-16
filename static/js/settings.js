@@ -196,7 +196,15 @@ export function showSettings({ me, toast, adminActions = [] }) {
       statsCb.checked ? t("settings.os_stats_on") : t("settings.os_stats_off")));
     statsLbl.append(statsCb, " ", t("settings.os_stats"));
     invField.append(el("h4", null, t("settings.inventory_title")), statsLbl);
-    return [langField, posField, sideField, daysField, timeField, clockField, themeField, invField, mailField, note];
+    const newsField = el("div", "settings-field");
+    const newsLbl = el("label", "share-choose");
+    const newsCb = el("input");
+    Object.assign(newsCb, { type: "checkbox", checked: p.whats_new });
+    newsCb.addEventListener("change", () => update({ whats_new: newsCb.checked },
+      newsCb.checked ? t("settings.whats_new_on") : t("settings.whats_new_off")));
+    newsLbl.append(newsCb, " ", t("settings.whats_new"));
+    newsField.append(el("h4", null, t("settings.whats_new_title")), newsLbl);
+    return [langField, posField, sideField, daysField, timeField, clockField, themeField, invField, newsField, mailField, note];
   }
 
   function renderAdmin() {

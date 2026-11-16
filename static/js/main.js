@@ -1,5 +1,6 @@
 import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, fetchMe, fetchProjects } from "./api.js";
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
+import { maybeShowWhatsNew } from "./whatsnew.js";
 import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
 import { assignColors, colorFor } from "./colors.js";
@@ -521,6 +522,8 @@ async function main() {
     if ("time_format" in changes) clock.refresh();
   });
   $("version-link").addEventListener("click", () => showChangelog());
+  // After an update: the news of the new version, once (unless turned off)
+  setTimeout(() => maybeShowWhatsNew(me.version), 600);
   $("topbar-actions").append(userMenu(me, {
     onLogout: () => location.reload(),
     adminItems: [[t("main.admin_os"), () => showOsDialog({ toast })]],

@@ -26,7 +26,8 @@ Highlights:
   to list their **interventions** (date, status, time, commessa) and open one with a click;
 - for each intervention, an **editable server table** (hostname, IP, current/target OS, environment, current/target
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
-- a persistent **server inventory**: servers survive across interventions, with search and full history;
+- a persistent **server inventory**: servers survive across interventions, with search, full history, editing,
+  sorting, division by customer and a count of the operating system versions;
 - a **commessa** (job number) on every intervention, stored on the customer and proposed in a list, and optional
   **hours worked**;
 - a **Gantt per customer**: commesse, projects and interventions over a period, with technicians, hours, man-hours,
@@ -218,6 +219,9 @@ to **recover access** if the administrator forgets the password.
   (Italian), in the "Keep a Changelog" format; the version headings are identical in both files.
 - In the portal the version is next to the name, at the top left: clicking it opens the changelog (also from the
   user menu → "What's new"), in the user's language.
+- After an update, the first time each user opens the portal a window shows **what's new** in that version (with
+  the message at the top of its changelog section, a `> ` line). The user can tick "Don't show the news after
+  updates any more"; it is turned back on in Settings → Appearance.
 - New changes are recorded in both changelogs under "Unreleased" / "Non rilasciato"; the version changes only at
   release time.
 - **To make a release**:
@@ -321,7 +325,7 @@ to **recover access** if the administrator forgets the password.
     of no customer at the end; a server of more customers is in each of their groups), only the servers of no
     customer, or the servers of one customer.
   - **Operating systems** box at the bottom right: how many servers per operating system version, for the servers
-    in the list (with the search and customer chosen). Visible by default; it is hidden with its ✕ or the
+    in the list (with the search and customer chosen). Visible by default; it is hidden with its × or the
     **OS stats** button, and in Settings → Appearance → Server inventory.
   - **Sorting**: click a column header (hostname, IP, OS, environment, location, kernel, interventions, last,
     next); click again to reverse. IPs in numeric order, versions in natural order (RHEL 9.8 before 10.2), empty

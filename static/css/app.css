@@ -2561,3 +2561,12 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
   body.gantt-open .gt-wrap, body.gantt-open .gt-card { border-color: #ccc; }
   body.gantt-open * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* What's new after an update */
+.changelog blockquote {
+  margin: 8px 0 12px; padding: 10px 12px; border-left: 4px solid var(--accent); border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel)); color: var(--text); font-weight: 500;
+}
+.whatsnew-version { margin: 14px 0 4px; font-size: 1rem; }
+.whatsnew-foot { align-items: center; flex-wrap: wrap; }
+.whatsnew-foot .share-choose { margin-right: auto; font-size: 0.85rem; }

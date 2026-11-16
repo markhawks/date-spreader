@@ -5,8 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+
+## [0.27.0] - 2026-11-16
+> L'anagrafica server diventa un posto dove lavorare: modifichi ed elimini i server, ordini le colonne, li dividi per cliente e vedi quali versioni dei sistemi operativi hai.
+
 ### Aggiunto
-- Anagrafica server: menu **Cliente** (tutti, divisi per cliente con un'intestazione per cliente, senza cliente, un cliente) e piccolo riquadro **Sistemi operativi** in basso a destra con il conteggio delle versioni dei SO dei server elencati; visibile di default, si nasconde con la sua ✕, con il pulsante «Statistiche SO» o dalle Impostazioni (preferenza `inventory_os_stats`). API: `customer_id` e `customers` in `GET /api/servers`.
+- **Novità dopo un aggiornamento**: la prima volta che ogni utente apre il portale dopo un aggiornamento, una finestra mostra le modifiche della nuova versione (da questo changelog, nella lingua dell'utente, con il suo messaggio in cima). «Non mostrare più le novità dopo gli aggiornamenti» la disattiva; si riattiva da Impostazioni → Aspetto (preferenze `whats_new`, `whats_new_seen`).
+- Anagrafica server: menu **Cliente** (tutti, divisi per cliente con un'intestazione per cliente, senza cliente, un cliente) e piccolo riquadro **Sistemi operativi** in basso a destra con il conteggio delle versioni dei SO dei server elencati; visibile di default, si nasconde con la sua ×, con il pulsante «Statistiche SO» o dalle Impostazioni (preferenza `inventory_os_stats`). API: `customer_id` e `customers` in `GET /api/servers`.
 - Anagrafica server: **ordinamento** con un clic sull'intestazione di una colonna (hostname, IP, SO, ambiente, location, kernel, interventi, ultimo, prossimo), un altro clic lo inverte; IP in ordine numerico, versioni in ordine naturale, valori vuoti in fondo.
 - Anagrafica server: **Modifica** di un server (hostname, IP, sistema operativo, ambiente, location, kernel attuale) dalla sua scheda; la modifica vale in tutti i suoi interventi, passati e futuri. **Elimina** un server che non è in nessun intervento (altrimenti è rifiutato, con il numero di interventi). API: `PATCH` e `DELETE /api/servers/{id}`.
 

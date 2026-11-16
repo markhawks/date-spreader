@@ -8,7 +8,7 @@
 #   /var/lib/datespreader            database; backups in /var/lib/datespreader/backups
 #   /usr/bin/datespreader            administration command (runs as the "datespreader" user)
 
-%{!?ds_version: %global ds_version 0.26.0}
+%{!?ds_version: %global ds_version 0.27.0}
 %global appdir %{_prefix}/lib/datespreader
 
 # Tests during the build (needs python3-pytest and python3-httpx): rpmbuild --without check to skip
@@ -16,7 +16,7 @@
 
 Name:           datespreader
 Version:        %{ds_version}
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        Web portal to plan and track technical interventions on servers
 License:        AGPL-3.0-only
 URL:            https://github.com/markhawks/date-spreader
@@ -124,6 +124,9 @@ install -d %{buildroot}%{_sharedstatedir}/datespreader/backups
 %dir %attr(0750,datespreader,datespreader) %{_sharedstatedir}/datespreader/backups
 
 %changelog
+* Mon Nov 16 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.27.0-1
+- Date Spreader 0.27.0 (see /usr/share/doc/datespreader/CHANGELOG.md).
+
 * Mon Nov 16 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.26.0-2
 - Fix: after the upgrade the browser kept the JavaScript of the previous package (files with
   the same date, 304 by If-Modified-Since in Starlette 0.47). Static files are now validated by

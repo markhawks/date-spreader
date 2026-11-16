@@ -182,6 +182,8 @@ export function renderMarkdown(md) {
     if (m) {
       const level = Math.min(m[1].length + 1, 5);
       out.push(`<h${level}>${inline(m[2])}</h${level}>`);
+    } else if (line.startsWith("> ")) {
+      out.push(`<blockquote>${inline(line.slice(2))}</blockquote>`);
     } else if (line.startsWith("- ")) {
       if (!list) { out.push("<ul>"); list = true; }
       out.push(`<li>${inline(line.slice(2))}</li>`);

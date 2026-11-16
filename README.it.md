@@ -20,7 +20,7 @@ In breve:
 - **calendario verticale** con l'**avanzamento** di ogni intervento («2/4» e una barra) e, se c'è spazio, **stato, commessa e tecnici**, vista **mensile o settimanale**, **7 giorni o Lun–Ven** (il weekend compare solo dove ci sono interventi); altezza e larghezza dei giorni si cambiano con il tasto centrale del mouse;
 - **colonna dei progetti** raggruppati e colorati per **cliente**, espandibili per vedere i loro **interventi**
   (data, stato, orario, commessa) e aprirli con un clic;
-- **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico;
+- **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico, modifica, ordinamento, divisione per cliente e conteggio delle versioni dei sistemi operativi;
 - **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco, e **ore effettive** facoltative;
 - **Gantt per cliente**: commesse, progetti e interventi in un periodo, con tecnici, ore, ore-uomo, macchine e stati, ore per tecnico e commessa, stampabile (PDF) ed esportabile in **Excel**;
 - **filtro per cliente** sempre a portata di mano (menu, clic su un cliente, tasto destro), applicato a calendario, vista Tecnici, colonna progetti e anteprime;
@@ -183,6 +183,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - La versione è in `app/__init__.py` (`__version__`) e in `pyproject.toml`; segue il [Semantic Versioning](https://semver.org/lang/it/).
 - Le novità sono in [`CHANGELOG.md`](CHANGELOG.md) (inglese) e [`CHANGELOG.it.md`](CHANGELOG.it.md) (italiano), nel formato "Keep a Changelog"; le intestazioni delle versioni sono identiche nei due file.
 - Nel portale la versione è accanto al nome, in alto a sinistra: cliccandola si apre il changelog (anche da menu utente → "Novità").
+- Dopo un aggiornamento, la prima volta che ogni utente apre il portale una finestra mostra le **novità** della versione (con il messaggio in cima alla sua sezione del changelog, una riga `> `). Si può spuntare «Non mostrare più le novità dopo gli aggiornamenti»; si riattiva da Impostazioni → Aspetto.
 - Le novità si annotano in entrambi i changelog, sotto «Unreleased» / «Non rilasciato»; la versione cambia solo al rilascio.
 - **Per un rilascio**:
   1. aggiornare `__version__` (`app/__init__.py`), `pyproject.toml` e l'intestazione della versione in `CHANGELOG.md` (inglese) **e** in `CHANGELOG.it.md` (italiano). Un test verifica che versione, `pyproject.toml` e `CHANGELOG.md` coincidano;
@@ -230,7 +231,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
   - Per ognuno: IP, sistema operativo, ambiente, kernel attuale, numero di interventi, **ultimo** intervento (data e stato della migrazione) e **prossimo** in programma.
   - **Ricerca** su hostname, IP, sistema operativo, ambiente, kernel e note.
   - Menu **Cliente** accanto alla ricerca: tutti i clienti, **divisi per cliente** (un'intestazione per cliente, i server senza cliente in fondo; un server di più clienti compare in ognuno dei loro gruppi), solo i server senza cliente, oppure i server di un cliente.
-  - Riquadro **Sistemi operativi** in basso a destra: quanti server per versione del sistema operativo, sui server dell'elenco (con la ricerca e il cliente scelti). Visibile di default; si nasconde con la sua ✕ o con il pulsante **Statistiche SO**, e da Impostazioni → Aspetto → Anagrafica server.
+  - Riquadro **Sistemi operativi** in basso a destra: quanti server per versione del sistema operativo, sui server dell'elenco (con la ricerca e il cliente scelti). Visibile di default; si nasconde con la sua × o con il pulsante **Statistiche SO**, e da Impostazioni → Aspetto → Anagrafica server.
   - **Ordinamento**: clic sull'intestazione di una colonna (hostname, IP, SO, ambiente, location, kernel, interventi, ultimo, prossimo); un altro clic inverte l'ordine. IP in ordine numerico, versioni in ordine naturale (RHEL 9.8 prima di 10.2), valori vuoti in fondo. Il browser ricorda la scelta.
   - Navigazione da tastiera: ↓ dalla ricerca all'elenco, ↑/↓ tra le righe, Invio per aprire lo storico.
   - Colonne ridimensionabili.

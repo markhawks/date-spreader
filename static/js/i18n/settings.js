@@ -1,6 +1,10 @@
 // Translations for settings.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "settings.whats_new_title": "News after updates",
+    "settings.whats_new": "After an update, show what's new the first time I open the portal",
+    "settings.whats_new_on": "The news will be shown after the next update.",
+    "settings.whats_new_off": "The news will no longer be shown after updates.",
     "settings.inventory_title": "Server inventory",
     "settings.os_stats": "Show the box with the count of the operating system versions (bottom right)",
     "settings.os_stats_on": "Operating system statistics shown in the server inventory.",
@@ -84,6 +88,10 @@ export default {
     "settings.days_done": "Calendar days updated."
   },
   "it": {
+    "settings.whats_new_title": "Novità dopo gli aggiornamenti",
+    "settings.whats_new": "Dopo un aggiornamento, mostra le novità la prima volta che apro il portale",
+    "settings.whats_new_on": "Le novità verranno mostrate dopo il prossimo aggiornamento.",
+    "settings.whats_new_off": "Le novità non verranno più mostrate dopo gli aggiornamenti.",
     "settings.inventory_title": "Anagrafica server",
     "settings.os_stats": "Mostra il riquadro con il conteggio delle versioni dei sistemi operativi (in basso a destra)",
     "settings.os_stats_on": "Statistiche dei sistemi operativi visibili nell'anagrafica server.",
