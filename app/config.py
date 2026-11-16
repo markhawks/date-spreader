@@ -36,6 +36,8 @@ class Settings:
     session_hours: int = 12        # durata della sessione dall'ultima attività
     cookie_secure: bool = False    # True solo dietro HTTPS
     source_url: str = ""           # dove scaricare il codice sorgente (AGPL); vuoto = repository ufficiale
+    update_check: bool = False     # check GitHub for new releases (UPDATE_CHECK, true by default in get_settings)
+    update_repo: str = "markhawks/date-spreader"   # GitHub repository of the releases (owner/name)
 
     @property
     def database_url(self) -> str:
@@ -64,4 +66,6 @@ def get_settings() -> Settings:
         session_hours=int(os.environ.get("SESSION_HOURS", "12")),
         cookie_secure=_as_bool(os.environ.get("COOKIE_SECURE", "false")),
         source_url=os.environ.get("SOURCE_URL", "").strip(),
+        update_check=_as_bool(os.environ.get("UPDATE_CHECK", "true")),
+        update_repo=os.environ.get("UPDATE_REPO", "").strip() or "markhawks/date-spreader",
     )

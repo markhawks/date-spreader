@@ -222,6 +222,12 @@ to **recover access** if the administrator forgets the password.
 - After an update, the first time each user opens the portal a window shows **what's new** in that version (with
   the message at the top of its changelog section, a `> ` line). The user can tick "Don't show the news after
   updates any more"; it is turned back on in Settings → Appearance.
+- **New versions** (administrators): at every start the server checks GitHub for the latest release (public
+  API, anonymous, at most every 6 hours, silent without Internet). If it is newer, a small green ↑ badge appears
+  on the version at the top left and a card at the bottom right shows its highlights, the link to the release
+  and the command to upgrade this installation (RPM, script or git). «Ignore this version» stops the card for
+  that version; Settings → Appearance turns the notice off for the user, `UPDATE_CHECK=false` for the whole
+  installation (`GET /api/updates`).
 - **Tip of the day**: once a day, the first time a user opens the portal, a small card at the bottom right shows a
   tip about a feature (on the day of the news window, no tip). The tips rotate: each user sees all of them before
   one comes back; the ones for administrators only to administrators. ‹ › browse the others, «Show me» opens the
@@ -663,6 +669,7 @@ server), the changes made on one can be brought to the other without duplicates.
 |---|---|
 | `GET /api/health` | Application, database and schema status (public) |
 | `GET /api/version`, `GET /api/changelog` | Version and changelog (public; the changelog in the user's language) |
+| `GET /api/updates[?force=true]` | Latest release on GitHub and whether it is newer, with its highlights in the user's language (administrators; cached 6 hours) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Access |
 | `POST /api/users/{id}/temporary-password` | Temporary password for a user (administrators only) |
 | `GET /api/projects` | Projects with the dates of their interventions, in order |
@@ -795,6 +802,8 @@ Configured through environment variables, or a `.env` file (see `.env.example`).
 | `SESSION_HOURS` | `12` | Hours of inactivity after which the session expires |
 | `COOKIE_SECURE` | `false` | `true` behind HTTPS |
 | `SOURCE_URL` | official repository | Where to download the source code (see License) |
+| `UPDATE_CHECK` | `true` | Check GitHub for new releases (notice to administrators). `false` on servers without Internet or if you prefer no outgoing requests |
+| `UPDATE_REPO` | `markhawks/date-spreader` | GitHub repository (owner/name) whose releases are checked, e.g. your fork |
 
 ## Data model
 

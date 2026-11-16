@@ -2,6 +2,7 @@ import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, 
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
 import { maybeShowWhatsNew } from "./whatsnew.js";
 import { maybeShowTip, showTip } from "./tips.js";
+import { checkForUpdates } from "./updates.js";
 import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
 import { assignColors, colorFor } from "./colors.js";
@@ -531,7 +532,10 @@ async function main() {
     settings: () => $("btn-settings").click(),
   };
   setTimeout(async () => {
-    if (!(await maybeShowWhatsNew(me.version))) maybeShowTip(me, tipActions);
+    // news of this version → new version on GitHub (administrators) → tip of the day: one at a time
+    const news = await maybeShowWhatsNew(me.version);
+    const update = await checkForUpdates(me, $("update-slot"));
+    if (!news && !update) maybeShowTip(me, tipActions);
   }, 600);
   $("topbar-actions").append(userMenu(me, {
     onLogout: () => location.reload(),

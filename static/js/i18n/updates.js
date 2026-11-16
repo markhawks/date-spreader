@@ -1,0 +1,25 @@
+// Translations for updates.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
+export default {
+  "en": {
+    "updates.badge_title": "Date Spreader {version} is available: click for the details",
+    "updates.title": "New version available: {version}",
+    "updates.current": "This installation has {current}.",
+    "updates.current_date": "Released on {date}; this installation has {current}.",
+    "updates.how": "To upgrade (on the server):",
+    "updates.ignore": "Ignore this version",
+    "updates.ignore_title": "Don't show this card again for this version (the badge at the top stays)",
+    "updates.open": "See the release",
+    "updates.close": "Close (shown again at the next login)"
+  },
+  "it": {
+    "updates.badge_title": "È disponibile Date Spreader {version}: clic per i dettagli",
+    "updates.title": "Nuova versione disponibile: {version}",
+    "updates.current": "Questa installazione ha la {current}.",
+    "updates.current_date": "Rilasciata il {date}; questa installazione ha la {current}.",
+    "updates.how": "Per aggiornare (sul server):",
+    "updates.ignore": "Ignora questa versione",
+    "updates.ignore_title": "Non mostrare più questo riquadro per questa versione (l'indicatore in alto resta)",
+    "updates.open": "Vedi la release",
+    "updates.close": "Chiudi (ricompare al prossimo accesso)"
+  }
+};

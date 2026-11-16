@@ -183,6 +183,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - La versione è in `app/__init__.py` (`__version__`) e in `pyproject.toml`; segue il [Semantic Versioning](https://semver.org/lang/it/).
 - Le novità sono in [`CHANGELOG.md`](CHANGELOG.md) (inglese) e [`CHANGELOG.it.md`](CHANGELOG.it.md) (italiano), nel formato "Keep a Changelog"; le intestazioni delle versioni sono identiche nei due file.
 - Nel portale la versione è accanto al nome, in alto a sinistra: cliccandola si apre il changelog (anche da menu utente → "Novità").
+- **Nuove versioni** (amministratori): a ogni avvio il server controlla su GitHub l'ultima release (API pubblica, anonima, al massimo ogni 6 ore, silenzioso senza Internet). Se è più nuova, compare un piccolo indicatore verde ↑ sulla versione in alto a sinistra e un riquadro in basso a destra con le novità principali, il link alla release e il comando per aggiornare questa installazione (RPM, script o git). «Ignora questa versione» non mostra più il riquadro per quella versione; Impostazioni → Aspetto disattiva l'avviso per l'utente, `UPDATE_CHECK=false` per tutta l'installazione (`GET /api/updates`).
 - **Suggerimento del giorno**: una volta al giorno, la prima volta che l'utente apre il portale, un piccolo riquadro in basso a destra mostra un consiglio su una funzione (nel giorno della finestra delle novità, niente suggerimento). I suggerimenti ruotano: ogni utente li vede tutti prima che uno ritorni; quelli per amministratori solo agli amministratori. ‹ › scorrono gli altri, «Mostrami» apre la schermata di cui parla il suggerimento, «Non mostrare più» li disattiva (si riattivano da Impostazioni → Aspetto; menu utente → «Suggerimento del giorno» ne apre uno quando vuoi). Testi: `static/js/tips.js` (elenco) e `static/js/i18n/tips.js` (inglese e italiano).
 - Dopo un aggiornamento, la prima volta che ogni utente apre il portale una finestra mostra le **novità** della versione (con il messaggio in cima alla sua sezione del changelog, una riga `> `). Si può spuntare «Non mostrare più le novità dopo gli aggiornamenti»; si riattiva da Impostazioni → Aspetto.
 - Le novità si annotano in entrambi i changelog, sotto «Unreleased» / «Non rilasciato»; la versione cambia solo al rilascio.
@@ -432,6 +433,7 @@ Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un 
 |---|---|
 | `GET /api/health` | Stato dell'app, del database e dello schema (pubblico) |
 | `GET /api/version`, `GET /api/changelog` | Versione e changelog (pubblici; il changelog nella lingua dell'utente) |
+| `GET /api/updates[?force=true]` | Ultima release su GitHub e se è più nuova, con le novità principali nella lingua dell'utente (amministratori; memorizzata 6 ore) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Accesso |
 | `POST /api/users/{id}/temporary-password` | Password temporanea per un utente (solo amministratori) |
 | `GET /api/projects` | Progetti con le date dei propri interventi, in ordine |
@@ -546,6 +548,8 @@ Si configura tramite variabili d'ambiente, oppure con un file `.env` (vedi `.env
 | `SESSION_HOURS` | `12` | Ore di inattività dopo cui la sessione scade |
 | `COOKIE_SECURE` | `false` | `true` dietro HTTPS |
 | `SOURCE_URL` | repository ufficiale | Dove scaricare il codice sorgente (vedi Licenza) |
+| `UPDATE_CHECK` | `true` | Controllo delle nuove release su GitHub (avviso agli amministratori). `false` sui server senza Internet o se non vuoi richieste verso l'esterno |
+| `UPDATE_REPO` | `markhawks/date-spreader` | Repository GitHub (proprietario/nome) di cui controllare le release, es. il tuo fork |
 
 ## Modello dati
 

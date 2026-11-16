@@ -210,6 +210,15 @@ export function showSettings({ me, toast, adminActions = [] }) {
       tipsCb.checked ? t("settings.tips_on") : t("settings.tips_off")));
     tipsLbl.append(tipsCb, " ", t("settings.tips"));
     newsField.append(el("h4", null, t("settings.whats_new_title")), newsLbl, tipsLbl);
+    if (me.is_admin) {
+      const updLbl = el("label", "share-choose");
+      const updCb = el("input");
+      Object.assign(updCb, { type: "checkbox", checked: p.update_notice });
+      updCb.addEventListener("change", () => update({ update_notice: updCb.checked },
+        updCb.checked ? t("settings.update_on") : t("settings.update_off")));
+      updLbl.append(updCb, " ", t("settings.update_notice"));
+      newsField.append(updLbl);
+    }
     return [langField, posField, sideField, daysField, timeField, clockField, themeField, invField, newsField, mailField, note];
   }
 

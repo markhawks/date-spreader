@@ -1,6 +1,9 @@
 // Translations for settings.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "settings.update_notice": "Tell me when a new version of Date Spreader is released (administrators; checked on GitHub)",
+    "settings.update_on": "You will be told about new versions.",
+    "settings.update_off": "No more notices about new versions.",
     "settings.tips": "Show a tip of the day when I open the portal",
     "settings.tips_on": "A tip will be shown once a day.",
     "settings.tips_off": "Tips of the day turned off (you can still open them from the user menu).",
@@ -91,6 +94,9 @@ export default {
     "settings.days_done": "Calendar days updated."
   },
   "it": {
+    "settings.update_notice": "Avvisami quando esce una nuova versione di Date Spreader (amministratori; controllo su GitHub)",
+    "settings.update_on": "Riceverai l'avviso delle nuove versioni.",
+    "settings.update_off": "Niente più avvisi sulle nuove versioni.",
     "settings.tips": "Mostra un suggerimento del giorno quando apro il portale",
     "settings.tips_on": "Un suggerimento verrà mostrato una volta al giorno.",
     "settings.tips_off": "Suggerimenti del giorno disattivati (puoi sempre aprirli dal menu utente).",

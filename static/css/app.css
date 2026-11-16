@@ -2589,3 +2589,25 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
 .tip-off { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
 .tip-nav { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
 .tip-nav .icon-btn { font-size: 1.05rem; line-height: 1; width: 26px; height: 26px; }
+
+/* New version on GitHub (administrators): badge next to the version and card at the bottom right */
+.update-slot[hidden] { display: none; }
+/* takes no room in the top bar (it is full at 1440 px): a small round badge on the corner of the version */
+.update-slot { position: relative; width: 0; height: 0; align-self: flex-start; }
+.update-badge {
+  position: absolute; left: -12px; top: -4px; z-index: 2;
+  display: grid; place-items: center; width: 17px; height: 17px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--ok-fg, #15803d); color: var(--ok-fg, #15803d); background: var(--ok-bg, #dcfce7);
+}
+.update-badge:hover { filter: brightness(0.95); }
+.update-card { border-top-color: var(--ok-fg, #15803d); }
+.update-card .tip-bulb { color: var(--ok-fg, #15803d); }
+.update-sub { margin: 4px 0 0; }
+.update-text p { margin: 6px 0; }
+.update-how { margin: 6px 0 2px; color: var(--muted); }
+.update-cmd {
+  display: block; padding: 6px 8px; margin-bottom: 8px; border-radius: 6px; background: var(--panel-2);
+  font-size: 0.75rem; overflow-wrap: anywhere; user-select: all;
+}
+.update-card .tip-foot { justify-content: flex-end; }
+.update-card .tip-foot a { text-decoration: none; }

@@ -57,6 +57,9 @@ class Preferences(BaseModel):
     tips: bool = True
     tips_last_day: str = Field(default="", max_length=10, pattern=DAY)
     tips_seen: list[Annotated[str, Field(max_length=40)]] = Field(default=[], max_length=300)
+    # New version on GitHub (administrators): notice on/off, version whose card was ignored
+    update_notice: bool = True
+    update_dismissed: str = Field(default="", max_length=20, pattern=VERSION)
 
 
 class PreferencesPatch(BaseModel):
@@ -86,3 +89,5 @@ class PreferencesPatch(BaseModel):
     tips: bool | None = None
     tips_last_day: str | None = Field(default=None, max_length=10, pattern=DAY)
     tips_seen: list[Annotated[str, Field(max_length=40)]] | None = Field(default=None, max_length=300)
+    update_notice: bool | None = None
+    update_dismissed: str | None = Field(default=None, max_length=20, pattern=VERSION)

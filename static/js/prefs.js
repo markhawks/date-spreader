@@ -9,6 +9,7 @@ const DEFAULTS = {
   sidebar_width: 280, project_view: "grid", project_sort: "name", project_group: "none",
   time_format: "24h", gmail_account: "", gmail_choose_account: false, calendar_zoom: 1, calendar_zoom_x: 1, calendar_view: "month", topbar_clock: "date_time", language: "auto", calendar_days: "all",
   inventory_os_stats: true, whats_new: true, whats_new_seen: "", tips: true, tips_last_day: "", tips_seen: [],
+  update_notice: true, update_dismissed: "",
 };
 
 const darkQuery = matchMedia("(prefers-color-scheme: dark)");
