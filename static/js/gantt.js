@@ -5,6 +5,7 @@
 // The figures come from the server (GET /api/reports/gantt, see app/gantt.py).
 
 import { downloadGantt, fetchGantt } from "./api.js";
+import { homeButton } from "./homebutton.js";
 import { colorFor } from "./colors.js";
 import { addDays, daysInMonth, formatMediumDate, formatShortDate, formatTime, isoDate, parseIso, todayIso } from "./dates.js";
 import { locale, t } from "./i18n.js";
@@ -160,7 +161,7 @@ export class Gantt {
     close.title = t("gantt.close_title");
     close.addEventListener("click", () => this.close());
     side.append(print, xlsx, close);
-    head.append(info, side);
+    head.append(info, homeButton(head, () => this.close()), side);
 
     // toolbar: customer, period, presets, zoom
     const bar = el("div", "sheet-toolbar gt-toolbar");

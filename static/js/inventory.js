@@ -1,6 +1,7 @@
 // Anagrafica server: tutti i server nel database, ricerca e storico degli interventi.
 
 import { fetchServer, listServers } from "./api.js";
+import { homeButton } from "./homebutton.js";
 import { colorFor } from "./colors.js";
 import { locale, t } from "./i18n.js";
 import { formatMediumDate, formatShortDate, todayIso } from "./dates.js";
@@ -106,7 +107,7 @@ export class Inventory {
     close.addEventListener("click", () => this.close());
     const side = el("div", "sheet-side");
     side.append(this.countEl, close);
-    head.append(info, side);
+    head.append(info, homeButton(head, () => this.close()), side);
 
     const bar = el("div", "sheet-toolbar");
     this.searchEl = el("input", "sheet-filter");

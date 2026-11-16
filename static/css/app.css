@@ -586,6 +586,10 @@ body.sheet-open { overflow: hidden; }
 .sheet-facts { margin: 3px 0 0; }
 .sheet-facts::first-letter { text-transform: uppercase; }
 .sheet-side { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+/* Full-screen views with the «Calendar» button in the middle (static/js/homebutton.js) */
+.sheet-header.has-home { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+.sheet-header.has-home .sheet-side { justify-self: end; justify-content: flex-end; }
+.sheet-home { justify-self: center; }
 .sheet-count { font-weight: 600; }
 .sheet-status { font-size: 0.85rem; min-width: 9rem; text-align: right; }
 .sheet-status.warn { color: var(--warn-fg); font-weight: 600; }
