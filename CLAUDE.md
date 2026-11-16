@@ -56,6 +56,9 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
   SQLAlchemy 2.0.26, Alembic 1.13, uvicorn 0.35, openpyxl 3.1.2. Non usare funzioni più nuove: la build esegue
   i test in quell'ambiente (`%check`). Per provarle a mano: venv Python 3.12 con quelle versioni (`pip --no-deps`).
 - Sulla RHEL dell'utente i comandi li esegue l'utente: dargli i passi e chiedere l'output.
+- I file di sistema del pacchetto possono rompere la macchina, non solo il portale (2026-11-16: un commento XML
+  con `--` nel servizio firewalld ha fermato firewalld sulla RHEL dell'utente). Controllarli con gli strumenti
+  veri prima di ogni build: `tests/test_packaging.py` e, per firewalld, `firewall.core.io.service.service_reader`.
 - Quando la prova riesce: guida `docs/INSTALL-RPM.md` + italiana, tabella «Piattaforme», `.gitattributes`
   con `export-ignore` per `docs/images` (il .src.rpm oggi pesa 7 MB), `Version`/`%changelog` dello spec a ogni rilascio.
 
