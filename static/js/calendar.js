@@ -8,7 +8,7 @@ import {
   WEEKDAYS, addDays, addMonths, daysInMonth, firstWeekdayMonday, formatMonth, formatTime, formatWeek,
   isoDate, isoWeek, monthRange, mondayOf, parseIso, todayIso, ymKey,
 } from "./dates.js";
-import { EVENT_STATUS, EVENT_TYPE } from "./labels.js";
+import { EVENT_STATUS, EVENT_TYPE, badge } from "./labels.js";
 import { people } from "./people.js";
 import { warnIcon } from "./conflicts.js";
 import { locale, t } from "./i18n.js";
@@ -18,9 +18,16 @@ const MAX_CHIPS = 2;        // interventi per giorno a zoom normale; oltre, la c
 export const ZOOM_MIN = 0.5;
 export const ZOOM_MAX = 2.5;
 const COMPACT_BELOW = 78;   // px di altezza del giorno: sotto, gli interventi diventano barrette colorate
-const DETAILED_FROM = 166;  // px: da qui un giorno con spazio mostra anche titolo e orario completo
-// Altezze (px) di un intervento nei vari modi, più lo spazio fisso del giorno (margini + numero)
-const CHIP_H = { detailed: 54, normal: 37, slim: 21 };
+const DETAILED_FROM = 166;  // px: from here the day height counts as "detailed" (zoom mode of the scroller)
+// Heights (px) of an intervention in each mode, from the richest to the poorest, plus the fixed space
+// of the day (margins + number). Every day uses the richest mode in which ALL its interventions fit:
+//   full     name, progress · customer · time, status · commessa, title · time, technicians
+//   detailed name, progress · customer · time, status · commessa, title · time
+//   status   name, progress · customer · time, status · commessa
+//   normal   name, progress · customer · time
+//   slim     name only
+const CHIP_H = { full: 84, detailed: 70, status: 53, normal: 37, slim: 21 };  // measured: 80, 66, 50, 32, 19
+const RICHEST_FIRST = ["full", "detailed", "status", "normal", "slim"];
 const CHIP_GAP = 3;
 const DAY_FIXED = 39;       // padding 12 + numero del giorno 24 + spazio 3
 const MORE_H = 16;          // riga «+N»
@@ -192,9 +199,8 @@ export class Calendar {
     }
     const avail = h - DAY_FIXED;
     const fits = (kind) => n * (CHIP_H[kind] + CHIP_GAP) - CHIP_GAP <= avail;
-    if (h >= DETAILED_FROM && fits("detailed")) return { fit: "detailed", shown: n };
-    if (fits("normal")) return { fit: "normal", shown: n };
-    if (fits("slim")) return { fit: "slim", shown: n };
+    const kind = RICHEST_FIRST.find(fits);
+    if (kind) return { fit: kind, shown: n };
     return { fit: "slim", shown: Math.max(1, Math.floor((avail - MORE_H) / (CHIP_H.slim + CHIP_GAP))) };
   }
 
@@ -631,13 +637,24 @@ export class Calendar {
     // Terza riga, visibile solo con lo zoom grande: titolo e orario completo
     const extra = [ev.title, ev.start_time && `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`]
       .filter(Boolean).join(" · ");
+    // Status and commessa (from the "status" mode up); in the week view in its own line below
+    const status = document.createElement("span");
+    status.className = "chip-status";
+    status.append(badge(ev.status, EVENT_STATUS));
+    if (ev.order_code) status.append(Object.assign(document.createElement("span"), { className: "chip-order", textContent: ev.order_code }));
+    li.append(status);
     if (extra) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: extra }));
+    // Technicians: participants and the ones assigned to the server rows ("full" mode)
+    const techNames = (ev.user_ids ?? []).map((id) => people.byId(id)?.display_name).filter(Boolean);
+    if (this.unit !== WEEK && techNames.length) {
+      li.append(Object.assign(document.createElement("span"), { className: "chip-techs", textContent: techNames.join(", ") }));
+    }
     if (this.unit === WEEK) {
       // Vista settimanale: anche tipo di intervento e tecnici (partecipanti e assegnati alle righe)
       const names = (ev.user_ids ?? []).map((id) => people.byId(id)?.display_name).filter(Boolean);
       li.append(Object.assign(document.createElement("span"), {
         className: "chip-week",
-        textContent: [EVENT_TYPE[ev.event_type] ?? ev.event_type, ev.order_code && t("calendar.chip_order", { code: ev.order_code })].filter(Boolean).join(" · "),
+        textContent: EVENT_TYPE[ev.event_type] ?? ev.event_type,
       }));
       if (names.length) {
         li.append(Object.assign(document.createElement("span"), { className: "chip-people", textContent: names.join(", ") }));
