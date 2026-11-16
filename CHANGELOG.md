@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Added
+- **Tip of the day**: once a day, a small card at the bottom right with a tip about a feature of the portal (48 tips, English and Italian, some for administrators only), rotating so that each user sees all of them; ‹ › to browse, «Show me» to open the screen it talks about, «Don't show tips any more» (back on in Settings → Appearance; also from the user menu). Not shown on the day of the news window. Preferences `tips`, `tips_last_day`, `tips_seen`.
+
 
 ## [0.27.0] - 2026-11-16
 > The server inventory becomes a place to work: edit and delete servers, sort the columns, divide them by customer and see which operating system versions you have.

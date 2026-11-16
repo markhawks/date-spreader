@@ -203,7 +203,13 @@ export function showSettings({ me, toast, adminActions = [] }) {
     newsCb.addEventListener("change", () => update({ whats_new: newsCb.checked },
       newsCb.checked ? t("settings.whats_new_on") : t("settings.whats_new_off")));
     newsLbl.append(newsCb, " ", t("settings.whats_new"));
-    newsField.append(el("h4", null, t("settings.whats_new_title")), newsLbl);
+    const tipsLbl = el("label", "share-choose");
+    const tipsCb = el("input");
+    Object.assign(tipsCb, { type: "checkbox", checked: p.tips });
+    tipsCb.addEventListener("change", () => update({ tips: tipsCb.checked },
+      tipsCb.checked ? t("settings.tips_on") : t("settings.tips_off")));
+    tipsLbl.append(tipsCb, " ", t("settings.tips"));
+    newsField.append(el("h4", null, t("settings.whats_new_title")), newsLbl, tipsLbl);
     return [langField, posField, sideField, daysField, timeField, clockField, themeField, invField, newsField, mailField, note];
   }
 

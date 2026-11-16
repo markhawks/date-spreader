@@ -222,6 +222,12 @@ to **recover access** if the administrator forgets the password.
 - After an update, the first time each user opens the portal a window shows **what's new** in that version (with
   the message at the top of its changelog section, a `> ` line). The user can tick "Don't show the news after
   updates any more"; it is turned back on in Settings → Appearance.
+- **Tip of the day**: once a day, the first time a user opens the portal, a small card at the bottom right shows a
+  tip about a feature (on the day of the news window, no tip). The tips rotate: each user sees all of them before
+  one comes back; the ones for administrators only to administrators. ‹ › browse the others, «Show me» opens the
+  screen the tip talks about, «Don't show tips any more» turns them off (back on in Settings → Appearance; the user
+  menu → «Tip of the day» opens one at any time). Texts: `static/js/tips.js` (list) and `static/js/i18n/tips.js`
+  (English and Italian).
 - New changes are recorded in both changelogs under "Unreleased" / "Non rilasciato"; the version changes only at
   release time.
 - **To make a release**:

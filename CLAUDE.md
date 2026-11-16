@@ -34,6 +34,11 @@ Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
 - Documentazione in inglese (`README.md`, `docs/INSTALL.md`, `CHANGELOG.md`) e in italiano (`README.it.md`,
   `docs/INSTALLAZIONE.md`, `CHANGELOG.it.md`): aggiornarle sempre entrambe.
 
+## Suggerimenti del giorno
+- Elenco in `static/js/tips.js`, testi in `static/js/i18n/tips.js` (`tips.tip.<id>`, en+it, max 300 caratteri;
+  `tests/test_tips.py` li controlla). Per una funzione nuova e utile da scoprire aggiungere un suggerimento;
+  togliere o correggere quelli di funzioni cambiate. I nomi di pulsanti e menu citati devono essere quelli veri.
+
 ## Funzioni future e uso da smartphone
 - Le funzioni proposte stanno in `docs/ROADMAP.md` (inglese) e `docs/ROADMAP.it.md`: quando una viene fatta,
   toglierla da lì e annotarla nei changelog; le idee nuove concordate con l'utente si aggiungono lì.

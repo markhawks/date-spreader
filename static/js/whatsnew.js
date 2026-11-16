@@ -43,7 +43,7 @@ export function newSections(markdown, current, seen) {
   return out.slice(0, MAX_VERSIONS);
 }
 
-/** Shows the window if the user has not seen this version yet (and has not turned it off). */
+/** Shows the window if the user has not seen this version yet (and has not turned it off). True if shown. */
 export async function maybeShowWhatsNew(version) {
   const p = prefs.get();
   if (!p.whats_new || !/^\d+\.\d+\.\d+$/.test(version ?? "") || p.whats_new_seen === version) return;
@@ -59,6 +59,7 @@ export async function maybeShowWhatsNew(version) {
     return;
   }
   showWhatsNew(version, sections);
+  return true;
 }
 
 function showWhatsNew(version, sections) {

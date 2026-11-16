@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Aggiunto
+- **Suggerimento del giorno**: una volta al giorno, un piccolo riquadro in basso a destra con un consiglio su una funzione del portale (48 suggerimenti, in inglese e italiano, alcuni solo per amministratori), a rotazione così che ogni utente li veda tutti; ‹ › per scorrerli, «Mostrami» per aprire la schermata di cui parla, «Non mostrare più» (si riattiva da Impostazioni → Aspetto; anche dal menu utente). Non compare nel giorno della finestra delle novità. Preferenze `tips`, `tips_last_day`, `tips_seen`.
+
 
 ## [0.27.0] - 2026-11-16
 > L'anagrafica server diventa un posto dove lavorare: modifichi ed elimini i server, ordini le colonne, li dividi per cliente e vedi quali versioni dei sistemi operativi hai.

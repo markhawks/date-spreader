@@ -1,6 +1,7 @@
 import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, fetchMe, fetchProjects } from "./api.js";
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
 import { maybeShowWhatsNew } from "./whatsnew.js";
+import { maybeShowTip, showTip } from "./tips.js";
 import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
 import { assignColors, colorFor } from "./colors.js";
@@ -523,10 +524,19 @@ async function main() {
   });
   $("version-link").addEventListener("click", () => showChangelog());
   // After an update: the news of the new version, once (unless turned off)
-  setTimeout(() => maybeShowWhatsNew(me.version), 600);
+  // …otherwise the tip of the day (once a day): never both on the same start
+  const tipActions = {
+    inventory: () => inventory.open(),
+    gantt: () => $("btn-gantt").click(),
+    settings: () => $("btn-settings").click(),
+  };
+  setTimeout(async () => {
+    if (!(await maybeShowWhatsNew(me.version))) maybeShowTip(me, tipActions);
+  }, 600);
   $("topbar-actions").append(userMenu(me, {
     onLogout: () => location.reload(),
     adminItems: [[t("main.admin_os"), () => showOsDialog({ toast })]],
+    items: [[t("main.tip_of_the_day"), () => showTip(me, tipActions)]],
   }));
   // Menu del filtro per tecnico: tutti, anche i disattivati (per rivedere interventi passati).
   people.onChange((users) => filters.setUsers(users));

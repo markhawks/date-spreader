@@ -6,13 +6,14 @@ Le chiavi sconosciute salvate in passato vengono ignorate in lettura.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 # Account Gmail: vuoto (= email del profilo nel portale) oppure un indirizzo email
 GMAIL_ACCOUNT = r"^$|^[^@\s]+@[^@\s]+\.[^@\s]+$"
 VERSION = r"^$|^\d+\.\d+\.\d+$"
+DAY = r"^$|^\d{4}-\d{2}-\d{2}$"
 
 
 class Preferences(BaseModel):
@@ -52,6 +53,10 @@ class Preferences(BaseModel):
     # What's new: shown once after an update (whats_new_seen = last version shown); off = never
     whats_new: bool = True
     whats_new_seen: str = Field(default="", max_length=20, pattern=VERSION)
+    # Tip of the day: on/off, last day shown (local date of the browser), tips already seen (rotation)
+    tips: bool = True
+    tips_last_day: str = Field(default="", max_length=10, pattern=DAY)
+    tips_seen: list[Annotated[str, Field(max_length=40)]] = Field(default=[], max_length=300)
 
 
 class PreferencesPatch(BaseModel):
@@ -78,3 +83,6 @@ class PreferencesPatch(BaseModel):
     inventory_os_stats: bool | None = None
     whats_new: bool | None = None
     whats_new_seen: str | None = Field(default=None, max_length=20, pattern=VERSION)
+    tips: bool | None = None
+    tips_last_day: str | None = Field(default=None, max_length=10, pattern=DAY)
+    tips_seen: list[Annotated[str, Field(max_length=40)]] | None = Field(default=None, max_length=300)

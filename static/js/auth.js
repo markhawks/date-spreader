@@ -239,7 +239,7 @@ export async function showChangelog() {
 // ---------------------------------------------------------------------------
 const ROLE_LABEL = { tecnico: t("auth.role.tecnico"), coordinatore: t("auth.role.coordinatore"), admin: t("auth.role.admin") };
 
-export function userMenu(me, { onLogout, adminItems = [] }) {
+export function userMenu(me, { onLogout, adminItems = [], items = [] }) {
   const wrap = el("div", "user-menu");
   const btn = el("button", "btn user-btn");
   btn.type = "button";
@@ -264,6 +264,7 @@ export function userMenu(me, { onLogout, adminItems = [] }) {
     ...(me.is_admin ? adminItems.map(([label, fn]) => item(label, fn)) : []),
     item(t("auth.change_password"), () => showChangePassword()),
     item(t("auth.whats_new", { version: me.version }), () => showChangelog()),
+    ...items.map(([label, fn]) => item(label, fn)),
     item(t("auth.logout"), async () => {
       try { await logout(); } finally { onLogout(); }
     }),

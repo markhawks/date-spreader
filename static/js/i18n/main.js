@@ -1,5 +1,6 @@
 export default {
   "en": {
+    "main.tip_of_the_day": "Tip of the day",
     "main.schema_outdated": "The database is not up to date. Run: {command}",
     "main.server_unavailable": "Server unavailable: {message}",
     "main.session_expired": "Your session has expired: sign in again to continue.",
@@ -38,6 +39,7 @@ export default {
     "main.ctx_all_customers": "Show all customers"
   },
   "it": {
+    "main.tip_of_the_day": "Suggerimento del giorno",
     "main.schema_outdated": "Il database non è aggiornato. Esegui: {command}",
     "main.server_unavailable": "Server non disponibile: {message}",
     "main.session_expired": "La sessione è scaduta: accedi di nuovo per continuare.",

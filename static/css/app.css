@@ -2570,3 +2570,22 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
 .whatsnew-version { margin: 14px 0 4px; font-size: 1rem; }
 .whatsnew-foot { align-items: center; flex-wrap: wrap; }
 .whatsnew-foot .share-choose { margin-right: auto; font-size: 0.85rem; }
+
+/* Tip of the day: small card at the bottom right, above the zoom controls of the calendar */
+.tip-card {
+  position: fixed; right: 20px; bottom: 64px; z-index: 40; width: min(360px, calc(100vw - 32px));
+  padding: 10px 12px 8px; border: 1px solid var(--border); border-top: 3px solid var(--accent);
+  border-radius: var(--radius); background: var(--panel); color: var(--text);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18); font-size: 0.88rem;
+}
+.tip-head { display: flex; align-items: center; gap: 6px; }
+.tip-head h2 { margin: 0; font-size: 0.9rem; }
+.tip-head .cf-clear { margin-left: auto; width: 22px; height: 22px; }
+.tip-bulb { display: grid; place-items: center; color: var(--accent); }
+.tip-text { margin: 8px 0; line-height: 1.45; }
+.tip-show { margin-bottom: 6px; }
+.tip-show[hidden] { display: none; }
+.tip-foot { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+.tip-off { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
+.tip-nav { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.tip-nav .icon-btn { font-size: 1.05rem; line-height: 1; width: 26px; height: 26px; }

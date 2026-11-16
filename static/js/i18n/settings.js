@@ -1,7 +1,10 @@
 // Translations for settings.js. Format: see static/js/i18n.js.
 export default {
   "en": {
-    "settings.whats_new_title": "News after updates",
+    "settings.tips": "Show a tip of the day when I open the portal",
+    "settings.tips_on": "A tip will be shown once a day.",
+    "settings.tips_off": "Tips of the day turned off (you can still open them from the user menu).",
+    "settings.whats_new_title": "News and tips",
     "settings.whats_new": "After an update, show what's new the first time I open the portal",
     "settings.whats_new_on": "The news will be shown after the next update.",
     "settings.whats_new_off": "The news will no longer be shown after updates.",
@@ -88,7 +91,10 @@ export default {
     "settings.days_done": "Calendar days updated."
   },
   "it": {
-    "settings.whats_new_title": "Novità dopo gli aggiornamenti",
+    "settings.tips": "Mostra un suggerimento del giorno quando apro il portale",
+    "settings.tips_on": "Un suggerimento verrà mostrato una volta al giorno.",
+    "settings.tips_off": "Suggerimenti del giorno disattivati (puoi sempre aprirli dal menu utente).",
+    "settings.whats_new_title": "Novità e suggerimenti",
     "settings.whats_new": "Dopo un aggiornamento, mostra le novità la prima volta che apro il portale",
     "settings.whats_new_on": "Le novità verranno mostrate dopo il prossimo aggiornamento.",
     "settings.whats_new_off": "Le novità non verranno più mostrate dopo gli aggiornamenti.",
