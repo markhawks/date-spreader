@@ -56,6 +56,18 @@ def _run(engine: Engine, action) -> None:
 
 def upgrade_database(engine: Engine, revision: str = "head") -> None:
     _run(engine, lambda cfg: command.upgrade(cfg, revision))
+    ensure_instance_uid(engine)
+
+
+def ensure_instance_uid(engine: Engine) -> None:
+    """Every database has its own sync identity (app/sync.py). The demo database ships without one."""
+    import uuid
+
+    with engine.begin() as conn:
+        if not conn.exec_driver_sql("SELECT 1 FROM sqlite_master WHERE type='table' AND name='app_meta'").first():
+            return
+        if conn.exec_driver_sql("SELECT 1 FROM app_meta WHERE key='instance_uid'").first() is None:
+            conn.exec_driver_sql("INSERT INTO app_meta (key, value) VALUES ('instance_uid', ?)", (str(uuid.uuid4()),))
 
 
 def downgrade_database(engine: Engine, revision: str = "base") -> None:

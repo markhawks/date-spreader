@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import uuid
 from datetime import datetime, timezone
 from typing import Any
 
@@ -24,7 +25,7 @@ from app.repositories.customers import resolve_order
 from app.models import (
     Customer, Event, EventServer, EventUser, OperatingSystem, Project, Server, User,
 )
-from app.schemas.transfer import FORMAT, FORMAT_VERSION, ExportFile, XProject
+from app.schemas.transfer import FORMAT, FORMAT_VERSION, ExportFile, XEvent, XProject
 
 SERVER_EXPORT_FIELDS = ("ip_address", "operating_system", "environment", "location", "current_kernel", "notes")
 
@@ -90,6 +91,7 @@ def export_projects(session: Session, projects: list[Project], scope: dict[str, 
                     "notes": link.notes,
                 })
             events.append({
+                "uid": e.sync_uid,
                 "event_date": e.event_date.isoformat(),
                 "start_time": e.start_time.strftime("%H:%M") if e.start_time else None,
                 "end_time": e.end_time.strftime("%H:%M") if e.end_time else None,
@@ -103,6 +105,7 @@ def export_projects(session: Session, projects: list[Project], scope: dict[str, 
                 "servers": rows,
             })
         out_projects.append({
+            "uid": p.sync_uid,
             "name": p.name, "description": p.description, "status": p.status,
             "customer": p.customer.name if p.customer else None, "is_demo": p.is_demo, "events": events,
         })
@@ -143,9 +146,8 @@ def _unique_project_name(session: Session, name: str) -> str:
     return candidate
 
 
-def import_file(session: Session, data: ExportFile, on_conflict: str = "skip") -> dict[str, Any]:
-    """Applica il file alla sessione (il commit, o il rollback per l'anteprima, li fa chi chiama)."""
-    report: dict[str, Any] = {
+def new_report() -> dict[str, Any]:
+    return {
         "projects": [],
         "customers": {"created": [], "existing": []},
         "technicians": {"created": [], "existing": []},
@@ -154,106 +156,140 @@ def import_file(session: Session, data: ExportFile, on_conflict: str = "skip") -
         "warnings": [],
         "totals": {"projects": 0, "events": 0, "rows": 0},
     }
-    warn = report["warnings"].append
 
-    # Sistemi operativi: crea le versioni che mancano (quelle disattivate qui restano disattivate)
-    for xo in data.operating_systems:
-        existing = session.scalars(select(OperatingSystem).where(
-            func.lower(OperatingSystem.family) == xo.family.lower(), OperatingSystem.major == xo.major,
-            OperatingSystem.minor.is_(None) if xo.minor is None else OperatingSystem.minor == xo.minor,
-        )).first()
-        if existing is None:
-            item = OperatingSystem(family=xo.family, major=xo.major, minor=xo.minor, is_active=True)
-            session.add(item)
-            session.flush()
-            audit.record(session, "create", "operating_systems", item.id, {"name": (None, item.name)})
-            report["operating_systems"]["created"].append(item.name)
-        elif not existing.is_active:
-            report["operating_systems"]["not_active"].append(existing.name)
 
-    # Tecnici: per email, poi per nome; altrimenti nuovi (ruolo tecnico, senza accesso)
-    tech_by_key: dict[str, User] = {}
-    for xt in data.technicians:
-        user = None
-        if xt.email:
-            user = session.scalar(select(User).where(func.lower(User.external_id) == xt.email.lower()))
-        if user is None:
-            user = session.scalar(select(User).where(func.lower(User.display_name) == xt.display_name.lower()))
-        if user is not None:
-            report["technicians"]["existing"].append(user.display_name)
-        else:
-            import uuid
+class Resolver:
+    """Finds (or creates) here the customers, technicians, servers and operating systems of a file.
 
-            user = User(external_id=xt.email or f"local:{uuid.uuid4().hex[:12]}", display_name=xt.display_name,
-                        role="tecnico", is_active=True, is_demo=xt.is_demo)
-            session.add(user)
-            session.flush()
-            audit.record(session, "create", "users", user.id, {"display_name": (None, user.display_name)})
-            report["technicians"]["created"].append(user.display_name)
-        tech_by_key[xt.key] = user
+    Shared by the import and by the sync (app/sync.py). What it creates and finds goes in `report`.
+    """
 
-    def tech(key: str | None, where: str) -> User | None:
+    def __init__(self, session: Session, data: ExportFile, report: dict[str, Any]):
+        self.session = session
+        self.data = data
+        self.report = report
+        self.warn = report["warnings"].append
+        self._techs: dict[str, User] | None = None
+        self._customers: dict[str, Customer] = {}
+        self._servers: dict[str, Server] = {}
+        self._xservers = {s.hostname: s for s in data.servers}
+
+    def operating_systems(self) -> None:
+        """Creates the missing versions (the ones disabled here stay disabled)."""
+        session = self.session
+        for xo in self.data.operating_systems:
+            existing = session.scalars(select(OperatingSystem).where(
+                func.lower(OperatingSystem.family) == xo.family.lower(), OperatingSystem.major == xo.major,
+                OperatingSystem.minor.is_(None) if xo.minor is None else OperatingSystem.minor == xo.minor,
+            )).first()
+            if existing is None:
+                item = OperatingSystem(family=xo.family, major=xo.major, minor=xo.minor, is_active=True)
+                session.add(item)
+                session.flush()
+                audit.record(session, "create", "operating_systems", item.id, {"name": (None, item.name)})
+                self.report["operating_systems"]["created"].append(item.name)
+            elif not existing.is_active:
+                self.report["operating_systems"]["not_active"].append(existing.name)
+
+    def _load_techs(self) -> dict[str, User]:
+        """Technicians: by email, then by name; otherwise new (technician role, without access)."""
+        session = self.session
+        found: dict[str, User] = {}
+        for xt in self.data.technicians:
+            user = None
+            if xt.email:
+                user = session.scalar(select(User).where(func.lower(User.external_id) == xt.email.lower()))
+            if user is None:
+                user = session.scalar(select(User).where(func.lower(User.display_name) == xt.display_name.lower()))
+            if user is not None:
+                self.report["technicians"]["existing"].append(user.display_name)
+            else:
+                user = User(external_id=xt.email or f"local:{uuid.uuid4().hex[:12]}", display_name=xt.display_name,
+                            role="tecnico", is_active=True, is_demo=xt.is_demo)
+                session.add(user)
+                session.flush()
+                audit.record(session, "create", "users", user.id, {"display_name": (None, user.display_name)})
+                self.report["technicians"]["created"].append(user.display_name)
+            found[xt.key] = user
+        return found
+
+    def technicians(self) -> dict[str, User]:
+        if self._techs is None:
+            self._techs = self._load_techs()
+        return self._techs
+
+    def tech(self, key: str | None, where: str) -> User | None:
         if key is None:
             return None
-        if key not in tech_by_key:
-            warn(tr("transfer.unknown_technician", where=where, key=key))
+        self.technicians()
+        if key not in self._techs:
+            self.warn(tr("transfer.unknown_technician", where=where, key=key))
             return None
-        return tech_by_key[key]
+        return self._techs[key]
 
-    # Clienti: per nome; i nuovi con il loro colore
-    customer_by_name: dict[str, Customer] = {}
-
-    def customer(name: str | None) -> Customer | None:
+    def customer(self, name: str | None) -> Customer | None:
+        """Customers: by name; the new ones with their color."""
         if not name:
             return None
         key = name.lower()
-        if key in customer_by_name:
-            return customer_by_name[key]
+        if key in self._customers:
+            return self._customers[key]
+        session = self.session
         found = session.scalar(select(Customer).where(func.lower(Customer.name) == key))
         if found is not None:
-            report["customers"]["existing"].append(found.name)
+            self.report["customers"]["existing"].append(found.name)
         else:
-            xc = next((c for c in data.customers if c.name.lower() == key), None)
-            found = Customer(name=xc.name if xc else name, color=xc.color if xc else None, is_demo=xc.is_demo if xc else False)
+            xc = next((c for c in self.data.customers if c.name.lower() == key), None)
+            found = Customer(name=xc.name if xc else name, color=xc.color if xc else None,
+                             is_demo=xc.is_demo if xc else False)
             session.add(found)
             session.flush()
             audit.record(session, "create", "customers", found.id, {"name": (None, found.name)})
-            report["customers"]["created"].append(found.name)
-        customer_by_name[key] = found
+            self.report["customers"]["created"].append(found.name)
+        self._customers[key] = found
         return found
 
-    # Server: per hostname; quelli esistenti NON vengono modificati (differenze segnalate)
-    xservers = {s.hostname: s for s in data.servers}
-    server_by_host: dict[str, Server] = {}
-
-    def server(hostname: str) -> Server:
-        if hostname in server_by_host:
-            return server_by_host[hostname]
+    def server(self, hostname: str) -> Server:
+        """Servers: by hostname; the existing ones are NOT changed (differences are reported)."""
+        if hostname in self._servers:
+            return self._servers[hostname]
+        session = self.session
         found = session.scalar(select(Server).where(Server.hostname == hostname))
-        xs = xservers.get(hostname)
+        xs = self._xservers.get(hostname)
         if found is not None:
-            report["servers"]["existing"].append(hostname)
+            self.report["servers"]["existing"].append(hostname)
             if xs is not None:
                 diff = [{"field": f, "file": getattr(xs, f), "here": getattr(found, f)}
                         for f in SERVER_EXPORT_FIELDS if getattr(xs, f) is not None and getattr(xs, f) != getattr(found, f)]
                 if diff:
-                    report["servers"]["different"].append({"hostname": hostname, "fields": diff})
+                    self.report["servers"]["different"].append({"hostname": hostname, "fields": diff})
         else:
             values = {f: getattr(xs, f) for f in SERVER_EXPORT_FIELDS} if xs else {}
             found = Server(hostname=hostname, is_demo=xs.is_demo if xs else False, **values)
             session.add(found)
             session.flush()
             audit.record(session, "create", "servers", found.id)
-            report["servers"]["created"].append(hostname)
-        server_by_host[hostname] = found
+            self.report["servers"]["created"].append(hostname)
+        self._servers[hostname] = found
         return found
 
+
+def import_file(session: Session, data: ExportFile, on_conflict: str = "skip") -> dict[str, Any]:
+    """Applica il file alla sessione (il commit, o il rollback per l'anteprima, li fa chi chiama)."""
+    report = new_report()
+    res = Resolver(session, data, report)
+    res.operating_systems()
+    res.technicians()
     for xp in data.projects:
-        _import_project(session, xp, on_conflict, report, customer, server, tech, warn)
+        _import_project(session, xp, on_conflict, report, res)
     return report
 
 
-def _import_project(session, xp: XProject, on_conflict, report, customer, server, tech, warn) -> None:
+def uid_free(session: Session, model, uid: str | None) -> bool:
+    return bool(uid) and session.scalar(select(model.id).where(model.sync_uid == uid)) is None
+
+
+def _import_project(session, xp: XProject, on_conflict, report, res: Resolver) -> None:
     clash = session.scalar(select(Project).where(func.lower(Project.name) == xp.name.lower()))
     entry = {"name": xp.name, "imported_as": None, "action": "creato",
              "events": len(xp.events), "rows": sum(len(e.servers) for e in xp.events)}
@@ -267,51 +303,70 @@ def _import_project(session, xp: XProject, on_conflict, report, customer, server
     entry["imported_as"] = name
 
     project = Project(name=name, description=xp.description, status=xp.status,
-                      customer=customer(xp.customer), is_demo=xp.is_demo)
+                      customer=res.customer(xp.customer), is_demo=xp.is_demo)
+    # the same sync identity as in the other installation, unless it is already used here (a copy)
+    if uid_free(session, Project, xp.uid):
+        project.sync_uid = xp.uid
     session.add(project)
     session.flush()
     audit.record(session, "create", "projects", project.id, {"name": (None, project.name)})
     report["totals"]["projects"] += 1
 
     for xe in xp.events:
-        day = xe.event_date.isoformat() if current_language() == "en" else xe.event_date.strftime("%d/%m/%Y")
-        where = f"{name}, {day}"
-        end = xe.end_time
-        if xe.start_time and end and end <= xe.start_time:
-            warn(tr("transfer.end_time_dropped", where=where))
-            end = None
-        event = Event(project=project, event_date=xe.event_date, start_time=xe.start_time, end_time=end,
-                      event_type=xe.event_type, status=xe.status, title=xe.title, notes=xe.notes,
-                      worked_hours=xe.worked_hours,
-                      # the commessa goes on the (existing or new) customer of the imported project
-                      order=resolve_order(session, project.customer_id, xe.order_code) if project.customer_id else None)
-        session.add(event)
+        add_event(session, project, xe, report, res)
+
+
+def where_label(project_name: str, day) -> str:
+    text = day.isoformat() if current_language() == "en" else day.strftime("%d/%m/%Y")
+    return f"{project_name}, {text}"
+
+
+def checked_end(xe: XEvent, where: str, warn) -> Any:
+    if xe.start_time and xe.end_time and xe.end_time <= xe.start_time:
+        warn(tr("transfer.end_time_dropped", where=where))
+        return None
+    return xe.end_time
+
+
+def add_event(session, project: Project, xe: XEvent, report, res: Resolver) -> Event:
+    """Creates an intervention of the file (with participants and server rows) in `project`."""
+    where = where_label(project.name, xe.event_date)
+    event = Event(project=project, event_date=xe.event_date, start_time=xe.start_time,
+                  end_time=checked_end(xe, where, res.warn),
+                  event_type=xe.event_type, status=xe.status, title=xe.title, notes=xe.notes,
+                  worked_hours=xe.worked_hours,
+                  # the commessa goes on the (existing or new) customer of the imported project
+                  order=resolve_order(session, project.customer_id, xe.order_code) if project.customer_id else None)
+    if uid_free(session, Event, xe.uid):
+        event.sync_uid = xe.uid
+    session.add(event)
+    session.flush()
+    audit.record(session, "create", "events", event.id, {"event_date": (None, event.event_date)}, event_id=event.id)
+    report["totals"]["events"] += 1
+
+    seen_users: set[int] = set()
+    for key in xe.participants:
+        u = res.tech(key, where)
+        if u is not None and u.id not in seen_users:
+            seen_users.add(u.id)
+            session.add(EventUser(event=event, user=u))
+
+    seen_hosts: set[str] = set()
+    for position, xr in enumerate(xe.servers):
+        if xr.hostname in seen_hosts:
+            res.warn(tr("transfer.duplicate_host", where=where, hostname=xr.hostname))
+            continue
+        seen_hosts.add(xr.hostname)
+        srv = res.server(xr.hostname)
+        row = EventServer(
+            event=event, server=srv, position=position,
+            target_operating_system=xr.target_operating_system, target_kernel=xr.target_kernel,
+            check_status=xr.check_status, migration_status=xr.migration_status,
+            planned_date=xr.planned_date or xe.event_date, executed_date=xr.executed_date,
+            assigned_user=res.tech(xr.technician, where), notes=xr.notes,
+        )
+        session.add(row)
         session.flush()
-        audit.record(session, "create", "events", event.id, {"event_date": (None, event.event_date)}, event_id=event.id)
-        report["totals"]["events"] += 1
-
-        seen_users: set[int] = set()
-        for key in xe.participants:
-            u = tech(key, where)
-            if u is not None and u.id not in seen_users:
-                seen_users.add(u.id)
-                session.add(EventUser(event=event, user=u))
-
-        seen_hosts: set[str] = set()
-        for position, xr in enumerate(xe.servers):
-            if xr.hostname in seen_hosts:
-                warn(tr("transfer.duplicate_host", where=where, hostname=xr.hostname))
-                continue
-            seen_hosts.add(xr.hostname)
-            srv = server(xr.hostname)
-            row = EventServer(
-                event=event, server=srv, position=position,
-                target_operating_system=xr.target_operating_system, target_kernel=xr.target_kernel,
-                check_status=xr.check_status, migration_status=xr.migration_status,
-                planned_date=xr.planned_date or xe.event_date, executed_date=xr.executed_date,
-                assigned_user=tech(xr.technician, where), notes=xr.notes,
-            )
-            session.add(row)
-            session.flush()
-            audit.record(session, "create", "event_servers", row.id, {"server": (None, srv.hostname)}, event_id=event.id)
-            report["totals"]["rows"] += 1
+        audit.record(session, "create", "event_servers", row.id, {"server": (None, srv.hostname)}, event_id=event.id)
+        report["totals"]["rows"] += 1
+    return event

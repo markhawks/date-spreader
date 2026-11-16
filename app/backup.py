@@ -28,7 +28,7 @@ from pathlib import Path
 from app.config import Settings
 from app.i18n import tr
 
-KINDS = ("daily", "manual", "pre-migration", "pre-restore")
+KINDS = ("daily", "manual", "pre-migration", "pre-restore", "pre-sync")
 NAME_RE = re.compile(r"^datespreader-backup-(\d{8})-(\d{6})-([a-z-]+)\.sqlite3$")
 # Any SQLite file in the folder can be listed/downloaded; the name must stay simple (no paths)
 SAFE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.sqlite3$")
@@ -201,4 +201,8 @@ def restore_backup(settings: Settings, source: Path) -> BackupInfo:
     finally:
         dst.close()
         src.close()
+    # a restored database gets a new sync identity (see app.sync.forget_identity)
+    from app.sync import forget_identity
+
+    forget_identity(settings.database_path)
     return saved

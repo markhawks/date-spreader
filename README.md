@@ -43,7 +43,8 @@ Highlights:
 - **real multi-user editing**: optimistic locking (no silent overwrites), live updates from colleagues every
   10 seconds, and an **audit log** of every change with its author;
 - **configuration interventions**: a reduced table with a full-width, auto-growing **notes row under each server**;
-- **export and import between installations**: move a project or a whole customer to another Date Spreader;
+- **export and import between installations**: move a project or a whole customer to another Date Spreader, or
+  **sync a customer** between two installations with a report of the differences before applying them;
 - **sharing by email**: a formatted email with the full server table, ready to paste into Gmail;
 - **automatic database backups**: verified copies every night, before every upgrade and on demand, with rotation,
   download from the portal and restore from the command line;
@@ -597,6 +598,35 @@ installation on a PC or at a customer's site.
 - The format (`"format": "datespreader-export"`, `"format_version": 1`) is described in `app/schemas/transfer.py`.
   A file created by a newer version with an incompatible format is refused with a clear message.
 
+### Sync a customer between two installations
+When the same customer is followed on two installations (e.g. two offices, or a main portal and a second
+server), the changes made on one can be brought to the other without duplicates.
+
+- On the other installation: **export the customer** (as above). Here: Settings → Administration →
+  **"Sync a customer"** (administrators), choosing or dragging the file.
+- You get a **report of the differences**, grouped by project, before anything changes: for each intervention
+  (fields, technicians, server rows) and project, and for the servers of the inventory, what is here and what
+  is in the file. Each item is marked:
+
+  | Mark | Meaning | Proposed |
+  |---|---|---|
+  | *changed there* | changed only on the other installation | yes |
+  | *new* | only in the file | yes |
+  | *changed here* | changed only here | no (kept) |
+  | *conflict* | changed on both sides | you choose: keep this one or take the file's |
+  | *deleted there* / *only here* | missing in the file | no: deleted only if you tick it |
+  | *deleted here* | deleted here after the last sync | no |
+
+- **Apply** takes a backup first (`…-pre-sync.sqlite3`), then writes everything in one transaction, recorded in
+  the audit log. If the data here changed after the preview, you are asked to look at the differences again.
+- Projects and interventions are recognized by an identity that is the same on every installation (not by
+  name), servers by hostname, technicians by email and then by name, the customer by name.
+- The two installations remember what they last agreed on, and the export file carries it too: so the sync works
+  **in both directions** and knows who changed what. At the first sync between two installations the differences
+  are shown as conflicts, because it is not known which version is newer.
+- Restoring a backup gives the installation a new identity: the other installations then compare with it from
+  scratch.
+
 ## API
 
 | Endpoint | Description |
@@ -637,6 +667,7 @@ installation on a PC or at a customer's site.
 | `GET /api/servers/{id}` | Server data, intervention history (most recent first) and changes to its data |
 | `GET /api/export/projects/{id}` · `GET /api/export/customers/{id}` | JSON file with one project, or with all the projects of a customer (coordinators and administrators) |
 | `POST /api/import/preview` · `POST /api/import` | Preview (writes nothing) and import of an export file (`data`, `on_conflict`: `skip` or `copy`; administrators only) |
+| `POST /api/sync/preview` · `POST /api/sync/apply` | Differences between a customer export file and this installation (writes nothing), then apply the chosen items (`data`, `token` of the preview, `decisions`: item key → take the file's version; backup first; administrators only) |
 | `GET /api/search?q=…` | Projects (name, description) and server rows (hostname, IP, OS) containing the text |
 | `GET /api/changes[?since=N]` | Change feed. Without `since` it returns the starting point (`last_id`); with `since` also the interventions touched after that id, `projects_changed` (new projects or interventions: reload the sidebar) and `users_changed` (technicians changed: reload the menus) |
 

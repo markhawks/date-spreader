@@ -22,6 +22,7 @@ import { Sheet } from "./sheet.js";
 import { showShareDialog } from "./share.js";
 import { Sidebar, attachSidebarResizer } from "./sidebar.js";
 import { showImportDialog } from "./transfer.js";
+import { showSyncDialog } from "./sync.js";
 import { showBackupsDialog } from "./backups.js";
 import { Workload } from "./workload.js";
 import { customerFilterUI } from "./customerfilter.js";
@@ -451,6 +452,13 @@ async function main() {
       [t("main.admin_import"), t("main.admin_import_hint"), () => showImportDialog({
         toast,
         onImported: async () => {
+          await Promise.all([reloadProjects(), people.load(true)]);
+          await calendar.reload();
+        },
+      })],
+      [t("main.admin_sync"), t("main.admin_sync_hint"), () => showSyncDialog({
+        toast,
+        onSynced: async () => {
           await Promise.all([reloadProjects(), people.load(true)]);
           await calendar.reload();
         },

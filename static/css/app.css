@@ -1877,6 +1877,46 @@ body.detail-bottom #btn-detail-position .ico-to-bottom { display: none; }
 .imp-diff ul, .imp-warn ul { margin: 6px 0 0; padding-left: 18px; font-size: 0.82rem; }
 .imp-total { margin: 0; font-weight: 600; }
 
+/* Sync of a customer from another installation (static/js/sync.js) */
+.sync-dialog { width: min(1040px, calc(100vw - 24px)); }
+.sync-dialog .pf-foot { align-items: center; }
+.sync-selected { margin-right: auto; }
+.sync-selected.sync-warn { color: var(--warn-fg); font-weight: 600; }
+.sync-report { margin-top: 12px; display: grid; gap: 8px; font-size: 0.88rem; }
+.sync-report:empty { display: none; }
+.sync-report p { margin: 0; }
+.sync-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sync-show-equal { margin-left: auto; color: var(--muted); }
+.sync-bulk { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-radius: 6px; background: var(--warn-bg); color: var(--warn-fg); }
+.sync-list { display: grid; gap: 10px; }
+.sync-group { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.sync-group-title { margin: 0; padding: 7px 10px; font-size: 0.85rem; background: var(--panel-2); }
+.sync-item { padding: 6px 10px; border-top: 1px solid var(--border); display: grid; gap: 4px; }
+.sync-group > .sync-item:first-child { border-top: 0; }
+.sync-project { background: var(--panel-2); }
+.sync-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sync-ctl { display: inline-flex; gap: 10px; align-items: center; min-width: 18px; }
+.sync-choice { display: inline-flex; gap: 4px; align-items: center; font-size: 0.8rem; white-space: nowrap; }
+.sync-label { display: inline-flex; gap: 4px; align-items: baseline; flex-wrap: wrap; min-width: 0; }
+.sync-tag { font-size: 0.75rem; padding: 0 6px; border-radius: 999px; border: 1px solid var(--border); }
+.sync-badge { font-size: 0.72rem; font-weight: 600; padding: 1px 7px; border-radius: 999px; white-space: nowrap; background: var(--info-bg); color: var(--info-fg); }
+.sync-b-equal, .sync-b-only_here { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.sync-b-new, .sync-b-changed { background: var(--ok-bg); color: var(--ok-fg); }
+.sync-b-changed_here { background: var(--info-bg); color: var(--info-fg); }
+.sync-b-conflict { background: var(--bad-bg); color: var(--bad-fg); }
+.sync-b-deleted_there, .sync-b-deleted_here { background: var(--warn-bg); color: var(--warn-fg); }
+.sync-conflict { box-shadow: inset 3px 0 0 var(--bad-fg); }
+.sync-equal { color: var(--muted); }
+.sync-blocked { color: var(--warn-fg); }
+.sync-hidden { padding: 4px 10px 6px 36px; border-top: 1px solid var(--border); }
+.sync-fields { margin-left: 26px; border-collapse: collapse; font-size: 0.8rem; width: calc(100% - 26px); }
+.sync-fields th, .sync-fields td { text-align: left; padding: 3px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.sync-fields th { color: var(--muted); font-weight: 600; font-size: 0.75rem; }
+.sync-fields td:first-child { width: 22%; color: var(--muted); }
+.sync-fields .sync-here { width: 39%; }
+.sync-fields .sync-there { font-weight: 600; }
+.sync-same { padding: 10px; color: var(--ok-fg); }
+
 /* ---------- Vista settimanale ------------------------------------------------ */
 /* Una settimana per blocco; i giorni crescono con gli interventi (mai «+N»), che mostrano tutto:
    nome, avanzamento, cliente, titolo e orario, tipo, tecnici. Lo zoom cambia l'altezza minima. */

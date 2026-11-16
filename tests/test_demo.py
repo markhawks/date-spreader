@@ -216,5 +216,7 @@ def test_demo_database_is_current_and_clean():
         assert con.execute(
             "SELECT username, must_change_password FROM users WHERE is_demo = 0").fetchall() == [("admin", 1)]
         assert con.execute("SELECT count(*) FROM auth_sessions").fetchone()[0] == 0
+        # every copy of the demo database must get its own sync identity
+        assert con.execute("SELECT count(*) FROM app_meta WHERE key = 'instance_uid'").fetchone()[0] == 0
     finally:
         con.close()

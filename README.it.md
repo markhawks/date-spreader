@@ -29,7 +29,7 @@ In breve:
 - **conflitti di pianificazione** (stesso server nello stesso giorno, tecnico impegnato due volte) e vista **«Tecnici»** con la settimana di ognuno;
 - **Duplica intervento**, **interventi di configurazione** con note estese, **zoom** del calendario;
 - **più utenti in contemporanea** con controllo dei conflitti di modifica, aggiornamenti in tempo reale e cronologia;
-- **export/import** di progetti e clienti tra installazioni, **condivisione via email** (Gmail);
+- **export/import** di progetti e clienti tra installazioni e **sincronizzazione di un cliente** tra due installazioni con report delle differenze, **condivisione via email** (Gmail);
 - **backup automatici** del database (ogni notte, prima degli aggiornamenti, a richiesta), con download e ripristino;
 - **riepilogo per smartphone** in sola lettura per chi è fuori ufficio (il portale è pensato per il computer);
 - **data e ora** nella barra in alto, personalizzabili.
@@ -397,6 +397,26 @@ Per portare progetti da un'installazione di Date Spreader a un'altra: per esempi
   - L'import avviene in un'unica transazione: o tutto, o niente.
 - Il formato (`"format": "datespreader-export"`, `"format_version": 1`) è descritto in `app/schemas/transfer.py`. Un file creato da una versione più recente con un formato incompatibile viene rifiutato con un messaggio chiaro.
 
+### Sincronizzare un cliente tra due installazioni
+Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un portale principale e un secondo server), le modifiche fatte su una si portano sull'altra senza doppioni.
+
+- Sull'altra installazione: **esporta il cliente** (come sopra). Qui: Impostazioni → Amministrazione → **«Sincronizza un cliente»** (amministratori), scegliendo o trascinando il file.
+- Ottieni un **report delle differenze**, raggruppato per progetto, prima che cambi qualcosa: per ogni intervento (campi, tecnici, righe server) e progetto, e per i server dell'anagrafica, cosa c'è qui e cosa c'è nel file. Ogni voce è segnata:
+
+  | Segno | Significato | Proposto |
+  |---|---|---|
+  | *modificato là* | cambiato solo sull'altra installazione | sì |
+  | *nuovo* | solo nel file | sì |
+  | *modificato qui* | cambiato solo qui | no (resta com'è) |
+  | *conflitto* | cambiato da entrambe le parti | scegli tu: tieni questa o prendi quella del file |
+  | *cancellato là* / *solo qui* | assente nel file | no: si cancella solo se lo spunti |
+  | *cancellato qui* | cancellato qui dopo l'ultima sincronizzazione | no |
+
+- **Applica** fa prima un backup (`…-pre-sync.sqlite3`), poi scrive tutto in un'unica transazione, registrata nella cronologia. Se nel frattempo i dati qui sono cambiati, ti chiede di guardare di nuovo le differenze.
+- Progetti e interventi si riconoscono da un'identità uguale su tutte le installazioni (non dal nome), i server dall'hostname, i tecnici dall'email e poi dal nome, il cliente dal nome.
+- Le due installazioni ricordano l'ultimo stato concordato, che viaggia anche nel file esportato: la sincronizzazione funziona **nei due sensi** e sa chi ha cambiato cosa. Alla prima sincronizzazione tra due installazioni le differenze sono mostrate come conflitti, perché non si sa quale versione sia la più recente.
+- Il ripristino di un backup dà all'installazione una nuova identità: le altre installazioni la confrontano da capo.
+
 ## API
 
 | Endpoint | Descrizione |
@@ -437,6 +457,7 @@ Per portare progetti da un'installazione di Date Spreader a un'altra: per esempi
 | `GET /api/servers/{id}` | Dati del server, storico degli interventi (dal più recente) e modifiche ai suoi dati |
 | `GET /api/export/projects/{id}` · `GET /api/export/customers/{id}` | File JSON con un progetto, o con tutti i progetti di un cliente (coordinatori e amministratori) |
 | `POST /api/import/preview` · `POST /api/import` | Anteprima (non scrive nulla) e import di un file di export (`data`, `on_conflict`: `skip` o `copy`; solo amministratori) |
+| `POST /api/sync/preview` · `POST /api/sync/apply` | Differenze tra un file di export di un cliente e questa installazione (non scrive nulla), poi applica le voci scelte (`data`, `token` dell'anteprima, `decisions`: chiave della voce → prendi la versione del file; prima un backup; solo amministratori) |
 | `GET /api/search?q=…` | Progetti (nome, descrizione) e righe server (hostname, IP, SO) che contengono il testo |
 | `GET /api/changes[?since=N]` | Feed delle modifiche. Senza `since` restituisce il punto di partenza (`last_id`); con `since` anche gli interventi toccati dopo quell'id, `projects_changed` (nuovi progetti o interventi: ricaricare la sidebar) e `users_changed` (tecnici cambiati: ricaricare i menu) |
 

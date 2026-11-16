@@ -109,6 +109,7 @@ class XRow(_In):
 
 
 class XEvent(_In):
+    uid: str | None = Field(default=None, max_length=36)   # sync identity (since 0.26), see app/sync.py
     event_date: date
     start_time: time | None = None
     end_time: time | None = None
@@ -125,6 +126,7 @@ class XEvent(_In):
 
 
 class XProject(_In):
+    uid: str | None = Field(default=None, max_length=36)   # sync identity (since 0.26)
     name: str = Field(max_length=200)
     description: str | None = Field(default=None, max_length=4000)
     status: ProjectStatus = statuses.PROJECT_STATUSES[0]
@@ -134,6 +136,16 @@ class XProject(_In):
 
     _name = field_validator("name", mode="before")(classmethod(lambda cls, v: _valid_name(v)))
     _clean = field_validator("description", mode="before")(classmethod(lambda cls, v: _text(v)))
+
+
+class XInstance(_In):
+    uid: str = Field(max_length=36)
+    name: str | None = Field(default=None, max_length=200)
+
+
+class XBaselines(_In):
+    at: str | None = None                       # when the exporter last synced with that installation
+    hashes: dict[str, str] = Field(default_factory=dict)
 
 
 class ExportFile(_In):
@@ -147,6 +159,9 @@ class ExportFile(_In):
     operating_systems: list[XOperatingSystem] = Field(default_factory=list)
     servers: list[XServer] = Field(default_factory=list)
     projects: list[XProject] = Field(min_length=1)
+    # since 0.26: the exporting installation and its sync baselines (see app/sync.py)
+    instance: XInstance | None = None
+    sync_baselines: dict[str, XBaselines] = Field(default_factory=dict)
 
     @field_validator("format_version")
     @classmethod

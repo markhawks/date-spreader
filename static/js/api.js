@@ -102,6 +102,9 @@ export const fetchBackups = () => getJSON("/api/backups");
 export const createBackup = () => request("POST", "/api/backups");
 export const downloadBackup = (name) => downloadFile(`/api/backups/${encodeURIComponent(name)}`);
 export const importRun = (data, onConflict) => request("POST", "/api/import", { data, on_conflict: onConflict });
+// --- sync of a customer's projects from another installation (administrators) -------------
+export const syncPreview = (data) => request("POST", "/api/sync/preview", { data });
+export const syncApply = (data, token, decisions) => request("POST", "/api/sync/apply", { data, token, decisions });
 const q = encodeURIComponent;
 
 export const fetchHealth = () => getJSON("/api/health");

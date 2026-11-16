@@ -7,6 +7,7 @@ un altro utente ha salvato, l'UPDATE non trova la riga e solleva StaleDataError.
 
 from __future__ import annotations
 
+import uuid
 from datetime import date, datetime, time
 
 from sqlalchemy import (
@@ -35,6 +36,10 @@ class TimestampMixin:
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), onupdate=func.now()
     )
+
+
+def new_sync_uid() -> str:
+    return str(uuid.uuid4())
 
 
 class VersionedMixin:
@@ -89,6 +94,8 @@ class Project(VersionedMixin, TimestampMixin, Base):
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     # Cliente (facoltativo). RESTRICT: un cliente con progetti non si può eliminare.
     customer_id: Mapped[int | None] = mapped_column(ForeignKey("customers.id", ondelete="RESTRICT"), index=True)
+    # Same value on every installation: lets the sync between two installations recognize the project
+    sync_uid: Mapped[str] = mapped_column(String(36), unique=True, default=new_sync_uid)
 
     customer: Mapped[Customer | None] = relationship(back_populates="projects")
     events: Mapped[list[Event]] = relationship(
@@ -114,6 +121,8 @@ class Event(VersionedMixin, TimestampMixin, Base):
     order_id: Mapped[int | None] = mapped_column(ForeignKey("customer_orders.id", ondelete="SET NULL"), index=True)
     # hours actually worked on the intervention (optional): when set, replaces end − start in the reports
     worked_hours: Mapped[float | None] = mapped_column(Float)
+    # Same value on every installation (see Project.sync_uid)
+    sync_uid: Mapped[str] = mapped_column(String(36), unique=True, default=new_sync_uid)
 
     project: Mapped[Project] = relationship(back_populates="events")
     order: Mapped[CustomerOrder | None] = relationship()
@@ -317,7 +326,40 @@ class CustomFieldValue(VersionedMixin, TimestampMixin, Base):
     value: Mapped[str | None] = mapped_column(Text)
 
 
+class AppMeta(Base):
+    """Values of this installation (key → value), e.g. "instance_uid": the identity used by the sync."""
+
+    __tablename__ = "app_meta"
+
+    key: Mapped[str] = mapped_column(String(50), primary_key=True)
+    value: Mapped[str] = mapped_column(Text)
+
+
+class SyncBaseline(Base):
+    """Sync with another installation: for each item (project, intervention, server), the hash of the
+    content last agreed on by the two installations. It tells who changed what since then."""
+
+    __tablename__ = "sync_baselines"
+
+    peer_uid: Mapped[str] = mapped_column(String(36), primary_key=True)
+    key: Mapped[str] = mapped_column(String(300), primary_key=True)   # "p:<uid>", "e:<uid>", "s:<hostname>"
+    customer: Mapped[str] = mapped_column(String(200), index=True)     # customer name, lowercase
+    hash: Mapped[str] = mapped_column(String(64))
+
+
+class SyncPeer(Base):
+    """Last sync of a customer's projects with another installation."""
+
+    __tablename__ = "sync_peers"
+
+    uid: Mapped[str] = mapped_column(String(36), primary_key=True)          # the other installation
+    customer: Mapped[str] = mapped_column(String(200), primary_key=True)    # customer name, lowercase
+    name: Mapped[str | None] = mapped_column(String(200))                   # its name (host name)
+    last_sync_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+
 __all__ = [
+    "AppMeta",
     "AuditLog",
     "AuthSession",
     "Customer",
@@ -329,6 +371,8 @@ __all__ = [
     "OperatingSystem",
     "Project",
     "Server",
+    "SyncBaseline",
+    "SyncPeer",
     "User",
     "UserPreferences",
 ]

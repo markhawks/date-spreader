@@ -55,6 +55,8 @@ def main() -> int:
     con = sqlite3.connect(target)
     con.execute("PRAGMA journal_mode=DELETE")
     con.execute("DELETE FROM audit_log")
+    # no sync identity: every copy of the demo database creates its own on first use (app.sync.instance_uid)
+    con.execute("DELETE FROM app_meta WHERE key = 'instance_uid'")
     con.commit()
     con.execute("VACUUM")
     con.close()

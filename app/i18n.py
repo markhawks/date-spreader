@@ -190,6 +190,43 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "The password is too repetitive.",
         "it": "La password è troppo ripetitiva.",
     },
+    # --- sync
+    "sync.one_customer": {
+        "en": "The sync works on the projects of one customer: export a customer (or one of its projects) from the other installation.",
+        "it": "La sincronizzazione lavora sui progetti di un solo cliente: esporta un cliente (o un suo progetto) dall'altra installazione.",
+    },
+    "sync.old_file": {
+        "en": "This file was exported by a version of Date Spreader older than 0.26 and cannot be used for a sync: export it again after updating the other installation, or use Import projects.",
+        "it": "Questo file è stato esportato da una versione di Date Spreader precedente alla 0.26 e non si può usare per sincronizzare: esportalo di nuovo dopo aver aggiornato l'altra installazione, oppure usa Importa progetti.",
+    },
+    "sync.same_instance": {
+        "en": "This file was exported by this same installation: there is nothing to sync.",
+        "it": "Questo file è stato esportato da questa stessa installazione: non c'è niente da sincronizzare.",
+    },
+    "sync.blocked_project": {
+        "en": "Its project “{name}” is not here: select the project first.",
+        "it": "Il suo progetto «{name}» qui non c'è: seleziona prima il progetto.",
+    },
+    "sync.blocked_name": {
+        "en": "Another project here is already called “{name}”: rename one of the two first.",
+        "it": "Qui c'è già un altro progetto che si chiama «{name}»: prima rinomina uno dei due.",
+    },
+    "sync.stale": {
+        "en": "The data here changed after the preview: look at the differences again.",
+        "it": "I dati qui sono cambiati dopo l'anteprima: guarda di nuovo le differenze.",
+    },
+    "sync.unknown_item": {
+        "en": "The choices do not match the differences of this file.",
+        "it": "Le scelte non corrispondono alle differenze di questo file.",
+    },
+    "sync.conflicts_open": {
+        "en": "Choose which version to keep for every conflict.",
+        "it": "Scegli quale versione tenere per ogni conflitto.",
+    },
+    "sync.backup_failed": {
+        "en": "The backup before the sync failed, nothing was changed: {error}",
+        "it": "Il backup prima della sincronizzazione non è riuscito, non è stato cambiato niente: {error}",
+    },
     # --- users
     "users.conflict": {
         "en": "The technician was changed by another user. Here are the updated values.",

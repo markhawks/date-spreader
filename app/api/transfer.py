@@ -23,6 +23,7 @@ from app.auth import AuthUser, require_admin, require_user
 from app.i18n import tr
 from app.models import Customer, Project
 from app.schemas.transfer import ImportRequest
+from app.sync import export_extras
 from app.transfer import export_projects, import_file, load_projects
 
 router = APIRouter(tags=["export e import"])
@@ -59,6 +60,7 @@ def export_project(session: SessionDep, project_id: int) -> Response:
         raise HTTPException(404, tr("projects.not_found"))
     p = projects[0]
     payload = export_projects(session, projects, {"type": "project", "name": p.name})
+    payload.update(export_extras(session, p.customer.name if p.customer else None))
     audit.record(session, "export", "export", p.id, {"progetto": (None, p.name)})
     session.commit()
     return _download(payload, "progetto", p.name)
@@ -74,6 +76,7 @@ def export_customer(session: SessionDep, customer_id: int) -> Response:
     if not ids:
         raise HTTPException(409, {"message": tr("transfer.customer_no_projects", name=customer.name), "current": None})
     payload = export_projects(session, load_projects(session, ids), {"type": "customer", "name": customer.name})
+    payload.update(export_extras(session, customer.name))
     audit.record(session, "export", "export", customer.id, {"cliente": (None, customer.name)})
     session.commit()
     return _download(payload, "cliente", customer.name)
