@@ -9,6 +9,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 - Server inventory: **Edit** a server (hostname, IP, operating system, environment, location, current kernel) from its card; the change applies to all its interventions, past and future. **Delete** a server that is in no intervention (refused, with the number of interventions, otherwise). API: `PATCH` and `DELETE /api/servers/{id}`.
 
 ### Fixed
+- Customer menu in the project column: in the dark theme the open list showed the customer names in light text on a white background (unreadable). The options now use the colors of the theme.
 - After upgrading the RPM package, the browser could keep using the JavaScript of the previous version (new features missing, e.g. the horizontal zoom and the release date at the top) until the cache was cleared: packages built on the same day give the files the same date, and the Starlette of RHEL 10 then confirmed the old copy. Static files are now validated by ETag only, and the ETag changes with every installed version.
 
 ### Documentation

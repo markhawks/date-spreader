@@ -2240,6 +2240,10 @@ body.recap-mode { overflow: auto; height: auto; }
 .cf-menu.active { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent); }
 .cf-select { flex: 1; min-width: 0; font: inherit; font-size: 0.88rem; border: 0; background: transparent; color: var(--text); padding: 4px 0; cursor: pointer; }
 .cf-menu.active .cf-select { font-weight: 600; }
+/* The open list of the menu: the select is transparent, so without these the options of Chrome took the
+   light text of the dark theme on a white background (unreadable) */
+.cf-select option { color: var(--text); background: var(--panel); font-weight: normal; }
+.cf-select option:checked { color: var(--text); background: color-mix(in srgb, var(--accent) 22%, var(--panel)); font-weight: 600; }
 .cf-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; border: 1px solid var(--border); }
 .cf-clear {
   flex: none; width: 24px; height: 24px; border-radius: 50%; border: 0; cursor: pointer;

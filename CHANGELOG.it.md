@@ -9,6 +9,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 - Anagrafica server: **Modifica** di un server (hostname, IP, sistema operativo, ambiente, location, kernel attuale) dalla sua scheda; la modifica vale in tutti i suoi interventi, passati e futuri. **Elimina** un server che non è in nessun intervento (altrimenti è rifiutato, con il numero di interventi). API: `PATCH` e `DELETE /api/servers/{id}`.
 
 ### Corretto
+- Menu dei clienti nella colonna dei progetti: con il tema scuro l'elenco aperto mostrava i nomi dei clienti in testo chiaro su sfondo bianco (illeggibili). Ora le voci usano i colori del tema.
 - Dopo l'aggiornamento del pacchetto RPM il browser poteva continuare a usare il JavaScript della versione precedente (mancavano le novità, per esempio lo zoom orizzontale e la data di rilascio in alto) finché non si svuotava la cache: i pacchetti costruiti nello stesso giorno danno ai file la stessa data e lo Starlette di RHEL 10 confermava la copia vecchia. Ora i file statici si verificano solo con l'ETag, che cambia a ogni versione installata.
 
 ### Documentazione
