@@ -1,6 +1,7 @@
 // Translations for inventory.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "inventory.sort_hint": "Click to sort; click again to reverse the order",
     "inventory.edit": "Edit",
     "inventory.edit_title_hint": "Change hostname, IP, operating system, environment, location or kernel",
     "inventory.edit_title": "Edit {hostname}",
@@ -70,6 +71,7 @@ export default {
     "inventory.col.location": "Location"
   },
   "it": {
+    "inventory.sort_hint": "Clic per ordinare; un altro clic inverte l'ordine",
     "inventory.edit": "Modifica",
     "inventory.edit_title_hint": "Modifica hostname, IP, sistema operativo, ambiente, location o kernel",
     "inventory.edit_title": "Modifica {hostname}",

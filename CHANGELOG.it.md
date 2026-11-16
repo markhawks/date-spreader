@@ -6,6 +6,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Aggiunto
+- Anagrafica server: **ordinamento** con un clic sull'intestazione di una colonna (hostname, IP, SO, ambiente, location, kernel, interventi, ultimo, prossimo), un altro clic lo inverte; IP in ordine numerico, versioni in ordine naturale, valori vuoti in fondo.
 - Anagrafica server: **Modifica** di un server (hostname, IP, sistema operativo, ambiente, location, kernel attuale) dalla sua scheda; la modifica vale in tutti i suoi interventi, passati e futuri. **Elimina** un server che non è in nessun intervento (altrimenti è rifiutato, con il numero di interventi). API: `PATCH` e `DELETE /api/servers/{id}`.
 
 ### Corretto

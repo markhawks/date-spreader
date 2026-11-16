@@ -6,6 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
+- Server inventory: **sorting** by clicking a column header (hostname, IP, OS, environment, location, kernel, interventions, last, next), again to reverse; IPs in numeric order, versions in natural order, empty values last.
 - Server inventory: **Edit** a server (hostname, IP, operating system, environment, location, current kernel) from its card; the change applies to all its interventions, past and future. **Delete** a server that is in no intervention (refused, with the number of interventions, otherwise). API: `PATCH` and `DELETE /api/servers/{id}`.
 
 ### Fixed

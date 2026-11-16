@@ -317,6 +317,9 @@ to **recover access** if the administrator forgets the password.
   - For each one: IP, operating system, environment, current kernel, number of interventions, **last**
     intervention (date and migration status) and **next** scheduled one.
   - **Search** on hostname, IP, operating system, environment, kernel and notes.
+  - **Sorting**: click a column header (hostname, IP, OS, environment, location, kernel, interventions, last,
+    next); click again to reverse. IPs in numeric order, versions in natural order (RHEL 9.8 before 10.2), empty
+    values last. The browser remembers the choice.
   - Keyboard navigation: ↓ from the search box to the list, ↑/↓ between rows, Enter to open the history.
   - Resizable columns.
 - **Edit** (in the selected server's card): hostname, IP, operating system, environment, location and current kernel.

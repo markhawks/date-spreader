@@ -41,6 +41,47 @@ const COLUMNS = [
   ["next", t("inventory.col.next"), (s) => (s.next_event_date ? el("span", "next-date", formatShortDate(s.next_event_date)) : el("span", "muted", "—"))],
 ];
 
+// Sorting by clicking a column header (hostname, IP, OS, environment, location, kernel and the counters).
+// Empty values always go last; texts with numbers in a natural order (RHEL 9.8 before RHEL 10.2).
+const SORT_KEY = "datespreader.inventory.sort";
+const ipKey = (ip) => {
+  if (!ip) return null;
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(ip)) return ip.split(".").map((n) => n.padStart(3, "0")).join(".");
+  return `~${ip}`; // IPv6 after IPv4
+};
+const SORT_VALUE = {
+  hostname: (s) => s.hostname,
+  ip: (s) => ipKey(s.ip_address),
+  os: (s) => s.operating_system,
+  env: (s) => s.environment,
+  location: (s) => s.location,
+  kernel: (s) => s.current_kernel,
+  count: (s) => s.event_count,
+  last: (s) => s.last_event_date,
+  next: (s) => s.next_event_date,
+};
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
+function sortServers(servers, { col, dir }) {
+  const value = SORT_VALUE[col] ?? SORT_VALUE.hostname;
+  const sign = dir === "desc" ? -1 : 1;
+  return [...servers].sort((a, b) => {
+    const va = value(a), vb = value(b);
+    const ea = va == null || va === "", eb = vb == null || vb === "";
+    if (ea || eb) return ea === eb ? collator.compare(a.hostname, b.hostname) : ea ? 1 : -1;
+    const c = typeof va === "number" ? va - vb : collator.compare(String(va), String(vb));
+    return c ? sign * c : collator.compare(a.hostname, b.hostname);
+  });
+}
+
+function loadSort() {
+  try {
+    const v = JSON.parse(localStorage.getItem(SORT_KEY));
+    if (v && SORT_VALUE[v.col] && (v.dir === "asc" || v.dir === "desc")) return v;
+  } catch { /* not available */ }
+  return { col: "hostname", dir: "asc" };
+}
+
 function stackInline(text, node) {
   const wrap = el("span", "inline-pair");
   wrap.append(el("span", null, text));
@@ -59,6 +100,8 @@ export class Inventory {
     this.selectedId = null;
     this.query = "";
     this.token = 0;
+    this.sort = loadSort();
+    this.servers = [];
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen && !e.defaultPrevented && !document.querySelector("dialog[open]")) {
         e.preventDefault();
@@ -131,9 +174,14 @@ export class Inventory {
     const thead = el("thead");
     const hr = el("tr");
     for (const [key, label] of COLUMNS) {
-      const th = el("th", null, label);
+      const th = el("th");
       th.dataset.col = key;
-      if (key === "os") th.title = t("inventory.os_title");
+      const btn = el("button", "th-sort");
+      btn.type = "button";
+      btn.append(el("span", null, label), el("span", "th-sort-mark"));
+      btn.title = key === "os" ? `${t("inventory.os_title")} · ${t("inventory.sort_hint")}` : t("inventory.sort_hint");
+      btn.addEventListener("click", () => this.#sortBy(key));
+      th.append(btn);
       hr.append(th);
     }
     thead.append(hr);
@@ -141,6 +189,7 @@ export class Inventory {
     table.append(thead, this.tbody);
     listWrap.append(table);
     this.table = table;
+    this.#showSort();
     this.tbody.addEventListener("click", (e) => {
       const tr = e.target.closest("tr[data-id]");
       if (tr) this.#select(Number(tr.dataset.id));
@@ -175,11 +224,33 @@ export class Inventory {
     this.countEl.textContent = res.total === res.servers.length
       ? t("inventory.count", { n: res.total })
       : t("inventory.count_filtered", { shown: res.servers.length, n: res.total });
+    this.servers = res.servers;
     if (!res.servers.length) {
       this.tbody.replaceChildren(this.#messageRow(this.query ? t("inventory.no_match") : t("inventory.empty")));
       return;
     }
-    this.tbody.replaceChildren(...res.servers.map((s) => {
+    this.#renderRows();
+  }
+
+  #sortBy(col) {
+    this.sort = { col, dir: this.sort.col === col && this.sort.dir === "asc" ? "desc" : "asc" };
+    try { localStorage.setItem(SORT_KEY, JSON.stringify(this.sort)); } catch { /* optional */ }
+    this.#showSort();
+    if (this.servers.length) this.#renderRows();
+  }
+
+  /** aria-sort and the arrow on the header of the sorted column. */
+  #showSort() {
+    for (const th of this.table.tHead.rows[0].cells) {
+      const on = th.dataset.col === this.sort.col;
+      if (on) th.setAttribute("aria-sort", this.sort.dir === "asc" ? "ascending" : "descending");
+      else th.removeAttribute("aria-sort");
+      th.querySelector(".th-sort-mark").textContent = on ? (this.sort.dir === "asc" ? "▲" : "▼") : "";
+    }
+  }
+
+  #renderRows() {
+    this.tbody.replaceChildren(...sortServers(this.servers, this.sort).map((s) => {
       const tr = el("tr");
       tr.dataset.id = s.id;
       tr.tabIndex = 0;

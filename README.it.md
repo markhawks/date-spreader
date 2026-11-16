@@ -229,6 +229,7 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - Il pulsante **Server** in alto apre l'anagrafica: tutti i server, anche quelli che non sono più in nessun intervento.
   - Per ognuno: IP, sistema operativo, ambiente, kernel attuale, numero di interventi, **ultimo** intervento (data e stato della migrazione) e **prossimo** in programma.
   - **Ricerca** su hostname, IP, sistema operativo, ambiente, kernel e note.
+  - **Ordinamento**: clic sull'intestazione di una colonna (hostname, IP, SO, ambiente, location, kernel, interventi, ultimo, prossimo); un altro clic inverte l'ordine. IP in ordine numerico, versioni in ordine naturale (RHEL 9.8 prima di 10.2), valori vuoti in fondo. Il browser ricorda la scelta.
   - Navigazione da tastiera: ↓ dalla ricerca all'elenco, ↑/↓ tra le righe, Invio per aprire lo storico.
   - Colonne ridimensionabili.
 - **Modifica** (nella scheda del server selezionato): hostname, IP, sistema operativo, ambiente, location e kernel attuale. Il server è lo stesso in tutti i suoi interventi, quindi la modifica si vede in ognuno, passati e futuri. Valgono gli stessi controlli della tabella server (hostname unico, IP valido, sistema operativo dall'elenco) e la modifica finisce nella cronologia del server.
