@@ -417,6 +417,19 @@ to **recover access** if the administrator forgets the password.
 - **Print** (landscape A4, the whole period in the page width; also "Save as PDF") and **Excel** (sheets Gantt
   with one column per day, Hours per technician, Summary).
 
+### Users connected now
+- The button with the **bust** next to «Gantt» shows **how many users are connected** now; a click lists them:
+  green dot = using the portal now, yellow = open in a background tab; what each one is doing (calendar, Gantt,
+  server table of a project, a form…) and **«editing»** when a form is open or a cell is being changed (the
+  thing to look at before a restart). Administrators also see browser and IP.
+- **Notice to everybody** (administrators, in the same list): e.g. «The portal restarts at 18:00: save your
+  work». It appears at the top of every open page within seconds, for a chosen time or until removed; a restart
+  removes it by itself.
+- From the server: `who` and `wait-idle` (see Database commands); with the RPM `sudo datespreader who` and
+  `sudo datespreader restart --when-idle`, which waits until nobody is editing, then restarts the portal.
+- Each open page reports itself every 15 seconds (once a minute in the background); the list lives in the
+  server's memory and in `presence.json` next to the database (for the command line).
+
 ### Settings
 The **⚙** icon at the top opens Settings, the place where configuration and customization options are collected.
 
@@ -708,6 +721,8 @@ server), the changes made on one can be brought to the other without duplicates.
 | `GET /api/health` | Application, database and schema status (public) |
 | `GET /api/os-baselines`, `PUT /api/os-baselines` | Up-to-date minor of each OS family and major (`{baselines: [{family, major, minor}]}`); PUT replaces them all (administrators) |
 | `GET /api/version`, `GET /api/changelog` | Version and changelog (public; the changelog in the user's language) |
+| `POST /api/presence`, `GET /api/presence` | An open page reports itself (`page_id`, `visible`, `activity`, `detail`, `editing`); the list of the users connected now (browser and IP for administrators) |
+| `PUT`/`DELETE /api/presence/notice` | Notice to everybody (`{message, minutes}`, administrators) |
 | `GET /api/updates[?force=true]` | Latest release on GitHub and whether it is newer, with its highlights in the user's language, last check and its error (administrators; cached 6 hours; `force=true` asks now, at most every 10 seconds) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Access |
 | `POST /api/users/{id}/temporary-password` | Temporary password for a user (administrators only) |
@@ -765,6 +780,8 @@ by default; the web client sends the user's language).
 | `.venv/bin/python -m app.cli migrate` | Applies the migrations only |
 | `.venv/bin/python -m app.cli demo load` | Loads the sample data next to the rest; does nothing if already present |
 | `.venv/bin/python -m app.cli demo remove` | Shows what would be removed and asks for confirmation (`--yes` to skip it) |
+| `.venv/bin/python -m app.cli who` | Users connected to the portal now, what they are doing and who is editing |
+| `.venv/bin/python -m app.cli wait-idle [--timeout MIN] [--nobody]` | Waits until nobody is editing (or nobody is connected); exit code 2 when time is up. E.g. `sudo -u datespreader .venv/bin/python -m app.cli wait-idle && sudo systemctl restart datespreader`; with the RPM: `sudo datespreader restart --when-idle` |
 
 **No command deletes data entered by users.** The old `seed --reset`, which emptied everything, has been removed.
 

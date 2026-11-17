@@ -43,7 +43,8 @@ The portal answers on `http://127.0.0.1:8000`. To reach it from the network:
 | `/var/lib/datespreader` | database; backups in `/var/lib/datespreader/backups` |
 | `/usr/bin/datespreader` | administration command (runs as the `datespreader` user) |
 
-`datespreader --help` lists the commands: `init`, `migrate`, `backup` (`--list` shows the backups), `restore`, `users list | admin | create-admin`.
+`datespreader --help` lists the commands: `init`, `migrate`, `backup` (`--list` shows the backups), `restore`, `users list | admin | create-admin`, `who` (users connected now), `wait-idle`.
+Before a restart: `sudo datespreader who`, or `sudo datespreader restart --when-idle [--timeout MIN]`, which waits until nobody is editing.
 
 ## Update
 

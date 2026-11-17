@@ -2228,6 +2228,16 @@ body.view-team .zoom-ctl { display: none; }
   .view-switch-btn span, .days-toggle span { display: none; }
   .view-switch-btn, .days-toggle { padding: 7px 12px; }
 }
+/* the top bar also has the button of the connected users: below 1500 px «Mon–Fri» is only its icon */
+.view-switch-btn, .days-toggle { white-space: nowrap; }
+@media (max-width: 1700px) {
+  .days-toggle span { display: none; }
+  .days-toggle { padding: 7px 12px; }
+}
+@media (max-width: 1500px) {
+  .user-btn .user-name { display: none; }   /* only the initials (the name is in the menu and the tooltip) */
+  .user-btn { padding: 4px; }
+}
 
 /* ---------- Riepilogo per smartphone (sola lettura) ------------------------------------ */
 body.recap-mode > :not(.recap):not(#toast):not(dialog):not(script) { display: none !important; }
@@ -2685,3 +2695,37 @@ select.cell-input.os-outdated { padding: revert; background: var(--warn-bg); col
 .updates-result { margin: 0; }
 .updates-result.new { color: var(--ok-fg); font-weight: 600; }
 .updates-result.warn { color: var(--warn-fg); }
+
+/* Users connected now: button with the bust next to «Gantt», popover with the list */
+.online-menu { position: relative; display: inline-flex; }
+.online-btn { display: inline-flex; align-items: center; gap: 5px; padding-left: 9px; padding-right: 10px; }
+.online-count { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 0.7em; }
+.online-popover {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; width: min(380px, calc(100vw - 24px));
+  max-height: 70vh; overflow-y: auto; padding: 10px 12px; background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 32px rgb(0 0 0 / 0.18); font-size: 0.86rem;
+}
+.online-head { margin-bottom: 6px; }
+.online-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.online-user { display: flex; gap: 8px; align-items: flex-start; padding: 6px 4px; border-radius: 6px; }
+.online-user.editing { background: var(--warn-bg); }
+.online-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; background: var(--muted); }
+.online-user.active .online-dot { background: #16a34a; box-shadow: 0 0 0 3px color-mix(in srgb, #16a34a 25%, transparent); }
+.online-user.background .online-dot { background: #eab308; }
+.online-main { display: flex; flex-direction: column; min-width: 0; }
+.online-name { font-weight: 600; }
+.online-what { color: var(--text); }
+.online-editing { color: var(--warn-fg); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.online-meta { font-size: 0.76rem; }
+.online-notice { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); display: grid; gap: 6px; }
+.online-notice-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.online-notice-row input { flex: 1 1 12rem; min-width: 0; font: inherit; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); }
+.online-notice-row select { font: inherit; font-size: 0.8rem; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); }
+.online-notice-row select option { color: var(--text); background: var(--panel); }
+.online-notice p { margin: 0; }
+/* the notice to everybody: a banner under the top bar */
+.notice-banner {
+  padding: 8px 16px; background: var(--warn-bg); color: var(--warn-fg); border-bottom: 1px solid var(--warn-fg);
+  font-size: 0.9rem; text-align: center;
+}
+.notice-banner[hidden] { display: none; }

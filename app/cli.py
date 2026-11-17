@@ -265,6 +265,60 @@ def _restore(settings, engine, args) -> int:
     return 0
 
 
+ACTIVITY_LABEL = {"calendar": "cli.act_calendar", "week": "cli.act_calendar", "technicians": "cli.act_technicians",
+                  "gantt": "cli.act_gantt", "inventory": "cli.act_inventory", "sheet": "cli.act_sheet",
+                  "settings": "cli.act_settings", "recap": "cli.act_recap", "other": "cli.act_other"}
+
+
+def _who(settings) -> int:
+    """Users connected now (from presence.json written by the running portal)."""
+    from datetime import datetime
+
+    from app import presence
+
+    data = presence.read_file(presence.presence_file(settings.database_path))
+    if data is None:
+        print(tr("cli.who_unknown"))
+        return 0
+    users = data["users"]
+    if not users:
+        print(tr("cli.who_nobody"))
+        return 0
+    print(tr("cli.who_head", n=len(users)))
+    for u in users:
+        since = datetime.fromisoformat(u["since"]).astimezone().strftime("%H:%M")
+        what = tr(ACTIVITY_LABEL.get(u["activity"], "cli.act_other"))
+        if u.get("detail"):
+            what += f" ({u['detail']})"
+        flags = tr("cli.who_editing") if u["editing"] else ""
+        state = tr("cli.who_active") if u["state"] == "active" else tr("cli.who_background")
+        print(f"  {'*' if u['state'] == 'active' else '-'} {u['name']:<24} {state:<14} {what}{flags}  "
+              f"{tr('cli.who_since', time=since)}  {u.get('ip') or ''}")
+    return 0
+
+
+def _wait_idle(settings, args) -> int:
+    """Waits until nobody is editing (with --nobody: until nobody is connected). 0 = idle, 2 = timeout."""
+    import time as _time
+
+    from app import presence
+
+    path = presence.presence_file(settings.database_path)
+    deadline = _time.monotonic() + args.timeout * 60
+    while True:
+        data = presence.read_file(path)
+        users = data["users"] if data else []
+        busy = users if args.nobody else [u for u in users if u["editing"]]
+        if not busy:
+            print(tr("cli.idle"))
+            return 0
+        if _time.monotonic() >= deadline:
+            print(tr("cli.idle_timeout", names=", ".join(u["name"] for u in busy)))
+            return 2
+        print(tr("cli.idle_waiting", names=", ".join(u["name"] for u in busy)), flush=True)
+        _time.sleep(10)
+
+
 def main(argv: list[str] | None = None) -> int:
     token = set_language(language_from_env())
     try:
@@ -299,12 +353,20 @@ def _main(argv: list[str] | None) -> int:
     p_backup = sub.add_parser("backup", help="verified backup of the database, then rotation of old backups")
     p_backup.add_argument("--scheduled", action="store_true", help="nightly backup (used by the systemd timer)")
     p_backup.add_argument("--list", action="store_true", help="only list the existing backups")
+    sub.add_parser("who", help="users connected to the portal now, and what they are doing")
+    p_idle = sub.add_parser("wait-idle", help="wait until nobody is editing (e.g. before a restart)")
+    p_idle.add_argument("--timeout", type=int, default=10, help="minutes to wait at most (default 10); then exit code 2")
+    p_idle.add_argument("--nobody", action="store_true", help="wait until nobody is connected at all")
     p_restore = sub.add_parser("restore", help="replace the database with a backup (stop the service first)")
     p_restore.add_argument("file", help="backup file (a name in data/backups/ or a path)")
     p_restore.add_argument("--yes", action="store_true", help="do not ask for confirmation")
     args = parser.parse_args(argv)
 
     settings = get_settings()
+    if args.command == "who":
+        return _who(settings)
+    if args.command == "wait-idle":
+        return _wait_idle(settings, args)
     engine = create_db_engine(settings)
     print(f"Database: {settings.database_path}")
     factory = make_session_factory(engine)

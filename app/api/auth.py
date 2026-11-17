@@ -120,6 +120,8 @@ def login(data: LoginIn, request: Request, response: Response, db: SessionDep) -
 def logout(request: Request, response: Response, db: SessionDep) -> Response:
     sess = find_session(db, request.cookies.get(COOKIE_NAME))
     if sess is not None:
+        from app import presence
+        presence.forget_session(sess.id)   # its pages are no longer connected
         db.delete(sess)
         db.commit()
     response.status_code = 204

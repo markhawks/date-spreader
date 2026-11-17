@@ -6,8 +6,11 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
+- **Users connected now**: button with a bust and the number of connected users next to «Gantt»; a click lists them with their state (active / open in the background), what they are doing and who is **editing** (open form, cell being changed); browser and IP for administrators. **Notice to everybody** from the same list (administrators): a banner at the top of every open page within seconds, for a chosen time or until the restart. Command line: `who`, `wait-idle`; RPM: `datespreader who`, `datespreader restart --when-idle`. API: `/api/presence`, `/api/presence/notice`. New tip of the day.
 - **Check for updates now** (administrators): Settings → Administration → «Updates» shows the installed version, the latest on GitHub, the last check and why GitHub cannot be reached, with «Check now» (skips the 6-hour memory; at most every 10 seconds); also user menu → «Check for updates». The «new versions» option moved there from Appearance. `GET /api/updates` also returns `checked_at`, `error`, `full_version`.
 
+### Changed
+- Top bar on medium screens: «Mon–Fri» shows only its icon below 1700 px and the user menu only the initials below 1500 px, so that the bar stays on one line from 1100 to 1920 px.
 
 ## [0.29.0] - 2026-11-17
 > Plan the check before a patching without a second intervention, see at a glance which servers are not up to date, and keep the server data right when the work is done.

@@ -11,7 +11,7 @@ from starlette.responses import FileResponse
 from starlette.staticfiles import NotModifiedResponse
 
 from app.api import auth as auth_api
-from app.api import backups, calendar, customers, health, inventory, meta, oslist, reports, servers, sync, transfer, users
+from app.api import backups, calendar, customers, health, inventory, meta, oslist, presence, reports, servers, sync, transfer, users
 from app.auth import csrf_protect, require_user
 from app import __version__
 from app.build import build_info
@@ -70,7 +70,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_api.router, prefix="/api")
     # Tutto il resto richiede un utente autenticato (e l'intestazione anti-CSRF per le modifiche).
     protected = [Depends(require_user), Depends(csrf_protect)]
-    for module in (calendar, servers, users, inventory, oslist, customers, transfer, sync, backups, reports):
+    for module in (calendar, servers, users, inventory, oslist, customers, transfer, sync, backups, reports, presence):
         app.include_router(module.router, prefix="/api", dependencies=protected)
 
     # Il frontend statico va montato per ultimo, così non copre le rotte /api.

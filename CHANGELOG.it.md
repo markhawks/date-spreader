@@ -6,8 +6,11 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Aggiunto
+- **Utenti connessi**: pulsante con un mezzo busto e il numero degli utenti connessi accanto a «Gantt»; un clic li elenca con lo stato (attivo / aperto in secondo piano), cosa stanno facendo e chi **sta modificando** (finestra aperta, cella in modifica); browser e IP per gli amministratori. **Avviso a tutti** dallo stesso elenco (amministratori): un banner in cima a ogni pagina aperta entro pochi secondi, per il tempo scelto o fino al riavvio. Riga di comando: `who`, `wait-idle`; RPM: `datespreader who`, `datespreader restart --when-idle`. API: `/api/presence`, `/api/presence/notice`. Nuovo suggerimento del giorno.
 - **Controlla aggiornamenti ora** (amministratori): Impostazioni → Amministrazione → «Aggiornamenti» mostra la versione installata, l'ultima su GitHub, l'ultimo controllo e perché GitHub non è raggiungibile, con «Controlla ora» (salta la memoria di 6 ore; al massimo ogni 10 secondi); anche menu utente → «Controlla aggiornamenti». L'opzione «nuove versioni» è passata lì da Aspetto. `GET /api/updates` restituisce anche `checked_at`, `error`, `full_version`.
 
+### Modificato
+- Barra in alto su schermi medi: «Lun–Ven» mostra solo l'icona sotto i 1700 px e il menu utente solo le iniziali sotto i 1500 px, così la barra sta su una riga da 1100 a 1920 px.
 
 ## [0.29.0] - 2026-11-17
 > Pianifichi il check prima di un patching senza un secondo intervento, vedi subito quali server non sono aggiornati e i dati dei server restano giusti a fine lavoro.

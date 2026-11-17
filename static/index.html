@@ -57,6 +57,12 @@
     </div>
     <div class="topbar-actions" id="topbar-actions">
       <button type="button" id="btn-recap" class="btn" hidden title="Recap for smartphones" data-i18n-title="index.recap_title" data-i18n="index.recap">Recap</button>
+      <span class="online-menu" id="online-menu">
+        <button type="button" id="btn-online" class="btn online-btn" aria-haspopup="dialog" aria-expanded="false" title="Users connected now" data-i18n-title="index.online_title">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="6.5" r="3.3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 17.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="online-count">–</span>
+        </button>
+      </span>
       <button type="button" id="btn-gantt" class="btn" title="Gantt of a customer: commesse, technicians, hours, machines and statuses" data-i18n-title="index.gantt_title" data-i18n="index.gantt">Gantt</button>
       <button type="button" id="btn-servers" class="btn" title="Server inventory: search and intervention history" data-i18n-title="index.servers_title" data-i18n="index.servers">Servers</button>
       <button type="button" id="btn-people" class="btn" title="Manage users and access" data-i18n-title="index.people_title" data-i18n="index.people">Users</button>
@@ -70,6 +76,7 @@
   <div id="filter-bar" class="filter-bar" aria-label="Calendar filters" data-i18n-aria-label="index.filter_bar" hidden></div>
 
   <div id="banner" class="banner" role="alert" hidden></div>
+  <div id="notice-banner" class="notice-banner" role="status" hidden></div>
 
   <div class="layout">
     <div class="sidebar-resizer" role="separator" aria-orientation="vertical" tabindex="0"

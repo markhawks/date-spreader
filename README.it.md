@@ -271,6 +271,12 @@ Sull'installazione con systemd vanno lanciati come `sudo -u datespreader .venv/b
 - **Ore per tecnico e commessa**: una tabella sotto il Gantt, con le ore-uomo di ogni commessa.
 - **Stampa** (A4 orizzontale, tutto il periodo nella larghezza della pagina; anche «Salva come PDF») ed **Excel** (fogli Gantt con una colonna per giorno, Ore per tecnico, Riepilogo).
 
+### Utenti connessi
+- Il pulsante con il **mezzo busto** accanto a «Gantt» mostra **quanti utenti sono connessi** adesso; un clic li elenca: pallino verde = sta usando il portale, giallo = aperto in una scheda in secondo piano; cosa sta facendo ognuno (calendario, Gantt, tabella server di un progetto, una finestra…) e **«sta modificando»** quando ha una finestra aperta o una cella in modifica (da guardare prima di un riavvio). Gli amministratori vedono anche browser e IP.
+- **Avviso a tutti** (amministratori, nello stesso elenco): es. «Il portale si riavvia alle 18:00: salvate il lavoro». Compare in cima a ogni pagina aperta entro pochi secondi, per il tempo scelto o finché non lo togli; il riavvio lo toglie da solo.
+- Dal server: `who` e `wait-idle` (vedi Comandi del database); con l'RPM `sudo datespreader who` e `sudo datespreader restart --when-idle`, che aspetta che nessuno stia modificando e poi riavvia il portale.
+- Ogni pagina aperta si segnala ogni 15 secondi (una volta al minuto in secondo piano); l'elenco sta nella memoria del server e in `presence.json` accanto al database (per la riga di comando).
+
 ### Impostazioni
 L'icona **⚙** in alto apre le Impostazioni, la sezione in cui raccogliere man mano configurazioni e personalizzazioni.
 
@@ -448,6 +454,8 @@ Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un 
 | `GET /api/health` | Stato dell'app, del database e dello schema (pubblico) |
 | `GET /api/os-baselines`, `PUT /api/os-baselines` | Minor aggiornata di ogni famiglia e major (`{baselines: [{family, major, minor}]}`); PUT le sostituisce tutte (amministratori) |
 | `GET /api/version`, `GET /api/changelog` | Versione e changelog (pubblici; il changelog nella lingua dell'utente) |
+| `POST /api/presence`, `GET /api/presence` | Una pagina aperta si segnala (`page_id`, `visible`, `activity`, `detail`, `editing`); elenco degli utenti connessi adesso (browser e IP per gli amministratori) |
+| `PUT`/`DELETE /api/presence/notice` | Avviso a tutti (`{message, minutes}`, amministratori) |
 | `GET /api/updates[?force=true]` | Ultima release su GitHub e se è più nuova, con le novità principali nella lingua dell'utente, ultimo controllo e suo errore (amministratori; memorizzata 6 ore; `force=true` chiede subito, al massimo ogni 10 secondi) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Accesso |
 | `POST /api/users/{id}/temporary-password` | Password temporanea per un utente (solo amministratori) |
@@ -501,6 +509,8 @@ Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un 
 | `.venv/bin/python -m app.cli migrate` | Applica solo le migrazioni |
 | `.venv/bin/python -m app.cli demo load` | Carica i dati di esempio accanto agli altri; non fa nulla se ci sono già |
 | `.venv/bin/python -m app.cli demo remove` | Mostra cosa verrebbe tolto e chiede conferma (`--yes` per non chiederla) |
+| `.venv/bin/python -m app.cli who` | Utenti connessi al portale adesso, cosa stanno facendo e chi sta modificando |
+| `.venv/bin/python -m app.cli wait-idle [--timeout MIN] [--nobody]` | Aspetta che nessuno stia modificando (o che nessuno sia connesso); codice di uscita 2 a tempo scaduto. Es. `sudo -u datespreader .venv/bin/python -m app.cli wait-idle && sudo systemctl restart datespreader`; con l'RPM: `sudo datespreader restart --when-idle` |
 
 **Nessun comando cancella i dati inseriti dagli utenti.** Il vecchio `seed --reset`, che svuotava tutto, è stato eliminato.
 

@@ -138,6 +138,21 @@ export const createProject = (data) => request("POST", "/api/projects", data);
 /** Anagrafica server: ricerca su tutti i server (anche quelli non più in interventi). */
 export const listServers = (text = "", limit = 500, customerId = null) =>
   getJSON(`/api/servers?limit=${limit}${text ? `&q=${q(text)}` : ""}${customerId != null ? `&customer_id=${q(customerId)}` : ""}`);
+// --- users connected now (app/presence.py) ---
+export const reportPresence = (data) => request("POST", "/api/presence", data);
+export const fetchPresence = () => getJSON("/api/presence");
+export const sendNotice = (message, minutes) => request("PUT", "/api/presence/notice", { message, minutes });
+export const clearNotice = () => request("DELETE", "/api/presence/notice");
+/** The page is being closed: keepalive, so the request survives the page. */
+export function leavePresence(pageId) {
+  try {
+    fetch("/api/presence/leave", {
+      method: "POST", keepalive: true, credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-Requested-With": "datespreader" },
+      body: JSON.stringify({ page_id: pageId }),
+    }).catch(() => {});
+  } catch { /* not essential */ }
+}
 export const fetchUpdates = (force = false) => getJSON(force ? "/api/updates?force=true" : "/api/updates");
 export const fetchServer = (id) => getJSON(`/api/servers/${q(id)}`);
 export const patchServer = (id, changes) => request("PATCH", `/api/servers/${q(id)}`, changes);

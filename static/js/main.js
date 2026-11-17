@@ -4,6 +4,7 @@ import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.j
 import { maybeShowWhatsNew } from "./whatsnew.js";
 import { maybeShowTip, showTip } from "./tips.js";
 import { checkForUpdates, checkMessage, checkNow } from "./updates.js";
+import { startPresence } from "./presence.js";
 import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
 import { assignColors, colorFor } from "./colors.js";
@@ -536,6 +537,7 @@ async function main() {
   // Up-to-date OS versions changed (Settings → Operating systems): redraw the open preview
   onBaselinesChange(() => { if (detail.isOpen) detail.reload(); });
   // After an update: the news of the new version, once (unless turned off)
+  startPresence({ me, toast }); // users connected now (button next to «Gantt»), notice to everybody
   // …otherwise the tip of the day (once a day): never both on the same start
   const tipActions = {
     inventory: () => inventory.open(),

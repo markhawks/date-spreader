@@ -1,5 +1,6 @@
 export default {
   "en": {
+    "index.online_title": "Users connected now",
     "index.version_title": "What's new in the portal (changelog)",
     "index.today_title": "Back to today",
     "index.today": "Today",
@@ -57,6 +58,7 @@ export default {
     "index.recap_title": "Recap for smartphones"
   },
   "it": {
+    "index.online_title": "Utenti connessi adesso",
     "index.version_title": "Novità del portale (changelog)",
     "index.today_title": "Torna a oggi",
     "index.today": "Oggi",

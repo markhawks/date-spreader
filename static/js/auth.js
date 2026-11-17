@@ -247,6 +247,7 @@ export function userMenu(me, { onLogout, adminItems = [], items = [] }) {
   btn.setAttribute("aria-expanded", "false");
   const initials = me.display_name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
   btn.append(el("span", "user-avatar", initials), el("span", "user-name", me.display_name));
+  btn.title = me.display_name;   // the name is hidden on medium screens
   const menu = el("div", "user-dropdown");
   menu.setAttribute("role", "menu");
   menu.hidden = true;

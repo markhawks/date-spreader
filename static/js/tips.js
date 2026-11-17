@@ -63,6 +63,7 @@ export const TIPS = [
   { id: "check_pair" },
   { id: "check_gantt", action: "gantt" },
   { id: "check_done" },
+  { id: "online_users" },
 ];
 
 const el = (tag, className, text) => {
