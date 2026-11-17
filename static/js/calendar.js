@@ -10,7 +10,7 @@ import {
 } from "./dates.js";
 import { EVENT_STATUS, EVENT_TYPE, badge } from "./labels.js";
 import { people } from "./people.js";
-import { warnIcon } from "./conflicts.js";
+import { checkIcon, linkPairHover, warnIcon } from "./conflicts.js";
 import { locale, t } from "./i18n.js";
 
 const EDGE_PX = 400;        // distanza dal bordo che fa caricare un altro mese
@@ -70,6 +70,9 @@ const WEEK = {
 const fmtWeekdayShort = new Intl.DateTimeFormat(locale(), { weekday: "short" });
 const fmtMonthShort = new Intl.DateTimeFormat(locale(), { month: "short" });
 
+/** "gio 26" / "Thu 26": the day of the intervention on its check entry. */
+const weekdayDay = (iso) => new Intl.DateTimeFormat(locale(), { weekday: "short", day: "numeric" }).format(parseIso(iso));
+
 export class Calendar {
   /**
    * @param {HTMLElement} scrollEl contenitore con lo scorrimento verticale
@@ -100,6 +103,7 @@ export class Calendar {
 
     this.scrollEl.addEventListener("scroll", () => this.#onScroll(), { passive: true });
     this.monthsEl.addEventListener("click", (e) => this.#onClick(e));
+    linkPairHover(this.monthsEl, ".chip[data-event-id]"); // intervention ↔ its pre-check
     this.monthsEl.addEventListener("keydown", (e) => {
       if ((e.key === "Enter" || e.key === " ") && e.target.matches(".day.has-events")) {
         e.preventDefault();
@@ -667,6 +671,13 @@ export class Calendar {
       li.classList.add("has-conflict");
       name.prepend(warnIcon());
     }
+    if (ev.check_date && ev.check_date !== ev.event_date) {
+      // its pre-check: symbol + day (in warning colors when the check is missing)
+      const mark = Object.assign(document.createElement("span"), { className: `chip-check-mark${ev.check_warning ? " warn" : ""}` });
+      mark.append(checkIcon(), String(Number(ev.check_date.slice(8, 10))));
+      mark.title = t("calendar.has_check", { date: formatMediumDate(ev.check_date) });
+      name.prepend(mark); // before the name: a long name is cut at the end
+    }
     const meta = document.createElement("span");
     meta.className = "chip-meta";
     // Seconda riga: avanzamento, cliente (se c'è), ora
@@ -711,12 +722,17 @@ export class Calendar {
       n ? t("calendar.chip_done", { done, n }) : t("calendar.chip_no_servers"),
       EVENT_STATUS[ev.status] ?? ev.status,
       conflictCount && t("calendar.chip_conflicts", { n: conflictCount }),
+      ev.check_date && ev.check_date !== ev.event_date && t("calendar.has_check", { date: formatMediumDate(ev.check_date) }),
       ev.check_warning && t("calendar.chip_check_missing", { n: ev.check_pending }),
     ].filter(Boolean).join(" · ");
     return li;
   }
 
-  /** The pre-check of an intervention on its day: dashed, "Check · project", check progress. */
+  /**
+   * The pre-check of an intervention on its day: its own yellow color (project color in the left stripe),
+   * clipboard symbol, "CHECK project", the intervention's title (or type), progress and "→ day" of the
+   * intervention. Hovering it highlights the intervention, and vice versa (same data-event-id).
+   */
   #checkChip(ev) {
     const li = document.createElement("li");
     li.className = `chip chip-check status-${ev.status}`;
@@ -730,26 +746,25 @@ export class Calendar {
       li.classList.add("has-progress");
       if (ev.check_done === n) li.classList.add("all-done");
     }
-    const name = Object.assign(document.createElement("span"), { className: "chip-name" });
-    name.append(Object.assign(document.createElement("span"), { className: "chip-check-tag", textContent: t("calendar.check_tag") }),
-      ` ${ev.project_name}`);
+    const el = (tag, className, text) => Object.assign(document.createElement(tag), { className, ...(text != null && { textContent: text }) });
+    const what = ev.title || EVENT_TYPE[ev.event_type] || ev.event_type;
+    const day = ev.intervention_date ? weekdayDay(ev.intervention_date) : "";
+    const name = el("span", "chip-name");
+    name.append(checkIcon(), el("span", "chip-check-tag", t("calendar.check_tag")), ` ${ev.project_name}`);
     if (ev.conflict_users?.length) { li.classList.add("has-conflict"); name.prepend(warnIcon()); }
     const time = ev.start_time ? `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` : "";
     const prog = n ? t("calendar.check_progress", { ok: ev.check_ok, n }) : t("calendar.no_servers_short");
-    const meta = Object.assign(document.createElement("span"), { className: "chip-meta" });
-    meta.append(Object.assign(document.createElement("span"), { className: "chip-progress", textContent: prog }),
-      [ev.customer_name, this.unit === WEEK ? null : formatTime(ev.start_time)].filter(Boolean).map((x) => ` · ${x}`).join(""));
+    const meta = el("span", "chip-meta");
+    meta.append(el("span", "chip-progress", prog), day ? ` → ${day}` : "",
+      this.unit === WEEK || !ev.start_time ? "" : ` · ${formatTime(ev.start_time)}`);
     li.append(name, meta);
+    // the intervention it belongs to (from the "status" mode up, like status and commessa of the interventions)
+    li.append(el("span", "chip-status chip-check-of", what));
+    if (time) li.append(el("span", "chip-extra", time));
     const techNames = (ev.user_ids ?? []).map((id) => people.byId(id)?.display_name).filter(Boolean);
-    if (this.unit === WEEK) {
-      if (time) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: time }));
-      if (techNames.length) li.append(Object.assign(document.createElement("span"), { className: "chip-people", textContent: techNames.join(", ") }));
-    } else {
-      if (time) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: time }));
-      if (techNames.length) li.append(Object.assign(document.createElement("span"), { className: "chip-techs", textContent: techNames.join(", ") }));
-    }
+    if (techNames.length) li.append(el("span", this.unit === WEEK ? "chip-people" : "chip-techs", techNames.join(", ")));
     li.title = [
-      t("calendar.check_title"), ev.customer_name, ev.project_name, ev.title,
+      t("calendar.check_title"), ev.customer_name, ev.project_name, what,
       ev.intervention_date && t("calendar.check_for", { date: formatMediumDate(ev.intervention_date) }),
       time && t("calendar.chip_time", { time }),
       n ? t("calendar.check_progress_long", { ok: ev.check_ok, done: ev.check_done, n }) : t("calendar.chip_no_servers"),

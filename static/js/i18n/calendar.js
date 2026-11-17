@@ -1,5 +1,6 @@
 export default {
   "en": {
+    "calendar.has_check": "pre-check on {date}",
     "calendar.check_tag": "Check",
     "calendar.check_title": "Pre-check",
     "calendar.check_progress": "check {ok}/{n} OK",
@@ -22,6 +23,7 @@ export default {
     "calendar.chip_order": "Commessa {code}"
   },
   "it": {
+    "calendar.has_check": "check pre-intervento il {date}",
     "calendar.check_tag": "Check",
     "calendar.check_title": "Check pre-intervento",
     "calendar.check_progress": "check {ok}/{n} OK",

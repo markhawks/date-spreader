@@ -1,6 +1,10 @@
 // Translations for detail.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "detail.check_of_this": "Pre-check of this intervention",
+    "detail.check_go_event": "→ intervention on {date}",
+    "detail.check_go_day": "→ go to the check day",
+    "detail.check_go_day_title": "Show {date}, the day of the check, in the calendar",
     "detail.check_tag": "Check",
     "detail.check_progress": "{ok}/{n} OK",
     "detail.check_missing": {"one": "1 server without a good check", "other": "{n} servers without a good check"},
@@ -72,6 +76,10 @@ export default {
     "detail.order_removed": "Commessa removed from the intervention."
   },
   "it": {
+    "detail.check_of_this": "Check pre-intervento di questo intervento",
+    "detail.check_go_event": "→ intervento il {date}",
+    "detail.check_go_day": "→ vai al giorno del check",
+    "detail.check_go_day_title": "Mostra nel calendario il {date}, giorno del check",
     "detail.check_tag": "Check",
     "detail.check_progress": "{ok}/{n} OK",
     "detail.check_missing": {"one": "1 server senza check riuscito", "other": "{n} server senza check riuscito"},

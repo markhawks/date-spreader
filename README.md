@@ -498,9 +498,13 @@ new one:
   in the intervention form (**Edit**, or when creating it) tick «Pre-check» and choose the day (proposed: the
   working day before, also with «Working day before»; on the day of the intervention or before), the times and the
   technicians of the check (none = the participants).
-  - The calendar and the Technicians view show a dashed «Check» entry on that day, with the check progress
-    («check 2/4 OK»); a click opens the intervention, and the preview of that day lists it too. The Gantt shows
-    the check as a dashed block in the intervention's row; its hours count for the technicians of the check.
+  - The calendar and the Technicians view show a **yellow «CHECK» entry** on that day (its own color, the project
+    color in the left stripe, a clipboard symbol): project, title (or type) of the intervention, check progress
+    («check 2/4 OK») and the day of the intervention («→ Thu 26»). The intervention shows the symbol with the day
+    of its check (red when the check is missing). **Hovering** the check or the intervention highlights both.
+  - A click on the check opens the preview of that day, with «Pre-check of this intervention» highlighted at the
+    top and a link to the intervention; in the intervention's card, «→ go to the check day». The Gantt shows the
+    check as a dashed block in the intervention's row; its hours count for the technicians of the check.
   - The check of each server is the «Check» column of the server table; «check executed on» is filled in by
     itself when it becomes OK or KO (shown in the preview and in the tooltip of the table).
   - Technicians of the check busy elsewhere at the same time are a scheduling conflict («Check» in the list).

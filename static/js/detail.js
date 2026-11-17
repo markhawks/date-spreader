@@ -9,7 +9,7 @@ import { eventStatusControl } from "./eventstatus.js";
 import { participantPicker } from "./people.js";
 import { makeResizable } from "./resize.js";
 import { Sheet } from "./sheet.js";
-import { conflictBox, warnIcon } from "./conflicts.js";
+import { checkIcon, conflictBox, warnIcon } from "./conflicts.js";
 import { formatLongDate, formatMediumDate, formatShortDate, formatTime } from "./dates.js";
 import { t } from "./i18n.js";
 import {
@@ -93,7 +93,7 @@ const CONFIG_COLUMNS = [
 ];
 
 /** "Check: Tue 17 Nov · 15:00–17:00 · Luca, Sara · 2/4 OK" (null without a planned check). */
-function checkLineOf(ev) {
+function checkLineOf(ev, { highlight = false } = {}) {
   if (!ev.check_date) return null;
   const n = ev.servers.length;
   const ok = ev.servers.filter((s) => s.check_status === "ok").length;
@@ -104,8 +104,9 @@ function checkLineOf(ev) {
       : t("detail.time_from", { start: formatTime(ev.check_start_time) }))
     : null;
   const who = (ev.check_participants?.length ? ev.check_participants : ev.participants).map((p) => p.display_name).join(", ");
-  const box = el("p", `event-check${ev.check_warning ? " warn" : ""}`);
-  box.append(el("span", "chip-check-tag", t("detail.check_tag")), " ",
+  const box = el("div", `event-check${ev.check_warning ? " warn" : ""}${highlight ? " highlight" : ""}`);
+  if (highlight) box.append(el("strong", "event-check-title", t("detail.check_of_this")));
+  box.append(checkIcon(), el("span", "chip-check-tag", t("detail.check_tag")), " ",
     [formatMediumDate(ev.check_date), time, who || null, n ? t("detail.check_progress", { ok, n }) : null].filter(Boolean).join(" · "));
   if (ev.check_warning) {
     box.prepend(warnIcon());
@@ -127,6 +128,7 @@ export class DetailPanel {
     this.bodyEl = root.querySelector(".detail-body");
     this.onClose = opts.onClose ?? (() => {});
     this.onPickEvent = opts.onPickEvent ?? (() => {});
+    this.onPickCheckDay = opts.onPickCheckDay ?? null;
     this.projectById = opts.projectById ?? (() => undefined);
     this.onExpand = opts.onExpand ?? (() => {});
     this.onEventChanged = opts.onEventChanged ?? (() => {});
@@ -202,7 +204,7 @@ export class DetailPanel {
       const hidden = all.length - events.length;
       this.subEl.textContent = !events.length ? t("detail.no_events") : t("detail.events_count", { n: events.length });
       this.bodyEl.replaceChildren(
-        ...(events.length ? events.map((ev) => this.#eventCard(ev, false)) : [this.#emptyDay(iso)]),
+        ...(events.length ? events.map((ev) => this.#eventCard(ev, false, { checkDay: ev.check_date === iso && ev.event_date !== iso })) : [this.#emptyDay(iso)]),
       );
       if (hidden) this.bodyEl.append(this.#hiddenNote(hidden));
       this.#afterRender();
@@ -426,8 +428,9 @@ export class DetailPanel {
     return box;
   }
 
-  #eventCard(ev, withSiblings) {
-    const card = el("article", "event-card");
+  /** checkDay: the card is shown on the day of its pre-check (the check box goes at the top, highlighted). */
+  #eventCard(ev, withSiblings, { checkDay = false } = {}) {
+    const card = el("article", `event-card${checkDay ? " on-check-day" : ""}`);
     card.dataset.eventId = ev.id;
     card.dataset.version = ev.version;
     paint(card, ev.project.id);
@@ -522,8 +525,9 @@ export class DetailPanel {
       },
     }));
     head.append(people);
-    const check = this.#checkLine(ev);
-    if (check) head.append(check);
+    const check = this.#checkLine(ev, checkDay);
+    if (check && checkDay) head.prepend(check);
+    else if (check) head.append(check);
     if (ev.notes) head.append(el("p", "event-notes", ev.notes));
 
     if (withSiblings) {
@@ -554,7 +558,24 @@ export class DetailPanel {
     return card;
   }
 
-  #checkLine(ev) { return checkLineOf(ev); }
+  #checkLine(ev, checkDay) {
+    const box = checkLineOf(ev, { highlight: checkDay });
+    if (!box) return null;
+    if (checkDay) {
+      // on the check day: which intervention it belongs to, with a link to it
+      const go = el("button", "link-btn", t("detail.check_go_event", { date: formatMediumDate(ev.event_date) }));
+      go.type = "button";
+      go.addEventListener("click", () => this.onPickEvent({ id: ev.id, event_date: ev.event_date }));
+      box.append(go);
+    } else if (ev.check_date !== ev.event_date) {
+      const go = el("button", "link-btn", t("detail.check_go_day"));
+      go.type = "button";
+      go.title = t("detail.check_go_day_title", { date: formatMediumDate(ev.check_date) });
+      go.addEventListener("click", () => this.onPickCheckDay?.(ev.check_date, ev.id));
+      box.append(go);
+    }
+    return box;
+  }
 
   #siblings(project, currentId) {
     const nav = el("nav", "event-dates");

@@ -9,7 +9,7 @@ import { addDays, formatTime, formatWeek, isoWeek, mondayOf, parseIso, todayIso 
 import { locale, t } from "./i18n.js";
 import { EVENT_STATUS } from "./labels.js";
 import { people } from "./people.js";
-import { warnIcon } from "./conflicts.js";
+import { checkIcon, linkPairHover, warnIcon } from "./conflicts.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -29,6 +29,7 @@ export class Workload {
     this.root = root;
     this.onOpenEvent = onOpenEvent;
     this.onError = onError;
+    linkPairHover(root, ".wl-chip[data-event-id]"); // intervention ↔ its pre-check
     this.monday = mondayOf(todayIso());
     this.events = [];
     this.filter = null;
@@ -193,12 +194,13 @@ export class Workload {
     const b = el("button", `wl-chip status-${ev.status}${check ? " wl-check" : ""}`);
     b.type = "button";
     b.dataset.eventId = ev.id;
+    if (check) b.dataset.kind = "check";
     b.style.setProperty("--c", colorFor(ev.project_id));
     const conflict = userId !== NOBODY && ev.conflict_users?.includes(userId);
     if (conflict) b.classList.add("has-conflict");
     const time = ev.start_time ? `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` : t("workload.all_day");
     const nameEl = el("span", "wl-chip-name", ev.project_name);
-    if (check) nameEl.prepend(el("span", "chip-check-tag", t("workload.check_tag")), " ");
+    if (check) nameEl.prepend(checkIcon(), el("span", "chip-check-tag", t("workload.check_tag")), " ");
     if (conflict || (!check && ev.check_warning)) nameEl.prepend(warnIcon());
     b.append(nameEl, el("span", "wl-chip-meta", [time, ev.customer_name].filter(Boolean).join(" · ")));
     b.title = [

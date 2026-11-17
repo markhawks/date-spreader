@@ -170,6 +170,7 @@ async function main() {
     },
     onDayClick: (iso, eventId) => {
       sidebar.setActive(null);
+      calendar.goToDate(iso);
       calendar.setSelected(iso);
       detail.openDay(iso, eventId);
     },
@@ -240,6 +241,12 @@ async function main() {
       if (p) projectDialog.open(p);
     },
     onPickEvent: (projectEvent) => showProjectEvent(projectEvent),
+    // «→ go to the check day»: the calendar shows that day, the preview lists the intervention with its check
+    onPickCheckDay: (iso, eventId) => {
+      sidebar.setActive(null);
+      calendar.setSelected(iso);
+      detail.openDay(iso, eventId);
+    },
     onClose: () => {
       calendar.setSelected(null);
       sidebar.setActive(null);
