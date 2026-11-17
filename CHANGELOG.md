@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Fixed
+- With the intervention preview below the calendar, selecting an intervention made the preview flash and stay empty (it reloaded itself in a loop because of the up-to-date OS versions, not released yet).
+
 ### Added
 - **Pre-check of an intervention** (e.g. the day before a patching), without a second intervention: day (proposed: the working day before), times and technicians of the check in the intervention form. Dashed «Check» entry with the check progress in the calendar and in the Technicians view (a click opens the intervention); dashed block in the Gantt, with its hours for the check's technicians; technician conflicts include the checks. «Check executed on» filled in when a server's check becomes OK or KO. Warning (icon in the calendar, yellow line in the card) when the check day is over and servers still have the check to do or KO. The check follows the intervention when it is moved or duplicated, and travels with export/import and the sync (only when planned, so the other interventions do not look changed). Database: `events.check_date`, `check_start_time`, `check_end_time`, table `event_check_users`, `event_servers.check_executed_date` (migration `1f0b9884c6a3`). API: `PATCH /api/events/{id}` (check fields), `PUT /api/events/{id}/check-participants`; `GET /api/events` also returns `kind: "check"` entries.
 - **Work completed on a server**: «Executed on» is filled in with today's date when the status of a row becomes «Completed» and the date is empty (on the server: also via API). If target OS or target kernel differ from the current ones, a green bar above the server table proposes «Update the server's data» (one bar for all the servers just completed, «Update all» / «Leave as it is»). New tip of the day.

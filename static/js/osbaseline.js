@@ -13,15 +13,22 @@ const listeners = new Set();
 export function loadBaselines(force = false) {
   if (loading && !force) return loading;
   loading = fetchOsBaselines()
-    .then((res) => { baselines = res.baselines; listeners.forEach((fn) => fn()); return baselines; })
+    .then((res) => { update(res.baselines); return baselines; })
     .catch(() => baselines);
   return loading;
 }
 
-export function setBaselines(list) {
+/** New values: listeners are told only if something really changed (they may reload views that load the
+ * values again: telling them every time would loop, e.g. the preview below the calendar with its table). */
+function update(list) {
+  const changed = JSON.stringify(list) !== JSON.stringify(baselines);
   baselines = list;
+  if (changed) listeners.forEach((fn) => fn());
+}
+
+export function setBaselines(list) {
   loading = Promise.resolve(list);
-  listeners.forEach((fn) => fn());
+  update(list);
 }
 
 export function onBaselinesChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
