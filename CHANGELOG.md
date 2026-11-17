@@ -5,8 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
-### Fixed
-- With the intervention preview below the calendar, selecting an intervention made the preview flash and stay empty (it reloaded itself in a loop because of the up-to-date OS versions, not released yet).
+
+## [0.29.0] - 2026-11-17
+> Plan the check before a patching without a second intervention, see at a glance which servers are not up to date, and keep the server data right when the work is done.
 
 ### Added
 - **Pre-check of an intervention** (e.g. the day before a patching), without a second intervention: day (proposed: the working day before), times and technicians of the check in the intervention form. Yellow «CHECK» entry (own color, project color in the left stripe, clipboard symbol) with project, title of the intervention, check progress and «→ day» of the intervention in the calendar and in the Technicians view; the intervention shows the symbol with the day of its check; hovering one highlights both; the preview of the check day shows «Pre-check of this intervention» at the top with a link to the intervention, and the card a link to the check day; own yellow row in the Gantt and in its Excel (hours: «Hours worked on the check», otherwise its times; included in the hours of projects, commesse and total, «of which pre-checks», and in the hours of the check's technicians); technician conflicts include the checks. «Check executed on» filled in when a server's check becomes OK or KO. Warning (icon in the calendar, yellow line in the card) when the check day is over and servers still have the check to do or KO. The check follows the intervention when it is moved or duplicated, and travels with export/import and the sync (only when planned, so the other interventions do not look changed). Database: `events.check_date`, `check_start_time`, `check_end_time`, table `event_check_users`, `event_servers.check_executed_date`, `events.check_worked_hours` (migrations `1f0b9884c6a3`, `1222992c1c85`). API: `PATCH /api/events/{id}` (check fields), `PUT /api/events/{id}/check-participants`; `GET /api/events` also returns `kind: "check"` entries.

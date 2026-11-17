@@ -21,6 +21,8 @@ In breve:
 - **colonna dei progetti** raggruppati e colorati per **cliente**, espandibili per vedere i loro **interventi**
   (data, stato, orario, commessa) e aprirli con un clic;
 - **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico, modifica, ordinamento, divisione per cliente e conteggio delle versioni dei sistemi operativi;
+- **check pre-intervento** per ogni intervento (es. il giorno prima di un patching), con giorno, orario e tecnici suoi, in giallo nel calendario, nella vista Tecnici e nel Gantt;
+- **sistemi operativi non aggiornati in giallo**, rispetto alla minor aggiornata di ogni major indicata dagli amministratori;
 - **suggerimento del giorno** e, per gli amministratori, **avviso delle nuove versioni** pubblicate su GitHub;
 - **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco, e **ore effettive** facoltative;
 - **Gantt per cliente**: commesse, progetti e interventi in un periodo, con tecnici, ore, ore-uomo, macchine e stati, ore per tecnico e commessa, stampabile (PDF) ed esportabile in **Excel**;

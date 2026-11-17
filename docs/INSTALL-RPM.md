@@ -8,9 +8,9 @@ The package uses the **Python and the libraries of the system** (nothing bundled
 
 Download the package of your system from the [release page](https://github.com/markhawks/date-spreader/releases/latest)
 on GitHub: `datespreader-VERSION-RELEASE.el10.noarch.rpm` (RHEL) or `…fc44.noarch.rpm` (Fedora), together with
-`SHA256SUMS`, and check it. For example, version 0.28.0 for RHEL:
+`SHA256SUMS`, and check it. For example, version 0.29.0 for RHEL:
 ```
-V=0.28.0; B=https://github.com/markhawks/date-spreader/releases/download/v$V
+V=0.29.0; B=https://github.com/markhawks/date-spreader/releases/download/v$V
 curl -LO $B/datespreader-$V-1.el10.noarch.rpm -LO $B/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing          # must print "OK"
 ```
@@ -51,7 +51,7 @@ The portal answers on `http://127.0.0.1:8000`. To reach it from the network:
 sudo dnf upgrade ./datespreader-NEW.noarch.rpm
 ```
 The service is restarted: before applying the database changes of the new version it takes a backup by itself.
-In the portal, the version and the release date are next to the name, at the top left (e.g. `v0.28.0-1.el10`:
+In the portal, the version and the release date are next to the name, at the top left (e.g. `v0.29.0-1.el10`:
 the number after the dash is the release of the package).
 
 ## Move an existing installation to the package

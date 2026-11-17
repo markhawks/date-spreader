@@ -28,6 +28,9 @@ Highlights:
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search, full history, editing,
   sorting, division by customer and a count of the operating system versions;
+- a **pre-check** for each intervention (e.g. the day before a patching), with its own day, times and technicians,
+  in yellow in the calendar, in the Technicians view and in the Gantt;
+- **outdated operating systems in yellow**, against the up-to-date minor of each major set by the administrators;
 - a **tip of the day** and, for administrators, a **notice of new versions** published on GitHub;
 - a **commessa** (job number) on every intervention, stored on the customer and proposed in a list, and optional
   **hours worked**;

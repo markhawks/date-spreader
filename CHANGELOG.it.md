@@ -5,8 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
-### Corretto
-- Con l'anteprima dell'intervento sotto il calendario, selezionando un intervento l'anteprima lampeggiava e restava vuota (si ricaricava in continuazione per via delle versioni aggiornate dei SO, non ancora rilasciate).
+
+## [0.29.0] - 2026-11-17
+> Pianifichi il check prima di un patching senza un secondo intervento, vedi subito quali server non sono aggiornati e i dati dei server restano giusti a fine lavoro.
 
 ### Aggiunto
 - **Check pre-intervento** (es. il giorno prima di un patching), senza un secondo intervento: giorno (proposto: il giorno lavorativo prima), orario e tecnici del check nella finestra dell'intervento. Voce gialla «CHECK» (colore suo, striscia nel colore del progetto, simbolo della cartellina) con progetto, titolo dell'intervento, avanzamento del check e «→ giorno» dell'intervento nel calendario e nella vista Tecnici; l'intervento mostra il simbolo con il giorno del suo check; passando il mouse su uno si illuminano tutti e due; l'anteprima del giorno del check mostra in cima «Check pre-intervento di questo intervento» con il link all'intervento, e la scheda il link al giorno del check; riga gialla sua nel Gantt e nel suo Excel (ore: «Ore effettive del check», altrimenti il suo orario; comprese nelle ore di progetti, commesse e totale, «di cui check», e nelle ore dei tecnici del check); i conflitti dei tecnici comprendono i check. «Check eseguito il» compilato quando il check di un server diventa OK o KO. Avviso (icona nel calendario, riga gialla nella scheda) quando il giorno del check è passato e ci sono server con check da fare o KO. Il check segue l'intervento quando viene spostato o duplicato, e viaggia con export/import e sincronizzazione (solo se pianificato, così gli altri interventi non risultano cambiati). Database: `events.check_date`, `check_start_time`, `check_end_time`, tabella `event_check_users`, `event_servers.check_executed_date`, `events.check_worked_hours` (migrazioni `1f0b9884c6a3`, `1222992c1c85`). API: `PATCH /api/events/{id}` (campi del check), `PUT /api/events/{id}/check-participants`; `GET /api/events` restituisce anche voci `kind: "check"`.
