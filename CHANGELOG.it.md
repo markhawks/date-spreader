@@ -5,9 +5,13 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+
+## [0.28.0] - 2026-11-17
+> Un suggerimento al giorno per scoprire il portale poco alla volta, e gli amministratori vengono avvisati delle nuove versioni appena escono.
+
 ### Aggiunto
 - **Avviso di nuova versione** (amministratori): il server controlla l'ultima release su GitHub (API pubblica, anonima, memorizzata per 6 ore, silenzioso senza Internet); se è più nuova, un indicatore verde ↑ sulla versione e, all'avvio, un riquadro con le novità principali, il link e il comando per aggiornare questa installazione (RPM, script o git). «Ignora questa versione»; si disattiva per l'utente dalle Impostazioni o per l'installazione con `UPDATE_CHECK=false` (`UPDATE_REPO` per un fork). API: `GET /api/updates` (amministratori). Preferenze `update_notice`, `update_dismissed`.
-- **Suggerimento del giorno**: una volta al giorno, un piccolo riquadro in basso a destra con un consiglio su una funzione del portale (48 suggerimenti, in inglese e italiano, alcuni solo per amministratori), a rotazione così che ogni utente li veda tutti; ‹ › per scorrerli, «Mostrami» per aprire la schermata di cui parla, «Non mostrare più» (si riattiva da Impostazioni → Aspetto; anche dal menu utente). Non compare nel giorno della finestra delle novità. Preferenze `tips`, `tips_last_day`, `tips_seen`.
+- **Suggerimento del giorno**: una volta al giorno, un piccolo riquadro in basso a destra con un consiglio su una funzione del portale (49 suggerimenti, in inglese e italiano, alcuni solo per amministratori), a rotazione così che ogni utente li veda tutti; ‹ › per scorrerli, «Mostrami» per aprire la schermata di cui parla, «Non mostrare più» (si riattiva da Impostazioni → Aspetto; anche dal menu utente). Non compare nel giorno della finestra delle novità. Preferenze `tips`, `tips_last_day`, `tips_seen`.
 
 
 ## [0.27.0] - 2026-11-16

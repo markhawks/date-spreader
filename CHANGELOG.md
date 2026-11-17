@@ -5,9 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+
+## [0.28.0] - 2026-11-17
+> A tip of the day to discover the portal little by little, and administrators now hear about new versions as soon as they are published.
+
 ### Added
 - **New version notice** (administrators): the server checks the latest release on GitHub (public API, anonymous, cached for 6 hours, silent without Internet); if newer, a green ↑ badge on the version and, at start, a card with the highlights, the link and the upgrade command for this installation (RPM, script or git). «Ignore this version»; off per user in Settings or for the installation with `UPDATE_CHECK=false` (`UPDATE_REPO` for a fork). API: `GET /api/updates` (administrators). Preferences `update_notice`, `update_dismissed`.
-- **Tip of the day**: once a day, a small card at the bottom right with a tip about a feature of the portal (48 tips, English and Italian, some for administrators only), rotating so that each user sees all of them; ‹ › to browse, «Show me» to open the screen it talks about, «Don't show tips any more» (back on in Settings → Appearance; also from the user menu). Not shown on the day of the news window. Preferences `tips`, `tips_last_day`, `tips_seen`.
+- **Tip of the day**: once a day, a small card at the bottom right with a tip about a feature of the portal (49 tips, English and Italian, some for administrators only), rotating so that each user sees all of them; ‹ › to browse, «Show me» to open the screen it talks about, «Don't show tips any more» (back on in Settings → Appearance; also from the user menu). Not shown on the day of the news window. Preferences `tips`, `tips_last_day`, `tips_seen`.
 
 
 ## [0.27.0] - 2026-11-16

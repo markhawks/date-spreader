@@ -28,6 +28,7 @@ Highlights:
   kernel, check status, migration status, execution date, technician, notes) with auto-save;
 - a persistent **server inventory**: servers survive across interventions, with search, full history, editing,
   sorting, division by customer and a count of the operating system versions;
+- a **tip of the day** and, for administrators, a **notice of new versions** published on GitHub;
 - a **commessa** (job number) on every intervention, stored on the customer and proposed in a list, and optional
   **hours worked**;
 - a **Gantt per customer**: commesse, projects and interventions over a period, with technicians, hours, man-hours,

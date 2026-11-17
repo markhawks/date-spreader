@@ -55,7 +55,8 @@ export default {
     "tips.tip.version_click": "A click on the version at the top left opens the list of all the changes of the portal.",
     "tips.tip.admin_os": "Administrators: «+ Add version…» at the bottom of the OS menus of the server table adds new operating system versions without leaving the table.",
     "tips.tip.admin_sync": "Administrators: Settings → Administration → «Sync a customer» brings the changes made on another installation here, with a report of the differences first.",
-    "tips.tip.admin_customer_color": "Administrators: in Settings → Administration → Customers each customer can have its own color, used by all its projects."
+    "tips.tip.admin_customer_color": "Administrators: in Settings → Administration → Customers each customer can have its own color, used by all its projects.",
+    "tips.tip.admin_updates": "Administrators: a small green ↑ on the version at the top left means a new version is out on GitHub; a click shows what's new and the command to upgrade."
   },
   "it": {
     "tips.title": "Suggerimento del giorno",
@@ -112,6 +113,7 @@ export default {
     "tips.tip.version_click": "Un clic sulla versione in alto a sinistra apre l'elenco di tutte le novità del portale.",
     "tips.tip.admin_os": "Amministratori: «+ Aggiungi versione…» in fondo ai menu SO della tabella server aggiunge nuove versioni del sistema operativo senza uscire dalla tabella.",
     "tips.tip.admin_sync": "Amministratori: Impostazioni → Amministrazione → «Sincronizza un cliente» porta qui le modifiche fatte su un'altra installazione, con prima il report delle differenze.",
-    "tips.tip.admin_customer_color": "Amministratori: in Impostazioni → Amministrazione → Clienti ogni cliente può avere un suo colore, usato da tutti i suoi progetti."
+    "tips.tip.admin_customer_color": "Amministratori: in Impostazioni → Amministrazione → Clienti ogni cliente può avere un suo colore, usato da tutti i suoi progetti.",
+    "tips.tip.admin_updates": "Amministratori: un piccolo ↑ verde sulla versione in alto a sinistra vuol dire che su GitHub è uscita una nuova versione; un clic mostra le novità e il comando per aggiornare."
   }
 };
