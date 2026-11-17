@@ -6,6 +6,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 ### Added
+- **Work completed on a server**: «Executed on» is filled in with today's date when the status of a row becomes «Completed» and the date is empty (on the server: also via API). If target OS or target kernel differ from the current ones, a green bar above the server table proposes «Update the server's data» (one bar for all the servers just completed, «Update all» / «Leave as it is»). New tip of the day.
 - **Outdated operating systems in yellow**: for each family and major an administrator sets the up-to-date minor (Settings → Administration → Operating systems → «Up-to-date versions»; at first RHEL 7.9, 8.10, 9.8, 10.3). Servers with an older minor have their OS highlighted in yellow, with the up-to-date version in the tooltip, in the server inventory (list, card, statistics), in the intervention preview and in the full-screen table. API: `GET`/`PUT /api/os-baselines` (stored in `app_meta`, no migration). New tip of the day about it.
 
 

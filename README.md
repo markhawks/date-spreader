@@ -605,6 +605,11 @@ the left.
   interventions.
 - **Underlined columns** (hostname, IP, OS, environment, current kernel): they are **server** attributes, shared by
   all the interventions where it appears. The others apply to this intervention only.
+- **Work completed**: when a server becomes «Completed», «Executed on» takes today's date (if it is empty). If its
+  target OS or target kernel differ from the current ones, a green bar above the table proposes «Update the server's
+  data»: the targets become the current OS and kernel (server data, valid in all its interventions; so an outdated
+  OS stops being yellow). With several servers completed, one bar for all of them («Update all»); «Leave as it is»
+  changes nothing.
 - **Validation**: valid IP, hostname with allowed characters only, statuses among the expected ones. A cell with an
   error turns red and the reason is shown in the tooltip.
 - **Concurrency**: if another user saved the same row in the meantime, the save is **refused**. The row shows the

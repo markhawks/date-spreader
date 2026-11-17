@@ -6,6 +6,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 ### Aggiunto
+- **Lavoro completato su un server**: «Eseguito il» si compila con la data di oggi quando lo stato di una riga diventa «Completata» e la data è vuota (lo fa il server: anche via API). Se SO target o kernel target sono diversi da quelli attuali, una barra verde sopra la tabella server propone «Aggiorna i dati del server» (una sola barra per tutti i server appena completati, «Aggiorna tutti» / «Lascia così»). Nuovo suggerimento del giorno.
 - **Sistemi operativi non aggiornati in giallo**: per ogni famiglia e major un amministratore indica la minor aggiornata (Impostazioni → Amministrazione → Sistemi operativi → «Versioni aggiornate»; all'inizio RHEL 7.9, 8.10, 9.8, 10.3). I server con una minor più vecchia hanno il SO evidenziato in giallo, con la versione aggiornata nel tooltip, nell'anagrafica server (elenco, scheda, statistiche), nell'anteprima dell'intervento e nella tabella a tutto schermo. API: `GET`/`PUT /api/os-baselines` (salvate in `app_meta`, nessuna migrazione). Nuovo suggerimento del giorno.
 
 

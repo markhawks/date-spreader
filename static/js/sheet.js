@@ -35,6 +35,7 @@ const el = (tag, className, text) => {
 
 const ADD_OS = "__add_os__";
 const OS_FIELDS = new Set(["operating_system", "target_operating_system"]);
+const COMPLETED = "completata"; // row status of a finished job (MIGRATION_STATUSES)
 
 const SERVER_HINT = t("sheet.server_hint");
 
@@ -235,12 +236,19 @@ export class Sheet {
     hint.append(` ${t("sheet.hint_resize")}`);
     if (this.config) hint.append(` ${t("sheet.hint_config")}`);
 
+    // Proposals to update OS/kernel of the servers just completed (kept only for the rows still here)
+    this.upgradeBar = el("div", "upgrade-bar");
+    this.upgradeBar.setAttribute("role", "status");
+    const ids = new Set(ev.servers.map((r) => r.id));
+    if (this.upgrades?.eventId !== ev.id) this.upgrades = { eventId: ev.id, rows: new Map() };
+    for (const id of [...this.upgrades.rows.keys()]) if (!ids.has(id)) this.upgrades.rows.delete(id);
     if (this.embedded) {
       wrap.classList.add("embedded");
-      this.root.replaceChildren(this.#toolbar(), wrap);
+      this.root.replaceChildren(this.#toolbar(), this.upgradeBar, wrap);
     } else {
-      this.root.replaceChildren(this.#header(ev), this.#toolbar(), wrap, hint);
+      this.root.replaceChildren(this.#header(ev), this.#toolbar(), this.upgradeBar, wrap, hint);
     }
+    this.#renderUpgradeBar();
     if (this.suggestBox) this.root.append(this.suggestBox);
     wrap.addEventListener("scroll", () => this.hideSuggest?.(), { passive: true });
     this.resizer = makeResizable(table, { key: this.config ? "sheet-config" : "sheet" });
@@ -788,6 +796,7 @@ export class Sheet {
       const updated = await patchServerRow(state.data.id, body);
       state.data = updated;
       if (col.field === "location") this.#rememberLocation(updated.location);
+      if (col.field === "migration_status") this.#proposeUpgrade(state);
       this.changed = true;
       this.#refreshRow(state, td);
       this.#flash(td, "saved");
@@ -800,6 +809,92 @@ export class Sheet {
       td.classList.remove("saving");
       this.#busy(-1);
     }
+  }
+
+  // --- work completed: copy target OS / kernel into the server's data ---------------------------
+
+  /** What would change on the server of this row (target ≠ current), or null. */
+  #upgradeOf(data) {
+    if (this.config || data.migration_status !== COMPLETED) return null;
+    const changes = {};
+    if (data.target_operating_system && data.target_operating_system !== data.operating_system) {
+      changes.operating_system = data.target_operating_system;
+    }
+    if (data.target_kernel && data.target_kernel !== data.current_kernel) changes.current_kernel = data.target_kernel;
+    return Object.keys(changes).length ? changes : null;
+  }
+
+  #proposeUpgrade(state) {
+    if (this.#upgradeOf(state.data)) this.upgrades.rows.set(state.data.id, state);
+    else this.upgrades.rows.delete(state.data.id);
+    this.#renderUpgradeBar();
+  }
+
+  #renderUpgradeBar() {
+    const bar = this.upgradeBar;
+    if (!bar) return;
+    const items = [...this.upgrades.rows.values()].filter((s) => this.#upgradeOf(s.data));
+    bar.hidden = !items.length;
+    if (!items.length) { bar.replaceChildren(); return; }
+    const text = el("div", "upgrade-text");
+    if (items.length === 1) {
+      const d = items[0].data;
+      const c = this.#upgradeOf(d);
+      const parts = [];
+      if (c.operating_system) parts.push(t("sheet.upgrade_os", { from: shortOs(d.operating_system) || "—", to: shortOs(c.operating_system) }));
+      if (c.current_kernel) parts.push(t("sheet.upgrade_kernel", { from: d.current_kernel || "—", to: c.current_kernel }));
+      text.append(el("strong", null, t("sheet.upgrade_one", { hostname: d.hostname })), " ", parts.join(" · "));
+    } else {
+      text.append(el("strong", null, t("sheet.upgrade_many", { n: items.length })), " ",
+        el("span", "muted", items.map((s) => s.data.hostname).join(", ")));
+    }
+    const apply = el("button", "btn btn-small btn-primary", items.length === 1 ? t("sheet.upgrade_apply") : t("sheet.upgrade_apply_all"));
+    apply.type = "button";
+    apply.title = t("sheet.upgrade_apply_title");
+    const skip = el("button", "btn btn-small", t("sheet.upgrade_skip"));
+    skip.type = "button";
+    skip.title = t("sheet.upgrade_skip_title");
+    skip.addEventListener("click", () => { this.upgrades.rows.clear(); this.#renderUpgradeBar(); });
+    apply.addEventListener("click", () => this.#applyUpgrades(items, apply));
+    bar.replaceChildren(text, apply, skip);
+  }
+
+  async #applyUpgrades(items, btn) {
+    btn.disabled = true;
+    let done = 0;
+    const errors = [];
+    await Promise.all(items.map((state) => {
+      state.chain = state.chain.then(async () => {
+        const changes = this.#upgradeOf(state.data);
+        if (!changes) return;
+        this.#busy(+1);
+        try {
+          state.data = await patchServerRow(state.data.id, {
+            version: state.data.version, server_version: state.data.server_version, ...changes,
+          });
+          this.changed = true;
+          this.#refreshRow(state, null, { force: true });
+          for (const f of Object.keys(changes)) {
+            const td = state.tr.querySelector(`[data-field="${f}"]`)?.closest("td");
+            if (td) this.#flash(td, "saved");
+          }
+          done += 1;
+          this.upgrades.rows.delete(state.data.id);
+        } catch (err) {
+          errors.push(`${state.data.hostname}: ${err.message}`);
+        } finally {
+          this.#busy(-1);
+        }
+      });
+      return state.chain;
+    }));
+    this.#renderUpgradeBar();
+    if (done) {
+      this.#setStatus(t("sheet.upgrade_done", { n: done, time: nowHm() }));
+      this.toast(t("sheet.upgrade_done", { n: done, time: nowHm() }));
+      this.onChange();
+    }
+    if (errors.length) this.toast(errors.join(" · "));
   }
 
   #handleRowError(state, td, control, err) {

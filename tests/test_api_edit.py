@@ -245,3 +245,29 @@ def test_changes_survive_app_restart(settings, engine, session_factory):
         c1.patch(f"/api/event-servers/{row['id']}", json={"version": row["version"], "notes": "persistente"})
     with TestClient(authed_app(settings)) as c2:  # nuova app, nuovo motore
         assert row_by_host(event_on(c2, "2026-11-26"), "beta-app01")["notes"] == "persistente"
+
+
+def test_completed_fills_executed_date_only_when_empty(api):
+    from app.models import statuses
+    from app.repositories.servers import COMPLETED
+    assert COMPLETED in statuses.MIGRATION_STATUSES
+    rows = [r for r in event_on(api, "2026-11-26")["servers"]]
+    a, b = rows[0], rows[1]
+    for r in (a, b):
+        res = api.patch(f"/api/event-servers/{r['id']}", json={"version": r["version"], "executed_date": None,
+                                                                 "migration_status": "in_corso"})
+        assert res.status_code == 200, res.text
+    a = api.get(f"/api/events/{event_on(api, "2026-11-26")['id']}").json()["servers"][0]
+    done = api.patch(f"/api/event-servers/{a['id']}", json={"version": a["version"], "migration_status": COMPLETED}).json()
+    assert done["executed_date"] == date.today().isoformat()
+
+    # a date already there, or one sent together with the status, is kept
+    b = next(r for r in api.get(f"/api/events/{event_on(api, "2026-11-26")['id']}").json()["servers"] if r["id"] == b["id"])
+    b = api.patch(f"/api/event-servers/{b['id']}", json={"version": b["version"], "executed_date": "2026-01-02"}).json()
+    b = api.patch(f"/api/event-servers/{b['id']}", json={"version": b["version"], "migration_status": COMPLETED}).json()
+    assert b["executed_date"] == "2026-01-02"
+    b = api.patch(f"/api/event-servers/{b['id']}", json={"version": b["version"], "migration_status": "in_corso",
+                                                          "executed_date": None}).json()
+    b = api.patch(f"/api/event-servers/{b['id']}", json={"version": b["version"], "migration_status": COMPLETED,
+                                                          "executed_date": "2026-02-03"}).json()
+    assert b["executed_date"] == "2026-02-03"

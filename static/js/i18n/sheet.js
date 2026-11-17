@@ -1,6 +1,16 @@
 // Translations for sheet.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "sheet.upgrade_one": "{hostname} completed: update the server's data?",
+    "sheet.upgrade_many": "{n} servers completed with a target OS or kernel different from their data: update the servers' data?",
+    "sheet.upgrade_os": "OS {from} → {to}",
+    "sheet.upgrade_kernel": "kernel {from} → {to}",
+    "sheet.upgrade_apply": "Update the server's data",
+    "sheet.upgrade_apply_all": "Update all",
+    "sheet.upgrade_apply_title": "Target OS and kernel become the current ones (server data, valid in all its interventions)",
+    "sheet.upgrade_skip": "Leave as it is",
+    "sheet.upgrade_skip_title": "Don't change the servers' data",
+    "sheet.upgrade_done": {"one": "Server data updated ({time}).", "other": "Data of {n} servers updated ({time})."},
     "sheet.server_hint": "Server attribute: applies to every intervention it appears in.",
     "sheet.col_hostname": "Hostname",
     "sheet.col_ip": "IP",
@@ -83,6 +93,16 @@ export default {
     "sheet.order": "Commessa {code}"
   },
   "it": {
+    "sheet.upgrade_one": "{hostname} completato: aggiornare i dati del server?",
+    "sheet.upgrade_many": "{n} server completati con SO o kernel target diversi dai loro dati: aggiornare i dati dei server?",
+    "sheet.upgrade_os": "SO {from} → {to}",
+    "sheet.upgrade_kernel": "kernel {from} → {to}",
+    "sheet.upgrade_apply": "Aggiorna i dati del server",
+    "sheet.upgrade_apply_all": "Aggiorna tutti",
+    "sheet.upgrade_apply_title": "SO e kernel target diventano quelli attuali (dati del server, validi in tutti i suoi interventi)",
+    "sheet.upgrade_skip": "Lascia così",
+    "sheet.upgrade_skip_title": "Non cambiare i dati dei server",
+    "sheet.upgrade_done": {"one": "Dati del server aggiornati ({time}).", "other": "Dati di {n} server aggiornati ({time})."},
     "sheet.server_hint": "Attributo del server: vale per tutti gli interventi in cui compare.",
     "sheet.col_hostname": "Hostname",
     "sheet.col_ip": "IP",

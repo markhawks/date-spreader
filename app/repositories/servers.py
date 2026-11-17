@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from sqlalchemy import func, select
@@ -11,6 +12,9 @@ from app import audit
 from app.i18n import tr
 from app.models import Event, EventServer, EventUser, Project, Server, User, statuses
 from app.schemas.edit import ROW_FIELDS, SERVER_FIELDS, ProjectCreate, ServerRowCreate
+
+
+COMPLETED = "completata"   # migration (or work) status of a row that is done
 
 
 class ValidationProblem(Exception):
@@ -74,6 +78,10 @@ def update_row(session: Session, row: EventServer, values: dict[str, Any]) -> No
         check_server_os(session, row_values["target_operating_system"], current=row.target_operating_system)
     if "assigned_user_id" in row_values:
         row.assigned_user = _check_user(session, row_values["assigned_user_id"])
+    # Work finished on this server: "executed on" = today, if nobody has set it (and it is not being set now)
+    if (row_values.get("migration_status") == COMPLETED and row.migration_status != COMPLETED
+            and row.executed_date is None and "executed_date" not in row_values):
+        row_values["executed_date"] = date.today()
 
     server_changes = _apply(row.server, server_values)
     row_changes = _apply(row, row_values)

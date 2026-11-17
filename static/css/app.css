@@ -2623,3 +2623,12 @@ select.cell-input.os-outdated { padding: revert; background: var(--warn-bg); col
 .os-baseline input { width: 4.2rem; font: inherit; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); }
 .os-baseline input.invalid { border-color: var(--bad-fg); background: var(--bad-bg); }
 .os-baselines-foot { display: flex; justify-content: flex-end; }
+
+/* Servers just completed: proposal to copy target OS/kernel into the server's data */
+.upgrade-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; margin: 8px 20px 0; padding: 8px 12px;
+  border: 1px solid var(--ok-fg); border-radius: 8px; background: var(--ok-bg); color: var(--text); font-size: 0.85rem;
+}
+.upgrade-bar[hidden] { display: none; }
+.upgrade-text { flex: 1; min-width: 16rem; }
+.upgrade-text strong { color: var(--ok-fg); }
