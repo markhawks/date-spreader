@@ -59,7 +59,10 @@ export default {
     "tips.tip.admin_updates": "Administrators: a small green ↑ on the version at the top left means a new version is out on GitHub; a click shows what's new and the command to upgrade.",
     "tips.tip.os_outdated": "An operating system in yellow is older than the up-to-date version of its major (e.g. RHEL 9.6 when 9.8 is the current one). Administrators set the up-to-date versions in Settings → Administration → Operating systems.",
     "tips.tip.completed_upgrade": "When a server's status becomes «Completed», «Executed on» fills in by itself, and the portal offers to make the target OS and kernel the current ones of the server.",
-    "tips.tip.pre_check": "A check the day before a patching? In the intervention form tick «Pre-check»: it appears in the calendar on its day, with its own times and technicians, without creating another intervention."
+    "tips.tip.pre_check": "A check the day before a patching? In the intervention form tick «Pre-check»: a yellow «CHECK» entry appears in the calendar on its day, with its own times and technicians, without creating another intervention.",
+    "tips.tip.check_pair": "The yellow «CHECK» entry in the calendar is the pre-check of an intervention: «→ Thu 18» is the day of the intervention. Hover the check or the intervention and both light up.",
+    "tips.tip.check_gantt": "The hours of a pre-check count in the Gantt: a yellow row under the intervention, «of which pre-checks» in the summary. If its times are not enough, fill in «Hours worked on the check».",
+    "tips.tip.check_done": "When the check of a server becomes OK or KO, «check executed on» fills in by itself. After the check day, the intervention shows a warning if some servers still have the check to do or KO."
   },
   "it": {
     "tips.title": "Suggerimento del giorno",
@@ -120,6 +123,9 @@ export default {
     "tips.tip.admin_updates": "Amministratori: un piccolo ↑ verde sulla versione in alto a sinistra vuol dire che su GitHub è uscita una nuova versione; un clic mostra le novità e il comando per aggiornare.",
     "tips.tip.os_outdated": "Un sistema operativo in giallo è più vecchio della versione aggiornata della sua major (es. RHEL 9.6 quando quella attuale è la 9.8). Gli amministratori indicano le versioni aggiornate in Impostazioni → Amministrazione → Sistemi operativi.",
     "tips.tip.completed_upgrade": "Quando lo stato di un server diventa «Completata», «Eseguito il» si compila da solo e il portale propone di far diventare SO e kernel target quelli attuali del server.",
-    "tips.tip.pre_check": "Un check il giorno prima di un patching? Nella finestra dell'intervento spunta «Check pre-intervento»: compare nel calendario nel suo giorno, con orario e tecnici suoi, senza creare un altro intervento."
+    "tips.tip.pre_check": "Un check il giorno prima di un patching? Nella finestra dell'intervento spunta «Check pre-intervento»: nel calendario compare nel suo giorno una voce gialla «CHECK», con orario e tecnici suoi, senza creare un altro intervento.",
+    "tips.tip.check_pair": "La voce gialla «CHECK» nel calendario è il check di un intervento: «→ gio 18» è il giorno dell'intervento. Passa il mouse sul check o sull'intervento e si illuminano tutti e due.",
+    "tips.tip.check_gantt": "Le ore del check pre-intervento contano nel Gantt: riga gialla sotto l'intervento, «di cui check» nel riepilogo. Se l'orario non basta, compila «Ore effettive del check».",
+    "tips.tip.check_done": "Quando il check di un server diventa OK o KO, «Check eseguito il» si compila da solo. Passato il giorno del check, l'intervento mostra un avviso se ci sono server con check da fare o KO."
   }
 };

@@ -60,6 +60,9 @@ export const TIPS = [
   { id: "os_outdated" },
   { id: "completed_upgrade" },
   { id: "pre_check" },
+  { id: "check_pair" },
+  { id: "check_gantt", action: "gantt" },
+  { id: "check_done" },
 ];
 
 const el = (tag, className, text) => {
