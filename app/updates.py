@@ -11,6 +11,7 @@ import json
 import re
 import threading
 import time
+from datetime import datetime, timezone
 import urllib.request
 from typing import Any
 
@@ -19,10 +20,11 @@ from app import __version__
 CHECK_EVERY = 6 * 3600       # seconds between two checks
 RETRY_AFTER = 30 * 60        # after an error
 TIMEOUT = 5                  # seconds
+FORCE_MIN = 10               # seconds: a forced check ("Check now") at most this often
 VERSION_RE = re.compile(r"^v?(\d+)\.(\d+)\.(\d+)$")
 
 _lock = threading.Lock()
-_cache: dict[str, Any] = {"at": 0.0, "repo": None, "release": None, "error": None}
+_cache: dict[str, Any] = {"at": 0.0, "repo": None, "release": None, "error": None, "checked_at": None}
 
 
 def parse_version(tag: str | None) -> tuple[int, int, int] | None:
@@ -62,8 +64,9 @@ def latest_release(repo: str, *, force: bool = False, fetch=None) -> dict[str, A
     """The latest release of `repo` (cached), or None if it is not known (yet)."""
     now = time.monotonic()
     with _lock:
-        fresh = _cache["repo"] == repo and now - _cache["at"] < (RETRY_AFTER if _cache["error"] else CHECK_EVERY)
-        if fresh and not force:
+        age = now - _cache["at"] if _cache["repo"] == repo else None
+        fresh = age is not None and age < (RETRY_AFTER if _cache["error"] else CHECK_EVERY)
+        if (fresh and not force) or (force and age is not None and age < FORCE_MIN):
             return _cache["release"]
     try:
         data = (fetch or _fetch)(repo)
@@ -78,8 +81,17 @@ def latest_release(repo: str, *, force: bool = False, fetch=None) -> dict[str, A
     except Exception as exc:  # network, HTTP, JSON: never a problem for the portal
         release, error = (_cache["release"] if _cache["repo"] == repo else None), type(exc).__name__
     with _lock:
-        _cache.update(at=now, repo=repo, release=release, error=error)
+        _cache.update(at=now, repo=repo, release=release, error=error,
+                      checked_at=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     return release
+
+
+def last_check(repo: str) -> dict[str, Any]:
+    """When GitHub was last asked (UTC ISO) and the error of that check, if any."""
+    with _lock:
+        if _cache["repo"] != repo:
+            return {"checked_at": None, "error": None}
+        return {"checked_at": _cache["checked_at"], "error": _cache["error"]}
 
 
 def is_newer(latest: str | None, current: str = __version__) -> bool:

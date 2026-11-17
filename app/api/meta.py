@@ -59,17 +59,22 @@ class UpdateOut(BaseModel):
     highlights: str | None        # summary of the release notes, in the user's language
     package: str | None           # "rpm" or None: how to upgrade
     app_dir: str                  # where the portal is installed (for the upgrade command)
+    full_version: str = ""        # installed version with the package release (e.g. 0.29.0-1.el10)
+    checked_at: str | None = None # when GitHub was last asked (UTC, ISO)
+    error: str | None = None      # error of that check (e.g. URLError, TimeoutError): GitHub not reachable
 
 
 @router.get("/updates", response_model=UpdateOut, dependencies=[Depends(require_admin)])
 def check_updates(request: Request, force: bool = False) -> UpdateOut:
-    """Is there a newer release on GitHub? (administrators; cached on the server, at most every 6 hours)"""
+    """Is there a newer release on GitHub? (administrators; cached on the server for 6 hours; `force=true`
+    asks GitHub now, at most every 10 seconds: «Check now» in Settings and in the user menu)"""
     settings = request.app.state.settings
     b = build_info()
     out = dict(enabled=settings.update_check, current=__version__, latest=None, newer=False, published_at=None,
-               url=None, highlights=None, package=b["package"], app_dir=str(PROJECT_ROOT))
+               url=None, highlights=None, package=b["package"], app_dir=str(PROJECT_ROOT), full_version=b["full_version"])
     if settings.update_check:
         rel = updates.latest_release(settings.update_repo, force=force)
+        out.update(updates.last_check(settings.update_repo))
         if rel:
             out.update(latest=rel["version"], newer=updates.is_newer(rel["version"]), published_at=rel["published_at"],
                        url=rel["url"], highlights=rel["highlights"]["it" if current_language() == "it" else "en"])

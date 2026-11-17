@@ -3,7 +3,7 @@ import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, 
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
 import { maybeShowWhatsNew } from "./whatsnew.js";
 import { maybeShowTip, showTip } from "./tips.js";
-import { checkForUpdates } from "./updates.js";
+import { checkForUpdates, checkMessage, checkNow } from "./updates.js";
 import { Calendar, ZOOM_MAX, ZOOM_MIN } from "./calendar.js";
 import { chooseEvent } from "./chooser.js";
 import { assignColors, colorFor } from "./colors.js";
@@ -551,7 +551,12 @@ async function main() {
   $("topbar-actions").append(userMenu(me, {
     onLogout: () => location.reload(),
     adminItems: [[t("main.admin_os"), () => showOsDialog({ toast })]],
-    items: [[t("main.tip_of_the_day"), () => showTip(me, tipActions)]],
+    items: [
+      [t("main.tip_of_the_day"), () => showTip(me, tipActions)],
+      ...(me.is_admin ? [[t("updates.menu"), async () => {
+        try { toast(checkMessage(await checkNow(me))); } catch (err) { toast(err.message); }
+      }]] : []),
+    ],
   }));
   // Menu del filtro per tecnico: tutti, anche i disattivati (per rivedere interventi passati).
   people.onChange((users) => filters.setUsers(users));

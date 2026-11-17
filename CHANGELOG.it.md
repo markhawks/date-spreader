@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Aggiunto
+- **Controlla aggiornamenti ora** (amministratori): Impostazioni → Amministrazione → «Aggiornamenti» mostra la versione installata, l'ultima su GitHub, l'ultimo controllo e perché GitHub non è raggiungibile, con «Controlla ora» (salta la memoria di 6 ore; al massimo ogni 10 secondi); anche menu utente → «Controlla aggiornamenti». L'opzione «nuove versioni» è passata lì da Aspetto. `GET /api/updates` restituisce anche `checked_at`, `error`, `full_version`.
+
 
 ## [0.29.0] - 2026-11-17
 > Pianifichi il check prima di un patching senza un secondo intervento, vedi subito quali server non sono aggiornati e i dati dei server restano giusti a fine lavoro.

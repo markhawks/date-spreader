@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Added
+- **Check for updates now** (administrators): Settings → Administration → «Updates» shows the installed version, the latest on GitHub, the last check and why GitHub cannot be reached, with «Check now» (skips the 6-hour memory; at most every 10 seconds); also user menu → «Check for updates». The «new versions» option moved there from Appearance. `GET /api/updates` also returns `checked_at`, `error`, `full_version`.
+
 
 ## [0.29.0] - 2026-11-17
 > Plan the check before a patching without a second intervention, see at a glance which servers are not up to date, and keep the server data right when the work is done.

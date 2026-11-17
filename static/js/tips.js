@@ -56,7 +56,7 @@ export const TIPS = [
   { id: "admin_os", admin: true },
   { id: "admin_sync", admin: true, action: "settings" },
   { id: "admin_customer_color", admin: true, action: "settings" },
-  { id: "admin_updates", admin: true },
+  { id: "admin_updates", admin: true, action: "settings" },
   { id: "os_outdated" },
   { id: "completed_upgrade" },
   { id: "pre_check" },

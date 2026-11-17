@@ -1,6 +1,18 @@
 // Translations for updates.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "updates.panel_title": "Updates",
+    "updates.installed": "Installed",
+    "updates.latest": "Latest on GitHub",
+    "updates.checked": "Last check",
+    "updates.never": "not yet",
+    "updates.check_now": "Check now",
+    "updates.checking": "Asking GitHub…",
+    "updates.disabled": "The check is turned off in the configuration (UPDATE_CHECK=false).",
+    "updates.unreachable": "GitHub cannot be reached from the server ({error}): check its Internet access or proxy.",
+    "updates.available": "Version {version} is available.",
+    "updates.up_to_date": "You have the latest version ({version}).",
+    "updates.menu": "Check for updates",
     "updates.badge_title": "Date Spreader {version} is available: click for the details",
     "updates.title": "New version available: {version}",
     "updates.current": "This installation has {current}.",
@@ -12,6 +24,18 @@ export default {
     "updates.close": "Close (shown again at the next login)"
   },
   "it": {
+    "updates.panel_title": "Aggiornamenti",
+    "updates.installed": "Installata",
+    "updates.latest": "Ultima su GitHub",
+    "updates.checked": "Ultimo controllo",
+    "updates.never": "non ancora",
+    "updates.check_now": "Controlla ora",
+    "updates.checking": "Chiedo a GitHub…",
+    "updates.disabled": "Il controllo è disattivato nella configurazione (UPDATE_CHECK=false).",
+    "updates.unreachable": "GitHub non è raggiungibile dal server ({error}): controlla l'accesso a Internet o il proxy.",
+    "updates.available": "È disponibile la versione {version}.",
+    "updates.up_to_date": "Hai già l'ultima versione ({version}).",
+    "updates.menu": "Controlla aggiornamenti",
     "updates.badge_title": "È disponibile Date Spreader {version}: clic per i dettagli",
     "updates.title": "Nuova versione disponibile: {version}",
     "updates.current": "Questa installazione ha la {current}.",

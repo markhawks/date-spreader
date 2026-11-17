@@ -230,8 +230,11 @@ to **recover access** if the administrator forgets the password.
   API, anonymous, at most every 6 hours, silent without Internet). If it is newer, a small green ↑ badge appears
   on the version at the top left and a card at the bottom right shows its highlights, the link to the release
   and the command to upgrade this installation (RPM, script or git). «Ignore this version» stops the card for
-  that version; Settings → Appearance turns the notice off for the user, `UPDATE_CHECK=false` for the whole
-  installation (`GET /api/updates`).
+  that version; the notice is turned off for the user in Settings → Administration → «Updates», for the whole
+  installation with `UPDATE_CHECK=false` (`GET /api/updates`).
+  - **Check now**: Settings → Administration → «Updates» shows the installed version, the latest one on GitHub
+    and when it was last checked (or why GitHub cannot be reached); «Check now» asks GitHub at once, without
+    waiting for the 6 hours. Also from the user menu → «Check for updates».
 - **Tip of the day**: once a day, the first time a user opens the portal, a small card at the bottom right shows a
   tip about a feature (on the day of the news window, no tip). The tips rotate: each user sees all of them before
   one comes back; the ones for administrators only to administrators. ‹ › browse the others, «Show me» opens the
@@ -705,7 +708,7 @@ server), the changes made on one can be brought to the other without duplicates.
 | `GET /api/health` | Application, database and schema status (public) |
 | `GET /api/os-baselines`, `PUT /api/os-baselines` | Up-to-date minor of each OS family and major (`{baselines: [{family, major, minor}]}`); PUT replaces them all (administrators) |
 | `GET /api/version`, `GET /api/changelog` | Version and changelog (public; the changelog in the user's language) |
-| `GET /api/updates[?force=true]` | Latest release on GitHub and whether it is newer, with its highlights in the user's language (administrators; cached 6 hours) |
+| `GET /api/updates[?force=true]` | Latest release on GitHub and whether it is newer, with its highlights in the user's language, last check and its error (administrators; cached 6 hours; `force=true` asks now, at most every 10 seconds) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Access |
 | `POST /api/users/{id}/temporary-password` | Temporary password for a user (administrators only) |
 | `GET /api/projects` | Projects with the dates of their interventions, in order |

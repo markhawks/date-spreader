@@ -26,9 +26,9 @@ def bump(v, i=1):
 
 @pytest.fixture(autouse=True)
 def clean_cache():
-    updates._cache.update(at=0.0, repo=None, release=None, error=None)
+    updates._cache.update(at=0.0, repo=None, release=None, error=None, checked_at=None)
     yield
-    updates._cache.update(at=0.0, repo=None, release=None, error=None)
+    updates._cache.update(at=0.0, repo=None, release=None, error=None, checked_at=None)
 
 
 def fake(tag, calls):
@@ -55,8 +55,12 @@ def test_cache_and_errors():
 
     def broken(repo):
         raise OSError("no network")
+    assert updates.latest_release("o/r", force=True, fetch=broken)["version"] == "9.9.9"         # < 10 s: cached
+    assert len(calls) == 1
+    updates._cache["at"] -= updates.FORCE_MIN + 1
     assert updates.latest_release("o/r", force=True, fetch=broken)["version"] == "9.9.9"         # keeps the last one
-    updates._cache.update(at=0.0, repo=None, release=None, error=None)
+    assert updates.last_check("o/r")["error"] == "OSError" and updates.last_check("o/r")["checked_at"]
+    updates._cache.update(at=0.0, repo=None, release=None, error=None, checked_at=None)
     assert updates.latest_release("o/r", fetch=broken) is None
 
 
@@ -69,4 +73,5 @@ def test_api_admin_only_and_disabled(settings, client, monkeypatch):
         out = c.get("/api/updates", headers={"Accept-Language": "it"}).json()
         assert out["newer"] is True and out["latest"] == bump(__version__)
         assert out["highlights"].startswith("l'**anagrafica")
+        assert out["checked_at"] and out["error"] is None and out["full_version"]
     assert calls == ["markhawks/date-spreader"]

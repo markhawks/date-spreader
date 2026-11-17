@@ -2676,3 +2676,12 @@ select.cell-input.os-outdated { padding: revert; background: var(--warn-bg); col
 /* hovering an intervention or its check highlights both */
 .chip.pair-lit, .wl-chip.pair-lit { outline: 2px solid var(--check-line); outline-offset: 1px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--check-line) 25%, transparent); z-index: 2; }
 .gt-card-sub { display: flex; flex-direction: column; }
+
+/* Settings → Administration → Updates */
+.updates-facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; margin: 6px 0 10px; font-size: 0.88rem; }
+.updates-facts dt { color: var(--muted); }
+.updates-facts dd { margin: 0; }
+.updates-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.updates-result { margin: 0; }
+.updates-result.new { color: var(--ok-fg); font-weight: 600; }
+.updates-result.warn { color: var(--warn-fg); }

@@ -1,6 +1,7 @@
 // Impostazioni: personali (Aspetto) e, per gli amministratori, Amministrazione.
 // Per aggiungere un'impostazione: un controllo in una sezione + il campo in app/schemas/preferences.py.
 
+import { updatesPanel } from "./updates.js";
 import { prefs } from "./prefs.js";
 import { adoptLanguagePreference, t } from "./i18n.js";
 
@@ -210,20 +211,20 @@ export function showSettings({ me, toast, adminActions = [] }) {
       tipsCb.checked ? t("settings.tips_on") : t("settings.tips_off")));
     tipsLbl.append(tipsCb, " ", t("settings.tips"));
     newsField.append(el("h4", null, t("settings.whats_new_title")), newsLbl, tipsLbl);
-    if (me.is_admin) {
-      const updLbl = el("label", "share-choose");
-      const updCb = el("input");
-      Object.assign(updCb, { type: "checkbox", checked: p.update_notice });
-      updCb.addEventListener("change", () => update({ update_notice: updCb.checked },
-        updCb.checked ? t("settings.update_on") : t("settings.update_off")));
-      updLbl.append(updCb, " ", t("settings.update_notice"));
-      newsField.append(updLbl);
-    }
     return [langField, posField, sideField, daysField, timeField, clockField, themeField, invField, newsField, mailField, note];
   }
 
   function renderAdmin() {
-    return adminActions.map(([title, description, open]) => {
+    const notice = () => {
+      const lbl = el("label", "share-choose");
+      const cb = el("input");
+      Object.assign(cb, { type: "checkbox", checked: prefs.get().update_notice });
+      cb.addEventListener("change", () => update({ update_notice: cb.checked },
+        cb.checked ? t("settings.update_on") : t("settings.update_off")));
+      lbl.append(cb, " ", t("settings.update_notice"));
+      return lbl;
+    };
+    return [updatesPanel(me, { toast, onPrefs: notice }), ...adminActions.map(([title, description, open]) => {
       const row = el("div", "settings-field settings-link");
       const text = el("div");
       text.append(el("h4", null, title), el("p", "muted small", description));
@@ -232,7 +233,7 @@ export function showSettings({ me, toast, adminActions = [] }) {
       b.addEventListener("click", () => { dialog.close(); open(); });
       row.append(text, b);
       return row;
-    });
+    })];
   }
 
   const body = el("div", "settings-body");
