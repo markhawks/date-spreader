@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from app import audit
 from app.i18n import tr
-from app.models import EventServer, OperatingSystem, Server
+import json
+
+from app.models import AppMeta, EventServer, OperatingSystem, Server
 from app.repositories.servers import Conflict, ValidationProblem
 
 
@@ -71,3 +73,51 @@ def delete_os(session: Session, item: OperatingSystem) -> None:
     audit.record(session, "delete", "operating_systems", item.id, {"name": (item.name, None)})
     session.delete(item)
     session.flush()
+
+
+# --- Up-to-date versions ("baselines"): for each family and major, the minor that is considered up to date.
+# A server with the same family and major but an older minor is shown as outdated (yellow) in the OS column.
+BASELINES_KEY = "os_baselines"
+DEFAULT_BASELINES = [
+    {"family": "Red Hat Enterprise Linux", "major": 7, "minor": 9},
+    {"family": "Red Hat Enterprise Linux", "major": 8, "minor": 10},
+    {"family": "Red Hat Enterprise Linux", "major": 9, "minor": 8},
+    {"family": "Red Hat Enterprise Linux", "major": 10, "minor": 3},
+]
+
+
+def _sorted(items: list[dict]) -> list[dict]:
+    return sorted(items, key=lambda b: (b["family"].lower(), b["major"]))
+
+
+def get_baselines(session: Session) -> list[dict]:
+    """The up-to-date version of each family and major (the defaults until an administrator changes them)."""
+    row = session.get(AppMeta, BASELINES_KEY)
+    if row is None:
+        return _sorted([dict(b) for b in DEFAULT_BASELINES])
+    try:
+        return _sorted(json.loads(row.value))
+    except ValueError:
+        return _sorted([dict(b) for b in DEFAULT_BASELINES])
+
+
+def set_baselines(session: Session, items: list[dict]) -> list[dict]:
+    """Replaces all the up-to-date versions (one per family and major)."""
+    seen: dict[tuple[str, int], dict] = {}
+    for b in items:
+        key = (b["family"].lower(), b["major"])
+        if key in seen:
+            raise ValidationProblem(tr("os.baseline_duplicate", name=f"{b['family']} {b['major']}"))
+        seen[key] = {"family": b["family"], "major": b["major"], "minor": b["minor"]}
+    new = _sorted(list(seen.values()))
+    old = get_baselines(session)
+    text = lambda lst: ", ".join(f"{b['family']} {b['major']}.{b['minor']}" for b in lst) or "-"
+    row = session.get(AppMeta, BASELINES_KEY)
+    if row is None:
+        session.add(AppMeta(key=BASELINES_KEY, value=json.dumps(new)))
+    else:
+        row.value = json.dumps(new)
+    session.flush()
+    if new != old:
+        audit.record(session, "update", "operating_systems", 0, {"baselines": (text(old), text(new))})
+    return new

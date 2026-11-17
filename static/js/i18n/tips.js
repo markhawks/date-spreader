@@ -56,7 +56,8 @@ export default {
     "tips.tip.admin_os": "Administrators: «+ Add version…» at the bottom of the OS menus of the server table adds new operating system versions without leaving the table.",
     "tips.tip.admin_sync": "Administrators: Settings → Administration → «Sync a customer» brings the changes made on another installation here, with a report of the differences first.",
     "tips.tip.admin_customer_color": "Administrators: in Settings → Administration → Customers each customer can have its own color, used by all its projects.",
-    "tips.tip.admin_updates": "Administrators: a small green ↑ on the version at the top left means a new version is out on GitHub; a click shows what's new and the command to upgrade."
+    "tips.tip.admin_updates": "Administrators: a small green ↑ on the version at the top left means a new version is out on GitHub; a click shows what's new and the command to upgrade.",
+    "tips.tip.os_outdated": "An operating system in yellow is older than the up-to-date version of its major (e.g. RHEL 9.6 when 9.8 is the current one). Administrators set the up-to-date versions in Settings → Administration → Operating systems."
   },
   "it": {
     "tips.title": "Suggerimento del giorno",
@@ -114,6 +115,7 @@ export default {
     "tips.tip.admin_os": "Amministratori: «+ Aggiungi versione…» in fondo ai menu SO della tabella server aggiunge nuove versioni del sistema operativo senza uscire dalla tabella.",
     "tips.tip.admin_sync": "Amministratori: Impostazioni → Amministrazione → «Sincronizza un cliente» porta qui le modifiche fatte su un'altra installazione, con prima il report delle differenze.",
     "tips.tip.admin_customer_color": "Amministratori: in Impostazioni → Amministrazione → Clienti ogni cliente può avere un suo colore, usato da tutti i suoi progetti.",
-    "tips.tip.admin_updates": "Amministratori: un piccolo ↑ verde sulla versione in alto a sinistra vuol dire che su GitHub è uscita una nuova versione; un clic mostra le novità e il comando per aggiornare."
+    "tips.tip.admin_updates": "Amministratori: un piccolo ↑ verde sulla versione in alto a sinistra vuol dire che su GitHub è uscita una nuova versione; un clic mostra le novità e il comando per aggiornare.",
+    "tips.tip.os_outdated": "Un sistema operativo in giallo è più vecchio della versione aggiornata della sua major (es. RHEL 9.6 quando quella attuale è la 9.8). Gli amministratori indicano le versioni aggiornate in Impostazioni → Amministrazione → Sistemi operativi."
   }
 };

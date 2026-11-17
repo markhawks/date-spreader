@@ -5,6 +5,7 @@
 // Se un altro utente ha salvato nel frattempo, il server risponde 409 con i valori attuali:
 // la riga li mostra e la cella viene segnalata, senza sovrascrivere nulla.
 
+import { loadBaselines, markOutdated } from "./osbaseline.js";
 import {
   addServerRow, deleteServerRow, fetchEvent, fetchOperatingSystems, fetchOptions, listServers, patchServerRow,
 } from "./api.js";
@@ -180,6 +181,7 @@ export class Sheet {
   /** Valori dei menu. Le opzioni fisse si caricano una volta; tecnici e sistemi operativi a ogni apertura. */
   async #loadLookups() {
     this.options = await fetchOptions(); // fresh each time: the locations used change
+    await loadBaselines(true); // up-to-date OS versions: an outdated OS is yellow
     const [osList] = await Promise.all([fetchOperatingSystems(), people.load()]);
     const options = this.options;
     const users = people.active();
@@ -915,6 +917,8 @@ export class Sheet {
 
   /** Colore delle select di stato, come i badge. */
   #tone(tr, data) {
+    const os = tr.querySelector('select[data-field="operating_system"]');
+    if (os) markOutdated(os, data.operating_system);
     for (const field of ["check_status", "migration_status"]) {
       const select = tr.querySelector(`select[data-field="${field}"]`);
       if (select) select.dataset.tone = toneOf(data[field]);

@@ -4,6 +4,7 @@ import { deleteServer, fetchOperatingSystems, fetchOptions, fetchServer, listSer
 import { confirmDanger } from "./confirm.js";
 import { customers } from "./customers.js";
 import { prefs } from "./prefs.js";
+import { loadBaselines, markOutdated } from "./osbaseline.js";
 import { homeButton } from "./homebutton.js";
 import { colorFor } from "./colors.js";
 import { locale, t } from "./i18n.js";
@@ -32,7 +33,7 @@ const withTitle = (node, title) => { node.title = title ?? ""; return node; };
 const COLUMNS = [
   ["hostname", t("inventory.col.hostname"), (s) => el("span", "mono strong", s.hostname)],
   ["ip", t("inventory.col.ip"), (s) => el("span", "mono", s.ip_address ?? "")],
-  ["os", t("inventory.col.os"), (s) => withTitle(el("span", null, shortOs(s.operating_system)), s.operating_system)],
+  ["os", t("inventory.col.os"), (s) => markOutdated(withTitle(el("span", null, shortOs(s.operating_system)), s.operating_system), s.operating_system)],
   ["env", t("inventory.col.env"), (s) => (s.environment ? el("span", `env env-${s.environment.toLowerCase()}`, s.environment) : "")],
   ["location", t("inventory.col.location"), (s) => el("span", "small", s.location ?? "")],
   ["kernel", t("inventory.col.kernel"), (s) => withTitle(el("span", "mono small", shortKernel(s.current_kernel)), s.current_kernel)],
@@ -135,6 +136,7 @@ export class Inventory {
     this.root.hidden = false;
     document.body.classList.add("sheet-open");
     this.#build();
+    await loadBaselines(true); // up-to-date OS versions (yellow = outdated), fresh: an admin may have changed them
     await this.refresh();
     this.searchEl.focus();
   }
@@ -371,6 +373,7 @@ export class Inventory {
       const li = el("li");
       li.title = `${name || t("inventory.stats_unset")}: ${n} (${Math.round((n / servers.length) * 100)}%)`;
       const label = el("span", name ? "inv-stats-name" : "inv-stats-name muted", name ? shortOs(name) : t("inventory.stats_unset"));
+      if (name) markOutdated(label, name);
       const bar = el("span", "inv-stats-bar");
       bar.style.setProperty("--w", `${(n / max) * 100}%`);
       li.append(label, bar, el("span", "inv-stats-n", String(n)));
@@ -488,6 +491,7 @@ export class Inventory {
     };
     fact(t("inventory.field.ip_address"), s.ip_address, "mono");
     fact(t("inventory.field.operating_system"), s.operating_system);
+    if (s.operating_system) markOutdated(facts.lastElementChild, s.operating_system);
     fact(t("inventory.field.environment"), s.environment);
     fact(t("inventory.field.location"), s.location);
     fact(t("inventory.field.current_kernel"), s.current_kernel, "mono");

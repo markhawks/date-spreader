@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Aggiunto
+- **Sistemi operativi non aggiornati in giallo**: per ogni famiglia e major un amministratore indica la minor aggiornata (Impostazioni → Amministrazione → Sistemi operativi → «Versioni aggiornate»; all'inizio RHEL 7.9, 8.10, 9.8, 10.3). I server con una minor più vecchia hanno il SO evidenziato in giallo, con la versione aggiornata nel tooltip, nell'anagrafica server (elenco, scheda, statistiche), nell'anteprima dell'intervento e nella tabella a tutto schermo. API: `GET`/`PUT /api/os-baselines` (salvate in `app_meta`, nessuna migrazione). Nuovo suggerimento del giorno.
+
 
 ## [0.28.0] - 2026-11-17
 > Un suggerimento al giorno per scoprire il portale poco alla volta, e gli amministratori vengono avvisati delle nuove versioni appena escono.

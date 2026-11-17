@@ -1,8 +1,10 @@
 // Finestra "Sistemi operativi" (amministratori): aggiungere versioni, disattivarle, eliminare quelle mai usate.
 
 import {
-  createOperatingSystem, deleteOperatingSystem, fetchOperatingSystems, setOperatingSystemActive,
+  createOperatingSystem, deleteOperatingSystem, fetchOperatingSystems, fetchOsBaselines, saveOsBaselines,
+  setOperatingSystemActive,
 } from "./api.js";
+import { setBaselines } from "./osbaseline.js";
 import { t } from "./i18n.js";
 
 const el = (tag, className, text) => {
@@ -27,6 +29,14 @@ export async function showOsDialog({ toast = () => {} } = {}) {
       </header>
       <div class="pf-body">
         <p class="muted pf-note">${t("osdialog.note_html")}</p>
+        <form class="os-baselines" novalidate>
+          <h3>${t("osdialog.baselines_title")}</h3>
+          <p class="muted small">${t("osdialog.baselines_note")}</p>
+          <div class="os-baselines-grid"></div>
+          <div class="os-baselines-foot">
+            <button type="submit" class="btn btn-primary btn-small">${t("osdialog.baselines_save")}</button>
+          </div>
+        </form>
         <div class="os-list"></div>
         <form class="people-add os-add" novalidate>
           <h3>${t("osdialog.add_title")}</h3>
@@ -42,7 +52,9 @@ export async function showOsDialog({ toast = () => {} } = {}) {
     </div>`;
   document.body.append(dialog);
   const listEl = dialog.querySelector(".os-list");
-  const form = dialog.querySelector("form");
+  const form = dialog.querySelector("form.os-add");
+  const baseForm = dialog.querySelector("form.os-baselines");
+  const baseGrid = baseForm.querySelector(".os-baselines-grid");
   const err = form.querySelector(".pf-error");
   const families = dialog.querySelector("#os-families");
   form.elements.family.value = DEFAULT_FAMILY;
@@ -121,7 +133,54 @@ export async function showOsDialog({ toast = () => {} } = {}) {
       blocks.push(block);
     }
     listEl.replaceChildren(...(blocks.length ? blocks : [el("p", "muted", t("osdialog.empty"))]));
+    await renderBaselines(items);
   }
+
+  // Up-to-date version of each family and major in the list (and of those already set)
+  async function renderBaselines(items) {
+    let current;
+    try {
+      current = (await fetchOsBaselines()).baselines;
+    } catch (ex) {
+      baseGrid.replaceChildren(el("p", "error", ex.message));
+      return;
+    }
+    const rows = new Map();
+    const key = (family, major) => `${family.toLowerCase()}|${major}`;
+    for (const o of items) rows.set(key(o.family, o.major), { family: o.family, major: o.major, minor: null });
+    for (const b of current) rows.set(key(b.family, b.major), { ...b });
+    const sorted = [...rows.values()].sort((a, b) => a.family.localeCompare(b.family) || a.major - b.major);
+    baseGrid.replaceChildren(...sorted.map((r) => {
+      const lab = el("label", "os-baseline");
+      lab.append(el("span", null, `${r.family} ${r.major}.`));
+      const input = el("input");
+      Object.assign(input, { type: "number", min: 0, max: 999, step: 1, value: r.minor ?? "", placeholder: "—" });
+      input.dataset.family = r.family;
+      input.dataset.major = String(r.major);
+      input.setAttribute("aria-label", t("osdialog.baseline_label", { name: `${r.family} ${r.major}` }));
+      lab.append(input);
+      return lab;
+    }));
+  }
+
+  baseForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const list = [];
+    for (const input of baseGrid.querySelectorAll("input")) {
+      const v = input.value.trim();
+      input.classList.remove("invalid");
+      if (v === "") continue;
+      if (!/^\d{1,3}$/.test(v)) { input.classList.add("invalid"); input.focus(); toast(t("osdialog.baseline_invalid")); return; }
+      list.push({ family: input.dataset.family, major: Number(input.dataset.major), minor: Number(v) });
+    }
+    try {
+      const res = await saveOsBaselines(list);
+      setBaselines(res.baselines);
+      toast(t("osdialog.baselines_saved"));
+    } catch (ex) {
+      toast(ex.message);
+    }
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

@@ -1,6 +1,7 @@
 // Pannello di dettaglio: interventi di un giorno (o un singolo intervento) con la tabella server.
 // In sola lettura: la modifica in tabella arriva al punto 5.
 
+import { markOutdated } from "./osbaseline.js";
 import { fetchDay, fetchEvent, patchEvent, setParticipants } from "./api.js";
 import { orderField } from "./projectdialog.js";
 import { paint } from "./colors.js";
@@ -55,7 +56,7 @@ const COLUMNS = [
     s.location ? el("span", "sub location", s.location) : null,
   )],
   ["SO · kernel", (s) => {
-    const os = el("span", null, shortOs(s.operating_system) || "—");
+    const os = markOutdated(el("span", null, shortOs(s.operating_system) || "—"), s.operating_system);
     const wrap = stack(os, el("span", "mono sub", shortKernel(s.current_kernel) || "—"));
     const target = [shortOs(s.target_operating_system), shortKernel(s.target_kernel)].filter(Boolean).join(" · ");
     wrap.append(el("span", "mono sub target", `→ ${target || "—"}`));
@@ -81,7 +82,7 @@ const CONFIG_COLUMNS = [
   ["SO", (s) => {
     const os = el("span", null, shortOs(s.operating_system) || "—");
     os.title = s.operating_system ?? "";
-    return os;
+    return markOutdated(os, s.operating_system);
   }],
   ["Migrazione", (s) => badge(s.migration_status, MIGRATION_STATUS)],
   ["Eseguito il", (s) => (s.executed_date ? formatShortDate(s.executed_date) : el("span", "muted", "—"))],

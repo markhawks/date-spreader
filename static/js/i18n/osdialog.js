@@ -1,6 +1,12 @@
 // Translations for osdialog.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "osdialog.baselines_title": "Up-to-date versions",
+    "osdialog.baselines_note": "For each major, the minor that is up to date: servers with an older minor (e.g. 9.6 when the up-to-date one is 9.8) are highlighted in yellow in the OS column. Empty = no check for that major. When a new minor comes out (9.8 → 9.9), change it here.",
+    "osdialog.baselines_save": "Save up-to-date versions",
+    "osdialog.baselines_saved": "Up-to-date versions saved.",
+    "osdialog.baseline_label": "Up-to-date minor of {name}",
+    "osdialog.baseline_invalid": "Enter a whole number (e.g. 8) or leave it empty.",
     "osdialog.title": "Operating systems",
     "osdialog.close": "Close",
     "osdialog.note_html": "<strong>Active</strong> versions appear in the “OS” and “Target OS” menus of the server table, sorted by version number. An outdated version can be <strong>deactivated</strong>: it disappears from the menu but the servers using it keep it. Only a version that has never been used can be deleted (e.g. one added by mistake).",
@@ -31,6 +37,12 @@ export default {
     "osdialog.quick_label": "Add operating system version"
   },
   "it": {
+    "osdialog.baselines_title": "Versioni aggiornate",
+    "osdialog.baselines_note": "Per ogni major, la minor aggiornata: i server con una minor più vecchia (es. 9.6 quando quella aggiornata è la 9.8) sono evidenziati in giallo nella colonna SO. Vuoto = nessun controllo per quella major. Quando esce una nuova minor (9.8 → 9.9), cambiala qui.",
+    "osdialog.baselines_save": "Salva le versioni aggiornate",
+    "osdialog.baselines_saved": "Versioni aggiornate salvate.",
+    "osdialog.baseline_label": "Minor aggiornata di {name}",
+    "osdialog.baseline_invalid": "Scrivi un numero intero (es. 8) o lascia vuoto.",
     "osdialog.title": "Sistemi operativi",
     "osdialog.close": "Chiudi",
     "osdialog.note_html": "Le versioni <strong>attive</strong> compaiono nei menu «SO» e «SO target» della tabella server, ordinate per numero di versione. Una versione superata si <strong>disattiva</strong>: sparisce dal menu ma i server che la usano la conservano. Si può eliminare solo una versione mai usata (es. inserita per errore).",

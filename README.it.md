@@ -299,6 +299,7 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
 - La colonna **SO** è un menu a tendina con le voci **attive** dell'elenco, mostrate in forma breve («RHEL 9.8»). Sul server viene salvato il nome completo («Red Hat Enterprise Linux 9.8»).
 - L'elenco iniziale (dalla migrazione) contiene Red Hat Enterprise Linux 7.9, 8.10, 9.8 e 10.2.
 - **Nuove versioni** (minor o major): un amministratore le aggiunge da Impostazioni → Amministrazione → **Sistemi operativi** (o dal menu della tabella), indicando la famiglia e una o più versioni separate da virgola. Si possono aggiungere anche altre famiglie (Rocky Linux, Oracle Linux…). L'ordine è numerico: 9.8, 9.9, 10.2, 10.3, 11.0.
+- **Versioni aggiornate**: nella stessa finestra, per ogni famiglia e major, la minor aggiornata (all'inizio RHEL 7.9, 8.10, 9.8 e 10.3). Un server con una minor più vecchia (es. 9.6 quando quella aggiornata è la 9.8) ha il SO **evidenziato in giallo** nell'anagrafica server (elenco, scheda, statistiche), nell'anteprima dell'intervento e nella tabella a tutto schermo, con la versione aggiornata nel tooltip. Quando esce una nuova minor (9.8 → 9.9, 10.3 → 10.4) un amministratore la cambia lì; vuoto = nessun controllo per quella major. Le minor più nuove non sono evidenziate.
 - **Versioni superate**: si **disattivano**. Spariscono dal menu, ma i server che le hanno le conservano (indicate come «non in elenco»). Una voce si può eliminare solo se nessun server la usa, ad esempio se è stata inserita per errore.
 - Le voci non si rinominano: cambierebbe il significato dei server che le usano. Per correggere un errore si aggiunge la voce giusta e si elimina o disattiva quella sbagliata.
 - Il server accetta solo voci attive; un valore già presente può restare invariato.
@@ -433,6 +434,7 @@ Quando lo stesso cliente si segue su due installazioni (es. due sedi, oppure un 
 | Endpoint | Descrizione |
 |---|---|
 | `GET /api/health` | Stato dell'app, del database e dello schema (pubblico) |
+| `GET /api/os-baselines`, `PUT /api/os-baselines` | Minor aggiornata di ogni famiglia e major (`{baselines: [{family, major, minor}]}`); PUT le sostituisce tutte (amministratori) |
 | `GET /api/version`, `GET /api/changelog` | Versione e changelog (pubblici; il changelog nella lingua dell'utente) |
 | `GET /api/updates[?force=true]` | Ultima release su GitHub e se è più nuova, con le novità principali nella lingua dell'utente (amministratori; memorizzata 6 ore) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Accesso |

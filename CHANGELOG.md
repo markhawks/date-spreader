@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Added
+- **Outdated operating systems in yellow**: for each family and major an administrator sets the up-to-date minor (Settings → Administration → Operating systems → «Up-to-date versions»; at first RHEL 7.9, 8.10, 9.8, 10.3). Servers with an older minor have their OS highlighted in yellow, with the up-to-date version in the tooltip, in the server inventory (list, card, statistics), in the intervention preview and in the full-screen table. API: `GET`/`PUT /api/os-baselines` (stored in `app_meta`, no migration). New tip of the day about it.
+
 
 ## [0.28.0] - 2026-11-17
 > A tip of the day to discover the portal little by little, and administrators now hear about new versions as soon as they are published.

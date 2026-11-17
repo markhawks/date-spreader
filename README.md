@@ -454,6 +454,11 @@ new one:
 - **New versions** (minor or major): an administrator adds them from Settings → Administration →
   **Operating systems** (or from the table menu), giving the family and one or more comma-separated versions.
   Other families can be added too (Rocky Linux, Oracle Linux…). The order is numeric: 9.8, 9.9, 10.2, 10.3, 11.0.
+- **Up-to-date versions**: in the same window, for each family and major, the minor that is up to date (at first
+  RHEL 7.9, 8.10, 9.8 and 10.3). A server with an older minor (e.g. 9.6 when 9.8 is the up-to-date one) has its OS
+  **highlighted in yellow** in the server inventory (list, card, statistics), in the intervention preview and in the
+  full-screen table, with the up-to-date version in the tooltip. When a new minor comes out (9.8 → 9.9, 10.3 → 10.4)
+  an administrator changes it there; empty = no check for that major. Newer minors are not highlighted.
 - **Outdated versions** are **deactivated**. They disappear from the menu, but the servers that have them keep them
   (shown as "not in list"). An entry can be deleted only if no server uses it, e.g. if it was added by mistake.
 - Entries are not renamed: that would change the meaning of the servers that use them. To fix a mistake, add the
@@ -669,6 +674,7 @@ server), the changes made on one can be brought to the other without duplicates.
 | Endpoint | Description |
 |---|---|
 | `GET /api/health` | Application, database and schema status (public) |
+| `GET /api/os-baselines`, `PUT /api/os-baselines` | Up-to-date minor of each OS family and major (`{baselines: [{family, major, minor}]}`); PUT replaces them all (administrators) |
 | `GET /api/version`, `GET /api/changelog` | Version and changelog (public; the changelog in the user's language) |
 | `GET /api/updates[?force=true]` | Latest release on GitHub and whether it is newer, with its highlights in the user's language (administrators; cached 6 hours) |
 | `POST /api/auth/login` · `POST /api/auth/logout` · `GET /api/auth/me` · `POST /api/auth/change-password` | Access |

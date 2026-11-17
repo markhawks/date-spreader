@@ -281,6 +281,10 @@ MESSAGES: dict[str, dict[str, str]] = {
         "it": "{hostname} è in {n} interventi: toglilo prima dagli interventi, poi eliminalo.",
     },
     # --- os
+    "os.baseline_duplicate": {
+        "en": "{name} is listed twice among the up-to-date versions.",
+        "it": "{name} compare due volte tra le versioni aggiornate.",
+    },
     "os.family_required": {
         "en": "Enter the family (e.g. Red Hat Enterprise Linux).",
         "it": "Indica la famiglia (es. Red Hat Enterprise Linux).",

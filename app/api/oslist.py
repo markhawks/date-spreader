@@ -105,3 +105,42 @@ def delete_os(session: SessionDep, os_id: int) -> Response:
         session.rollback()
         raise HTTPException(409, {"message": str(exc), "current": None}) from None
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class OsBaseline(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    family: str = Field(max_length=100)
+    major: int = Field(ge=0, le=999)
+    minor: int = Field(ge=0, le=999)
+
+    @field_validator("family", mode="before")
+    @classmethod
+    def _family(cls, v):
+        v = " ".join(str(v or "").split())
+        if not v:
+            raise ValueError(tr("os.family_required"))
+        return v
+
+
+class OsBaselines(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    baselines: list[OsBaseline] = Field(max_length=200)
+
+
+@router.get("/os-baselines", response_model=OsBaselines)
+def get_baselines(session: SessionDep) -> OsBaselines:
+    """Up-to-date version of each family and major: servers with an older minor are shown as outdated."""
+    return OsBaselines(baselines=repo.get_baselines(session))
+
+
+@router.put("/os-baselines", response_model=OsBaselines, dependencies=[Depends(require_admin)])
+def set_baselines(session: SessionDep, data: OsBaselines) -> OsBaselines:
+    try:
+        items = repo.set_baselines(session, [b.model_dump() for b in data.baselines])
+        session.commit()
+    except repo.ValidationProblem as exc:
+        session.rollback()
+        raise HTTPException(422, str(exc)) from None
+    return OsBaselines(baselines=items)

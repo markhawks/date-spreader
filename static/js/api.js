@@ -154,6 +154,8 @@ export const addEvent = (projectId, data) => request("POST", `/api/projects/${q(
 export const duplicateEvent = (eventId, data) => request("POST", `/api/events/${q(eventId)}/duplicate`, data);
 export const deleteEvent = (eventId, version) => request("DELETE", `/api/events/${q(eventId)}?version=${q(version)}`);
 // --- elenco sistemi operativi -----------------------------------------------------------
+export const fetchOsBaselines = () => getJSON("/api/os-baselines");
+export const saveOsBaselines = (baselines) => request("PUT", "/api/os-baselines", { baselines });
 export const fetchOperatingSystems = (all = false) => getJSON(all ? "/api/operating-systems?all=true" : "/api/operating-systems");
 export const createOperatingSystem = (data) => request("POST", "/api/operating-systems", data);
 export const setOperatingSystemActive = (id, active) => request("PATCH", `/api/operating-systems/${q(id)}`, { is_active: active });

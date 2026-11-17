@@ -1,3 +1,4 @@
+import { loadBaselines, onBaselinesChange } from "./osbaseline.js";
 import { AUTH_REQUIRED, PASSWORD_CHANGE, fetchChanges, fetchEvent, fetchHealth, fetchMe, fetchProjects } from "./api.js";
 import { showChangePassword, showChangelog, showLogin, userMenu } from "./auth.js";
 import { maybeShowWhatsNew } from "./whatsnew.js";
@@ -111,6 +112,7 @@ async function main() {
   if (!me) return;
   session.me = me;
   await prefs.load(); // tema e posizione dell'anteprima prima di disegnare
+  loadBaselines(); // up-to-date OS versions (outdated OS in yellow in the server lists)
   // The user's language (saved preference) differs from the one the page was built with: reload once
   if (adoptLanguagePreference(prefs.get().language)) return;
   // Smartphone: read-only recap instead of the full portal (which is meant for a desktop)
@@ -524,6 +526,8 @@ async function main() {
     if ("time_format" in changes) clock.refresh();
   });
   $("version-link").addEventListener("click", () => showChangelog());
+  // Up-to-date OS versions changed (Settings → Operating systems): redraw the open preview
+  onBaselinesChange(() => { if (detail.isOpen) detail.reload(); });
   // After an update: the news of the new version, once (unless turned off)
   // …otherwise the tip of the day (once a day): never both on the same start
   const tipActions = {

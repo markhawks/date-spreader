@@ -2611,3 +2611,15 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
 }
 .update-card .tip-foot { justify-content: flex-end; }
 .update-card .tip-foot a { text-decoration: none; }
+
+/* Operating system older than the up-to-date version of its major (Settings → Operating systems) */
+.os-outdated { background: var(--warn-bg); color: var(--warn-fg); border-radius: 4px; padding: 0 4px; font-weight: 600; }
+select.cell-input.os-outdated { padding: revert; background: var(--warn-bg); color: var(--warn-fg); }
+.inv-facts dd.os-outdated { justify-self: start; }
+.os-baselines { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px 10px; margin-bottom: 12px; }
+.os-baselines h3 { margin: 0 0 4px; font-size: 0.95rem; }
+.os-baselines-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 14px; margin: 8px 0; }
+.os-baseline { display: flex; align-items: center; gap: 2px; font-size: 0.85rem; }
+.os-baseline input { width: 4.2rem; font: inherit; padding: 3px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); }
+.os-baseline input.invalid { border-color: var(--bad-fg); background: var(--bad-bg); }
+.os-baselines-foot { display: flex; justify-content: flex-end; }
