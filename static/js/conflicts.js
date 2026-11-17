@@ -44,8 +44,9 @@ export function conflictBox(conflicts, { onOpen = null } = {}) {
     const text = c.kind === "server"
       ? t("conflicts.server", { server: c.name, date: formatShortDate(c.other.event_date) })
       : t("conflicts.technician", { name: c.name, time: when(c.other) });
+    if (c.on_check) li.append(el("span", "chip-check-tag", t("conflicts.check_tag")), " ");
     li.append(text, " ");
-    const name = otherName(c.other);
+    const name = c.other.is_check ? t("conflicts.other_check", { name: otherName(c.other) }) : otherName(c.other);
     if (onOpen) {
       const link = el("button", "link-btn", name);
       link.type = "button";

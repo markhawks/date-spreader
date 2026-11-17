@@ -37,20 +37,21 @@ from sqlalchemy.orm import Session
 from app import audit
 from app.i18n import tr
 from app.models import (
-    AppMeta, Customer, Event, EventServer, EventUser, Project, Server, SyncBaseline, SyncPeer,
+    AppMeta, Customer, Event, EventCheckUser, EventServer, EventUser, Project, Server, SyncBaseline, SyncPeer,
 )
 from app.repositories.customers import clean_order_code, resolve_order
 from app.schemas.transfer import ExportFile, XEvent, XProject, XServer, XTechnician
 from app.transfer import (
-    SERVER_EXPORT_FIELDS, Resolver, add_event, checked_end, export_projects, load_projects, new_report,
-    where_label,
+    SERVER_EXPORT_FIELDS, Resolver, add_event, check_users, check_values, checked_end, export_projects,
+    load_projects, new_report, where_label,
 )
 
 PROJECT_FIELDS = ("name", "description", "status")
 EVENT_FIELDS = ("project", "event_date", "start_time", "end_time", "event_type", "status", "title",
-                "order_code", "worked_hours", "notes", "participants")
+                "order_code", "worked_hours", "notes", "participants",
+                "check_date", "check_start_time", "check_end_time", "check_participants")
 ROW_FIELDS = ("target_operating_system", "target_kernel", "check_status", "migration_status",
-              "planned_date", "executed_date", "technician", "notes")
+              "planned_date", "executed_date", "check_executed_date", "technician", "notes")
 DEFAULTS = {"equal": None, "changed": True, "changed_here": False, "conflict": None, "new": True,
             "deleted_here": False, "only_here": False, "deleted_there": False}
 
@@ -138,6 +139,8 @@ class Side:
                         "planned_date": _iso(xr.planned_date or xe.event_date), "executed_date": _iso(xr.executed_date),
                         "technician": ident(xr.technician), "notes": xr.notes,
                     }
+                    if xr.check_executed_date:   # only when set: hashes of older data stay the same
+                        rows[xr.hostname]["check_executed_date"] = _iso(xr.check_executed_date)
                     rows_show[xr.hostname] = {**rows[xr.hostname], "technician": name(xr.technician)}
                 code = clean_order_code(xe.order_code)
                 canon = {
@@ -148,9 +151,18 @@ class Side:
                     "participants": sorted(i for i in (ident(k) for k in xe.participants) if i),
                     "servers": rows,
                 }
+                if xe.check_date:   # pre-check, only when planned (hashes of interventions without it unchanged)
+                    canon.update({
+                        "check_date": _iso(xe.check_date), "check_start_time": _tm(xe.check_start_time),
+                        "check_end_time": _tm(xe.check_end_time),
+                        "check_participants": sorted(i for i in (ident(k) for k in xe.check_participants) if i),
+                    })
                 show = {**canon, "project": xp.name, "order_code": code,
                         "participants": ", ".join(sorted(n for n in (name(k) for k in xe.participants) if n)) or None,
                         "servers": rows_show}
+                if xe.check_date:
+                    show["check_participants"] = ", ".join(
+                        sorted(n for n in (name(k) for k in xe.check_participants) if n)) or None
                 self._add(ekey, "event", canon, show, pkey)
         for s in servers:
             canon = {f: getattr(s, f) for f in SERVER_EXPORT_FIELDS}
@@ -344,7 +356,7 @@ def _update_event(session: Session, event: Event, xe: XEvent, project: Project, 
     values = {
         "event_date": xe.event_date, "start_time": xe.start_time, "end_time": checked_end(xe, where, res.warn),
         "event_type": xe.event_type, "status": xe.status, "title": xe.title, "notes": xe.notes,
-        "worked_hours": xe.worked_hours,
+        "worked_hours": xe.worked_hours, **check_values(xe),
     }
     changes = {f: (getattr(event, f), v) for f, v in values.items() if getattr(event, f) != v}
     if event.project_id != project.id:
@@ -367,6 +379,14 @@ def _update_event(session: Session, event: Event, xe: XEvent, project: Project, 
     for uid, user in wanted.items():
         if uid not in have:
             session.add(EventUser(event=event, user=user))
+    wanted_check = {u.id: u for u in check_users(xe, res, where)}
+    for link in list(event.check_participants):
+        if link.user_id not in wanted_check:
+            session.delete(link)
+    have = {link.user_id for link in event.check_participants}
+    for uid, user in wanted_check.items():
+        if uid not in have:
+            session.add(EventCheckUser(event=event, user=user))
 
     rows = {link.server.hostname: link for link in event.server_links}
     incoming = {}
@@ -382,6 +402,7 @@ def _update_event(session: Session, event: Event, xe: XEvent, project: Project, 
             "target_operating_system": xr.target_operating_system, "target_kernel": xr.target_kernel,
             "check_status": xr.check_status, "migration_status": xr.migration_status,
             "planned_date": xr.planned_date or xe.event_date, "executed_date": xr.executed_date,
+            "check_executed_date": xr.check_executed_date,
             "assigned_user": res.tech(xr.technician, where), "notes": xr.notes, "position": position,
         }
         link = rows.get(host)

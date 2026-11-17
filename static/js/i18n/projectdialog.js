@@ -1,6 +1,17 @@
 // Translations for projectdialog.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "projectdialog.check_title": "Pre-check",
+    "projectdialog.check_hint": "The check of the servers before the intervention (e.g. the day before a patching): it appears in the calendar on its day, without creating another intervention.",
+    "projectdialog.check_day": "Check day",
+    "projectdialog.check_day_before": "Working day before",
+    "projectdialog.check_day_before_title": "The working day before the intervention (Friday for a Monday)",
+    "projectdialog.check_start": "Check from",
+    "projectdialog.check_end": "Check to",
+    "projectdialog.check_people": "Technicians of the check",
+    "projectdialog.check_people_hint": "None = the participants of the intervention.",
+    "projectdialog.check_day_required": "Choose the day of the check.",
+    "projectdialog.check_after_event": "The check must be on the day of the intervention or before.",
     "projectdialog.close": "Close",
     "projectdialog.cancel": "Cancel",
     "projectdialog.save": "Save",
@@ -111,6 +122,17 @@ export default {
     "projectdialog.order_hint_none": "No commesse for this customer yet: the code you type is saved on the customer."
   },
   "it": {
+    "projectdialog.check_title": "Check pre-intervento",
+    "projectdialog.check_hint": "Il controllo dei server prima dell'intervento (es. il giorno prima di un patching): compare nel calendario nel suo giorno, senza creare un altro intervento.",
+    "projectdialog.check_day": "Giorno del check",
+    "projectdialog.check_day_before": "Giorno lavorativo prima",
+    "projectdialog.check_day_before_title": "Il giorno lavorativo prima dell'intervento (venerdì per un lunedì)",
+    "projectdialog.check_start": "Check dalle",
+    "projectdialog.check_end": "Check alle",
+    "projectdialog.check_people": "Tecnici del check",
+    "projectdialog.check_people_hint": "Nessuno = i partecipanti dell'intervento.",
+    "projectdialog.check_day_required": "Scegli il giorno del check.",
+    "projectdialog.check_after_event": "Il check deve essere nel giorno dell'intervento o prima.",
     "projectdialog.close": "Chiudi",
     "projectdialog.cancel": "Annulla",
     "projectdialog.save": "Salva",

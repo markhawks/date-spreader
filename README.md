@@ -494,6 +494,20 @@ new one:
 - **Edit intervention** (**Edit** button in the card): date, type, title, times and notes. Status, participants and
   servers are changed from the card and the table, as before. When the date moves, server rows whose planned date
   was the old one follow it.
+- **Pre-check** (e.g. the check of the servers the day before a patching), without creating another intervention:
+  in the intervention form (**Edit**, or when creating it) tick «Pre-check» and choose the day (proposed: the
+  working day before, also with «Working day before»; on the day of the intervention or before), the times and the
+  technicians of the check (none = the participants).
+  - The calendar and the Technicians view show a dashed «Check» entry on that day, with the check progress
+    («check 2/4 OK»); a click opens the intervention, and the preview of that day lists it too. The Gantt shows
+    the check as a dashed block in the intervention's row; its hours count for the technicians of the check.
+  - The check of each server is the «Check» column of the server table; «check executed on» is filled in by
+    itself when it becomes OK or KO (shown in the preview and in the tooltip of the table).
+  - Technicians of the check busy elsewhere at the same time are a scheduling conflict («Check» in the list).
+  - **Warning**: when the check day is over and some servers still have the check to do or KO, the intervention
+    has a warning icon in the calendar and a yellow line in its card.
+  - Moving the intervention moves the check by the same number of days; «Duplicate» keeps the same distance.
+    Export/import and the sync between installations carry the check.
 - **Duplicating an intervention** (**Duplicate** button in the card, between "Share" and "Edit"), for example when
   it must be run again: choose the new date (suggested: one week later) and the time. A "Planned" intervention is
   created in the same project with the original's type, title, notes and technicians and, if you want, the same
@@ -696,6 +710,7 @@ server), the changes made on one can be brought to the other without duplicates.
 | `POST /api/users` | New technician (`display_name`, `email`, `role`). 409 if the name or email already exists |
 | `POST /api/users/technicians` | On-the-fly technician, for all users (`display_name`): returns the one with the same name (200) or creates it with the technician role (201); 409 if deactivated |
 | `PATCH /api/users/{id}` | Edits name, email, role, `is_active` (with `version`, 409 if changed) |
+| `PUT /api/events/{id}/check-participants` | Technicians of the pre-check (`{user_ids}`; empty = the participants) |
 | `PUT /api/events/{id}/participants` | Replaces the participants (`user_ids`). A deactivated technician can stay but cannot be added |
 | `GET /api/options` | Allowed values for the choice columns |
 | `GET /api/reports/gantt?start=&end=[&customer_id=]` | Gantt report: interventions of the period grouped by commessa → project, with hours, man-hours, technicians, machines and statuses (at most 400 days) |

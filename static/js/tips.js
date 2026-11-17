@@ -59,6 +59,7 @@ export const TIPS = [
   { id: "admin_updates", admin: true },
   { id: "os_outdated" },
   { id: "completed_upgrade" },
+  { id: "pre_check" },
 ];
 
 const el = (tag, className, text) => {

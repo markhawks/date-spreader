@@ -538,6 +538,20 @@ export class Gantt {
       ev.technicians.join(", ")].filter(Boolean).join(" · ");
     block.addEventListener("click", () => this.onOpenEvent(ev));
     track.append(block);
+    // Pre-check on its own day (dashed), in the same row
+    const c = ev.check;
+    if (c && c.date >= this.start && c.date <= this.end) {
+      const ct = c.start_time ? `${formatTime(c.start_time)}${c.end_time ? `–${formatTime(c.end_time)}` : ""}` : "";
+      const cb = el("button", "gt-block gt-check");
+      cb.type = "button";
+      cb.style.left = `${x(c.date)}px`;
+      cb.style.width = `${dw}px`;
+      if (dw >= 30) cb.textContent = t("gantt.check_short");
+      cb.title = [t("gantt.check_title"), formatMediumDate(c.date), ct, p.name, what,
+        c.hours ? hoursText(c.hours) : null, c.technicians.join(", ")].filter(Boolean).join(" · ");
+      cb.addEventListener("click", () => this.onOpenEvent(ev));
+      track.append(cb);
+    }
     row.append(left, track);
     return row;
   }

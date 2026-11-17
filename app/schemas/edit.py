@@ -29,6 +29,7 @@ ROW_FIELDS = (
     "migration_status",
     "planned_date",
     "executed_date",
+    "check_executed_date",
     "assigned_user_id",
     "notes",
 )
@@ -54,6 +55,7 @@ class _RowFields(BaseModel):
     target_operating_system: str | None = Field(default=None, max_length=100)
     planned_date: date | None = None
     executed_date: date | None = None
+    check_executed_date: date | None = None
     assigned_user_id: int | None = None
     # Lunghe: negli interventi di configurazione contengono il dettaglio della configurazione
     notes: str | None = Field(default=None, max_length=20000)
@@ -320,13 +322,17 @@ class EventPatch(BaseModel):
     end_time: time | None = None
     order_code: str | None = Field(default=None, max_length=100)  # "" or null = no commessa
     worked_hours: float | None = Field(default=None, ge=0, le=1000)  # hours actually worked (null = from the times)
+    # Pre-check: day (on or before the intervention; null = no check planned), optional times
+    check_date: date | None = None
+    check_start_time: time | None = None
+    check_end_time: time | None = None
 
     @field_validator("notes", "title", mode="before")
     @classmethod
     def _strip(cls, v):
         return _clean_text(v)
 
-    @field_validator("start_time", "end_time", mode="before")
+    @field_validator("start_time", "end_time", "check_date", "check_start_time", "check_end_time", mode="before")
     @classmethod
     def _empty_time(cls, v):
         return None if v == "" else v

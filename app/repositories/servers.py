@@ -10,11 +10,12 @@ from sqlalchemy.orm import Session, selectinload
 
 from app import audit
 from app.i18n import tr
-from app.models import Event, EventServer, EventUser, Project, Server, User, statuses
+from app.models import Event, EventCheckUser, EventServer, EventUser, Project, Server, User, statuses
 from app.schemas.edit import ROW_FIELDS, SERVER_FIELDS, ProjectCreate, ServerRowCreate
 
 
 COMPLETED = "completata"   # migration (or work) status of a row that is done
+CHECK_DONE = ("ok", "ko")  # check statuses of a check that has been done
 
 
 class ValidationProblem(Exception):
@@ -78,6 +79,10 @@ def update_row(session: Session, row: EventServer, values: dict[str, Any]) -> No
         check_server_os(session, row_values["target_operating_system"], current=row.target_operating_system)
     if "assigned_user_id" in row_values:
         row.assigned_user = _check_user(session, row_values["assigned_user_id"])
+    # Check done (OK or KO): "check executed on" = today, if empty
+    if (row_values.get("check_status") in CHECK_DONE and row.check_status not in CHECK_DONE
+            and row.check_executed_date is None and "check_executed_date" not in row_values):
+        row_values["check_executed_date"] = date.today()
     # Work finished on this server: "executed on" = today, if nobody has set it (and it is not being set now)
     if (row_values.get("migration_status") == COMPLETED and row.migration_status != COMPLETED
             and row.executed_date is None and "executed_date" not in row_values):
@@ -201,6 +206,7 @@ def update_event(session: Session, event: Event, values: dict[str, Any]) -> None
     end = values.get("end_time", event.end_time)
     if start and end and end <= start:
         raise ValidationProblem(tr("events.end_before_start"))
+    values = _check_values(event, dict(values))
     old_date = event.event_date
     order_change = None
     if "order_code" in values:
@@ -222,6 +228,25 @@ def update_event(session: Session, event: Event, values: dict[str, Any]) -> None
     session.flush()
     if changes:
         audit.record(session, "update", "events", event.id, changes, event_id=event.id)
+
+
+def _check_values(event: Event, values: dict[str, Any]) -> dict[str, Any]:
+    """Pre-check of an intervention: no check → no times; moving the intervention moves the check by the
+    same number of days; the check is on the day of the intervention or before."""
+    if "check_date" in values and values["check_date"] is None:
+        values["check_start_time"] = values["check_end_time"] = None
+    if ("event_date" in values and values["event_date"] and event.check_date and "check_date" not in values
+            and values["event_date"] != event.event_date):
+        values["check_date"] = event.check_date + (values["event_date"] - event.event_date)
+    check = values.get("check_date", event.check_date)
+    day = values.get("event_date") or event.event_date
+    if check and check > day:
+        raise ValidationProblem(tr("events.check_after_event"))
+    cs = values.get("check_start_time", event.check_start_time)
+    ce = values.get("check_end_time", event.check_end_time)
+    if cs and ce and ce <= cs:
+        raise ValidationProblem(tr("events.end_before_start"))
+    return values
 
 
 def add_event(session: Session, project: Project, data) -> Event:
@@ -261,10 +286,16 @@ def duplicate_event(session: Session, source: Event, data) -> Event:
         status=statuses.EVENT_STATUSES[0], start_time=start, end_time=end, notes=source.notes,
         order_id=source.order_id,
     )
+    if source.check_date:   # the pre-check keeps its distance from the intervention (e.g. the day before)
+        event.check_date = data.event_date - (source.event_date - source.check_date)
+        event.check_start_time, event.check_end_time = source.check_start_time, source.check_end_time
     session.add(event)
     for p in source.participants:
         if p.user.is_active:
             event.participants.append(EventUser(user=p.user))
+    for p in source.check_participants:
+        if p.user.is_active:
+            event.check_participants.append(EventCheckUser(user=p.user))
     session.flush()
     copied = 0
     if data.include_servers:

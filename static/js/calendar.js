@@ -6,7 +6,7 @@ import { fetchEvents } from "./api.js";
 import { colorFor } from "./colors.js";
 import {
   WEEKDAYS, addDays, addMonths, daysInMonth, firstWeekdayMonday, formatMonth, formatTime, formatWeek,
-  isoDate, isoWeek, monthRange, mondayOf, parseIso, todayIso, ymKey,
+  formatMediumDate, isoDate, isoWeek, monthRange, mondayOf, parseIso, todayIso, ymKey,
 } from "./dates.js";
 import { EVENT_STATUS, EVENT_TYPE, badge } from "./labels.js";
 import { people } from "./people.js";
@@ -643,6 +643,7 @@ export class Calendar {
   }
 
   #chip(ev) {
+    if (ev.kind === "check") return this.#checkChip(ev);
     const li = document.createElement("li");
     li.className = `chip status-${ev.status}`;
     li.style.setProperty("--c", colorFor(ev.project_id));
@@ -662,7 +663,7 @@ export class Calendar {
     name.className = "chip-name";
     name.textContent = ev.project_name;
     const conflictCount = (ev.conflict_users?.length ?? 0) + (ev.conflict_servers ?? 0);
-    if (conflictCount) {
+    if (conflictCount || ev.check_warning) {
       li.classList.add("has-conflict");
       name.prepend(warnIcon());
     }
@@ -710,6 +711,50 @@ export class Calendar {
       n ? t("calendar.chip_done", { done, n }) : t("calendar.chip_no_servers"),
       EVENT_STATUS[ev.status] ?? ev.status,
       conflictCount && t("calendar.chip_conflicts", { n: conflictCount }),
+      ev.check_warning && t("calendar.chip_check_missing", { n: ev.check_pending }),
+    ].filter(Boolean).join(" · ");
+    return li;
+  }
+
+  /** The pre-check of an intervention on its day: dashed, "Check · project", check progress. */
+  #checkChip(ev) {
+    const li = document.createElement("li");
+    li.className = `chip chip-check status-${ev.status}`;
+    li.style.setProperty("--c", colorFor(ev.project_id));
+    li.dataset.eventId = ev.id;
+    li.dataset.kind = "check";
+    li.dataset.projectId = ev.project_id;
+    const n = ev.server_count;
+    if (n) {
+      li.style.setProperty("--p", `${Math.round((ev.check_done / n) * 100)}%`);
+      li.classList.add("has-progress");
+      if (ev.check_done === n) li.classList.add("all-done");
+    }
+    const name = Object.assign(document.createElement("span"), { className: "chip-name" });
+    name.append(Object.assign(document.createElement("span"), { className: "chip-check-tag", textContent: t("calendar.check_tag") }),
+      ` ${ev.project_name}`);
+    if (ev.conflict_users?.length) { li.classList.add("has-conflict"); name.prepend(warnIcon()); }
+    const time = ev.start_time ? `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` : "";
+    const prog = n ? t("calendar.check_progress", { ok: ev.check_ok, n }) : t("calendar.no_servers_short");
+    const meta = Object.assign(document.createElement("span"), { className: "chip-meta" });
+    meta.append(Object.assign(document.createElement("span"), { className: "chip-progress", textContent: prog }),
+      [ev.customer_name, this.unit === WEEK ? null : formatTime(ev.start_time)].filter(Boolean).map((x) => ` · ${x}`).join(""));
+    li.append(name, meta);
+    const techNames = (ev.user_ids ?? []).map((id) => people.byId(id)?.display_name).filter(Boolean);
+    if (this.unit === WEEK) {
+      if (time) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: time }));
+      if (techNames.length) li.append(Object.assign(document.createElement("span"), { className: "chip-people", textContent: techNames.join(", ") }));
+    } else {
+      if (time) li.append(Object.assign(document.createElement("span"), { className: "chip-extra", textContent: time }));
+      if (techNames.length) li.append(Object.assign(document.createElement("span"), { className: "chip-techs", textContent: techNames.join(", ") }));
+    }
+    li.title = [
+      t("calendar.check_title"), ev.customer_name, ev.project_name, ev.title,
+      ev.intervention_date && t("calendar.check_for", { date: formatMediumDate(ev.intervention_date) }),
+      time && t("calendar.chip_time", { time }),
+      n ? t("calendar.check_progress_long", { ok: ev.check_ok, done: ev.check_done, n }) : t("calendar.chip_no_servers"),
+      techNames.length ? techNames.join(", ") : null,
+      ev.conflict_users?.length && t("calendar.chip_conflicts", { n: ev.conflict_users.length }),
     ].filter(Boolean).join(" · ");
     return li;
   }

@@ -1,6 +1,8 @@
 // Translations for workload.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "workload.check_tag": "Check",
+    "workload.check_title": "Pre-check",
     "workload.title": "Week {n} · {range}",
     "workload.prev": "Previous week",
     "workload.next": "Next week",
@@ -25,6 +27,8 @@ export default {
     "workload.order": "Commessa {code}"
   },
   "it": {
+    "workload.check_tag": "Check",
+    "workload.check_title": "Check pre-intervento",
     "workload.title": "Settimana {n} · {range}",
     "workload.prev": "Settimana precedente",
     "workload.next": "Settimana successiva",

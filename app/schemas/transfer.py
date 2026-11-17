@@ -100,6 +100,7 @@ class XRow(_In):
     migration_status: MigrationStatus = statuses.MIGRATION_STATUSES[0]
     planned_date: date | None = None
     executed_date: date | None = None
+    check_executed_date: date | None = None    # since 0.29
     technician: str | None = None              # chiave di XTechnician
     notes: str | None = Field(default=None, max_length=20000)
 
@@ -121,6 +122,11 @@ class XEvent(_In):
     notes: str | None = Field(default=None, max_length=4000)
     participants: list[str] = Field(default_factory=list)  # chiavi di XTechnician
     servers: list[XRow] = Field(default_factory=list)
+    # pre-check (since 0.29): day, times and technicians (keys of XTechnician)
+    check_date: date | None = None
+    check_start_time: time | None = None
+    check_end_time: time | None = None
+    check_participants: list[str] = Field(default_factory=list)
 
     _clean = field_validator("title", "notes", mode="before")(classmethod(lambda cls, v: _text(v)))
 

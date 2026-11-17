@@ -118,6 +118,8 @@ export const createUser = (data) => request("POST", "/api/users", data);
 /** Tecnico al volo (tutti gli utenti): riusa quello con lo stesso nome o lo crea. */
 export const addTechnician = (displayName) => request("POST", "/api/users/technicians", { display_name: displayName });
 export const patchUser = (id, changes) => request("PATCH", `/api/users/${q(id)}`, changes);
+export const setCheckParticipants = (eventId, userIds) =>
+  request("PUT", `/api/events/${q(eventId)}/check-participants`, { user_ids: userIds });
 export const setParticipants = (eventId, userIds) =>
   request("PUT", `/api/events/${q(eventId)}/participants`, { user_ids: userIds });
 export const fetchOptions = () => getJSON("/api/options");

@@ -17,7 +17,7 @@ import { promptNewOsVersions } from "./osdialog.js";
 import { people } from "./people.js";
 import { session } from "./session.js";
 import { makeResizable } from "./resize.js";
-import { formatLongDate, formatTime } from "./dates.js";
+import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import { locale, t } from "./i18n.js";
 import {
   CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, stageLabel, toneOf,
@@ -1014,6 +1014,8 @@ export class Sheet {
   #tone(tr, data) {
     const os = tr.querySelector('select[data-field="operating_system"]');
     if (os) markOutdated(os, data.operating_system);
+    const check = tr.querySelector('select[data-field="check_status"]');
+    if (check) check.title = data.check_executed_date ? t("sheet.check_done_on", { date: formatShortDate(data.check_executed_date) }) : "";
     for (const field of ["check_status", "migration_status"]) {
       const select = tr.querySelector(`select[data-field="${field}"]`);
       if (select) select.dataset.tone = toneOf(data[field]);

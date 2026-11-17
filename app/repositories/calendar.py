@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from datetime import date
 
-from sqlalchemy import case, func, select
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.models import AuditLog, Customer, CustomerOrder, Event, EventServer, EventUser, Project, Server
+from app import checks
+from app.models import AuditLog, Customer, CustomerOrder, Event, EventCheckUser, EventServer, EventUser, Project, Server
 
 
 def load_project(session: Session, project_id: int) -> Project | None:
@@ -51,6 +52,9 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             func.sum(case((es.migration_status == "fallita", 1), else_=0)).label("failed"),
             func.sum(case((es.migration_status == "completata", 1), else_=0)).label("done"),
             func.sum(case((es.executed_date.is_not(None), 1), else_=0)).label("executed"),
+            func.sum(case((es.check_status == "ok", 1), else_=0)).label("check_ok"),
+            func.sum(case((es.check_status.in_(checks.DONE), 1), else_=0)).label("check_done"),
+            func.sum(case((es.check_status.in_(checks.PENDING), 1), else_=0)).label("check_pending"),
         )
         .group_by(es.event_id)
         .subquery()
@@ -68,23 +72,33 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             func.coalesce(counts.c.done, 0),
             func.coalesce(counts.c.executed, 0),
             CustomerOrder.code,
+            func.coalesce(counts.c.check_ok, 0),
+            func.coalesce(counts.c.check_done, 0),
+            func.coalesce(counts.c.check_pending, 0),
         )
         .join(Project, Project.id == Event.project_id)
         .outerjoin(Customer, Customer.id == Project.customer_id)
         .outerjoin(CustomerOrder, CustomerOrder.id == Event.order_id)
         .outerjoin(counts, counts.c.event_id == Event.id)
-        .where(Event.event_date.between(start, end))
+        .where(or_(Event.event_date.between(start, end), Event.check_date.between(start, end)))
         .order_by(Event.event_date, Event.start_time, Project.name)
     )
     rows = session.execute(stmt).all()
     ids = [r[0].id for r in rows]
 
     people: dict[int, set[int]] = {i: set() for i in ids}
+    participants: dict[int, set[int]] = {i: set() for i in ids}
+    checkers: dict[int, set[int]] = {i: set() for i in ids}
     if ids:
+        for event_id, user_id in session.execute(
+            select(EventCheckUser.event_id, EventCheckUser.user_id).where(EventCheckUser.event_id.in_(ids))
+        ):
+            checkers[event_id].add(user_id)
         for event_id, user_id in session.execute(
             select(EventUser.event_id, EventUser.user_id).where(EventUser.event_id.in_(ids))
         ):
             people[event_id].add(user_id)
+            participants[event_id].add(user_id)
         for event_id, user_id in session.execute(
             select(es.event_id, es.assigned_user_id).where(
                 es.event_id.in_(ids), es.assigned_user_id.is_not(None)
@@ -106,8 +120,14 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             "customer_id": customer_id,
             "customer_name": customer_name,
             "customer_color": customer_color,
+            "check_ok": check_ok,
+            "check_done": check_done,
+            "check_pending": check_pending,
+            # technicians of the check: its own, otherwise the participants of the intervention
+            "check_user_ids": sorted(checkers[e.id] or participants[e.id]),
         }
-        for e, name, customer_id, customer_name, customer_color, n, ko, failed, done, executed, order_code in rows
+        for (e, name, customer_id, customer_name, customer_color, n, ko, failed, done, executed, order_code,
+             check_ok, check_done, check_pending) in rows
     ]
 
 
@@ -116,6 +136,7 @@ def _detail_options():
         selectinload(Event.project).selectinload(Project.customer),
         selectinload(Event.order),
         selectinload(Event.participants).selectinload(EventUser.user),
+        selectinload(Event.check_participants).selectinload(EventCheckUser.user),
         selectinload(Event.server_links).selectinload(EventServer.server),
         selectinload(Event.server_links).selectinload(EventServer.assigned_user),
     )
@@ -130,7 +151,7 @@ def list_event_details_on(session: Session, day: date) -> list[Event]:
     stmt = (
         select(Event)
         .join(Project, Project.id == Event.project_id)
-        .where(Event.event_date == day)
+        .where(or_(Event.event_date == day, Event.check_date == day))   # also the ones whose check is that day
         .options(*_detail_options())
         .order_by(Event.start_time, Project.name)
     )

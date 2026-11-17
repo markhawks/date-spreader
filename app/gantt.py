@@ -7,7 +7,8 @@ Hours of an intervention:
 - "missing": no worked hours and no complete times → 0 hours, flagged.
 Cancelled and postponed interventions count 0 hours unless worked hours were entered.
 Man-hours = hours × technicians of the intervention (participants and technicians assigned to its
-server rows).
+server rows). A pre-check with start and end times adds its hours × its technicians (the check's own,
+otherwise the participants) to the man-hours and to the hours of those technicians.
 
 Used by the Gantt view (JSON) and by its Excel export.
 """
@@ -20,7 +21,7 @@ from datetime import date, datetime, time, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.models import Event, EventServer, EventUser, Project
+from app.models import Event, EventCheckUser, EventServer, EventUser, Project
 
 NOT_WORKED = ("annullato", "rinviato")
 END_OF_DAY = time(23, 59)
@@ -39,6 +40,24 @@ def event_hours(e: Event) -> tuple[float, str]:
             end += timedelta(minutes=1)
         return round(max((end - start).total_seconds(), 0) / 3600, 2), "times"
     return 0.0, "missing"
+
+
+def _check(e: Event) -> dict | None:
+    """The pre-check of an intervention for the Gantt (day, times, technicians, hours), or None."""
+    if not e.check_date:
+        return None
+    people = e.check_participants or e.participants
+    techs = sorted(((p.user.id, p.user.display_name) for p in people), key=lambda kv: kv[1].lower())
+    hours = 0.0
+    if e.check_start_time and e.check_end_time and e.status not in NOT_WORKED:
+        start = datetime.combine(e.check_date, e.check_start_time)
+        end = datetime.combine(e.check_date, e.check_end_time)
+        if e.check_end_time == END_OF_DAY:
+            end += timedelta(minutes=1)
+        hours = round(max((end - start).total_seconds(), 0) / 3600, 2)
+    return {"date": e.check_date, "start_time": e.check_start_time, "end_time": e.check_end_time,
+            "technician_ids": [k for k, _ in techs], "technicians": [v for _, v in techs], "hours": hours,
+            "man_hours": round(hours * len(techs), 2)}
 
 
 def _totals() -> dict:
@@ -61,6 +80,12 @@ def _add(tot: dict, ev: dict) -> None:
         t = tot["tech_hours"].setdefault(uid, {"id": uid, "name": name, "hours": 0.0, "events": 0})
         t["hours"] += ev["hours"]
         t["events"] += 1
+    check = ev.get("check")
+    if check:
+        tot["man_hours"] += check["man_hours"]
+        for uid, name in zip(check["technician_ids"], check["technicians"]):
+            t = tot["tech_hours"].setdefault(uid, {"id": uid, "name": name, "hours": 0.0, "events": 0})
+            t["hours"] += check["hours"]
 
 
 def _out(tot: dict) -> dict:
@@ -85,6 +110,7 @@ def build_gantt(session: Session, start: date, end: date, customer_id: int | Non
             selectinload(Event.project).selectinload(Project.customer),
             selectinload(Event.order),
             selectinload(Event.participants).selectinload(EventUser.user),
+            selectinload(Event.check_participants).selectinload(EventCheckUser.user),
             selectinload(Event.server_links).selectinload(EventServer.assigned_user),
         )
     )
@@ -111,6 +137,7 @@ def build_gantt(session: Session, start: date, end: date, customer_id: int | Non
             "server_ids": {link.server_id for link in e.server_links},
             "servers": len(e.server_links),
             "migrated": sum(1 for link in e.server_links if link.migration_status == "completata"),
+            "check": _check(e),
         }
         customer = e.project.customer
         key = (customer.name.lower() if customer else "￿", customer.id if customer else None,

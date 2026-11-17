@@ -19,7 +19,7 @@ const el = (tag, className, text) => {
 };
 
 const STATES = ["conflict", "changed", "new", "changed_here", "deleted_there", "deleted_here", "only_here", "equal"];
-const DATE_FIELDS = new Set(["event_date", "planned_date", "executed_date"]);
+const DATE_FIELDS = new Set(["event_date", "planned_date", "executed_date", "check_date", "check_executed_date"]);
 const VALUE_LABELS = {
   status: { ...EVENT_STATUS, ...PROJECT_STATUS },
   event_type: EVENT_TYPE,

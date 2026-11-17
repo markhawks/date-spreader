@@ -2,6 +2,7 @@
 
 import {
   addEvent, deleteEvent, deleteProject, duplicateEvent, exportCustomer, fetchCustomerOrders, exportProject, fetchEvent, patchEvent, patchProject,
+  setCheckParticipants,
 } from "./api.js";
 import { confirmDanger } from "./confirm.js";
 import { session } from "./session.js";
@@ -178,6 +179,74 @@ export function formatHours(h) {
   return new Intl.NumberFormat(locale(), { maximumFractionDigits: 2 }).format(h);
 }
 
+/** The working day before an ISO date (Friday before a Monday). */
+export function workingDayBefore(iso) {
+  let day = addDays(iso, -1);
+  while ([0, 6].includes(new Date(`${day}T12:00:00`).getDay())) day = addDays(day, -1);
+  return day;
+}
+
+/**
+ * «Pre-check» section of the intervention form: day (on or before the intervention), times and
+ * technicians of the check (none = the participants). Not a separate intervention.
+ */
+function checkSection(event, dateInput) {
+  const box = el("fieldset", "pf-event pf-check");
+  const on = Object.assign(el("input"), { type: "checkbox", checked: Boolean(event?.check_date) });
+  const legend = el("legend");
+  const toggle = el("label", "pf-toggle");
+  toggle.append(on, " ", t("projectdialog.check_title"));
+  legend.append(toggle);
+  const day = Object.assign(el("input"), { type: "date", value: event?.check_date ?? "" });
+  const before = el("button", "btn btn-small", t("projectdialog.check_day_before"));
+  before.type = "button";
+  before.title = t("projectdialog.check_day_before_title");
+  before.addEventListener("click", () => { if (dateInput.value) day.value = workingDayBefore(dateInput.value); });
+  const dayBox = el("span", "pf-check-day");
+  dayBox.append(day, before);
+  const start = timeSelect(event?.check_start_time ?? "", { label: t("projectdialog.check_start") });
+  const end = timeSelect(event?.check_end_time ?? "", { label: t("projectdialog.check_end") });
+  const initialIds = (event?.check_participants ?? []).map((p) => p.id);
+  const picker = participantPicker(initialIds, { label: t("projectdialog.check_people") });
+  const peopleField = el("div", "pf-field pf-wide");
+  peopleField.append(el("span", null, t("projectdialog.check_people")), picker,
+    el("span", "muted small", t("projectdialog.check_people_hint")));
+  const grid = el("div", "pf-grid");
+  grid.append(labeled(t("projectdialog.check_day"), dayBox, { wide: true }),
+    labeled(t("projectdialog.check_start"), start), labeled(t("projectdialog.check_end"), end), peopleField);
+  box.append(legend, el("p", "muted small pf-note", t("projectdialog.check_hint")), grid);
+  const sync = () => {
+    grid.hidden = !on.checked;
+    if (on.checked && !day.value && dateInput.value) day.value = workingDayBefore(dateInput.value);
+  };
+  on.addEventListener("change", sync);
+  sync();
+  const hhmm = (v) => (v ?? "").slice(0, 5);
+  return {
+    box,
+    error(eventDate) {
+      if (!on.checked) return null;
+      if (!day.value) return { message: t("projectdialog.check_day_required"), field: day };
+      if (eventDate && day.value > eventDate) return { message: t("projectdialog.check_after_event"), field: day };
+      if (start.value && end.value && end.value <= start.value) return { message: t("projectdialog.end_after_start"), field: end };
+      return null;
+    },
+    changes() {
+      const want = on.checked
+        ? { check_date: day.value, check_start_time: start.value || null, check_end_time: end.value || null }
+        : { check_date: null };
+      const have = { check_date: event?.check_date ?? null, check_start_time: hhmm(event?.check_start_time) || null,
+        check_end_time: hhmm(event?.check_end_time) || null };
+      return Object.fromEntries(Object.entries(want).filter(([k, v]) => (v ?? null) !== (have[k] ?? null)));
+    },
+    peopleIds: () => (on.checked ? picker.getIds() : []),
+    peopleChanged() {
+      const now = (on.checked ? picker.getIds() : []).slice().sort();
+      return JSON.stringify(now) !== JSON.stringify(initialIds.slice().sort());
+    },
+  };
+}
+
 export function openEventForm({ project, event = null, date: initialDate = null }) {
   return new Promise(async (resolve) => {
     await people.load();
@@ -227,6 +296,8 @@ export function openEventForm({ project, event = null, date: initialDate = null 
       grid.append(p);
     }
     d.body.append(grid);
+    const check = checkSection(event, date);
+    d.body.append(check.box);
     if (editing) {
       d.body.append(el("p", "muted small", t("projectdialog.edit_event_hint")));
     }
@@ -262,6 +333,8 @@ export function openEventForm({ project, event = null, date: initialDate = null 
       if (worked.value !== "" && !(Number(worked.value) >= 0 && Number(worked.value) <= 1000)) {
         return d.showError(t("projectdialog.worked_hours_invalid"), worked);
       }
+      const checkError = check.error(date.value);
+      if (checkError) return d.showError(checkError.message, checkError.field);
       const values = {
         event_date: date.value, event_type: type.value, title: title.value,
         start_time: start.value, end_time: end.value, notes: notes.value,
@@ -280,11 +353,15 @@ export function openEventForm({ project, event = null, date: initialDate = null 
             order_code: event.order_code ?? "", worked_hours: event.worked_hours ?? "",
           };
           const changes = Object.fromEntries(Object.entries(values).filter(([k, v]) => norm(v) !== norm(before[k])));
-          if (!Object.keys(changes).length) { d.dialog.close(); return; }
-          saved = await patchEvent(event.id, { version: event.version, ...changes });
+          Object.assign(changes, check.changes());
+          if (!Object.keys(changes).length && !check.peopleChanged()) { d.dialog.close(); return; }
+          saved = Object.keys(changes).length ? await patchEvent(event.id, { version: event.version, ...changes }) : event;
         } else {
           saved = await addEvent(project.id, { ...values, participant_ids: picker.getIds() });
+          const changes = check.changes();
+          if (Object.keys(changes).length) saved = await patchEvent(saved.id, { version: saved.version, ...changes });
         }
+        if (check.peopleChanged()) await setCheckParticipants(saved.id, check.peopleIds());
         result = { saved, previousDate: event?.event_date ?? null };
         d.dialog.close();
       } catch (err) {

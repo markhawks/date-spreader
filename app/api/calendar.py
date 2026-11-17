@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app import checks
 from app.api.deps import get_session
 from app.i18n import tr
 from app.repositories import calendar as repo
@@ -55,33 +56,37 @@ def list_events(
     if (end - start).days > MAX_RANGE_DAYS:
         raise HTTPException(422, tr("calendar.max_range", days=MAX_RANGE_DAYS))
     rows = repo.list_events_between(session, start, end)
-    found = conflicts_repo.conflicts_on(session, {r["event"].event_date for r in rows})
-    return [
-        EventSummary(
-            id=r["event"].id,
-            project_id=r["event"].project_id,
-            project_name=r["project_name"],
-            title=r["event"].title,
-            event_date=r["event"].event_date,
-            start_time=r["event"].start_time,
-            end_time=r["event"].end_time,
-            event_type=r["event"].event_type,
-            status=r["event"].status,
-            server_count=r["server_count"],
-            check_ko=r["check_ko"],
-            migration_failed=r["migration_failed"],
-            migrated=r["migrated"],
-            executed=r["executed"],
-            user_ids=r["user_ids"],
-            customer_id=r["customer_id"],
-            customer_name=r["customer_name"],
-            customer_color=r["customer_color"],
-            order_code=r["order_code"],
-            conflict_users=sorted(found[r["event"].id].users) if r["event"].id in found else [],
-            conflict_servers=len(found[r["event"].id].servers) if r["event"].id in found else 0,
+    days = {d for r in rows for d in (r["event"].event_date, r["event"].check_date) if d and start <= d <= end}
+    found = conflicts_repo.conflicts_on(session, days)
+    today = date.today()
+    out = []
+    for r in rows:
+        e = r["event"]
+        common = dict(
+            id=e.id, project_id=e.project_id, project_name=r["project_name"], title=e.title,
+            event_type=e.event_type, status=e.status, server_count=r["server_count"], check_ko=r["check_ko"],
+            migration_failed=r["migration_failed"], migrated=r["migrated"], executed=r["executed"],
+            customer_id=r["customer_id"], customer_name=r["customer_name"], customer_color=r["customer_color"],
+            order_code=r["order_code"], check_date=e.check_date, check_done=r["check_done"],
+            intervention_date=e.event_date,
+            check_ok=r["check_ok"], check_pending=r["check_pending"],
+            check_warning=checks.warning(e.status, e.check_date, r["check_pending"], today),
         )
-        for r in rows
-    ]
+        for kind, day in ((conflicts_repo.EVENT, e.event_date), (conflicts_repo.CHECK, e.check_date)):
+            if not day or not start <= day <= end:
+                continue
+            c = found.get((e.id, kind))
+            is_check = kind == conflicts_repo.CHECK
+            out.append(EventSummary(
+                **common, kind=kind, event_date=day,
+                start_time=e.check_start_time if is_check else e.start_time,
+                end_time=e.check_end_time if is_check else e.end_time,
+                user_ids=r["check_user_ids"] if is_check else r["user_ids"],
+                conflict_users=sorted(c.users) if c else [],
+                conflict_servers=len(c.servers) if c else 0,
+            ))
+    out.sort(key=lambda x: (x.event_date, x.start_time is not None, x.start_time or time.min, x.project_name.lower()))
+    return out
 
 
 @router.get("/events/{event_id}", response_model=EventDetail)

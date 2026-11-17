@@ -232,7 +232,7 @@ export async function startRecap({ me, toast }) {
   function render() {
     tabs.querySelectorAll(".rc-tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.value === filter)));
     const today = todayIso();
-    const shown = events.filter((ev) => filter === "all" || mine(ev));
+    const shown = events.filter((ev) => ev.kind !== "check" && (filter === "all" || mine(ev))); // pre-checks: in the full version
     const sort = (a, b) => (a.event_date + (a.start_time ?? "")).localeCompare(b.event_date + (b.start_time ?? ""));
     const toClose = shown.filter((ev) => ev.event_date < today && !CLOSED.includes(ev.status)).sort(sort);
     const todays = shown.filter((ev) => ev.event_date === today).sort(sort);

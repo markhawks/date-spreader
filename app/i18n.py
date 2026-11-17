@@ -380,6 +380,10 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "The intervention type is required.",
         "it": "Il tipo dell'intervento è obbligatorio.",
     },
+    "events.check_after_event": {
+        "en": "The check must be on the day of the intervention or before.",
+        "it": "Il check deve essere nel giorno dell'intervento o prima.",
+    },
     "events.end_before_start": {
         "en": "The end time must be later than the start time.",
         "it": "L'ora di fine deve essere successiva all'ora di inizio.",

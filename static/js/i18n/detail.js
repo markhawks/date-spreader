@@ -1,6 +1,10 @@
 // Translations for detail.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "detail.check_tag": "Check",
+    "detail.check_progress": "{ok}/{n} OK",
+    "detail.check_missing": {"one": "1 server without a good check", "other": "{n} servers without a good check"},
+    "detail.check_done_on": "check {date}",
     "detail.col_server": "Server",
     "detail.col_env": "Env.",
     "detail.col_os_kernel": "OS · kernel",
@@ -68,6 +72,10 @@ export default {
     "detail.order_removed": "Commessa removed from the intervention."
   },
   "it": {
+    "detail.check_tag": "Check",
+    "detail.check_progress": "{ok}/{n} OK",
+    "detail.check_missing": {"one": "1 server senza check riuscito", "other": "{n} server senza check riuscito"},
+    "detail.check_done_on": "check {date}",
     "detail.col_server": "Server",
     "detail.col_env": "Amb.",
     "detail.col_os_kernel": "SO · kernel",

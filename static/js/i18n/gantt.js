@@ -1,6 +1,8 @@
 // Translations for gantt.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "gantt.check_short": "Chk",
+    "gantt.check_title": "Pre-check",
     "gantt.title": "Gantt",
     "gantt.loading": "Loading…",
     "gantt.load_error": "The Gantt could not be loaded: {message}",
@@ -79,6 +81,8 @@ export default {
     "gantt.tech_note": "Each technician gets the hours of the interventions they are in (as participant or assigned to a server row)."
   },
   "it": {
+    "gantt.check_short": "Chk",
+    "gantt.check_title": "Check pre-intervento",
     "gantt.title": "Gantt",
     "gantt.loading": "Caricamento…",
     "gantt.load_error": "Impossibile caricare il Gantt: {message}",

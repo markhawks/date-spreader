@@ -189,7 +189,8 @@ export class Workload {
   }
 
   #chip(ev, userId) {
-    const b = el("button", `wl-chip status-${ev.status}`);
+    const check = ev.kind === "check";
+    const b = el("button", `wl-chip status-${ev.status}${check ? " wl-check" : ""}`);
     b.type = "button";
     b.dataset.eventId = ev.id;
     b.style.setProperty("--c", colorFor(ev.project_id));
@@ -197,9 +198,11 @@ export class Workload {
     if (conflict) b.classList.add("has-conflict");
     const time = ev.start_time ? `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}` : t("workload.all_day");
     const nameEl = el("span", "wl-chip-name", ev.project_name);
-    if (conflict) nameEl.prepend(warnIcon());
+    if (check) nameEl.prepend(el("span", "chip-check-tag", t("workload.check_tag")), " ");
+    if (conflict || (!check && ev.check_warning)) nameEl.prepend(warnIcon());
     b.append(nameEl, el("span", "wl-chip-meta", [time, ev.customer_name].filter(Boolean).join(" · ")));
     b.title = [
+      check && t("workload.check_title"),
       ev.customer_name, ev.order_code && t("workload.order", { code: ev.order_code }), ev.project_name, ev.title, time, EVENT_STATUS[ev.status] ?? ev.status,
       conflict && t("workload.conflict_tip"),
     ].filter(Boolean).join(" · ");

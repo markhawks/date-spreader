@@ -137,6 +137,21 @@ def set_participants(session: SessionDep, event_id: int, data: ParticipantsUpdat
 
 
 
+@router.put("/events/{event_id}/check-participants", response_model=list[UserRef])
+def set_check_participants(session: SessionDep, event_id: int, data: ParticipantsUpdate) -> list[UserRef]:
+    """Replaces the technicians of the pre-check of an intervention."""
+    event = calendar_repo.get_event_detail(session, event_id)
+    if event is None:
+        raise HTTPException(404, tr("events.not_found"))
+    try:
+        users = repo.set_check_participants(session, event, data.user_ids)
+        session.commit()
+    except ValidationProblem as exc:
+        session.rollback()
+        raise HTTPException(422, str(exc)) from None
+    return [UserRef(id=u.id, display_name=u.display_name) for u in users]
+
+
 # --- preferenze personali ----------------------------------------------------------------
 
 

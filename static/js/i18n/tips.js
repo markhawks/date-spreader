@@ -58,7 +58,8 @@ export default {
     "tips.tip.admin_customer_color": "Administrators: in Settings → Administration → Customers each customer can have its own color, used by all its projects.",
     "tips.tip.admin_updates": "Administrators: a small green ↑ on the version at the top left means a new version is out on GitHub; a click shows what's new and the command to upgrade.",
     "tips.tip.os_outdated": "An operating system in yellow is older than the up-to-date version of its major (e.g. RHEL 9.6 when 9.8 is the current one). Administrators set the up-to-date versions in Settings → Administration → Operating systems.",
-    "tips.tip.completed_upgrade": "When a server's status becomes «Completed», «Executed on» fills in by itself, and the portal offers to make the target OS and kernel the current ones of the server."
+    "tips.tip.completed_upgrade": "When a server's status becomes «Completed», «Executed on» fills in by itself, and the portal offers to make the target OS and kernel the current ones of the server.",
+    "tips.tip.pre_check": "A check the day before a patching? In the intervention form tick «Pre-check»: it appears in the calendar on its day, with its own times and technicians, without creating another intervention."
   },
   "it": {
     "tips.title": "Suggerimento del giorno",
@@ -118,6 +119,7 @@ export default {
     "tips.tip.admin_customer_color": "Amministratori: in Impostazioni → Amministrazione → Clienti ogni cliente può avere un suo colore, usato da tutti i suoi progetti.",
     "tips.tip.admin_updates": "Amministratori: un piccolo ↑ verde sulla versione in alto a sinistra vuol dire che su GitHub è uscita una nuova versione; un clic mostra le novità e il comando per aggiornare.",
     "tips.tip.os_outdated": "Un sistema operativo in giallo è più vecchio della versione aggiornata della sua major (es. RHEL 9.6 quando quella attuale è la 9.8). Gli amministratori indicano le versioni aggiornate in Impostazioni → Amministrazione → Sistemi operativi.",
-    "tips.tip.completed_upgrade": "Quando lo stato di un server diventa «Completata», «Eseguito il» si compila da solo e il portale propone di far diventare SO e kernel target quelli attuali del server."
+    "tips.tip.completed_upgrade": "Quando lo stato di un server diventa «Completata», «Eseguito il» si compila da solo e il portale propone di far diventare SO e kernel target quelli attuali del server.",
+    "tips.tip.pre_check": "Un check il giorno prima di un patching? Nella finestra dell'intervento spunta «Check pre-intervento»: compare nel calendario nel suo giorno, con orario e tecnici suoi, senza creare un altro intervento."
   }
 };

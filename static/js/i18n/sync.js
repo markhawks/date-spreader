@@ -1,6 +1,11 @@
 // Translations for sync.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "sync.field.check_date": "check day",
+    "sync.field.check_start_time": "check from",
+    "sync.field.check_end_time": "check to",
+    "sync.field.check_participants": "check technicians",
+    "sync.field.check_executed_date": "check done on",
     "sync.title": "Sync a customer from another installation",
     "sync.close": "Close",
     "sync.note_html": "On the other installation: <strong>Settings → Customers → Export</strong> of the customer. Here, choose that file: you will see the differences with the data here, item by item. <strong>Nothing changes until you press Apply</strong>, and a backup is taken first.",
@@ -81,6 +86,11 @@ export default {
     "sync.field.current_kernel": "kernel"
   },
   "it": {
+    "sync.field.check_date": "giorno del check",
+    "sync.field.check_start_time": "check dalle",
+    "sync.field.check_end_time": "check alle",
+    "sync.field.check_participants": "tecnici del check",
+    "sync.field.check_executed_date": "check eseguito il",
     "sync.title": "Sincronizza un cliente da un'altra installazione",
     "sync.close": "Chiudi",
     "sync.note_html": "Sull'altra installazione: <strong>Impostazioni → Clienti → Esporta</strong> del cliente. Qui scegli quel file: vedrai le differenze con i dati di qui, voce per voce. <strong>Non cambia niente finché non premi Applica</strong>, e prima viene fatto un backup.",

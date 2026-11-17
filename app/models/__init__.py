@@ -123,6 +123,11 @@ class Event(VersionedMixin, TimestampMixin, Base):
     worked_hours: Mapped[float | None] = mapped_column(Float)
     # Same value on every installation (see Project.sync_uid)
     sync_uid: Mapped[str] = mapped_column(String(36), unique=True, default=new_sync_uid)
+    # Pre-check (e.g. the day before a patching): when the check of the servers is planned. Not a separate
+    # intervention: the calendar shows it on its day, with its own time and technicians (check_participants)
+    check_date: Mapped[date | None] = mapped_column(Date, index=True)
+    check_start_time: Mapped[time | None] = mapped_column(Time)
+    check_end_time: Mapped[time | None] = mapped_column(Time)
 
     project: Mapped[Project] = relationship(back_populates="events")
     order: Mapped[CustomerOrder | None] = relationship()
@@ -130,6 +135,9 @@ class Event(VersionedMixin, TimestampMixin, Base):
         back_populates="event", cascade="all, delete-orphan", order_by="EventServer.position"
     )
     participants: Mapped[list[EventUser]] = relationship(
+        back_populates="event", cascade="all, delete-orphan"
+    )
+    check_participants: Mapped[list[EventCheckUser]] = relationship(
         back_populates="event", cascade="all, delete-orphan"
     )
 
@@ -249,6 +257,8 @@ class EventServer(VersionedMixin, TimestampMixin, Base):
     )
     planned_date: Mapped[date | None] = mapped_column(Date)
     executed_date: Mapped[date | None] = mapped_column(Date)
+    # When the check of this server was done (filled in when check_status becomes OK or KO)
+    check_executed_date: Mapped[date | None] = mapped_column(Date)
     assigned_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), index=True
     )
@@ -272,6 +282,22 @@ class EventUser(Base):
     )
 
     event: Mapped[Event] = relationship(back_populates="participants")
+    user: Mapped[User] = relationship()
+
+
+class EventCheckUser(Base):
+    """Technicians of the pre-check of an intervention (none = the participants of the intervention)."""
+
+    __tablename__ = "event_check_users"
+
+    event_id: Mapped[int] = mapped_column(
+        ForeignKey("events.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+
+    event: Mapped[Event] = relationship(back_populates="check_participants")
     user: Mapped[User] = relationship()
 
 

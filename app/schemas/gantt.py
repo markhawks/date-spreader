@@ -28,6 +28,18 @@ class Totals(BaseModel):
     technicians: list[TechHours]
 
 
+class GanttCheck(BaseModel):
+    """Pre-check of an intervention (see app/gantt.py)."""
+
+    date: date
+    start_time: time | None
+    end_time: time | None
+    technician_ids: list[int]
+    technicians: list[str]
+    hours: float
+    man_hours: float
+
+
 class GanttEvent(BaseModel):
     id: int
     event_date: date
@@ -44,6 +56,7 @@ class GanttEvent(BaseModel):
     technicians: list[str]
     servers: int
     migrated: int
+    check: GanttCheck | None = None
 
 
 class GanttProject(BaseModel):

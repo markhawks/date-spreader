@@ -173,6 +173,29 @@ def set_participants(session: Session, event: Event, user_ids: list[int]) -> lis
     return sorted(users, key=lambda u: u.display_name)
 
 
+def set_check_participants(session: Session, event: Event, user_ids: list[int]) -> list[User]:
+    """Replaces the technicians of the pre-check (empty = the participants of the intervention)."""
+    from app.models import EventCheckUser
+
+    current = {p.user_id: p for p in event.check_participants}
+    users = _resolve(session, user_ids, allowed_inactive=set(current))
+    old_names = sorted(p.user.display_name for p in event.check_participants)
+    wanted = {u.id for u in users}
+    for uid, link in current.items():
+        if uid not in wanted:
+            event.check_participants.remove(link)
+    for u in users:
+        if u.id not in current:
+            event.check_participants.append(EventCheckUser(user=u))
+    session.flush()
+    new_names = sorted(u.display_name for u in users)
+    if old_names != new_names:
+        audit.record(session, "update", "event_check_users", event.id,
+                     {"tecnici check": (", ".join(old_names) or None, ", ".join(new_names) or None)},
+                     event_id=event.id)
+    return sorted(users, key=lambda u: u.display_name)
+
+
 def add_participants_to_new_event(session: Session, event: Event, user_ids: list[int]) -> None:
     for u in _resolve(session, user_ids):
         event.participants.append(EventUser(user=u))

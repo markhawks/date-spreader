@@ -9,8 +9,8 @@ import { eventStatusControl } from "./eventstatus.js";
 import { participantPicker } from "./people.js";
 import { makeResizable } from "./resize.js";
 import { Sheet } from "./sheet.js";
-import { conflictBox } from "./conflicts.js";
-import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
+import { conflictBox, warnIcon } from "./conflicts.js";
+import { formatLongDate, formatMediumDate, formatShortDate, formatTime } from "./dates.js";
 import { t } from "./i18n.js";
 import {
   CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent, stageDone, stageLabel,
@@ -66,7 +66,10 @@ const COLUMNS = [
     ].join("\n");
     return wrap;
   }],
-  ["Check", (s) => badge(s.check_status, CHECK_STATUS)],
+  ["Check", (s) => stack(
+    badge(s.check_status, CHECK_STATUS),
+    s.check_executed_date ? el("span", "sub", t("detail.check_done_on", { date: formatShortDate(s.check_executed_date) })) : null,
+  )],
   ["Migrazione", (s) => stack(
     badge(s.migration_status, MIGRATION_STATUS),
     s.executed_date ? t("detail.executed_on", { date: formatShortDate(s.executed_date) }) : null,
@@ -88,6 +91,28 @@ const CONFIG_COLUMNS = [
   ["Eseguito il", (s) => (s.executed_date ? formatShortDate(s.executed_date) : el("span", "muted", "—"))],
   ["Tecnico", (s) => s.assigned_user?.display_name ?? el("span", "muted", "—")],
 ];
+
+/** "Check: Tue 17 Nov · 15:00–17:00 · Luca, Sara · 2/4 OK" (null without a planned check). */
+function checkLineOf(ev) {
+  if (!ev.check_date) return null;
+  const n = ev.servers.length;
+  const ok = ev.servers.filter((s) => s.check_status === "ok").length;
+  const pending = ev.servers.filter((s) => ["da_fare", "in_corso", "ko"].includes(s.check_status)).length;
+  const time = ev.check_start_time
+    ? (ev.check_end_time
+      ? t("detail.time_range", { start: formatTime(ev.check_start_time), end: formatTime(ev.check_end_time) })
+      : t("detail.time_from", { start: formatTime(ev.check_start_time) }))
+    : null;
+  const who = (ev.check_participants?.length ? ev.check_participants : ev.participants).map((p) => p.display_name).join(", ");
+  const box = el("p", `event-check${ev.check_warning ? " warn" : ""}`);
+  box.append(el("span", "chip-check-tag", t("detail.check_tag")), " ",
+    [formatMediumDate(ev.check_date), time, who || null, n ? t("detail.check_progress", { ok, n }) : null].filter(Boolean).join(" · "));
+  if (ev.check_warning) {
+    box.prepend(warnIcon());
+    box.append(" — ", el("strong", null, t("detail.check_missing", { n: pending })));
+  }
+  return box;
+}
 
 export class DetailPanel {
   /**
@@ -497,6 +522,8 @@ export class DetailPanel {
       },
     }));
     head.append(people);
+    const check = this.#checkLine(ev);
+    if (check) head.append(check);
     if (ev.notes) head.append(el("p", "event-notes", ev.notes));
 
     if (withSiblings) {
@@ -526,6 +553,8 @@ export class DetailPanel {
     }
     return card;
   }
+
+  #checkLine(ev) { return checkLineOf(ev); }
 
   #siblings(project, currentId) {
     const nav = el("nav", "event-dates");

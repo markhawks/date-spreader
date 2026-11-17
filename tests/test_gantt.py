@@ -104,3 +104,21 @@ def test_excel_export(api, setup):
     assert "C-2027-001" in values and "Senza commessa" in values and values[-1] == "Totale"
     summary = wb["Riepilogo"]
     assert summary["A2"].value == "C-2027-001" and summary["D2"].value == 8.5
+
+
+def test_pre_check_hours_go_to_its_technicians(client, session_factory):
+    from datetime import date, time
+    from app.models import Customer, Event, EventCheckUser, Project, User
+
+    with session_factory.begin() as s:
+        u = User(external_id="chk@example.com", display_name="Check Tech")
+        p = Project(name="Chk project", customer=Customer(name="Chk customer"))
+        e = Event(project=p, event_date=date(2026, 12, 3), start_time=time(9), end_time=time(11),
+                  check_date=date(2026, 12, 2), check_start_time=time(15), check_end_time=time(16, 30))
+        e.check_participants.append(EventCheckUser(user=u))
+        s.add_all([u, p, e])
+    r = client.get("/api/reports/gantt", params={"start": "2026-12-01", "end": "2026-12-05"}).json()
+    ev = r["orders"][0]["projects"][0]["events"][0]
+    assert ev["check"]["date"] == "2026-12-02" and ev["check"]["hours"] == 1.5 and ev["check"]["technicians"] == ["Check Tech"]
+    assert r["totals"]["man_hours"] == 1.5     # the intervention has no technicians; the check has one
+    assert [(t["name"], t["hours"]) for t in r["totals"]["technicians"]] == [("Check Tech", 1.5)]

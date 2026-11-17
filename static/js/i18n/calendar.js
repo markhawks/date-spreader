@@ -1,5 +1,11 @@
 export default {
   "en": {
+    "calendar.check_tag": "Check",
+    "calendar.check_title": "Pre-check",
+    "calendar.check_progress": "check {ok}/{n} OK",
+    "calendar.check_progress_long": "check: {ok} OK, {done} done of {n}",
+    "calendar.check_for": "intervention on {date}",
+    "calendar.chip_check_missing": {"one": "check missing on 1 server", "other": "check missing on {n} servers"},
     "calendar.week_title": "Week {n} · {range}",
     "calendar.load_month_error": "Could not load {month}: {message}",
     "calendar.load_week_error": "Could not load the week {range}: {message}",
@@ -16,6 +22,12 @@ export default {
     "calendar.chip_order": "Commessa {code}"
   },
   "it": {
+    "calendar.check_tag": "Check",
+    "calendar.check_title": "Check pre-intervento",
+    "calendar.check_progress": "check {ok}/{n} OK",
+    "calendar.check_progress_long": "check: {ok} OK, {done} fatti su {n}",
+    "calendar.check_for": "intervento il {date}",
+    "calendar.chip_check_missing": {"one": "check mancante su 1 server", "other": "check mancante su {n} server"},
     "calendar.week_title": "Settimana {n} · {range}",
     "calendar.load_month_error": "Impossibile caricare {month}: {message}",
     "calendar.load_week_error": "Impossibile caricare la settimana {range}: {message}",

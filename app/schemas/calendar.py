@@ -4,6 +4,8 @@ from datetime import date, time
 
 from pydantic import BaseModel
 
+from app import checks
+
 
 class EventSummary(BaseModel):
     id: int
@@ -27,6 +29,15 @@ class EventSummary(BaseModel):
     order_code: str | None = None   # commessa of the customer
     conflict_users: list[int] = []  # technicians also busy in another intervention at the same time
     conflict_servers: int = 0       # servers also in another intervention on the same day
+    # "event" = the intervention on its day; "check" = its pre-check on the check day (same id: it opens
+    # the same intervention; event_date/start_time/end_time/user_ids are the check's)
+    kind: str = "event"
+    intervention_date: date | None = None   # day of the intervention (on a "check" entry: not its day)
+    check_date: date | None = None      # day of the pre-check (on the "event" entry)
+    check_done: int = 0                 # rows whose check is over (OK, KO, not applicable)
+    check_ok: int = 0                   # rows with check OK
+    check_pending: int = 0              # rows with check to do, in progress or KO
+    check_warning: bool = False         # the check day is over and some servers have no good check
 
 
 class ProjectEventRef(BaseModel):
@@ -86,6 +97,7 @@ class ServerRow(BaseModel):
     migration_status: str
     planned_date: date | None
     executed_date: date | None
+    check_executed_date: date | None = None   # when the check of this server was done (OK/KO)
     assigned_user: UserRef | None
     notes: str | None
 
@@ -112,6 +124,7 @@ class ServerRow(BaseModel):
             migration_status=link.migration_status,
             planned_date=link.planned_date,
             executed_date=link.executed_date,
+            check_executed_date=link.check_executed_date,
             assigned_user=UserRef(id=user.id, display_name=user.display_name) if user else None,
             notes=link.notes,
         )
@@ -125,6 +138,7 @@ class ConflictEvent(BaseModel):
     title: str | None
     project_name: str
     customer_name: str | None
+    is_check: bool = False   # the other one is the pre-check of that intervention (date/times of the check)
 
 
 class Conflict(BaseModel):
@@ -134,6 +148,7 @@ class Conflict(BaseModel):
     ref_id: int        # server id or user id
     name: str          # hostname or technician name
     other: ConflictEvent
+    on_check: bool = False   # conflict of the pre-check of this intervention (not of the intervention day)
 
 
 class EventDetail(BaseModel):
@@ -152,6 +167,11 @@ class EventDetail(BaseModel):
     conflicts: list[Conflict] = []
     order_code: str | None = None   # commessa of the customer
     worked_hours: float | None = None  # hours actually worked (null = from the times)
+    check_date: date | None = None             # pre-check (see app/checks.py)
+    check_start_time: time | None = None
+    check_end_time: time | None = None
+    check_participants: list[UserRef] = []     # technicians of the check (empty = the participants)
+    check_warning: bool = False
 
     @classmethod
     def from_event(cls, e) -> EventDetail:
@@ -176,6 +196,16 @@ class EventDetail(BaseModel):
                 key=lambda u: u.display_name,
             ),
             servers=[ServerRow.from_link(link) for link in e.server_links],
+            check_date=e.check_date,
+            check_start_time=e.check_start_time,
+            check_end_time=e.check_end_time,
+            check_participants=sorted(
+                (UserRef(id=p.user.id, display_name=p.user.display_name) for p in e.check_participants),
+                key=lambda u: u.display_name,
+            ),
+            check_warning=checks.warning(e.status, e.check_date,
+                                         sum(1 for link in e.server_links if link.check_status in checks.PENDING),
+                                         date.today()),
         )
 
 

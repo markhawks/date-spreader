@@ -1,6 +1,8 @@
 // Translations for conflicts.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "conflicts.check_tag": "Check",
+    "conflicts.other_check": "check of {name}",
     "conflicts.title": {
       "one": "1 scheduling conflict",
       "other": "{n} scheduling conflicts"
@@ -11,6 +13,8 @@ export default {
     "conflicts.open": "Open this intervention"
   },
   "it": {
+    "conflicts.check_tag": "Check",
+    "conflicts.other_check": "check di {name}",
     "conflicts.title": {
       "one": "1 conflitto di pianificazione",
       "other": "{n} conflitti di pianificazione"
