@@ -1,13 +1,20 @@
 # Changelog
 
-All notable changes to the Date Spreader portal (called "Time Dot" up to version 0.9.0).
+All notable changes to the Date Spreader portal.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [Semantic Versioning](https://semver.org/).
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+
+## [0.30.0] - 2026-11-17
+> See who is working on the portal before a restart, warn everybody with one message, and check for new versions whenever you want.
+
 ### Added
 - **Users connected now**: button with a bust and the number of connected users next to «Gantt»; a click lists them with their state (active / open in the background), what they are doing and who is **editing** (open form, cell being changed); browser and IP for administrators. **Notice to everybody** from the same list (administrators): a banner at the top of every open page within seconds, for a chosen time or until the restart. Command line: `who`, `wait-idle`; RPM: `datespreader who`, `datespreader restart --when-idle`. API: `/api/presence`, `/api/presence/notice`. New tip of the day.
 - **Check for updates now** (administrators): Settings → Administration → «Updates» shows the installed version, the latest on GitHub, the last check and why GitHub cannot be reached, with «Check now» (skips the 6-hour memory; at most every 10 seconds); also user menu → «Check for updates». The «new versions» option moved there from Appearance. `GET /api/updates` also returns `checked_at`, `error`, `full_version`.
+
+### Documentation
+- The old name of the project no longer appears in the guides, the READMEs and the changelog.
 
 ### Changed
 - Top bar on medium screens: «Mon–Fri» shows only its icon below 1700 px and the user menu only the initials below 1500 px, so that the bar stays on one line from 1100 to 1920 px.
@@ -249,7 +256,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [0.10.0] - 2026-11-10
 ### Changed
-- **The project is now called Date Spreader** (previously "Time Dot"). The new name appears in the interface, in the documentation and in the API (`/api/version`).
+- **The project takes the name Date Spreader**. The name appears in the interface, in the documentation and in the API (`/api/version`).
 - Technical names aligned: `DateSpreader` folder, `datespreader` systemd service and system user, `data/datespreader.sqlite3` database, `datespreader` package.
 - Anti-CSRF header now `X-Requested-With: datespreader` and session cookie `datespreader_session`. After the upgrade **you must sign in again**.
 - Preferences saved in the browser (filters, column widths) start again from the default values.
@@ -266,7 +273,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 - **Portal version** visible at the top and **changelog** viewable from the portal (`/api/version`, `/api/changelog`).
 
 ### Security
-- CSRF protection: requests that change data must have the `X-Requested-With: timedot` header.
+- CSRF protection: requests that change data must have the `X-Requested-With` header of the portal.
 - It is impossible to be left without administrators: the last active administrator cannot be deactivated or demoted.
 - A deactivated user is signed out of all sessions immediately.
 

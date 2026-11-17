@@ -1,4 +1,4 @@
-# Time Dot — Specifica iniziale per Code
+# Date Spreader — Specifica iniziale per Code
 
 ## 1. Obiettivo
 Realizzare un portale web multiutente per pianificare e seguire migrazioni e upgrade di server, soprattutto Red Hat, sostituendo l'attuale Google Sheet condiviso. Il foglio esistente sarà una fonte di importazione iniziale, non il database definitivo.

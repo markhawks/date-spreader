@@ -8,7 +8,7 @@
 #   /var/lib/datespreader            database; backups in /var/lib/datespreader/backups
 #   /usr/bin/datespreader            administration command (runs as the "datespreader" user)
 
-%{!?ds_version: %global ds_version 0.29.0}
+%{!?ds_version: %global ds_version 0.30.0}
 %global appdir %{_prefix}/lib/datespreader
 
 # Tests during the build (needs python3-pytest and python3-httpx): rpmbuild --without check to skip
@@ -124,6 +124,10 @@ install -d %{buildroot}%{_sharedstatedir}/datespreader/backups
 %dir %attr(0750,datespreader,datespreader) %{_sharedstatedir}/datespreader/backups
 
 %changelog
+* Tue Nov 17 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.30.0-1
+- Date Spreader 0.30.0 (see /usr/share/doc/datespreader/CHANGELOG.md).
+- datespreader who; datespreader restart --when-idle [--timeout MIN].
+
 * Tue Nov 17 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.29.0-1
 - Date Spreader 0.29.0 (see /usr/share/doc/datespreader/CHANGELOG.md).
 - Database migrations 1f0b9884c6a3 and 1222992c1c85 (pre-check), applied at the restart after a backup.

@@ -1,13 +1,20 @@
 # Changelog
 
-Tutte le modifiche rilevanti del portale Date Spreader (fino alla 0.9.0 chiamato "Time Dot").
+Tutte le modifiche rilevanti del portale Date Spreader.
 Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [Semantic Versioning](https://semver.org/lang/it/).
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+
+## [0.30.0] - 2026-11-17
+> Vedi chi sta lavorando sul portale prima di un riavvio, avvisi tutti con un messaggio e controlli le nuove versioni quando vuoi.
+
 ### Aggiunto
 - **Utenti connessi**: pulsante con un mezzo busto e il numero degli utenti connessi accanto a «Gantt»; un clic li elenca con lo stato (attivo / aperto in secondo piano), cosa stanno facendo e chi **sta modificando** (finestra aperta, cella in modifica); browser e IP per gli amministratori. **Avviso a tutti** dallo stesso elenco (amministratori): un banner in cima a ogni pagina aperta entro pochi secondi, per il tempo scelto o fino al riavvio. Riga di comando: `who`, `wait-idle`; RPM: `datespreader who`, `datespreader restart --when-idle`. API: `/api/presence`, `/api/presence/notice`. Nuovo suggerimento del giorno.
 - **Controlla aggiornamenti ora** (amministratori): Impostazioni → Amministrazione → «Aggiornamenti» mostra la versione installata, l'ultima su GitHub, l'ultimo controllo e perché GitHub non è raggiungibile, con «Controlla ora» (salta la memoria di 6 ore; al massimo ogni 10 secondi); anche menu utente → «Controlla aggiornamenti». L'opzione «nuove versioni» è passata lì da Aspetto. `GET /api/updates` restituisce anche `checked_at`, `error`, `full_version`.
+
+### Documentazione
+- Il vecchio nome del progetto non compare più nelle guide, nei README e nel changelog.
 
 ### Modificato
 - Barra in alto su schermi medi: «Lun–Ven» mostra solo l'icona sotto i 1700 px e il menu utente solo le iniziali sotto i 1500 px, così la barra sta su una riga da 1100 a 1920 px.
@@ -249,7 +256,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [0.10.0] - 2026-11-10
 ### Modificato
-- **Il progetto si chiama ora Date Spreader** (prima "Time Dot"). Il nuovo nome compare nell'interfaccia, nella documentazione e nell'API (`/api/version`).
+- **Il progetto prende il nome Date Spreader**. Il nome compare nell'interfaccia, nella documentazione e nell'API (`/api/version`).
 - Nomi tecnici allineati: cartella `DateSpreader`, servizio systemd e utente di sistema `datespreader`, database `data/datespreader.sqlite3`, pacchetto `datespreader`.
 - Intestazione anti-CSRF ora `X-Requested-With: datespreader` e cookie di sessione `datespreader_session`. Dopo l'aggiornamento **bisogna accedere di nuovo**.
 - Le preferenze salvate nel browser (filtri, larghezza delle colonne) ripartono dai valori predefiniti.
@@ -266,7 +273,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 - **Versione del portale** visibile in alto e **changelog** consultabile dal portale (`/api/version`, `/api/changelog`).
 
 ### Sicurezza
-- Protezione CSRF: le richieste che modificano dati devono avere l'intestazione `X-Requested-With: timedot`.
+- Protezione CSRF: le richieste che modificano dati devono avere l'intestazione `X-Requested-With` del portale.
 - Impossibile restare senza amministratori: l'ultimo amministratore attivo non può essere disattivato né declassato.
 - Un utente disattivato esce subito da tutte le sessioni.
 

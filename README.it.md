@@ -23,7 +23,8 @@ In breve:
 - **tabella server modificabile** per ogni intervento, con salvataggio automatico, e **anagrafica server** con storico, modifica, ordinamento, divisione per cliente e conteggio delle versioni dei sistemi operativi;
 - **check pre-intervento** per ogni intervento (es. il giorno prima di un patching), con giorno, orario e tecnici suoi, in giallo nel calendario, nella vista Tecnici e nel Gantt;
 - **sistemi operativi non aggiornati in giallo**, rispetto alla minor aggiornata di ogni major indicata dagli amministratori;
-- **suggerimento del giorno** e, per gli amministratori, **avviso delle nuove versioni** pubblicate su GitHub;
+- **suggerimento del giorno** e, per gli amministratori, **avviso delle nuove versioni** pubblicate su GitHub (anche «Controlla ora»);
+- **utenti connessi** adesso (pulsante accanto a «Gantt»), chi sta modificando, e **avviso a tutti** prima di un riavvio;
 - **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco, e **ore effettive** facoltative;
 - **Gantt per cliente**: commesse, progetti e interventi in un periodo, con tecnici, ore, ore-uomo, macchine e stati, ore per tecnico e commessa, stampabile (PDF) ed esportabile in **Excel**;
 - **filtro per cliente** sempre a portata di mano (menu, clic su un cliente, tasto destro), applicato a calendario, vista Tecnici, colonna progetti e anteprime;
@@ -53,7 +54,7 @@ Calendario con la colonna progetti (progetti espansi con i loro interventi):
 ![Tema scuro](docs/images/screenshots/calendar-dark-it.png)
 
 <sub>Solo dati di esempio. Le immagini sono prodotte da `scripts/make_screenshots.py`.</sub>
-Specifica iniziale: [DateWeaver.md](DateWeaver.md) (documento originale, scritto quando il progetto si chiamava ancora "Time Dot").
+Specifica iniziale: [DateWeaver.md](DateWeaver.md) (il documento da cui è nato il progetto).
 
 ## Installazione su un server
 **RHEL 10.3+ o Fedora 44+: pacchetto RPM** allegato a ogni release, con il Python di sistema:

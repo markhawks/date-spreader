@@ -2,7 +2,7 @@
 
 Portale per pianificare migrazioni/upgrade di server (FastAPI + SQLite + frontend JS senza build).
 Documentazione utente e API: `README.md` (inglese) e `README.it.md`. Storia delle modifiche: `CHANGELOG.md` (inglese), `CHANGELOG.it.md` e `git log`.
-Specifica iniziale (nome storico "Time Dot"): `DateWeaver.md`.
+Specifica iniziale: `DateWeaver.md`.
 
 ## Regole di lavoro concordate con l'utente
 - **Versioni**: NON creare una nuova versione a ogni modifica. Annotare le novità sotto

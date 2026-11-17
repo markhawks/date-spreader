@@ -1,7 +1,7 @@
 """Date Spreader: planning and tracking of technical interventions on servers (any OS, any kind of work)."""
 
 # Versione del portale (semantic versioning). Aggiornare insieme a CHANGELOG.md e pyproject.toml.
-__version__ = "0.29.0"
+__version__ = "0.30.0"
 # Release date of this version (ISO). Updated at every release, together with __version__.
 __release_date__ = "2026-11-17"
 

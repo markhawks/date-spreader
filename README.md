@@ -13,8 +13,7 @@ users working at the same time with conflict detection and an audit log of every
 
 It was born for IT operations teams, but nothing prevents using it wherever technical work has to be scheduled on a
 list of machines or assets.
-Original specification: [DateWeaver.md](DateWeaver.md) (the original document, written when the project was still
-called "Time Dot").
+Original specification: [DateWeaver.md](DateWeaver.md) (the document the project started from).
 
 Highlights:
 
@@ -31,7 +30,8 @@ Highlights:
 - a **pre-check** for each intervention (e.g. the day before a patching), with its own day, times and technicians,
   in yellow in the calendar, in the Technicians view and in the Gantt;
 - **outdated operating systems in yellow**, against the up-to-date minor of each major set by the administrators;
-- a **tip of the day** and, for administrators, a **notice of new versions** published on GitHub;
+- a **tip of the day** and, for administrators, a **notice of new versions** published on GitHub (also «Check now»);
+- the **users connected now** (button next to «Gantt»), who is editing, and a **notice to everybody** before a restart;
 - a **commessa** (job number) on every intervention, stored on the customer and proposed in a list, and optional
   **hours worked**;
 - a **Gantt per customer**: commesse, projects and interventions over a period, with technicians, hours, man-hours,
