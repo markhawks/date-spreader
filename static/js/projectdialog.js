@@ -211,9 +211,23 @@ function checkSection(event, dateInput) {
   const peopleField = el("div", "pf-field pf-wide");
   peopleField.append(el("span", null, t("projectdialog.check_people")), picker,
     el("span", "muted small", t("projectdialog.check_people_hint")));
+  // Hours actually worked on the check (optional): when empty, the reports use check end − start
+  const worked = Object.assign(el("input", "pf-hours"), { type: "number", min: "0", max: "1000", step: "0.25",
+    inputMode: "decimal", value: event?.check_worked_hours ?? "" });
+  const workedHint = el("span", "muted small pf-hours-hint");
+  const syncWorked = () => {
+    const h = hoursFromTimes(start.value, end.value);
+    worked.placeholder = h == null ? "" : formatHours(h);
+    workedHint.textContent = h == null ? t("projectdialog.worked_hours_hint_none") : t("projectdialog.worked_hours_hint", { h: formatHours(h) });
+  };
+  [start, end].forEach((x) => ["change", "timeset"].forEach((type) => x.addEventListener(type, syncWorked)));
+  syncWorked();
+  const workedBox = el("span", "pf-hours-box");
+  workedBox.append(worked, workedHint);
   const grid = el("div", "pf-grid");
   grid.append(labeled(t("projectdialog.check_day"), dayBox, { wide: true }),
-    labeled(t("projectdialog.check_start"), start), labeled(t("projectdialog.check_end"), end), peopleField);
+    labeled(t("projectdialog.check_start"), start), labeled(t("projectdialog.check_end"), end),
+    labeled(t("projectdialog.check_worked_hours"), workedBox, { wide: true }), peopleField);
   box.append(legend, el("p", "muted small pf-note", t("projectdialog.check_hint")), grid);
   const sync = () => {
     grid.hidden = !on.checked;
@@ -229,14 +243,18 @@ function checkSection(event, dateInput) {
       if (!day.value) return { message: t("projectdialog.check_day_required"), field: day };
       if (eventDate && day.value > eventDate) return { message: t("projectdialog.check_after_event"), field: day };
       if (start.value && end.value && end.value <= start.value) return { message: t("projectdialog.end_after_start"), field: end };
+      if (worked.value !== "" && !(Number(worked.value) >= 0 && Number(worked.value) <= 1000)) {
+        return { message: t("projectdialog.worked_hours_invalid"), field: worked };
+      }
       return null;
     },
     changes() {
       const want = on.checked
-        ? { check_date: day.value, check_start_time: start.value || null, check_end_time: end.value || null }
+        ? { check_date: day.value, check_start_time: start.value || null, check_end_time: end.value || null,
+          check_worked_hours: worked.value === "" ? null : Number(worked.value) }
         : { check_date: null };
       const have = { check_date: event?.check_date ?? null, check_start_time: hhmm(event?.check_start_time) || null,
-        check_end_time: hhmm(event?.check_end_time) || null };
+        check_end_time: hhmm(event?.check_end_time) || null, check_worked_hours: event?.check_worked_hours ?? null };
       return Object.fromEntries(Object.entries(want).filter(([k, v]) => (v ?? null) !== (have[k] ?? null)));
     },
     peopleIds: () => (on.checked ? picker.getIds() : []),

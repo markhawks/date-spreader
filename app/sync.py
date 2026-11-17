@@ -49,7 +49,7 @@ from app.transfer import (
 PROJECT_FIELDS = ("name", "description", "status")
 EVENT_FIELDS = ("project", "event_date", "start_time", "end_time", "event_type", "status", "title",
                 "order_code", "worked_hours", "notes", "participants",
-                "check_date", "check_start_time", "check_end_time", "check_participants")
+                "check_date", "check_start_time", "check_end_time", "check_worked_hours", "check_participants")
 ROW_FIELDS = ("target_operating_system", "target_kernel", "check_status", "migration_status",
               "planned_date", "executed_date", "check_executed_date", "technician", "notes")
 DEFAULTS = {"equal": None, "changed": True, "changed_here": False, "conflict": None, "new": True,
@@ -154,7 +154,7 @@ class Side:
                 if xe.check_date:   # pre-check, only when planned (hashes of interventions without it unchanged)
                     canon.update({
                         "check_date": _iso(xe.check_date), "check_start_time": _tm(xe.check_start_time),
-                        "check_end_time": _tm(xe.check_end_time),
+                        "check_end_time": _tm(xe.check_end_time), "check_worked_hours": xe.check_worked_hours,
                         "check_participants": sorted(i for i in (ident(k) for k in xe.check_participants) if i),
                     })
                 show = {**canon, "project": xp.name, "order_code": code,

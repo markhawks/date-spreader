@@ -289,9 +289,13 @@ export class Gantt {
       card(t("gantt.card_events"), String(tot.events), statuses),
       card(t("gantt.card_orders"), String(orders), el("span", "muted small", this.report.orders.some((o) => !o.order_code) ? t("gantt.card_orders_none") : "")),
       card(t("gantt.card_servers"), String(tot.servers), el("span", "muted small", t("gantt.card_servers_sub"))),
-      card(t("gantt.card_hours"), hoursText(tot.hours), tot.missing_hours
-        ? el("span", "gt-warn small", t("gantt.card_missing", { n: tot.missing_hours }))
-        : el("span", "muted small", t("gantt.card_hours_sub"))),
+      card(t("gantt.card_hours"), hoursText(tot.hours), (() => {
+        const sub = el("span", "gt-card-sub");
+        if (tot.check_hours) sub.append(el("span", "muted small", t("gantt.card_hours_checks", { h: hoursText(tot.check_hours) })));
+        if (tot.missing_hours) sub.append(el("span", "gt-warn small", t("gantt.card_missing", { n: tot.missing_hours })));
+        if (!sub.childElementCount) sub.append(el("span", "muted small", t("gantt.card_hours_sub")));
+        return sub;
+      })()),
       card(t("gantt.card_man_hours"), hoursText(tot.man_hours), el("span", "muted small", t("gantt.card_man_hours_sub"))),
       card(t("gantt.card_technicians"), String(tot.technicians.length), tot.no_technicians
         ? el("span", "gt-warn small", t("gantt.card_no_tech", { n: tot.no_technicians }))
@@ -380,7 +384,10 @@ export class Gantt {
       if (closed) continue;
       for (const p of o.projects) {
         rowsBox.append(this.#projectRow(p, x, dw));
-        for (const ev of p.events) rowsBox.append(this.#eventRow(ev, p, x, dw));
+        for (const ev of p.events) {
+          rowsBox.append(this.#eventRow(ev, p, x, dw));
+          if (ev.check) rowsBox.append(this.#checkRow(ev, p, x, dw));
+        }
       }
     }
     // total
@@ -538,19 +545,48 @@ export class Gantt {
       ev.technicians.join(", ")].filter(Boolean).join(" · ");
     block.addEventListener("click", () => this.onOpenEvent(ev));
     track.append(block);
-    // Pre-check on its own day (dashed), in the same row
+    row.append(left, track);
+    return row;
+  }
+
+  /** The pre-check of an intervention: its own row (yellow), with its day, hours, man-hours and technicians. */
+  #checkRow(ev, p, x, dw) {
     const c = ev.check;
-    if (c && c.date >= this.start && c.date <= this.end) {
-      const ct = c.start_time ? `${formatTime(c.start_time)}${c.end_time ? `–${formatTime(c.end_time)}` : ""}` : "";
-      const cb = el("button", "gt-block gt-check");
-      cb.type = "button";
-      cb.style.left = `${x(c.date)}px`;
-      cb.style.width = `${dw}px`;
-      if (dw >= 30) cb.textContent = t("gantt.check_short");
-      cb.title = [t("gantt.check_title"), formatMediumDate(c.date), ct, p.name, what,
-        c.hours ? hoursText(c.hours) : null, c.technicians.join(", ")].filter(Boolean).join(" · ");
-      cb.addEventListener("click", () => this.onOpenEvent(ev));
-      track.append(cb);
+    const row = el("div", "gt-row gt-event gt-check-row");
+    row.setAttribute("role", "row");
+    row.style.setProperty("--c", colorFor(p.id));
+    const time = c.start_time ? `${formatTime(c.start_time)}${c.end_time ? `–${formatTime(c.end_time)}` : ""}` : "";
+    const what = ev.title || EVENT_TYPE[ev.event_type] || ev.event_type;
+    const open = el("button", "gt-event-name");
+    open.type = "button";
+    open.append(el("span", "gt-event-date", formatShortDate(c.date)), el("span", "chip-check-tag", t("gantt.check_short")),
+      el("span", "gt-event-title", ` ${what}`));
+    open.title = [t("gantt.check_title"), formatMediumDate(c.date), time, what, t("gantt.open_event")].filter(Boolean).join(" · ");
+    open.addEventListener("click", () => this.onOpenEvent(ev));
+    const tot = { hours: c.hours, man_hours: c.man_hours, servers: ev.servers, statuses: {}, technicians: [] };
+    const left = this.#left(open, c.technicians, tot, { status: el("span", "muted small", t("gantt.check_title")) });
+    const hoursCell = left.children[2];
+    if (c.hours_source === "missing") {
+      hoursCell.textContent = "—";
+      hoursCell.classList.add("gt-warn");
+      hoursCell.title = t("gantt.check_hours_missing");
+    } else {
+      hoursCell.title = t(`gantt.hours_${c.hours_source}`, { time });
+      if (c.hours_source === "worked") hoursCell.classList.add("gt-worked");
+    }
+    left.children[4].textContent = "";
+    const track = el("div", "gt-track");
+    if (c.date >= this.start && c.date <= this.end) {
+      const block = el("button", "gt-block gt-check");
+      block.type = "button";
+      block.style.left = `${x(c.date)}px`;
+      block.style.width = `${dw}px`;
+      if (dw >= 30 && c.hours) block.textContent = formatHours(c.hours);
+      block.title = [t("gantt.check_title"), formatMediumDate(c.date), time, p.name, what,
+        c.hours_source === "missing" ? t("gantt.check_hours_missing") : hoursText(c.hours), c.technicians.join(", ")]
+        .filter(Boolean).join(" · ");
+      block.addEventListener("click", () => this.onOpenEvent(ev));
+      track.append(block);
     }
     row.append(left, track);
     return row;

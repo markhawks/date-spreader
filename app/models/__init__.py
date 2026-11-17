@@ -128,6 +128,8 @@ class Event(VersionedMixin, TimestampMixin, Base):
     check_date: Mapped[date | None] = mapped_column(Date, index=True)
     check_start_time: Mapped[time | None] = mapped_column(Time)
     check_end_time: Mapped[time | None] = mapped_column(Time)
+    # hours actually worked on the check (optional): when set, replaces check end − start in the reports
+    check_worked_hours: Mapped[float | None] = mapped_column(Float)
 
     project: Mapped[Project] = relationship(back_populates="events")
     order: Mapped[CustomerOrder | None] = relationship()

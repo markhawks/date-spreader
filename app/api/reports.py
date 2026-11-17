@@ -67,6 +67,7 @@ STATUS_FILL = {   # same tones as the badges of the portal
     "completato": "86EFAC", "in_corso": "FCD34D", "confermato": "93C5FD", "pianificato": "BFDBFE",
     "rinviato": "FDE68A", "annullato": "D1D5DB",
 }
+CHECK_FILL = "FDE68A"   # pre-checks: yellow, as in the portal
 
 
 def _hours(h: float) -> float:
@@ -155,6 +156,24 @@ def gantt_workbook(report: dict, customer_name: str | None) -> bytes:
                 cell.value = hours if hours else None
                 cell.alignment = Alignment(horizontal="center")
                 cell.font = Font(size=8)
+                c = ev.get("check")
+                if c:   # its pre-check: own row, yellow cell on the check day
+                    ctime = ""
+                    if c["start_time"]:
+                        ctime = c["start_time"].strftime("%H:%M") + (f"–{c['end_time']:%H:%M}" if c["end_time"] else "")
+                    chours = _hours(c["hours"]) if c["hours_source"] != "missing" else None
+                    ws.append(["", "", tr("gantt.xlsx.check", what=ev["title"] or tr(f"gantt.type.{ev['event_type']}")),
+                               c["date"], ctime, "", ", ".join(c["technicians"]), chours, _hours(c["man_hours"]), "", ""])
+                    r = ws.max_row
+                    ws.cell(r, 4).number_format = "DD/MM/YYYY"
+                    ws.cell(r, 3).font = Font(italic=True)
+                    shade_weekends(r)
+                    if start <= c["date"] <= end:
+                        cell = ws.cell(r, day_col(c["date"]))
+                        cell.fill = PatternFill("solid", fgColor=CHECK_FILL)
+                        cell.value = chours if chours else None
+                        cell.alignment = Alignment(horizontal="center")
+                        cell.font = Font(size=8)
     tt = report["totals"]
     ws.append([tr("gantt.xlsx.total"), "", "", "", "", ", ".join(f"{status_label(s)}: {n}" for s, n in tt["statuses"].items()),
                "", _hours(tt["hours"]), _hours(tt["man_hours"]), tt["servers"], tt["events"]])

@@ -112,6 +112,7 @@ def export_projects(session: Session, projects: list[Project], scope: dict[str, 
                     "check_date": e.check_date.isoformat(),
                     "check_start_time": e.check_start_time.strftime("%H:%M") if e.check_start_time else None,
                     "check_end_time": e.check_end_time.strftime("%H:%M") if e.check_end_time else None,
+                    "check_worked_hours": e.check_worked_hours,
                     "check_participants": [tech_key(pu.user) for pu in
                                            sorted(e.check_participants, key=lambda x: x.user.display_name)],
                 })
@@ -343,11 +344,12 @@ def checked_end(xe: XEvent, where: str, warn) -> Any:
 def check_values(xe: XEvent) -> dict:
     """Pre-check of an intervention of the file (times only with a day; an end before the start is dropped)."""
     if not xe.check_date:
-        return {"check_date": None, "check_start_time": None, "check_end_time": None}
+        return {"check_date": None, "check_start_time": None, "check_end_time": None, "check_worked_hours": None}
     end = xe.check_end_time
     if end and xe.check_start_time and end <= xe.check_start_time:
         end = None
-    return {"check_date": xe.check_date, "check_start_time": xe.check_start_time, "check_end_time": end}
+    return {"check_date": xe.check_date, "check_start_time": xe.check_start_time, "check_end_time": end,
+            "check_worked_hours": xe.check_worked_hours}
 
 
 def check_users(xe: XEvent, res: Resolver, where: str) -> list[User]:

@@ -326,6 +326,7 @@ class EventPatch(BaseModel):
     check_date: date | None = None
     check_start_time: time | None = None
     check_end_time: time | None = None
+    check_worked_hours: float | None = Field(default=None, ge=0, le=1000)
 
     @field_validator("notes", "title", mode="before")
     @classmethod

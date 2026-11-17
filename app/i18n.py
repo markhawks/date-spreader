@@ -37,6 +37,10 @@ MESSAGES: dict[str, dict[str, str]] = {
     "gantt.xlsx.sheet_gantt": {"en": "Gantt", "it": "Gantt"},
     "gantt.xlsx.sheet_technicians": {"en": "Hours per technician", "it": "Ore per tecnico"},
     "gantt.xlsx.sheet_summary": {"en": "Summary", "it": "Riepilogo"},
+    "gantt.xlsx.check": {
+        "en": "Pre-check · {what}",
+        "it": "Check pre-intervento · {what}",
+    },
     "gantt.xlsx.total": {"en": "Total", "it": "Totale"},
     "gantt.xlsx.col.order": {"en": "Commessa", "it": "Commessa"},
     "gantt.xlsx.col.project": {"en": "Project", "it": "Progetto"},

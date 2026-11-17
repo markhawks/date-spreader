@@ -234,7 +234,7 @@ def _check_values(event: Event, values: dict[str, Any]) -> dict[str, Any]:
     """Pre-check of an intervention: no check → no times; moving the intervention moves the check by the
     same number of days; the check is on the day of the intervention or before."""
     if "check_date" in values and values["check_date"] is None:
-        values["check_start_time"] = values["check_end_time"] = None
+        values["check_start_time"] = values["check_end_time"] = values["check_worked_hours"] = None
     if ("event_date" in values and values["event_date"] and event.check_date and "check_date" not in values
             and values["event_date"] != event.event_date):
         values["check_date"] = event.check_date + (values["event_date"] - event.event_date)

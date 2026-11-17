@@ -120,5 +120,23 @@ def test_pre_check_hours_go_to_its_technicians(client, session_factory):
     r = client.get("/api/reports/gantt", params={"start": "2026-12-01", "end": "2026-12-05"}).json()
     ev = r["orders"][0]["projects"][0]["events"][0]
     assert ev["check"]["date"] == "2026-12-02" and ev["check"]["hours"] == 1.5 and ev["check"]["technicians"] == ["Check Tech"]
+    assert ev["check"]["hours_source"] == "times"
     assert r["totals"]["man_hours"] == 1.5     # the intervention has no technicians; the check has one
+    assert (r["totals"]["hours"], r["totals"]["check_hours"]) == (3.5, 1.5)   # 2 h intervention + 1.5 h check
     assert [(t["name"], t["hours"]) for t in r["totals"]["technicians"]] == [("Check Tech", 1.5)]
+
+    # hours worked on the check replace its times; the Excel has a row for it
+    eid = ev["id"]
+    d = client.get(f"/api/events/{eid}").json()
+    assert client.patch(f"/api/events/{eid}", json={"version": d["version"], "check_worked_hours": 2.25}).status_code == 200
+    r = client.get("/api/reports/gantt", params={"start": "2026-12-01", "end": "2026-12-05"}).json()
+    c = r["orders"][0]["projects"][0]["events"][0]["check"]
+    assert (c["hours"], c["hours_source"], r["totals"]["check_hours"]) == (2.25, "worked", 2.25)
+    from io import BytesIO
+    from openpyxl import load_workbook
+    x = client.get("/api/reports/gantt.xlsx", params={"start": "2026-12-01", "end": "2026-12-05"})
+    assert x.status_code == 200
+    ws = load_workbook(BytesIO(x.content)).worksheets[0]
+    rows = [[c.value for c in row] for row in ws.iter_rows()]
+    check_row = next(row for row in rows if isinstance(row[2], str) and "Pre-check" in row[2])
+    assert check_row[7] == 2.25

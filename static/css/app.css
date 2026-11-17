@@ -2502,7 +2502,10 @@ button.event-order.add:hover { color: var(--accent); border-color: var(--accent)
 }
 .gt-block:hover, .gt-block:focus-visible { outline: 2px solid var(--c); outline-offset: 1px; z-index: 3; }
 .gt-event.status-annullato .gt-block { opacity: 0.55; }
-.gt-block.gt-check { border-style: dashed; background: color-mix(in srgb, var(--c) 10%, var(--panel)); color: var(--text); font-weight: 600; }
+.gt-block.gt-check { border: 1.5px dashed var(--check-line); background: var(--check-bg); color: var(--check-fg); font-weight: 700; }
+.gt-check-row .gt-left { background: color-mix(in srgb, var(--check-bg) 55%, var(--panel)); }
+.gt-check-row .gt-event-name { padding-left: 14px; }
+.gt-check-row .chip-check-tag { margin: 0 2px 0 4px; }
 
 /* rows */
 .gt-order { background: color-mix(in srgb, var(--text) 5%, var(--panel)); min-height: 34px; }
@@ -2672,3 +2675,4 @@ select.cell-input.os-outdated { padding: revert; background: var(--warn-bg); col
 .chip-check-mark.warn .check-icon { color: var(--bad-fg); }
 /* hovering an intervention or its check highlights both */
 .chip.pair-lit, .wl-chip.pair-lit { outline: 2px solid var(--check-line); outline-offset: 1px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--check-line) 25%, transparent); z-index: 2; }
+.gt-card-sub { display: flex; flex-direction: column; }

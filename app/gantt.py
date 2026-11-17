@@ -7,8 +7,9 @@ Hours of an intervention:
 - "missing": no worked hours and no complete times → 0 hours, flagged.
 Cancelled and postponed interventions count 0 hours unless worked hours were entered.
 Man-hours = hours × technicians of the intervention (participants and technicians assigned to its
-server rows). A pre-check with start and end times adds its hours × its technicians (the check's own,
-otherwise the participants) to the man-hours and to the hours of those technicians.
+server rows). A pre-check has its own hours (its worked hours, otherwise check end − start) and
+man-hours (× its technicians: its own, otherwise the participants); they are added to the hours and
+man-hours of the project, commessa and total ("of which checks") and to the hours of those technicians.
 
 Used by the Gantt view (JSON) and by its Excel export.
 """
@@ -48,20 +49,24 @@ def _check(e: Event) -> dict | None:
         return None
     people = e.check_participants or e.participants
     techs = sorted(((p.user.id, p.user.display_name) for p in people), key=lambda kv: kv[1].lower())
-    hours = 0.0
-    if e.check_start_time and e.check_end_time and e.status not in NOT_WORKED:
+    hours, source = 0.0, "missing"
+    if e.check_worked_hours is not None:
+        hours, source = round(float(e.check_worked_hours), 2), "worked"
+    elif e.status in NOT_WORKED:
+        source = "not_worked"
+    elif e.check_start_time and e.check_end_time:
         start = datetime.combine(e.check_date, e.check_start_time)
         end = datetime.combine(e.check_date, e.check_end_time)
         if e.check_end_time == END_OF_DAY:
             end += timedelta(minutes=1)
-        hours = round(max((end - start).total_seconds(), 0) / 3600, 2)
+        hours, source = round(max((end - start).total_seconds(), 0) / 3600, 2), "times"
     return {"date": e.check_date, "start_time": e.check_start_time, "end_time": e.check_end_time,
             "technician_ids": [k for k, _ in techs], "technicians": [v for _, v in techs], "hours": hours,
-            "man_hours": round(hours * len(techs), 2)}
+            "hours_source": source, "worked_hours": e.check_worked_hours, "man_hours": round(hours * len(techs), 2)}
 
 
 def _totals() -> dict:
-    return {"events": 0, "servers": set(), "hours": 0.0, "man_hours": 0.0, "statuses": Counter(),
+    return {"events": 0, "servers": set(), "hours": 0.0, "check_hours": 0.0, "man_hours": 0.0, "statuses": Counter(),
             "missing_hours": 0, "no_technicians": 0, "first": None, "last": None, "tech_hours": {}}
 
 
@@ -82,6 +87,8 @@ def _add(tot: dict, ev: dict) -> None:
         t["events"] += 1
     check = ev.get("check")
     if check:
+        tot["hours"] += check["hours"]          # the hours of a group include its checks ("of which checks")
+        tot["check_hours"] += check["hours"]
         tot["man_hours"] += check["man_hours"]
         for uid, name in zip(check["technician_ids"], check["technicians"]):
             t = tot["tech_hours"].setdefault(uid, {"id": uid, "name": name, "hours": 0.0, "events": 0})
@@ -91,7 +98,8 @@ def _add(tot: dict, ev: dict) -> None:
 def _out(tot: dict) -> dict:
     return {
         "events": tot["events"], "servers": len(tot["servers"]),
-        "hours": round(tot["hours"], 2), "man_hours": round(tot["man_hours"], 2),
+        "hours": round(tot["hours"], 2), "check_hours": round(tot["check_hours"], 2),
+        "man_hours": round(tot["man_hours"], 2),
         "statuses": dict(tot["statuses"]), "missing_hours": tot["missing_hours"],
         "no_technicians": tot["no_technicians"], "first": tot["first"], "last": tot["last"],
         "technicians": sorted(

@@ -1,6 +1,8 @@
 // Translations for gantt.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "gantt.check_hours_missing": "No hours for the check: enter its times or its hours worked",
+    "gantt.card_hours_checks": "of which pre-checks: {h}",
     "gantt.check_short": "Chk",
     "gantt.check_title": "Pre-check",
     "gantt.title": "Gantt",
@@ -81,6 +83,8 @@ export default {
     "gantt.tech_note": "Each technician gets the hours of the interventions they are in (as participant or assigned to a server row)."
   },
   "it": {
+    "gantt.check_hours_missing": "Check senza ore: indica l'orario o le ore effettive del check",
+    "gantt.card_hours_checks": "di cui check: {h}",
     "gantt.check_short": "Chk",
     "gantt.check_title": "Check pre-intervento",
     "gantt.title": "Gantt",

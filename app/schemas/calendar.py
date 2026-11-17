@@ -170,6 +170,7 @@ class EventDetail(BaseModel):
     check_date: date | None = None             # pre-check (see app/checks.py)
     check_start_time: time | None = None
     check_end_time: time | None = None
+    check_worked_hours: float | None = None    # hours actually worked on the check (null = from its times)
     check_participants: list[UserRef] = []     # technicians of the check (empty = the participants)
     check_warning: bool = False
 
@@ -199,6 +200,7 @@ class EventDetail(BaseModel):
             check_date=e.check_date,
             check_start_time=e.check_start_time,
             check_end_time=e.check_end_time,
+            check_worked_hours=e.check_worked_hours,
             check_participants=sorted(
                 (UserRef(id=p.user.id, display_name=p.user.display_name) for p in e.check_participants),
                 key=lambda u: u.display_name,

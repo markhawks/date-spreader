@@ -1,6 +1,7 @@
 // Translations for projectdialog.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "projectdialog.check_worked_hours": "Hours worked on the check",
     "projectdialog.check_title": "Pre-check",
     "projectdialog.check_hint": "The check of the servers before the intervention (e.g. the day before a patching): it appears in the calendar on its day, without creating another intervention.",
     "projectdialog.check_day": "Check day",
@@ -122,6 +123,7 @@ export default {
     "projectdialog.order_hint_none": "No commesse for this customer yet: the code you type is saved on the customer."
   },
   "it": {
+    "projectdialog.check_worked_hours": "Ore effettive del check",
     "projectdialog.check_title": "Check pre-intervento",
     "projectdialog.check_hint": "Il controllo dei server prima dell'intervento (es. il giorno prima di un patching): compare nel calendario nel suo giorno, senza creare un altro intervento.",
     "projectdialog.check_day": "Giorno del check",

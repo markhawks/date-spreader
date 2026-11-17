@@ -18,7 +18,8 @@ class TechHours(BaseModel):
 class Totals(BaseModel):
     events: int
     servers: int                 # distinct machines
-    hours: float
+    hours: float                 # interventions + their pre-checks
+    check_hours: float = 0       # of which pre-checks
     man_hours: float             # hours × technicians
     statuses: dict[str, int]
     missing_hours: int           # interventions without worked hours nor complete times
@@ -37,6 +38,8 @@ class GanttCheck(BaseModel):
     technician_ids: list[int]
     technicians: list[str]
     hours: float
+    hours_source: Literal["worked", "times", "missing", "not_worked"] = "times"
+    worked_hours: float | None = None
     man_hours: float
 
 

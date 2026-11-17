@@ -126,6 +126,7 @@ class XEvent(_In):
     check_date: date | None = None
     check_start_time: time | None = None
     check_end_time: time | None = None
+    check_worked_hours: float | None = Field(default=None, ge=0, le=1000)
     check_participants: list[str] = Field(default_factory=list)
 
     _clean = field_validator("title", "notes", mode="before")(classmethod(lambda cls, v: _text(v)))
