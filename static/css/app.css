@@ -2759,3 +2759,25 @@ th.th-sortable:hover { color: var(--accent); }
 th.th-sortable:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 th[aria-sort] { color: var(--text); }
 th .th-sort-mark { font-size: 0.7em; color: var(--accent); }
+
+/* Share: servers to share and notes */
+.share-pick { border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px 8px; }
+.share-pick > summary { cursor: pointer; padding: 2px 0; }
+.share-pick-body { display: grid; gap: 6px; margin-top: 6px; }
+.share-quick, .share-quick-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.share-quick-row > .muted { min-width: 6.5rem; }
+.share-chip { border-width: 1px; }
+.share-chip[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; font-weight: 700; }
+.share-search { font: inherit; font-size: 0.85rem; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); max-width: 22rem; }
+.share-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; }
+.share-list li { display: flex; align-items: center; gap: 10px; padding: 3px 8px; border-bottom: 1px solid var(--border); }
+.share-list li:last-child { border-bottom: 0; }
+.share-list li[hidden] { display: none; }
+.share-server { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; cursor: pointer; font-size: 0.85rem; }
+.share-badges { display: inline-flex; gap: 4px; margin-left: auto; }
+.share-note-pick { font-size: 0.78rem; color: var(--muted); display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+.share-note-pick[hidden] { display: none; }
+.share-notes { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+.share-notes-mode { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+.share-notes-mode select { font: inherit; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); }
+.share-notes-mode select option { color: var(--text); background: var(--panel); }

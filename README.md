@@ -605,6 +605,12 @@ new one:
   table with all the portal's columns** (colored statuses, current and target kernel and OS, technician, notes).
 - **Recipients** already filled with the participants' emails (editable) and **subject** already written:
   customer, project, date and time, intervention status.
+- **Servers to share**: tick the machines to put in the email, for updates to the customer that follow the work:
+  «All», «None», or a click on a status (e.g. Completed, Failed) and/or on a check result to select those servers
+  (statuses can be combined); a search finds hostname, IP and location. With fewer servers than the intervention
+  has, the subject says «(partial update: N servers)» and the summary «Servers shared: N of M».
+- **Notes in the email**: by default **no notes** go to the customer. Tick «Notes of the intervention» and choose
+  the notes of the servers: none, all, or chosen server by server («note» next to each server).
 - **"Copy and open Gmail"**: copies the formatted email and opens a new Gmail message with recipients and subject.
   Paste into the body with **Ctrl+V** and the table stays formatted. "Copy email" only copies; "Copy as plain text"
   is for programs that do not accept formatted text.

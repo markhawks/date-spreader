@@ -43,23 +43,37 @@ function timeRange(ev) {
   return `${formatTime(ev.start_time)}${ev.end_time ? `–${formatTime(ev.end_time)}` : ""}`;
 }
 
-/** Oggetto, HTML e testo semplice dell'email per un intervento (EventDetail). */
-export function buildEmail(ev) {
+/**
+ * Oggetto, HTML e testo semplice dell'email per un intervento (EventDetail).
+ * @param {object} ev
+ * @param {{ servers?: object[], eventNotes?: boolean, rowNotes?: "all"|"none"|Set<number> }} opts
+ *   servers: the rows to share (default all; fewer = a partial update, said in subject and summary);
+ *   eventNotes: include the notes of the intervention; rowNotes: notes of the servers (all, none, or
+ *   only those of the row ids in the Set). Defaults: everything, as before.
+ */
+export function buildEmail(ev, { servers = ev.servers, eventNotes = true, rowNotes = "all" } = {}) {
   const color = colorFor(ev.project.id);
   const customer = ev.project.customer_name;
   const when = [formatLongDate(ev.event_date), timeRange(ev)].filter(Boolean).join(", ");
+  const total = ev.servers.length;
+  const n = servers.length;
+  const partial = n < total;
   const subject = t("share.subject", {
     details: [customer, ev.order_code, ev.project.name, `${formatShortDate(ev.event_date)}${ev.start_time ? ` ${timeRange(ev)}` : ""}`,
       EVENT_STATUS[ev.status] ?? ev.status].filter(Boolean).join(" · "),
-  });
+  }) + (partial ? ` ${t("share.subject_partial", { n })}` : "");
+  // Notes of a server row in this email (null = not shared)
+  const noteOf = (s) => (rowNotes === "none" ? null : rowNotes instanceof Set ? (rowNotes.has(s.id) ? s.notes : null) : s.notes) || null;
+  const anyRowNote = servers.some((s) => noteOf(s));
+  const evNotes = eventNotes ? ev.notes : null;
 
   const config = isConfigEvent(ev);
-  const n = ev.servers.length;
-  const count = (k, v) => ev.servers.filter((s) => s[k] === v).length;
+  const count = (k, v) => servers.filter((s) => s[k] === v).length;
   const ko = count("check_status", "ko");
+  const head = partial ? t("share.server_count_partial", { n, total }) : t("share.server_count", { n });
   const summary = !n ? t("share.no_servers")
-    : config ? [t("share.server_count", { n }), t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ")
-    : [t("share.server_count", { n }), t("share.summary_check_ok", { ok: count("check_status", "ok"), n }),
+    : config ? [head, t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ")
+    : [head, t("share.summary_check_ok", { ok: count("check_status", "ok"), n }),
       ...(ko ? [t("share.summary_check_ko", { ko })] : []),
       t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ");
 
@@ -80,14 +94,16 @@ export function buildEmail(ev) {
     ["stage", stageLabel(ev), (s) => badgeHtml(s.migration_status, MIGRATION_STATUS)],
     ["executed", t("share.col_executed"), (s) => esc(s.executed_date ? formatShortDate(s.executed_date) : "")],
     ["technician", t("share.col_technician"), (s) => esc(s.assigned_user?.display_name ?? "")],
-    ["notes", t("share.col_notes"), (s) => esc(s.notes ?? "")],
+    ["notes", t("share.col_notes"), (s) => esc(noteOf(s) ?? "")],
   ];
   // Configurazione: colonne ridotte e note in una riga a tutta larghezza sotto ogni server
   const CONFIG_COLS = ["hostname", "ip", "os", "env", "location", "inventory", "stage", "executed", "technician"];
-  const cols = config ? allCols.filter(([id]) => CONFIG_COLS.includes(id)) : allCols;
-  const notesRow = (s) => (config
+  // no notes shared: no «Notes» column (and, for configuration, no notes row)
+  const cols = config ? allCols.filter(([id]) => CONFIG_COLS.includes(id))
+    : allCols.filter(([id]) => id !== "notes" || anyRowNote);
+  const notesRow = (s) => (config && anyRowNote
     ? `<tr><td colspan="${cols.length}" style="padding:6px 10px 10px;border-bottom:2px solid #d5d9e0;background:#f8f9fb;font-size:13px;white-space:pre-wrap">${
-      s.notes ? esc(s.notes).replace(/\n/g, "<br>") : `<span style="color:#9ca3af">${esc(t("share.no_notes"))}</span>`}</td></tr>`
+      noteOf(s) ? esc(noteOf(s)).replace(/\n/g, "<br>") : `<span style="color:#9ca3af">${esc(t("share.no_notes"))}</span>`}</td></tr>`
     : "");
   const facts = [
     [t("share.fact_date"), esc(when)],
@@ -96,7 +112,7 @@ export function buildEmail(ev) {
     ...(ev.title ? [[t("share.fact_title"), esc(ev.title)]] : []),
     ...(ev.order_code ? [[t("share.fact_order"), esc(ev.order_code)]] : []),
     ...(ev.participants.length ? [[t("share.fact_participants"), esc(ev.participants.map((p) => p.display_name).join(", "))]] : []),
-    ...(ev.notes ? [[t("share.fact_notes"), esc(ev.notes).replace(/\n/g, "<br>")]] : []),
+    ...(evNotes ? [[t("share.fact_notes"), esc(evNotes).replace(/\n/g, "<br>")]] : []),
   ];
 
   const html = `
@@ -115,7 +131,7 @@ export function buildEmail(ev) {
   ${n ? `
   <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #e3e6eb">
     <thead><tr>${cols.map(([, h]) => `<th style="padding:7px 8px;background:#f1f3f6;border-bottom:1px solid #e3e6eb;text-align:left;font-size:12px;color:#4b5563;white-space:nowrap">${esc(h)}</th>`).join("")}</tr></thead>
-    <tbody>${ev.servers.map((s) => `<tr>${cols.map(([id, , f]) => `<td style="${td};${id === "notes" ? "min-width:160px" : "white-space:nowrap"}${config ? ";border-bottom:1px dashed #e3e6eb" : ""}">${f(s)}</td>`).join("")}</tr>${notesRow(s)}`).join("")}</tbody>
+    <tbody>${servers.map((s) => `<tr>${cols.map(([id, , f]) => `<td style="${td};${id === "notes" ? "min-width:160px" : "white-space:nowrap"}${config ? ";border-bottom:1px dashed #e3e6eb" : ""}">${f(s)}</td>`).join("")}</tr>${notesRow(s)}`).join("")}</tbody>
   </table>` : ""}
   <p style="margin:16px 0 0;font-size:12px;color:#6b7280">
     ${esc(t("share.open_in_portal"))} <a href="${esc(eventLink(ev.id))}" style="color:#2563eb">${esc(eventLink(ev.id))}</a><br>
@@ -133,19 +149,19 @@ export function buildEmail(ev) {
     ...(ev.title ? [t("share.text_title", { value: ev.title })] : []),
     ...(ev.order_code ? [t("share.text_order", { value: ev.order_code })] : []),
     ...(ev.participants.length ? [t("share.text_participants", { value: ev.participants.map((p) => p.display_name).join(", ") })] : []),
-    ...(ev.notes ? [t("share.text_notes", { value: ev.notes })] : []),
+    ...(evNotes ? [t("share.text_notes", { value: evNotes })] : []),
     "", summary, "",
-    ...ev.servers.map((s) => (config ? [
+    ...servers.map((s) => (config ? [
       [s.hostname, s.ip_address, shortOs(s.operating_system), s.environment, s.location, s.steamroller_inventory,
         t("share.text_stage", { stage: stageLabel(ev).toLowerCase(), status: MIGRATION_STATUS[s.migration_status] ?? s.migration_status }),
         s.executed_date && t("share.text_executed", { date: formatShortDate(s.executed_date) }), s.assigned_user?.display_name].filter(Boolean).join(" | "),
-      ...(s.notes ? s.notes.split("\n").map((l) => `    ${l}`) : []),
+      ...(noteOf(s) ? noteOf(s).split("\n").map((l) => `    ${l}`) : []),
       "",
     ].join("\n") : [
       s.hostname, s.ip_address, shortOs(s.operating_system), s.environment, s.location, s.steamroller_inventory,
       `${s.current_kernel ?? "?"} → ${shortOs(s.target_operating_system) || ""} ${s.target_kernel ?? ""}`.trim(),
       t("share.text_check", { status: CHECK_STATUS[s.check_status] ?? s.check_status }), t("share.text_stage", { stage: stageLabel(ev).toLowerCase(), status: MIGRATION_STATUS[s.migration_status] ?? s.migration_status }),
-      s.assigned_user?.display_name, s.notes,
+      s.assigned_user?.display_name, noteOf(s),
     ].filter(Boolean).join(" | "))),
     "", t("share.text_open", { url: eventLink(ev.id) }),
   ];
@@ -198,13 +214,179 @@ export function gmailComposeUrl({ to, subject, account, choose = false }) {
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /**
+ * «Servers to share» and «Notes» of the share window: tick the machines (quick choices by status of the
+ * work and by check, search), and choose which notes the customer sees (none by default).
+ * chosen: Set of row ids (changed in place); opts: { eventNotes, rowNotes: "none"|"all"|"pick", notesOf: Set }.
+ */
+function pickPanel(ev, chosen, opts, onChange) {
+  const box = el("details", "share-pick");
+  box.open = true;
+  const summary = el("summary");
+  const title = el("strong");
+  summary.append(title);
+  box.append(summary);
+  const servers = ev.servers;
+  const config = isConfigEvent(ev);
+  const showCount = () => { title.textContent = t("share.pick_title", { n: chosen.size, total: servers.length }); };
+
+  // quick choices: all / none, then a toggle for every status present (stage and check), combined
+  const filters = { stage: new Set(), check: new Set() };
+  const quick = el("div", "share-quick");
+  const btn = (label, fn, cls = "btn btn-small") => {
+    const b = el("button", cls, label);
+    b.type = "button";
+    b.addEventListener("click", fn);
+    return b;
+  };
+  const applyFilters = () => {
+    chosen.clear();
+    for (const s of servers) {
+      const okStage = !filters.stage.size || filters.stage.has(s.migration_status);
+      const okCheck = !filters.check.size || filters.check.has(s.check_status);
+      if (okStage && okCheck) chosen.add(s.id);
+    }
+    sync();
+  };
+  const chips = [];
+  const chip = (kind, value, labels) => {
+    const n = servers.filter((s) => (kind === "stage" ? s.migration_status : s.check_status) === value).length;
+    const b = btn(`${labels[value] ?? value} · ${n}`, () => {
+      const set = filters[kind];
+      if (set.has(value)) set.delete(value); else set.add(value);
+      b.setAttribute("aria-pressed", String(set.has(value)));
+      applyFilters();
+    }, `btn btn-small share-chip tone-${toneOf(value)}`);
+    b.setAttribute("aria-pressed", "false");
+    chips.push(b);
+    return b;
+  };
+  const present = (key, order) => order.filter((v) => servers.some((s) => s[key] === v));
+  quick.append(
+    btn(t("share.pick_all"), () => { resetChips(); servers.forEach((s) => chosen.add(s.id)); sync(); }),
+    btn(t("share.pick_nobody"), () => { resetChips(); chosen.clear(); sync(); }),
+  );
+  const stageRow = el("div", "share-quick-row");
+  stageRow.append(el("span", "muted small", stageLabel(ev)),
+    ...present("migration_status", Object.keys(MIGRATION_STATUS)).map((v) => chip("stage", v, MIGRATION_STATUS)));
+  const rows = [quick, stageRow];
+  if (!config) {
+    const checkRow = el("div", "share-quick-row");
+    checkRow.append(el("span", "muted small", t("share.col_check")),
+      ...present("check_status", Object.keys(CHECK_STATUS)).map((v) => chip("check", v, CHECK_STATUS)));
+    rows.push(checkRow);
+  }
+  function resetChips() {
+    filters.stage.clear();
+    filters.check.clear();
+    chips.forEach((c) => c.setAttribute("aria-pressed", "false"));
+  }
+
+  // the list, with a search on hostname, IP and location
+  const search = el("input", "share-search");
+  Object.assign(search, { type: "search", placeholder: t("share.pick_search"), autocomplete: "off" });
+  search.setAttribute("aria-label", t("share.pick_search"));
+  const list = el("ul", "share-list");
+  const items = servers.map((s) => {
+    const li = el("li");
+    const lab = el("label", "share-server");
+    const cb = el("input");
+    cb.type = "checkbox";
+    cb.addEventListener("change", () => { if (cb.checked) chosen.add(s.id); else chosen.delete(s.id); sync(); });
+    lab.append(cb, el("span", "mono", s.hostname));
+    const badges = el("span", "share-badges");
+    if (!config) badges.append(badgeNode(s.check_status, CHECK_STATUS));
+    badges.append(badgeNode(s.migration_status, MIGRATION_STATUS));
+    lab.append(badges);
+    li.append(lab);
+    // the note of this server (only with «choose server by server»)
+    let noteCb = null;
+    if (s.notes) {
+      const nl = el("label", "share-note-pick");
+      noteCb = el("input");
+      noteCb.type = "checkbox";
+      noteCb.addEventListener("change", () => { if (noteCb.checked) opts.notesOf.add(s.id); else opts.notesOf.delete(s.id); onChange(); });
+      nl.append(noteCb, ` ${t("share.pick_note")}`);
+      nl.title = s.notes;
+      li.append(nl);
+    }
+    list.append(li);
+    return { s, li, cb, noteCb };
+  });
+  search.addEventListener("input", () => {
+    const q = search.value.trim().toLowerCase();
+    for (const { s, li } of items) {
+      li.hidden = Boolean(q) && ![s.hostname, s.ip_address, s.location, s.steamroller_inventory]
+        .some((v) => (v ?? "").toLowerCase().includes(q));
+    }
+  });
+
+  // notes: of the intervention, and of the servers (none / all / server by server)
+  const notes = el("div", "share-notes");
+  if (ev.notes) {
+    const l = el("label", "share-choose");
+    const cb = el("input");
+    cb.type = "checkbox";
+    cb.addEventListener("change", () => { opts.eventNotes = cb.checked; onChange(); });
+    l.append(cb, ` ${t("share.pick_event_notes")}`);
+    l.title = ev.notes;
+    notes.append(l);
+  }
+  if (servers.some((s) => s.notes)) {
+    const l = el("label", "share-notes-mode");
+    l.append(el("span", null, t("share.pick_row_notes")));
+    const sel = el("select");
+    for (const [v, label] of [["none", t("share.notes_none")], ["all", t("share.notes_all")], ["pick", t("share.notes_pick")]]) {
+      sel.append(new Option(label, v));
+    }
+    sel.addEventListener("change", () => { opts.rowNotes = sel.value; sync(); });
+    l.append(sel);
+    notes.append(l);
+  }
+  if (!notes.childElementCount) notes.append(el("span", "muted small", t("share.pick_no_notes")));
+
+  function sync(initial = false) {
+    for (const { s, cb, noteCb } of items) {
+      cb.checked = chosen.has(s.id);
+      if (noteCb) {
+        noteCb.parentElement.hidden = opts.rowNotes !== "pick";
+        noteCb.disabled = !chosen.has(s.id);
+        noteCb.checked = opts.notesOf.has(s.id);
+      }
+    }
+    showCount();
+    if (!initial) onChange(); // at creation the window is not complete yet: it builds the email itself
+  }
+
+  const body = el("div", "share-pick-body");
+  if (servers.length) body.append(...rows, search, list);
+  else body.append(el("p", "muted small", t("share.no_servers")));
+  body.append(el("p", "confirm-label", t("share.pick_notes_title")), notes);
+  box.append(body);
+  sync(true);
+  return box;
+}
+
+function badgeNode(status, labels) {
+  const b = el("span", `badge tone-${toneOf(status)}`, labels[status] ?? status);
+  return b;
+}
+
+/**
  * Finestra «Condividi intervento».
  * @param {number} eventId
  * @param {{ me: {email?: string}, toast?: (m: string) => void }} opts
  */
 export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
   const [ev] = await Promise.all([fetchEvent(eventId), people.load()]);
-  const mail = buildEmail(ev);
+  // What goes into the email: all the servers; notes left out (the customer should not see internal notes)
+  const chosen = new Set(ev.servers.map((s) => s.id));
+  const opts = { eventNotes: false, rowNotes: "none", notesOf: new Set() };
+  const currentOpts = () => ({
+    servers: ev.servers.filter((s) => chosen.has(s.id)),
+    eventNotes: opts.eventNotes,
+    rowNotes: opts.rowNotes === "pick" ? opts.notesOf : opts.rowNotes,
+  });
+  let mail = buildEmail(ev, currentOpts());
 
   const dialog = el("dialog", "pf-dialog share-dialog");
   dialog.setAttribute("aria-labelledby", "share-title");
@@ -260,9 +442,12 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
 
   const preview = el("div", "share-preview");
   preview.innerHTML = mail.html;
+  let subjectEdited = false;
+  subject.addEventListener("input", () => { subjectEdited = true; });
 
+  const pick = pickPanel(ev, chosen, opts, () => refresh());
   const body = el("div", "pf-body");
-  body.append(toLabel, subjLabel, accRow, how, previewLabel, preview);
+  body.append(toLabel, subjLabel, accRow, pick, how, previewLabel, preview);
 
   const foot = el("footer", "pf-foot");
   const plain = el("button", "btn", t("share.copy_plain"));
@@ -278,6 +463,16 @@ export async function showShareDialog(eventId, { me, toast = () => {} } = {}) {
   document.body.append(dialog);
   dialog.addEventListener("close", () => dialog.remove());
   dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });
+
+  // Selection or notes changed: email, subject (unless edited by hand) and buttons follow
+  function refresh() {
+    mail = buildEmail(ev, currentOpts());
+    preview.innerHTML = mail.html;
+    if (!subjectEdited) subject.value = mail.subject;
+    const none = ev.servers.length > 0 && chosen.size === 0;
+    for (const b of [plain, copyOnly, go]) b.disabled = none;
+    go.title = none ? t("share.pick_none") : "";
+  }
 
   const recipients = () => to.value.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
   plain.addEventListener("click", () => {
