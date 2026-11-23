@@ -13,6 +13,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 - **Bigger preview**: with the preview below the calendar, «⇔» in its bar makes it as wide as the window (the project column stops above it; personal preference `detail_full_width`); «⛶» in the same bar shows the preview on the whole screen over calendar and project column (a second click or Esc brings it back). With the preview below, «Full screen · edit» is no longer shown in the intervention's buttons (the table there is already editable). New tip of the day.
 
 ### Changed
+- The underlined headers of the server table (data of the server) show the hand cursor, like the other sortable headers, instead of the question mark; the tooltip still explains them.
 - Check **KO is now shown as FAIL** (the saved value does not change). **In progress** is light blue (it was amber), so yellow is only for warnings: badges, status menus, Gantt, email and Excel.
 - **Postponed in violet**: the «Postponed» status of interventions and server rows now has its own violet color (it was amber like «In progress»), well visible among the completed ones: badges, status menus of the server table, Gantt (bar, blocks, legend), shared email and Excel.
 

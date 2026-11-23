@@ -2759,7 +2759,7 @@ select.cell-input.os-outdated { padding: revert; background: var(--warn-bg); col
 .notice-banner[hidden] { display: none; }
 
 /* Sortable headers of the server tables (order saved on the intervention, for everybody) */
-th.th-sortable { cursor: pointer; }
+th.th-sortable, .edit-table th.scope-server.th-sortable { cursor: pointer; }   /* a click sorts (not the help cursor of the server columns) */
 th.th-sortable:hover { color: var(--accent); }
 th.th-sortable:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 th[aria-sort] { color: var(--text); }

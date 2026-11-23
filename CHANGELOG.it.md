@@ -13,6 +13,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 - **Anteprima più grande**: con l'anteprima sotto il calendario, «⇔» nella sua barra la allarga quanto la finestra (la colonna progetti finisce sopra; preferenza personale `detail_full_width`); «⛶» nella stessa barra mostra l'anteprima a schermo intero sopra calendario e colonna progetti (un altro clic o Esc la riporta com'era). Con l'anteprima in basso, «Tutto schermo · modifica» non compare più tra i pulsanti dell'intervento (lì la tabella si modifica già direttamente). Nuovo suggerimento del giorno.
 
 ### Modificato
+- Le intestazioni sottolineate della tabella server (dati del server) mostrano la manina del clic, come le altre intestazioni ordinabili, invece del punto interrogativo; il tooltip continua a spiegarle.
 - Il check **KO ora si chiama FAIL** (il valore salvato non cambia). **In corso** è azzurro chiaro (prima ambra), così il giallo resta per gli avvisi: etichette, menu di stato, Gantt, email ed Excel.
 - **Rinviato in viola**: lo stato «Rinviato»/«Rinviata» di interventi e righe server ha ora un colore viola suo (prima era ambra come «In corso»), ben visibile in mezzo ai completati: etichette, menu di stato della tabella server, Gantt (barra, blocchi, legenda), email di condivisione ed Excel.
 
