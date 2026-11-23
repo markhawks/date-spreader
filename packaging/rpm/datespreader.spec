@@ -8,7 +8,7 @@
 #   /var/lib/datespreader            database; backups in /var/lib/datespreader/backups
 #   /usr/bin/datespreader            administration command (runs as the "datespreader" user)
 
-%{!?ds_version: %global ds_version 0.30.0}
+%{!?ds_version: %global ds_version 0.31.0}
 %global appdir %{_prefix}/lib/datespreader
 
 # Tests during the build (needs python3-pytest and python3-httpx): rpmbuild --without check to skip
@@ -124,6 +124,11 @@ install -d %{buildroot}%{_sharedstatedir}/datespreader/backups
 %dir %attr(0750,datespreader,datespreader) %{_sharedstatedir}/datespreader/backups
 
 %changelog
+* Mon Nov 23 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.31.0-1
+- Date Spreader 0.31.0 (see /usr/share/doc/datespreader/CHANGELOG.md).
+- Database migrations 1e04dba1541e (SteamRoller inventory) and b80a7d0e4efb (order of the servers),
+  applied at the restart after a backup.
+
 * Tue Nov 17 2026 Mark Hawks <10862036+markhawks@users.noreply.github.com> - 0.30.0-1
 - Date Spreader 0.30.0 (see /usr/share/doc/datespreader/CHANGELOG.md).
 - datespreader who; datespreader restart --when-idle [--timeout MIN].

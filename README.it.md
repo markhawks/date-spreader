@@ -25,6 +25,7 @@ In breve:
 - **sistemi operativi non aggiornati in giallo**, rispetto alla minor aggiornata di ogni major indicata dagli amministratori;
 - **suggerimento del giorno** e, per gli amministratori, **avviso delle nuove versioni** pubblicate su GitHub (anche «Controlla ora»);
 - **utenti connessi** adesso (pulsante accanto a «Gantt»), chi sta modificando, e **avviso a tutti** prima di un riavvio;
+- esiti del check come quelli di **SteamRoller** (PASS, Attenzione, FAIL) con le note negli stessi colori, **SteamRoller Inventory** di ogni server, server **ordinati per tutti** e **condivisione modulare** (solo le macchine e le note che scegli);
 - **commessa** su ogni intervento, memorizzata sul cliente e proposta in un elenco, e **ore effettive** facoltative;
 - **Gantt per cliente**: commesse, progetti e interventi in un periodo, con tecnici, ore, ore-uomo, macchine e stati, ore per tecnico e commessa, stampabile (PDF) ed esportabile in **Excel**;
 - **filtro per cliente** sempre a portata di mano (menu, clic su un cliente, tasto destro), applicato a calendario, vista Tecnici, colonna progetti e anteprime;

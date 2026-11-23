@@ -32,6 +32,9 @@ Highlights:
 - **outdated operating systems in yellow**, against the up-to-date minor of each major set by the administrators;
 - a **tip of the day** and, for administrators, a **notice of new versions** published on GitHub (also «Check now»);
 - the **users connected now** (button next to «Gantt»), who is editing, and a **notice to everybody** before a restart;
+- check results like the **SteamRoller** check (PASS, Warning, FAIL) with notes in the same colors, the **SteamRoller
+  Inventory** of every server, servers **sorted for everybody**, and **modular sharing** (only the machines and notes
+  you choose);
 - a **commessa** (job number) on every intervention, stored on the customer and proposed in a list, and optional
   **hours worked**;
 - a **Gantt per customer**: commesse, projects and interventions over a period, with technicians, hours, man-hours,
