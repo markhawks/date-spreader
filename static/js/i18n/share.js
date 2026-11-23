@@ -25,7 +25,7 @@ export default {
       "other": "{n} servers"
     },
     "share.summary_executed": "executed {done}/{n}",
-    "share.summary_check_ok": "check OK {ok}/{n}",
+    "share.summary_check_ok": "check PASS {ok}/{n}",
     "share.summary_check_ko": "check FAIL {ko}",
     "share.summary_stage": "{stage} {done}/{n}",
     "share.col_hostname": "Hostname",
@@ -112,7 +112,7 @@ export default {
       "other": "{n} server"
     },
     "share.summary_executed": "eseguiti {done}/{n}",
-    "share.summary_check_ok": "check OK {ok}/{n}",
+    "share.summary_check_ok": "check PASS {ok}/{n}",
     "share.summary_check_ko": "check FAIL {ko}",
     "share.summary_stage": "{stage} {done}/{n}",
     "share.col_hostname": "Hostname",

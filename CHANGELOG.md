@@ -14,7 +14,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ### Changed
 - The underlined headers of the server table (data of the server) show the hand cursor, like the other sortable headers, instead of the question mark; the tooltip still explains them.
-- Check **KO is now shown as FAIL** (the saved value does not change). **In progress** is light blue (it was amber), so yellow is only for warnings: badges, status menus, Gantt, email and Excel.
+- Check **OK and KO are now shown as PASS and FAIL**, like the results of the SteamRoller check (the saved values do not change). **In progress** is light blue (it was amber), so yellow is only for warnings: badges, status menus, Gantt, email and Excel.
 - **Postponed in violet**: the «Postponed» status of interventions and server rows now has its own violet color (it was amber like «In progress»), well visible among the completed ones: badges, status menus of the server table, Gantt (bar, blocks, legend), shared email and Excel.
 
 ## [0.30.0] - 2026-11-17

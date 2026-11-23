@@ -14,7 +14,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ### Modificato
 - Le intestazioni sottolineate della tabella server (dati del server) mostrano la manina del clic, come le altre intestazioni ordinabili, invece del punto interrogativo; il tooltip continua a spiegarle.
-- Il check **KO ora si chiama FAIL** (il valore salvato non cambia). **In corso** è azzurro chiaro (prima ambra), così il giallo resta per gli avvisi: etichette, menu di stato, Gantt, email ed Excel.
+- Il check **OK e KO ora si chiamano PASS e FAIL**, come gli esiti del check di SteamRoller (i valori salvati non cambiano). **In corso** è azzurro chiaro (prima ambra), così il giallo resta per gli avvisi: etichette, menu di stato, Gantt, email ed Excel.
 - **Rinviato in viola**: lo stato «Rinviato»/«Rinviata» di interventi e righe server ha ora un colore viola suo (prima era ambra come «In corso»), ben visibile in mezzo ai completati: etichette, menu di stato della tabella server, Gantt (barra, blocchi, legenda), email di condivisione ed Excel.
 
 ## [0.30.0] - 2026-11-17

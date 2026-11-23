@@ -327,7 +327,7 @@ to **recover access** if the administrator forgets the password.
   shown, in an existing project, with the date already filled in.
 - **Click on a day** with interventions, or Enter from the keyboard: opens the details of **all the day's
   interventions**. Clicking a single event brings its card into view.
-- **Card**: status and type, time, participants, notes, a summary ("check OK 2/3 · migrated 1/3"; the status column
+- **Card**: status and type, time, participants, notes, a summary ("check PASS 2/3 · migrated 1/3"; the status column
   and the summary are named after the type: Migration/migrated, Upgrading/upgraded, Patching/patched,
   Execution/completed for "Other") and the compact, read-only server table, which scrolls horizontally. Above
   1100 px it is a column on the right and the calendar shrinks; below, it covers the whole screen. Close it with ✕
@@ -524,7 +524,7 @@ new one:
   technicians of the check (none = the participants).
   - The calendar and the Technicians view show a **yellow «CHECK» entry** on that day (its own color, the project
     color in the left stripe, a clipboard symbol): project, title (or type) of the intervention, check progress
-    («check 2/4 OK») and the day of the intervention («→ Thu 26»). The intervention shows the symbol with the day
+    («check 2/4 PASS») and the day of the intervention («→ Thu 26»). The intervention shows the symbol with the day
     of its check (red when the check is missing). **Hovering** the check or the intervention highlights both.
   - A click on the check opens the preview of that day, with «Pre-check of this intervention» highlighted at the
     top and a link to the intervention; in the intervention's card, «→ go to the check day».
@@ -533,7 +533,7 @@ new one:
     its day; the hours of projects, commesse and total include the checks («of which pre-checks» in the summary),
     and they count for the technicians of the check. The Excel has the same «Pre-check» row with a yellow cell.
   - The check of each server is the «Check» column of the server table; «check executed on» is filled in by
-    itself when it becomes OK, Warning or FAIL (shown in the preview and in the tooltip of the table).
+    itself when it becomes PASS, Warning or FAIL (shown in the preview and in the tooltip of the table).
   - Technicians of the check busy elsewhere at the same time are a scheduling conflict («Check» in the list).
   - **Warning**: when the check day is over and some servers still have the check to do or FAIL, the intervention
     has a warning icon in the calendar and a yellow line in its card.
