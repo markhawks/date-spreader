@@ -5,12 +5,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
-### Changed
-- **Postponed in violet**: the «Postponed» status of interventions and server rows now has its own violet color (it was amber like «In progress»), well visible among the completed ones: badges, status menus of the server table, Gantt (bar, blocks, legend), shared email and Excel.
-
 ### Added
+- **SteamRoller Inventory** column in the server table, after Location: the SteamRoller inventory the machine belongs to, a server field (the same in all its interventions), free text with the values already used proposed in a drop-down list. Also in the server inventory (column, sorting, card, Edit, search), the compact preview, the shared email, the phone recap, the CSV/Excel import (headers «SteamRoller», «Inventory», «Inventario»), export/import and the sync (only when set: the other servers do not look changed). Database: `servers.steamroller_inventory` (migration `1e04dba1541e`). API: `inventories` in `GET /api/options`. New tip of the day.
 - **Bigger preview**: with the preview below the calendar, «⇔» in its bar makes it as wide as the window (the project column stops above it; personal preference `detail_full_width`); «⛶», in the bar and among the buttons of each intervention, shows the preview on the whole screen over calendar and project column (a second click or Esc brings it back). New tip of the day.
 
+### Changed
+- **Postponed in violet**: the «Postponed» status of interventions and server rows now has its own violet color (it was amber like «In progress»), well visible among the completed ones: badges, status menus of the server table, Gantt (bar, blocks, legend), shared email and Excel.
 
 ## [0.30.0] - 2026-11-17
 > See who is working on the portal before a restart, warn everybody with one message, and check for new versions whenever you want.

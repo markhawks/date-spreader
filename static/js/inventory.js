@@ -16,7 +16,7 @@ const SEARCH_DELAY_MS = 200;
 
 const FIELD_LABEL = {
   hostname: t("inventory.field.hostname"), ip_address: t("inventory.field.ip_address"), operating_system: t("inventory.field.operating_system"),
-  environment: t("inventory.field.environment"), location: t("inventory.field.location"), current_kernel: t("inventory.field.current_kernel"), notes: t("inventory.field.notes"),
+  environment: t("inventory.field.environment"), location: t("inventory.field.location"), steamroller_inventory: t("inventory.field.inventory"), current_kernel: t("inventory.field.current_kernel"), notes: t("inventory.field.notes"),
 };
 
 const el = (tag, className, text) => {
@@ -36,6 +36,7 @@ const COLUMNS = [
   ["os", t("inventory.col.os"), (s) => markOutdated(withTitle(el("span", null, shortOs(s.operating_system)), s.operating_system), s.operating_system)],
   ["env", t("inventory.col.env"), (s) => (s.environment ? el("span", `env env-${s.environment.toLowerCase()}`, s.environment) : "")],
   ["location", t("inventory.col.location"), (s) => el("span", "small", s.location ?? "")],
+  ["inventory", t("inventory.col.inventory"), (s) => el("span", "small", s.steamroller_inventory ?? "")],
   ["kernel", t("inventory.col.kernel"), (s) => withTitle(el("span", "mono small", shortKernel(s.current_kernel)), s.current_kernel)],
   ["count", t("inventory.col.count"), (s) => el("span", s.event_count ? "num" : "num muted", String(s.event_count))],
   ["last", t("inventory.col.last"), (s) => (s.last_event_date
@@ -58,6 +59,7 @@ const SORT_VALUE = {
   os: (s) => s.operating_system,
   env: (s) => s.environment,
   location: (s) => s.location,
+  inventory: (s) => s.steamroller_inventory,
   kernel: (s) => s.current_kernel,
   count: (s) => s.event_count,
   last: (s) => s.last_event_date,
@@ -494,6 +496,7 @@ export class Inventory {
     if (s.operating_system) markOutdated(facts.lastElementChild, s.operating_system);
     fact(t("inventory.field.environment"), s.environment);
     fact(t("inventory.field.location"), s.location);
+    fact(t("inventory.field.inventory"), s.steamroller_inventory);
     fact(t("inventory.field.current_kernel"), s.current_kernel, "mono");
     fact(t("inventory.field.notes"), s.notes);
     head.append(facts);
@@ -615,11 +618,16 @@ async function editServerDialog(s) {
     dl.id = "inv-edit-locations";
     dl.append(...(options.locations ?? []).map((l) => new Option(l, l)));
     loc.setAttribute("list", dl.id);
+    const inv = field(t("inventory.field.inventory"), text("steamroller_inventory", s.steamroller_inventory, 100));
+    const dl2 = el("datalist");
+    dl2.id = "inv-edit-inventories";
+    dl2.append(...(options.inventories ?? []).map((v) => new Option(v, v)));
+    inv.setAttribute("list", dl2.id);
     field(t("inventory.field.current_kernel"), text("current_kernel", s.current_kernel, 100, "mono"));
     const err = el("p", "pf-error");
     err.setAttribute("role", "alert");
     err.hidden = true;
-    body.append(grid, dl, err);
+    body.append(grid, dl, dl2, err);
     const foot = el("footer", "pf-foot");
     const cancel = el("button", "btn", t("inventory.cancel"));
     cancel.type = "button";
@@ -637,7 +645,7 @@ async function editServerDialog(s) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const changes = {};
-      for (const name of ["hostname", "ip_address", "environment", "operating_system", "location", "current_kernel"]) {
+      for (const name of ["hostname", "ip_address", "environment", "operating_system", "location", "steamroller_inventory", "current_kernel"]) {
         const v = form.elements[name].value.trim();
         if (v !== (s[name] ?? "")) changes[name] = v || null;
       }

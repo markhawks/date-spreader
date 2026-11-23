@@ -38,7 +38,8 @@ Highlights:
   machines and statuses, hours per technician and commessa, printable (PDF) and exportable to **Excel**;
 - a **customer filter** always at hand (menu, click on a customer, right click), applied to calendar, Technicians
   view, project column and previews;
-- a **Location** column for each server (site, datacenter…), with the locations already used proposed in a list;
+- a **Location** column for each server (site, datacenter…), with the locations already used proposed in a list,
+  and a **SteamRoller Inventory** column (the SteamRoller inventory of the machine) that works the same way;
 - **import servers from CSV or Excel** (or rows pasted from a spreadsheet) into an intervention, with column
   recognition and a preview of every row before saving;
 - **scheduling conflicts**: a warning when the same server is in two interventions on the same day, or a technician
@@ -647,7 +648,7 @@ the left.
   Hostnames are stored in lowercase.
 - **Removing a server**: bin icon, confirmed with a second click. The server stays in the inventory and in the other
   interventions.
-- **Underlined columns** (hostname, IP, OS, environment, current kernel): they are **server** attributes, shared by
+- **Underlined columns** (hostname, IP, OS, environment, location, SteamRoller Inventory, current kernel): they are **server** attributes, shared by
   all the interventions where it appears. The others apply to this intervention only.
 - **Work completed**: when a server becomes «Completed», «Executed on» takes today's date (if it is empty). If its
   target OS or target kernel differ from the current ones, a green bar above the table proposes «Update the server's

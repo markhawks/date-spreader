@@ -1,6 +1,7 @@
 // Translations for serverimport.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "serverimport.field.steamroller_inventory": "SteamRoller Inventory",
     "serverimport.title": "Import servers",
     "serverimport.close": "Close",
     "serverimport.cancel": "Cancel",
@@ -70,6 +71,7 @@ export default {
     "serverimport.field.location": "Location"
   },
   "it": {
+    "serverimport.field.steamroller_inventory": "SteamRoller Inventory",
     "serverimport.title": "Importa server",
     "serverimport.close": "Chiudi",
     "serverimport.cancel": "Annulla",

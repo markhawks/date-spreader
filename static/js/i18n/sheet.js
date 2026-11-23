@@ -1,6 +1,8 @@
 // Translations for sheet.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "sheet.col_inventory": "SteamRoller Inventory",
+    "sheet.col_inventory_title": "SteamRoller inventory the machine belongs to: pick one already used from the list or type a new one",
     "sheet.check_done_on": "Check done on {date}",
     "sheet.upgrade_one": "{hostname} completed: update the server's data?",
     "sheet.upgrade_many": "{n} servers completed with a target OS or kernel different from their data: update the servers' data?",
@@ -94,6 +96,8 @@ export default {
     "sheet.order": "Commessa {code}"
   },
   "it": {
+    "sheet.col_inventory": "SteamRoller Inventory",
+    "sheet.col_inventory_title": "Inventario SteamRoller a cui appartiene la macchina: scegline uno già usato dall'elenco o scrivine uno nuovo",
     "sheet.check_done_on": "Check eseguito il {date}",
     "sheet.upgrade_one": "{hostname} completato: aggiornare i dati del server?",
     "sheet.upgrade_many": "{n} server completati con SO o kernel target diversi dai loro dati: aggiornare i dati dei server?",

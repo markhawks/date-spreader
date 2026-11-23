@@ -21,6 +21,7 @@ class ServerSummary(BaseModel):
     environment: str | None
     current_kernel: str | None
     location: str | None = None
+    steamroller_inventory: str | None = None
     notes: str | None
     event_count: int                    # interventi in cui compare
     last_event_date: date | None        # data dell'intervento più recente

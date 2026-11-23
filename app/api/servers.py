@@ -164,6 +164,7 @@ def options(session: SessionDep) -> Options:
         environments=list(statuses.ENVIRONMENTS),
         event_statuses=list(statuses.EVENT_STATUSES),
         locations=repo.known_locations(session),
+        inventories=repo.known_inventories(session),
     )
 
 

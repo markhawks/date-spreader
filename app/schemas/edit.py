@@ -20,7 +20,8 @@ Environment = Literal[statuses.ENVIRONMENTS]  # type: ignore[valid-type]
 HOSTNAME_RE = re.compile(r"^[a-z0-9]([a-z0-9_-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9_-]*[a-z0-9])?)*$")
 
 # Campi che appartengono al server (validi in tutti i suoi interventi)
-SERVER_FIELDS = ("hostname", "ip_address", "operating_system", "environment", "location", "current_kernel")
+SERVER_FIELDS = ("hostname", "ip_address", "operating_system", "environment", "location", "steamroller_inventory",
+                 "current_kernel")
 # Campi della riga, specifici di questo intervento
 ROW_FIELDS = (
     "target_kernel",
@@ -51,6 +52,7 @@ class _RowFields(BaseModel):
     environment: Environment | None = None
     current_kernel: str | None = Field(default=None, max_length=100)
     location: str | None = Field(default=None, max_length=100)
+    steamroller_inventory: str | None = Field(default=None, max_length=100)
     target_kernel: str | None = Field(default=None, max_length=100)
     target_operating_system: str | None = Field(default=None, max_length=100)
     planned_date: date | None = None
@@ -61,7 +63,8 @@ class _RowFields(BaseModel):
     notes: str | None = Field(default=None, max_length=20000)
 
     @field_validator(
-        "ip_address", "operating_system", "current_kernel", "location", "target_kernel", "target_operating_system", "notes",
+        "ip_address", "operating_system", "current_kernel", "location", "steamroller_inventory", "target_kernel",
+        "target_operating_system", "notes",
         "environment", mode="before",
     )
     @classmethod
@@ -123,8 +126,10 @@ class ServerPatch(BaseModel):
     environment: Environment | None = None
     current_kernel: str | None = Field(default=None, max_length=100)
     location: str | None = Field(default=None, max_length=100)
+    steamroller_inventory: str | None = Field(default=None, max_length=100)
 
-    @field_validator("ip_address", "operating_system", "current_kernel", "location", "environment", mode="before")
+    @field_validator("ip_address", "operating_system", "current_kernel", "location", "steamroller_inventory",
+                     "environment", mode="before")
     @classmethod
     def _strip(cls, v):
         return _clean_text(v)
@@ -301,6 +306,7 @@ class Options(BaseModel):
     environments: list[str]
     event_statuses: list[str]
     locations: list[str] = []      # locations already used by servers (proposed in the menu)
+    inventories: list[str] = []    # SteamRoller inventories already used by servers (proposed in the menu)
 
 
 EventStatus = Literal[statuses.EVENT_STATUSES]  # type: ignore[valid-type]

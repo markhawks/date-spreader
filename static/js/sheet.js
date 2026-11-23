@@ -46,7 +46,9 @@ const COLUMNS = [
   { field: "operating_system", label: t("sheet.col_os"), title: t("sheet.col_os_title"), kind: "select", scope: "server", width: "7rem", options: "os" },
   { field: "environment", label: t("sheet.col_environment"), kind: "select", scope: "server", width: "5.5rem", options: "environments" },
   // Location: free text, with the locations already used proposed in a drop-down list
-  { field: "location", label: t("sheet.col_location"), title: t("sheet.col_location_title"), kind: "combo", scope: "server", width: "8rem" },
+  { field: "location", label: t("sheet.col_location"), title: t("sheet.col_location_title"), kind: "combo", scope: "server", width: "8rem", options: "locations" },
+  // SteamRoller inventory of the machine: same as the location (free text + values already used)
+  { field: "steamroller_inventory", label: t("sheet.col_inventory"), title: t("sheet.col_inventory_title"), kind: "combo", scope: "server", width: "9rem", options: "inventories" },
   { field: "current_kernel", label: t("sheet.col_current_kernel"), kind: "text", scope: "server", mono: true, width: "12rem" },
   { field: "target_operating_system", label: t("sheet.col_target_os"), title: t("sheet.col_target_os_title"), kind: "select", scope: "row", width: "7rem", options: "os" },
   { field: "target_kernel", label: t("sheet.col_target_kernel"), kind: "text", scope: "row", mono: true, width: "12rem" },
@@ -60,7 +62,7 @@ const COLUMNS = [
 
 // Interventi di «Configurazione»: solo queste colonne; le note vanno in una riga a tutta larghezza
 // sotto ogni server (alta due righe, cresce con il testo). L'ultima colonna resta elastica.
-const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "location", "migration_status", "executed_date", "assigned_user_id"];
+const CONFIG_FIELDS = ["hostname", "ip_address", "operating_system", "environment", "location", "steamroller_inventory", "migration_status", "executed_date", "assigned_user_id"];
 const CONFIG_COLUMNS = CONFIG_FIELDS.map((f, i, all) => {
   const c = COLUMNS.find((x) => x.field === f);
   return i === all.length - 1 ? { ...c, width: undefined } : c;
@@ -193,6 +195,7 @@ export class Sheet {
       migration: options.migration_statuses.map((v) => [v, MIGRATION_STATUS[v] ?? v]),
       users: [["", t("sheet.user_none")], ...users.map((u) => [String(u.id), u.display_name])],
       locations: [...(options.locations ?? [])],
+      inventories: [...(options.inventories ?? [])],
     };
   }
 
@@ -528,7 +531,7 @@ export class Sheet {
       control = el("input", "cell-input");
       control.type = col.kind === "date" ? "date" : "text";
       if (col.kind === "combo") {
-        control.setAttribute("list", this.#locationList().id); // drop-down list of the locations already used
+        control.setAttribute("list", this.#valueList(col.options).id); // drop-down list of the values already used
         control.title = col.title;
       }
       control.autocomplete = "off";
@@ -547,27 +550,33 @@ export class Sheet {
     return control;
   }
 
-  /** <datalist> with the locations already used (one per table), kept up to date after each save. */
-  #locationList() {
+  /**
+   * <datalist> with the values already used of a free-text column (locations, SteamRoller inventories),
+   * one per table and column, kept up to date after each save.
+   */
+  #valueList(key) {
     // Kept in <body>, not in the table: redrawing the table replaces all of its content
-    if (!this.locationsEl) {
-      this.locationsEl = el("datalist");
-      this.locationsEl.id = `ds-locations-${Math.random().toString(36).slice(2)}`;
-      document.body.append(this.locationsEl);
+    this.valueLists ??= {};
+    let entry = this.valueLists[key];
+    if (!entry) {
+      const list = el("datalist");
+      list.id = `ds-${key}-${Math.random().toString(36).slice(2)}`;
+      document.body.append(list);
+      entry = this.valueLists[key] = { list, for: null };
     }
-    if (this.locationsFor !== this.lookups) {
-      this.locationsFor = this.lookups; // new lookups (table reopened): refresh the list
-      this.locationsEl.replaceChildren(...(this.lookups.locations ?? []).map((l) => new Option(l, l)));
+    if (entry.for !== this.lookups) {
+      entry.for = this.lookups; // new lookups (table reopened): refresh the list
+      entry.list.replaceChildren(...(this.lookups[key] ?? []).map((v) => new Option(v, v)));
     }
-    return this.locationsEl;
+    return entry.list;
   }
 
-  #rememberLocation(value) {
+  #rememberValue(key, value) {
     const v = (value ?? "").trim();
-    if (!v || (this.lookups.locations ?? []).some((l) => l.toLowerCase() === v.toLowerCase())) return;
-    this.lookups.locations = [...(this.lookups.locations ?? []), v].sort((a, b) => a.localeCompare(b, locale()));
-    this.locationsFor = null;
-    this.#locationList();
+    if (!v || (this.lookups[key] ?? []).some((x) => x.toLowerCase() === v.toLowerCase())) return;
+    this.lookups[key] = [...(this.lookups[key] ?? []), v].sort((a, b) => a.localeCompare(b, locale()));
+    this.valueLists[key].for = null;
+    this.#valueList(key);
   }
 
   #addRowFoot() {
@@ -795,7 +804,7 @@ export class Sheet {
     try {
       const updated = await patchServerRow(state.data.id, body);
       state.data = updated;
-      if (col.field === "location") this.#rememberLocation(updated.location);
+      if (col.kind === "combo") this.#rememberValue(col.options, updated[col.field]);
       if (col.field === "migration_status") this.#proposeUpgrade(state);
       this.changed = true;
       this.#refreshRow(state, td);

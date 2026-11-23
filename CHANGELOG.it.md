@@ -5,12 +5,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
-### Modificato
-- **Rinviato in viola**: lo stato «Rinviato»/«Rinviata» di interventi e righe server ha ora un colore viola suo (prima era ambra come «In corso»), ben visibile in mezzo ai completati: etichette, menu di stato della tabella server, Gantt (barra, blocchi, legenda), email di condivisione ed Excel.
-
 ### Aggiunto
+- Colonna **SteamRoller Inventory** nella tabella server, dopo Location: l'inventario SteamRoller a cui appartiene la macchina, dato del server (uguale in tutti i suoi interventi), testo libero con i valori già usati proposti in un menu a tendina. Anche nell'anagrafica server (colonna, ordinamento, scheda, Modifica, ricerca), nell'anteprima compatta, nell'email di condivisione, nel riepilogo da telefono, nell'import da CSV/Excel (intestazioni «SteamRoller», «Inventory», «Inventario»), in export/import e sincronizzazione (solo se compilato: gli altri server non risultano cambiati). Database: `servers.steamroller_inventory` (migrazione `1e04dba1541e`). API: `inventories` in `GET /api/options`. Nuovo suggerimento del giorno.
 - **Anteprima più grande**: con l'anteprima sotto il calendario, «⇔» nella sua barra la allarga quanto la finestra (la colonna progetti finisce sopra; preferenza personale `detail_full_width`); «⛶», nella barra e tra i pulsanti di ogni intervento, mostra l'anteprima a schermo intero sopra calendario e colonna progetti (un altro clic o Esc la riporta com'era). Nuovo suggerimento del giorno.
 
+### Modificato
+- **Rinviato in viola**: lo stato «Rinviato»/«Rinviata» di interventi e righe server ha ora un colore viola suo (prima era ambra come «In corso»), ben visibile in mezzo ai completati: etichette, menu di stato della tabella server, Gantt (barra, blocchi, legenda), email di condivisione ed Excel.
 
 ## [0.30.0] - 2026-11-17
 > Vedi chi sta lavorando sul portale prima di un riavvio, avvisi tutti con un messaggio e controlli le nuove versioni quando vuoi.

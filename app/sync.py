@@ -42,7 +42,7 @@ from app.models import (
 from app.repositories.customers import clean_order_code, resolve_order
 from app.schemas.transfer import ExportFile, XEvent, XProject, XServer, XTechnician
 from app.transfer import (
-    SERVER_EXPORT_FIELDS, Resolver, add_event, check_users, check_values, checked_end, export_projects,
+    OPTIONAL_SERVER_FIELDS, SERVER_EXPORT_FIELDS, Resolver, add_event, check_users, check_values, checked_end, export_projects,
     load_projects, new_report, where_label,
 )
 
@@ -165,7 +165,8 @@ class Side:
                         sorted(n for n in (name(k) for k in xe.check_participants) if n)) or None
                 self._add(ekey, "event", canon, show, pkey)
         for s in servers:
-            canon = {f: getattr(s, f) for f in SERVER_EXPORT_FIELDS}
+            canon = {f: getattr(s, f) for f in SERVER_EXPORT_FIELDS
+                     if f not in OPTIONAL_SERVER_FIELDS or getattr(s, f) is not None}
             self._add(f"s:{s.hostname}", "server", canon, dict(canon), None)
 
     def _add(self, key, kind, canon, show, parent) -> None:

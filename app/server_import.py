@@ -33,7 +33,7 @@ MAX_BYTES = 5 * 1024 * 1024
 
 # Fields that can be imported, in table order. "assigned_user" is the technician of the row.
 FIELDS = (
-    "hostname", "ip_address", "operating_system", "environment", "location", "current_kernel",
+    "hostname", "ip_address", "operating_system", "environment", "location", "steamroller_inventory", "current_kernel",
     "target_operating_system", "target_kernel", "assigned_user", "notes",
 )
 
@@ -44,6 +44,7 @@ HEADER_NAMES = {
     "operating_system": {"os", "so", "sistemaoperativo", "operatingsystem", "osattuale", "soattuale", "currentos", "osversion", "versioneso", "versionesistemaoperativo"},
     "environment": {"environment", "env", "ambiente", "amb", "stage"},
     "location": {"location", "site", "sito", "sede", "datacenter", "datacentre", "dc", "ubicazione", "posizione", "luogo", "rack", "sala"},
+    "steamroller_inventory": {"steamroller", "steamrollerinventory", "inventory", "inventario", "inventariosteamroller", "srinventory"},
     "current_kernel": {"kernel", "kernelattuale", "currentkernel", "kernelversion", "versionekernel"},
     "target_operating_system": {"targetos", "ostarget", "sotarget", "osdestinazione", "sodestinazione", "targetoperatingsystem", "sistemaoperativotarget", "newos", "nuovoso"},
     "target_kernel": {"targetkernel", "kerneltarget", "kerneldestinazione", "newkernel", "nuovokernel"},
@@ -231,7 +232,7 @@ def import_servers(
             continue
 
         values: dict[str, object] = {"hostname": host}
-        for f in ("ip_address", "location", "current_kernel", "target_kernel", "notes"):
+        for f in ("ip_address", "location", "steamroller_inventory", "current_kernel", "target_kernel", "notes"):
             if get(f):
                 values[f] = get(f)
         for f in ("operating_system", "target_operating_system"):

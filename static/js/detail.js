@@ -54,6 +54,7 @@ const COLUMNS = [
   ["Amb.", (s) => stack(
     s.environment ? el("span", `env env-${s.environment.toLowerCase()}`, s.environment) : null,
     s.location ? el("span", "sub location", s.location) : null,
+    s.steamroller_inventory ? el("span", "sub inventory", s.steamroller_inventory) : null,
   )],
   ["SO · kernel", (s) => {
     const os = markOutdated(el("span", null, shortOs(s.operating_system) || "—"), s.operating_system);

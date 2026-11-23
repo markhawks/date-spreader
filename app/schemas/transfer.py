@@ -74,11 +74,13 @@ class XServer(_In):
     environment: Environment | None = None
     current_kernel: str | None = Field(default=None, max_length=100)
     location: str | None = Field(default=None, max_length=100)
+    steamroller_inventory: str | None = Field(default=None, max_length=100)   # since 0.31
     notes: str | None = Field(default=None, max_length=20000)
     is_demo: bool = False
 
     _host = field_validator("hostname", mode="before")(classmethod(lambda cls, v: _valid_hostname(str(v or ""))))
-    _clean = field_validator("ip_address", "operating_system", "current_kernel", "location", "notes", "environment",
+    _clean = field_validator("ip_address", "operating_system", "current_kernel", "location", "steamroller_inventory",
+                             "notes", "environment",
                              mode="before")(classmethod(lambda cls, v: _text(v)))
 
     @field_validator("ip_address")

@@ -139,12 +139,21 @@ def delete_server(session: Session, server: Server) -> None:
     audit.record(session, "delete", "servers", server_id, {"hostname": (hostname, None)})
 
 
-def known_locations(session: Session) -> list[str]:
-    """Locations already used by servers, without duplicates (case-insensitive), alphabetical."""
+def _known(session: Session, column) -> list[str]:
+    """Values of a server column already used, without duplicates (case-insensitive), alphabetical."""
     seen: dict[str, str] = {}
-    for (loc,) in session.execute(select(Server.location).where(Server.location.is_not(None)).distinct()):
-        seen.setdefault(loc.strip().lower(), loc.strip())
+    for (v,) in session.execute(select(column).where(column.is_not(None)).distinct()):
+        seen.setdefault(v.strip().lower(), v.strip())
     return sorted(seen.values(), key=str.lower)
+
+
+def known_locations(session: Session) -> list[str]:
+    return _known(session, Server.location)
+
+
+def known_inventories(session: Session) -> list[str]:
+    """SteamRoller inventories already used by servers."""
+    return _known(session, Server.steamroller_inventory)
 
 
 def add_row(session: Session, event: Event, data: ServerRowCreate) -> tuple[EventServer, bool]:

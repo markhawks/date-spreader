@@ -1,6 +1,7 @@
 // Translations for share.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "share.col_inventory": "SteamRoller Inventory",
     "share.subject": "Intervention: {details}",
     "share.no_servers": "No servers attached",
     "share.server_count": {
@@ -71,6 +72,7 @@ export default {
     "share.order_short": "Commessa {code}"
   },
   "it": {
+    "share.col_inventory": "SteamRoller Inventory",
     "share.subject": "Intervento: {details}",
     "share.no_servers": "Nessun server associato",
     "share.server_count": {

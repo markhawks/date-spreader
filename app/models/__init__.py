@@ -157,6 +157,8 @@ class Server(VersionedMixin, TimestampMixin, Base):
     current_kernel: Mapped[str | None] = mapped_column(String(100))
     # Where the machine is (site, datacenter, room…): free text; values already used are proposed in a menu
     location: Mapped[str | None] = mapped_column(String(100), index=True)
+    # SteamRoller inventory the machine belongs to: free text; values already used are proposed in a menu
+    steamroller_inventory: Mapped[str | None] = mapped_column(String(100), index=True)
     notes: Mapped[str | None] = mapped_column(Text)
     # Dato di esempio (demo): rimovibile con `python -m app.cli demo remove`.
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())

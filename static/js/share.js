@@ -72,6 +72,7 @@ export function buildEmail(ev) {
     ["os", t("share.col_os"), (s) => esc(shortOs(s.operating_system))],
     ["env", t("share.col_env"), (s) => esc(s.environment ?? "")],
     ["location", t("share.col_location"), (s) => esc(s.location ?? "")],
+    ["inventory", t("share.col_inventory"), (s) => esc(s.steamroller_inventory ?? "")],
     ["kernel", t("share.col_kernel"), (s) => `<span style="${mono}">${esc(s.current_kernel ?? "")}</span>`],
     ["target_os", t("share.col_target_os"), (s) => esc(shortOs(s.target_operating_system))],
     ["target_kernel", t("share.col_target_kernel"), (s) => `<span style="${mono}">${esc(s.target_kernel ?? "")}</span>`],
@@ -82,7 +83,7 @@ export function buildEmail(ev) {
     ["notes", t("share.col_notes"), (s) => esc(s.notes ?? "")],
   ];
   // Configurazione: colonne ridotte e note in una riga a tutta larghezza sotto ogni server
-  const CONFIG_COLS = ["hostname", "ip", "os", "env", "location", "stage", "executed", "technician"];
+  const CONFIG_COLS = ["hostname", "ip", "os", "env", "location", "inventory", "stage", "executed", "technician"];
   const cols = config ? allCols.filter(([id]) => CONFIG_COLS.includes(id)) : allCols;
   const notesRow = (s) => (config
     ? `<tr><td colspan="${cols.length}" style="padding:6px 10px 10px;border-bottom:2px solid #d5d9e0;background:#f8f9fb;font-size:13px;white-space:pre-wrap">${
@@ -135,13 +136,13 @@ export function buildEmail(ev) {
     ...(ev.notes ? [t("share.text_notes", { value: ev.notes })] : []),
     "", summary, "",
     ...ev.servers.map((s) => (config ? [
-      [s.hostname, s.ip_address, shortOs(s.operating_system), s.environment, s.location,
+      [s.hostname, s.ip_address, shortOs(s.operating_system), s.environment, s.location, s.steamroller_inventory,
         t("share.text_stage", { stage: stageLabel(ev).toLowerCase(), status: MIGRATION_STATUS[s.migration_status] ?? s.migration_status }),
         s.executed_date && t("share.text_executed", { date: formatShortDate(s.executed_date) }), s.assigned_user?.display_name].filter(Boolean).join(" | "),
       ...(s.notes ? s.notes.split("\n").map((l) => `    ${l}`) : []),
       "",
     ].join("\n") : [
-      s.hostname, s.ip_address, shortOs(s.operating_system), s.environment, s.location,
+      s.hostname, s.ip_address, shortOs(s.operating_system), s.environment, s.location, s.steamroller_inventory,
       `${s.current_kernel ?? "?"} → ${shortOs(s.target_operating_system) || ""} ${s.target_kernel ?? ""}`.trim(),
       t("share.text_check", { status: CHECK_STATUS[s.check_status] ?? s.check_status }), t("share.text_stage", { stage: stageLabel(ev).toLowerCase(), status: MIGRATION_STATUS[s.migration_status] ?? s.migration_status }),
       s.assigned_user?.display_name, s.notes,

@@ -147,3 +147,10 @@ def test_location_is_imported_saved_and_proposed(api):
     assert srv["location"] == "Torino"
     assert "Torino" in api.get("/api/options").json()["locations"]
     assert api.get("/api/servers", params={"q": "torino"}).json()["total"] == 1
+
+
+def test_steamroller_inventory_column_is_recognized():
+    from app import server_import
+    rows = [["Hostname", "IP", "SteamRoller Inventory"], ["web01.example.com", "192.0.2.5", "Linux-Prod"]]
+    mapping, header = server_import.detect_columns(rows)
+    assert header and mapping == ["hostname", "ip_address", "steamroller_inventory"]

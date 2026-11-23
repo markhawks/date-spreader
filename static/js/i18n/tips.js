@@ -64,7 +64,8 @@ export default {
     "tips.tip.check_gantt": "The hours of a pre-check count in the Gantt: a yellow row under the intervention, «of which pre-checks» in the summary. If its times are not enough, fill in «Hours worked on the check».",
     "tips.tip.check_done": "When the check of a server becomes OK or KO, «check executed on» fills in by itself. After the check day, the intervention shows a warning if some servers still have the check to do or KO.",
     "tips.tip.online_users": "The bust with a number next to «Gantt» tells how many colleagues are connected now: a click shows who they are, what they are doing and who is editing.",
-    "tips.tip.preview_wide": "More room for the server table: with the preview below, ⇔ in its bar makes it as wide as the window; ⛶ shows it on the whole screen (Esc to go back)."
+    "tips.tip.preview_wide": "More room for the server table: with the preview below, ⇔ in its bar makes it as wide as the window; ⛶ shows it on the whole screen (Esc to go back).",
+    "tips.tip.steamroller": "The «SteamRoller Inventory» column of the server table belongs to the server: write it once and it is the same in all its interventions; the values already used are proposed in a list."
   },
   "it": {
     "tips.title": "Suggerimento del giorno",
@@ -130,6 +131,7 @@ export default {
     "tips.tip.check_gantt": "Le ore del check pre-intervento contano nel Gantt: riga gialla sotto l'intervento, «di cui check» nel riepilogo. Se l'orario non basta, compila «Ore effettive del check».",
     "tips.tip.check_done": "Quando il check di un server diventa OK o KO, «Check eseguito il» si compila da solo. Passato il giorno del check, l'intervento mostra un avviso se ci sono server con check da fare o KO.",
     "tips.tip.online_users": "Il mezzo busto con il numero accanto a «Gantt» dice quanti colleghi sono connessi adesso: un clic mostra chi sono, cosa stanno facendo e chi sta modificando.",
-    "tips.tip.preview_wide": "Più spazio per la tabella server: con l'anteprima in basso, ⇔ nella sua barra la allarga quanto la finestra; ⛶ la mostra a schermo intero (Esc per tornare)."
+    "tips.tip.preview_wide": "Più spazio per la tabella server: con l'anteprima in basso, ⇔ nella sua barra la allarga quanto la finestra; ⛶ la mostra a schermo intero (Esc per tornare).",
+    "tips.tip.steamroller": "La colonna «SteamRoller Inventory» della tabella server è un dato del server: la scrivi una volta e vale in tutti i suoi interventi; i valori già usati sono proposti in un elenco."
   }
 };

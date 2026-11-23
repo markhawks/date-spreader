@@ -1,6 +1,7 @@
 // Translations for sync.js. Format: see static/js/i18n.js.
 export default {
   "en": {
+    "sync.field.steamroller_inventory": "SteamRoller Inventory",
     "sync.field.check_date": "check day",
     "sync.field.check_start_time": "check from",
     "sync.field.check_end_time": "check to",
@@ -86,6 +87,7 @@ export default {
     "sync.field.current_kernel": "kernel"
   },
   "it": {
+    "sync.field.steamroller_inventory": "SteamRoller Inventory",
     "sync.field.check_date": "giorno del check",
     "sync.field.check_start_time": "check dalle",
     "sync.field.check_end_time": "check alle",

@@ -157,3 +157,18 @@ def test_customers_of_each_server_and_filter(api):
     none = find(api, customer_id=0)
     assert all(not s["customers"] for s in none["servers"])
     assert api.get(f"/api/servers/{with_customer[0]['id']}").json()["server"]["customers"] == with_customer[0]["customers"]
+
+
+def test_steamroller_inventory_is_a_server_field_with_known_values(api):
+    db01 = find(api, "alfa-db01")["servers"][0]
+    res = api.patch(f"/api/servers/{db01['id']}", json={"version": db01["version"], "steamroller_inventory": " Linux-Prod "})
+    assert res.status_code == 200 and res.json()["steamroller_inventory"] == "Linux-Prod"
+    # the same value in every intervention of the server, and proposed in the menus
+    detail = api.get(f"/api/servers/{db01['id']}").json()
+    for h in detail["history"]:
+        row = next(r for r in api.get(f"/api/events/{h['event_id']}").json()["servers"] if r["id"] == h["row_id"])
+        assert row["steamroller_inventory"] == "Linux-Prod"
+    other = find(api, "beta-app01")["servers"][0]
+    api.patch(f"/api/servers/{other['id']}", json={"version": other["version"], "steamroller_inventory": "linux-prod"})
+    assert api.get("/api/options").json()["inventories"] == ["Linux-Prod"]        # no duplicates by case
+    assert find(api, "linux-prod")["total"] == 2                                  # searchable

@@ -1,6 +1,8 @@
 // Translations for inventory.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "inventory.field.inventory": "SteamRoller Inventory",
+    "inventory.col.inventory": "SteamRoller Inventory",
     "inventory.customer_label": "Customer",
     "inventory.customer_title": "Show the servers of one customer, or all of them divided by customer",
     "inventory.customer_all": "All customers",
@@ -83,6 +85,8 @@ export default {
     "inventory.col.location": "Location"
   },
   "it": {
+    "inventory.field.inventory": "SteamRoller Inventory",
+    "inventory.col.inventory": "SteamRoller Inventory",
     "inventory.customer_label": "Cliente",
     "inventory.customer_title": "Mostra i server di un cliente, oppure tutti divisi per cliente",
     "inventory.customer_all": "Tutti i clienti",

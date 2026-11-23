@@ -27,7 +27,10 @@ from app.models import (
 )
 from app.schemas.transfer import FORMAT, FORMAT_VERSION, ExportFile, XEvent, XProject
 
-SERVER_EXPORT_FIELDS = ("ip_address", "operating_system", "environment", "location", "current_kernel", "notes")
+SERVER_EXPORT_FIELDS = ("ip_address", "operating_system", "environment", "location", "steamroller_inventory",
+                        "current_kernel", "notes")
+# fields added later: in the sync fingerprint only when set, so older data keep the same fingerprint
+OPTIONAL_SERVER_FIELDS = ("steamroller_inventory",)
 
 
 # --- export ------------------------------------------------------------------------------

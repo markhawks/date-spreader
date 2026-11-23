@@ -16,7 +16,7 @@ def _filters(q: str | None):
         return []
     pattern = _like(q)
     cols = (Server.hostname, Server.ip_address, Server.operating_system, Server.environment,
-            Server.current_kernel, Server.location, Server.notes)
+            Server.current_kernel, Server.location, Server.steamroller_inventory, Server.notes)
     return [or_(*(func.lower(func.coalesce(c, "")).like(pattern, escape="\\") for c in cols))]
 
 
