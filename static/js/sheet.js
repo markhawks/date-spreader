@@ -405,9 +405,14 @@ export class Sheet {
    */
   #fitWidths(table) {
     const ctx = (Sheet.canvas ??= document.createElement("canvas")).getContext("2d");
-    const cellFont = getComputedStyle(this.tbody.querySelector(".cell-input") ?? table).font;
-    const th0 = table.tHead.rows[0].cells[0];
-    const headFont = getComputedStyle(th0).font;
+    const fontOf = (node, weight) => {
+      const cs = getComputedStyle(node);
+      return `${cs.fontStyle} ${weight ?? cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    };
+    const cellNode = this.tbody.querySelector(".cell-input") ?? table;
+    const cellFont = fontOf(cellNode);
+    const boldFont = fontOf(cellNode, 700);   // the colored status menus are bold
+    const headFont = fontOf(table.tHead.rows[0].cells[0]);
     const measure = (text, font) => { ctx.font = font; return ctx.measureText(text ?? "").width; };
     const servers = [...this.rows.values()].map((s) => s.data);
     const out = {};
@@ -415,8 +420,10 @@ export class Sheet {
       const th = table.querySelector(`thead th[data-col="${col.field}"]`);
       const head = measure(th?.firstChild?.textContent ?? col.label, headFont) + 18 + 14; // padding + ▲
       let longest = 0;
-      for (const data of servers) longest = Math.max(longest, measure(this.#shownText(col, data), cellFont));
-      const pad = col.kind === "select" ? 30 : col.kind === "date" ? 44 : 16;
+      // colored status menus (check, migration) are bold: measured bold
+      const font = ["check_status", "migration_status"].includes(col.field) ? boldFont : cellFont;
+      for (const data of servers) longest = Math.max(longest, measure(this.#shownText(col, data), font));
+      const pad = col.kind === "select" ? 40 : col.kind === "date" ? 44 : 16;   // select: arrow + padding
       const cap = col.field === "notes" ? NOTES_MAX : 480;
       out[col.field] = Math.ceil(Math.min(cap, Math.max(head, longest + pad, 56)));
     }

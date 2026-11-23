@@ -41,7 +41,8 @@ def start_portal(db: Path, port: int) -> subprocess.Popen:
     con.execute("UPDATE users SET must_change_password = 0")   # no password change at the first login
     con.commit()
     con.close()
-    env = {**os.environ, "DATABASE_PATH": str(db), "HOST": "127.0.0.1", "PORT": str(port), "RELOAD": "false"}
+    env = {**os.environ, "DATABASE_PATH": str(db), "HOST": "127.0.0.1", "PORT": str(port), "RELOAD": "false",
+           "UPDATE_CHECK": "false"}
     proc = subprocess.Popen([str(VENV_PYTHON), "-m", "app.main"], cwd=ROOT, env=env,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     for _ in range(60):
@@ -82,6 +83,29 @@ EXTRA = """async (days) => {
                 order_code: 'C-2026-021', participant_ids: users.slice(1, 3)});
   await add(a, {event_date: days.w2, title: 'Alfa – web02 upgrade', event_type: 'upgrade', start_time: '14:00', end_time: '17:00',
                 order_code: 'C-2026-014', participant_ids: users.slice(3, 4)});
+  // SteamRoller inventory of the servers (fictitious)
+  const inv = (h) => h.startsWith('alfa') ? (h.includes('test') ? 'Linux-Test' : 'Linux-Prod')
+    : h.startsWith('beta') ? 'Beta-RHEL8' : 'Retail-POS';
+  for (const s of (await (await fetch('/api/servers')).json()).servers) {
+    await fetch(`/api/servers/${s.id}`, {method: 'PATCH', headers: h, body: JSON.stringify({version: s.version, steamroller_inventory: inv(s.hostname)})});
+  }
+  // results of the SteamRoller check: a Warning and a FAIL with their notes; the Beta patching with its pre-check
+  for (const p of await (await fetch('/api/projects')).json()) {
+    for (const ref of p.events) {
+      let ev = await (await fetch(`/api/events/${ref.id}`)).json();
+      const todo = ev.servers.find(r => r.check_status === 'da_fare');
+      if (todo) await fetch(`/api/event-servers/${todo.id}`, {method: 'PATCH', headers: h,
+        body: JSON.stringify({version: todo.version, check_status: 'warning', notes: 'SteamRoller: WARNING - reboot pending'})});
+      const ko = ev.servers.find(r => r.check_status === 'ko');
+      if (ko) await fetch(`/api/event-servers/${ko.id}`, {method: 'PATCH', headers: h,
+        body: JSON.stringify({version: ko.version, notes: 'SteamRoller: FAIL - /boot 98% used'})});
+      if (ev.title === 'Beta – patching') {
+        ev = await (await fetch(`/api/events/${ref.id}`)).json();
+        await fetch(`/api/events/${ref.id}`, {method: 'PATCH', headers: h, body: JSON.stringify({version: ev.version,
+          check_date: days.w0, check_start_time: '15:00', check_end_time: '17:00'})});
+      }
+    }
+  }
 }"""
 
 
@@ -115,13 +139,16 @@ def take(base: str, out: Path, lang: str, first: bool) -> None:
         page.click(".auth-submit")
         page.wait_for_selector(".chip[data-event-id]")
         prefs = {"language": lang, "theme": "light", "calendar_view": "month", "detail_position": "right",
-                 "project_view": "list", "project_sort": "date", "project_group": "none", "sidebar_width": 320}
+                 "project_view": "list", "project_sort": "date", "project_group": "none", "sidebar_width": 320,
+                 # nothing over the screens: news window, tip of the day, new version notice
+                 "whats_new": False, "tips": False, "update_notice": False}
         page.evaluate("""async (body) => { await fetch('/api/me/preferences', {method: 'PATCH',
             headers: {'X-Requested-With': 'datespreader', 'Content-Type': 'application/json'}, body: JSON.stringify(body)}); }""", prefs)
         if first:
             monday = date.today() - timedelta(days=date.today().weekday())
             page.evaluate(EXTRA, {"g1": month_day(-1, 21), "g2": month_day(0, 4), "a1": month_day(0, 25),
-                                  "w1": (monday + timedelta(days=1)).isoformat(), "w2": (monday + timedelta(days=3)).isoformat()})
+                                  "w0": monday.isoformat(), "w1": (monday + timedelta(days=1)).isoformat(),
+                                  "w2": (monday + timedelta(days=3)).isoformat()})
         # projects expanded (this browser only)
         page.evaluate("ids => localStorage.setItem('datespreader.sidebar.expanded', JSON.stringify(ids))",
                       page.evaluate("async () => (await (await fetch('/api/projects')).json()).map(p => p.id)"))
@@ -133,8 +160,15 @@ def take(base: str, out: Path, lang: str, first: bool) -> None:
         to_month(page)
         shoot(page, out, "calendar", lang)
 
-        # 2. a day with its preview on the right
-        chip = page.locator(".chip[data-event-id]").first
+        # 2. a day with its preview on the right: the intervention with PASS, Warning and FAIL checks
+        target = page.evaluate("""async () => {
+          for (const p of await (await fetch('/api/projects')).json()) for (const ref of p.events) {
+            const ev = await (await fetch(`/api/events/${ref.id}`)).json();
+            if (ev.servers.some(r => r.check_status === 'ko')) return ev.id;
+          }
+          return null;
+        }""")
+        chip = page.locator(f".chip[data-event-id='{target}']:not(.chip-check)" if target else ".chip[data-event-id]").first
         chip.scroll_into_view_if_needed()
         chip.click()
         page.wait_for_selector("#detail:not([hidden]) .detail-body")
@@ -142,7 +176,8 @@ def take(base: str, out: Path, lang: str, first: bool) -> None:
         shoot(page, out, "preview", lang)
 
         # 3. full-screen server table
-        page.locator("#detail .expand-btn").first.click()
+        card = f"#detail .event-card[data-event-id='{target}'] .expand-btn" if target else "#detail .expand-btn"
+        page.locator(card).first.click()
         page.wait_for_selector("#sheet:not([hidden]) table")
         page.wait_for_timeout(500)
         page.evaluate("document.activeElement?.blur()")

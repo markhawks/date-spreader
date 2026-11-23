@@ -6,6 +6,10 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
 
+### Fixed
+- Server table: the colored status menus (Check, Upgrading) are measured in bold with room for the arrow, so labels such as "Warning" or "Completed" are no longer cut.
+- README screenshots regenerated for 0.31.0 (PASS/Warning/FAIL, colored notes, SteamRoller Inventory, pre-check).
+
 ## [0.31.0] - 2026-11-23
 > The server table speaks the language of the SteamRoller check: PASS, Warning and FAIL, notes in the same colors, the SteamRoller inventory of every machine, servers sorted for everybody, and shares to the customer with only the machines and notes you choose.
 

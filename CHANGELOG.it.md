@@ -6,6 +6,10 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
 
+### Corretto
+- Tabella server: i menu colorati degli stati (Check, Upgrading) sono misurati in grassetto e con lo spazio per la freccia, così etichette come «Attenzione» o «Completata» non vengono più tagliate.
+- Schermate dei README rigenerate per la 0.31.0 (PASS/Attenzione/FAIL, note colorate, SteamRoller Inventory, pre-check).
+
 ## [0.31.0] - 2026-11-23
 > La tabella server parla la lingua del check di SteamRoller: PASS, Attenzione e FAIL, note negli stessi colori, l'inventario SteamRoller di ogni macchina, server ordinati per tutti e condivisioni al cliente con solo le macchine e le note che scegli.
 
