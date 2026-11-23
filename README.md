@@ -594,7 +594,11 @@ new one:
 ### Resizable columns
 - Both in the compact table and in the full-screen one: **drag the right edge of the header**.
 - From the keyboard: Tab to the edge, then ←/→ arrows.
-- **Double click** on the edge resets the column to its default width; **Default widths** in the full-screen table
+- **Widths on the content**: in the full-screen table and the preview below every column is as wide as its longest
+  value (or its header), with no empty room and nothing cut; writing a longer value widens the column when it is
+  saved. The **Notes** are shown whole on one line, scrolling the table sideways; beyond 1200 px they wrap in the
+  cell (Enter goes to the row below, Shift+Enter starts a new line).
+- **Double click** on the edge resets the column to its default width; **Default widths** (measured again on the content) in the full-screen table
   resets them all.
 - The last column (Notes) takes the remaining space.
 - Widths are **remembered in the browser**, separately for the two tables.

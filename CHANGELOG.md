@@ -17,6 +17,7 @@ Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 - Full-screen server table: with many columns the last one (Notes) could be squeezed to a few pixels; it now always keeps at least 140 px (the table scrolls sideways).
 
 ### Changed
+- **Column widths on the content** in the full-screen table and the preview below: each column as wide as its longest value or header (no empty room, nothing cut), widening when a longer value is saved; «Default widths» measures them again. The **Notes** are shown whole on one line with horizontal scrolling, wrapping in the cell beyond 1200 px (Enter: row below; Shift+Enter: new line).
 - The underlined headers of the server table (data of the server) show the hand cursor, like the other sortable headers, instead of the question mark; the tooltip still explains them.
 - Check **OK and KO are now shown as PASS and FAIL**, like the results of the SteamRoller check (the saved values do not change). **In progress** is light blue (it was amber), so yellow is only for warnings: badges, status menus, Gantt, email and Excel.
 - **Postponed in violet**: the «Postponed» status of interventions and server rows now has its own violet color (it was amber like «In progress»), well visible among the completed ones: badges, status menus of the server table, Gantt (bar, blocks, legend), shared email and Excel.

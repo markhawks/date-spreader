@@ -377,7 +377,8 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
 ### Colonne ridimensionabili
 - Sia nella tabella compatta sia in quella a tutto schermo: si **trascina il bordo destro dell'intestazione**.
 - Da tastiera: Tab fino al bordo, poi frecce ←/→.
-- **Doppio clic** sul bordo riporta la colonna alla larghezza predefinita; **Larghezze predefinite** nella tabella a tutto schermo le riporta tutte.
+- **Larghezze sul contenuto**: nella tabella a tutto schermo e nell'anteprima in basso ogni colonna è larga quanto il suo valore più lungo (o l'intestazione), senza spazi vuoti né testo tagliato; scrivendo un valore più lungo la colonna si allarga al salvataggio. Le **Note** si vedono per intero su una riga, scorrendo la tabella in orizzontale; oltre 1200 px vanno a capo nella cella (Invio passa alla riga sotto, Maiusc+Invio va a capo).
+- **Doppio clic** sul bordo riporta la colonna alla larghezza predefinita; **Larghezze predefinite** nella tabella a tutto schermo le riporta tutte, misurate di nuovo sul contenuto.
 - L'ultima colonna (Note) prende lo spazio che resta.
 - Le larghezze sono **ricordate nel browser**, separatamente per le due tabelle.
 

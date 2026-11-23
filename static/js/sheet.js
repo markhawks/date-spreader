@@ -69,6 +69,7 @@ const CONFIG_COLUMNS = CONFIG_FIELDS.map((f, i, all) => {
   return i === all.length - 1 ? { ...c, width: undefined } : c;
 });
 const NOTES_COLUMN = COLUMNS.find((c) => c.field === "notes");
+const NOTES_MAX = 1200; // px: wider notes wrap inside the cell
 
 /** Altezza della nota: segue il testo, almeno due righe. */
 function autoGrow(ta) {
@@ -256,9 +257,13 @@ export class Sheet {
     this.#renderUpgradeBar();
     if (this.suggestBox) this.root.append(this.suggestBox);
     wrap.addEventListener("scroll", () => this.hideSuggest?.(), { passive: true });
-    this.resizer = makeResizable(table, { key: this.config ? "sheet-config" : "sheet" });
+    this.resizer = makeResizable(table, { key: this.config ? "sheet-config" : "sheet", fit: () => this.#fitWidths(table) });
     this.#showSort();
     for (const ta of this.tbody.querySelectorAll("textarea")) autoGrow(ta);
+    // again once the widths are final (the notes column gets its room in the next frame)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      for (const ta of this.tbody?.querySelectorAll("textarea") ?? []) autoGrow(ta);
+    }));
     this.#applyRowFilter();
     if (!this.embedded) this.tbody.querySelector("input, select")?.focus();
   }
@@ -394,6 +399,46 @@ export class Sheet {
    * Non tocca le celle in modifica né le righe con un salvataggio in corso.
    * @returns {Promise<boolean>} true se qualcosa è cambiato
    */
+  /**
+   * Default widths measured on the content: each column as wide as its longest value (or its header),
+   * nothing cut and no empty room; the notes as wide as the longest note, up to NOTES_MAX (then they wrap).
+   */
+  #fitWidths(table) {
+    const ctx = (Sheet.canvas ??= document.createElement("canvas")).getContext("2d");
+    const cellFont = getComputedStyle(this.tbody.querySelector(".cell-input") ?? table).font;
+    const th0 = table.tHead.rows[0].cells[0];
+    const headFont = getComputedStyle(th0).font;
+    const measure = (text, font) => { ctx.font = font; return ctx.measureText(text ?? "").width; };
+    const servers = [...this.rows.values()].map((s) => s.data);
+    const out = {};
+    for (const col of this.columns) {
+      const th = table.querySelector(`thead th[data-col="${col.field}"]`);
+      const head = measure(th?.firstChild?.textContent ?? col.label, headFont) + 18 + 14; // padding + ▲
+      let longest = 0;
+      for (const data of servers) longest = Math.max(longest, measure(this.#shownText(col, data), cellFont));
+      const pad = col.kind === "select" ? 30 : col.kind === "date" ? 44 : 16;
+      const cap = col.field === "notes" ? NOTES_MAX : 480;
+      out[col.field] = Math.ceil(Math.min(cap, Math.max(head, longest + pad, 56)));
+    }
+    return out;
+  }
+
+  /** The text a cell shows for a row (labels of the menus, a fixed sample for the dates). */
+  #shownText(col, data) {
+    if (col.kind === "date") return "00/00/0000";
+    const v = controlValue(data, col.field);
+    if (col.kind === "select") {
+      const found = (this.lookups[col.options] ?? []).find(([value]) => value === v);
+      if (found) return found[1];
+      if (!v) return "";
+      // a value no longer among the choices is shown with a note (see #control)
+      return col.field === "assigned_user_id"
+        ? t("sheet.user_inactive", { name: data.assigned_user?.display_name ?? v })
+        : t("sheet.os_not_listed", { os: shortOs(v) });
+    }
+    return v;
+  }
+
   /** ▲/▼ on the header of the column the servers are sorted by. */
   #showSort() {
     for (const th of this.root.querySelectorAll("thead th[data-col]")) {
@@ -553,6 +598,12 @@ export class Sheet {
         control.title = current || col.title; // nome completo al passaggio del mouse
         if (session.me?.is_admin) control.append(new Option(t("sheet.add_os_version"), ADD_OS));
       }
+    } else if (col.field === "notes" && !this.config) {
+      // the notes are shown whole: one line as wide as the column, wrapping beyond NOTES_MAX
+      control = el("textarea", "cell-input notes-inline");
+      control.rows = 1;
+      control.spellcheck = false;
+      control.addEventListener("input", () => autoGrow(control));
     } else {
       control = el("input", "cell-input");
       control.type = col.kind === "date" ? "date" : "text";
@@ -769,7 +820,7 @@ export class Sheet {
         if (control.tagName === "TEXTAREA") autoGrow(control);
         else control.title = col.kind === "text" ? control.value : "";
       }
-    } else if (e.key === "Enter" && control.tagName === "INPUT") {
+    } else if (e.key === "Enter" && (control.tagName === "INPUT" || (control.classList.contains("notes-inline") && !e.shiftKey))) {
       e.preventDefault();
       // Scende alla stessa colonna della riga sotto; l'uscita dalla cella fa partire il salvataggio.
       let below = state.tr.nextElementSibling;
@@ -834,6 +885,9 @@ export class Sheet {
       const updated = await patchServerRow(state.data.id, body);
       state.data = updated;
       if (col.kind === "combo") this.#rememberValue(col.options, updated[col.field]);
+      // a value longer than its column: the column widens (it never narrows by itself)
+      const need = this.#fitWidths(this.root.querySelector("table.edit-table"))[col.field];
+      if (need) this.resizer?.grow(col.field, need);
       if (col.field === "migration_status") this.#proposeUpgrade(state);
       this.changed = true;
       this.#refreshRow(state, td);

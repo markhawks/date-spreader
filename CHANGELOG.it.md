@@ -17,6 +17,7 @@ Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 - Tabella server a tutto schermo: con molte colonne l'ultima (Note) poteva ridursi a pochi pixel; ora tiene sempre almeno 140 px (la tabella scorre in orizzontale).
 
 ### Modificato
+- **Larghezze delle colonne sul contenuto** nella tabella a tutto schermo e nell'anteprima in basso: ogni colonna larga quanto il valore più lungo o l'intestazione (niente spazi vuoti né testo tagliato), e si allarga quando salvi un valore più lungo; «Larghezze predefinite» le misura di nuovo. Le **Note** si vedono per intero su una riga con lo scorrimento orizzontale, e vanno a capo nella cella oltre 1200 px (Invio: riga sotto; Maiusc+Invio: a capo).
 - Le intestazioni sottolineate della tabella server (dati del server) mostrano la manina del clic, come le altre intestazioni ordinabili, invece del punto interrogativo; il tooltip continua a spiegarle.
 - Il check **OK e KO ora si chiamano PASS e FAIL**, come gli esiti del check di SteamRoller (i valori salvati non cambiano). **In corso** è azzurro chiaro (prima ambra), così il giallo resta per gli avvisi: etichette, menu di stato, Gantt, email ed Excel.
 - **Rinviato in viola**: lo stato «Rinviato»/«Rinviata» di interventi e righe server ha ora un colore viola suo (prima era ambra come «In corso»), ben visibile in mezzo ai completati: etichette, menu di stato della tabella server, Gantt (barra, blocchi, legenda), email di condivisione ed Excel.

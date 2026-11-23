@@ -23,10 +23,12 @@ function store(key, widths) {
 
 /**
  * @param {HTMLTableElement} table
- * @param {{ key: string, min?: number, skip?: string[] }} opts
- * @returns {{ reset: () => void }}
+ * @param {{ key: string, min?: number, skip?: string[], fit?: () => Record<string, number> }} opts
+ *   fit: default widths measured on the content ({column: px}); the one of the last (elastic) column is
+ *   the room it keeps at least (e.g. the whole notes). Without fit: the widths declared in the <colgroup>.
+ * @returns {{ reset: () => void, grow: (column: string, px: number) => void }}
  */
-export function makeResizable(table, { key, min = 56, skip = [] }) {
+export function makeResizable(table, { key, min = 56, skip = [], fit = null }) {
   const ths = [...table.tHead.rows[0].cells];
   let colgroup = table.querySelector("colgroup");
   if (!colgroup) {
@@ -35,8 +37,18 @@ export function makeResizable(table, { key, min = 56, skip = [] }) {
     table.prepend(colgroup);
   }
   const cols = [...colgroup.children];
-  const defaults = cols.map((c) => c.style.width); // larghezze iniziali dichiarate ("" = automatica)
   const lastIdx = ths.length - 1 - [...ths].reverse().findIndex((th) => !skip.includes(th.dataset.col) && th.dataset.col);
+  let defaults = cols.map((c) => c.style.width); // larghezze iniziali dichiarate ("" = automatica)
+  let lastMin = MIN_LAST;   // room kept for the elastic last column
+  /** Default widths measured on the content (when the table gives a fit function). */
+  function applyFit() {
+    if (!fit) return;
+    const measured = fit();
+    defaults = ths.map((th, i) => (i !== lastIdx && measured[th.dataset.col] ? `${Math.max(min, measured[th.dataset.col])}px` : defaults[i]));
+    if (lastIdx >= 0 && measured[ths[lastIdx].dataset.col]) lastMin = Math.max(MIN_LAST, measured[ths[lastIdx].dataset.col]);
+    cols.forEach((c, i) => { if (i !== lastIdx) c.style.width = defaults[i]; });
+  }
+  applyFit();
   let widths = load(key);
 
   /** Passa al layout fisso fissando le larghezze attuali (serve per le tabelle a layout automatico). */
@@ -49,7 +61,7 @@ export function makeResizable(table, { key, min = 56, skip = [] }) {
 
   function updateMinWidth() {
     const sum = cols.reduce((acc, c, i) => (i === lastIdx ? acc : acc + (parseFloat(getComputedStyle(c).width) || 0)), 0);
-    table.style.minWidth = `${Math.round(sum + MIN_LAST)}px`;
+    table.style.minWidth = `${Math.round(sum + lastMin)}px`;
   }
 
   function setWidth(i, px) {
@@ -122,9 +134,22 @@ export function makeResizable(table, { key, min = 56, skip = [] }) {
     reset() {
       widths = {};
       store(key, widths);
+      applyFit();   // measured again on the content as it is now
       cols.forEach((c, i) => { c.style.width = defaults[i]; });
       table.style.minWidth = "";
       if (!defaults.some(Boolean)) table.classList.remove("cols-fixed");
+      requestAnimationFrame(updateMinWidth);
+    },
+    /** A value longer than its column was saved: the column widens (never narrows; not if set by hand). */
+    grow(column, px) {
+      const i = ths.findIndex((th) => th.dataset.col === column);
+      if (i < 0 || widths[column]) return;
+      if (i === lastIdx) {
+        if (px > lastMin) { lastMin = px; updateMinWidth(); }
+      } else if (px > (parseFloat(cols[i].style.width) || 0)) {
+        cols[i].style.width = `${Math.round(px)}px`;
+        updateMinWidth();
+      }
     },
   };
 }
