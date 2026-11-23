@@ -173,7 +173,7 @@ export class DetailPanel {
   setMaximized(on) {
     document.body.classList.toggle("detail-max", Boolean(on));
     const label = on ? t("detail.max_off") : t("detail.max_on");
-    for (const b of document.querySelectorAll("#btn-detail-max, .max-btn")) {
+    for (const b of document.querySelectorAll("#btn-detail-max")) {
       b.setAttribute("aria-pressed", String(Boolean(on)));
       b.title = label;
       b.setAttribute("aria-label", label);
@@ -503,17 +503,9 @@ export class DetailPanel {
       b.addEventListener("click", () => this.onEditProject(ev.project.id));
       tools.append(b);
     }
-    tools.append(expand);
-    // the preview on the whole screen (same as the button in the preview bar)
-    const max = el("button", "btn btn-small icon-only max-btn");
-    max.type = "button";
-    max.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    const maxLabel = this.maximized ? t("detail.max_off") : t("detail.max_on");
-    max.title = maxLabel;
-    max.setAttribute("aria-label", maxLabel);
-    max.setAttribute("aria-pressed", String(this.maximized));
-    max.addEventListener("click", () => this.setMaximized(!this.maximized));
-    tools.append(max);
+    // «Full screen · edit»: only with the compact preview on the right (read-only table); below the
+    // calendar the table is already editable and ⛶ in the preview bar makes it bigger
+    if (!this.bottomMode) tools.append(expand);
     const projTitle = el("h3", "event-project", ev.project.name);
     if (ev.project.customer_name) {
       const cust = el(ev.project.customer_id != null && this.onCustomerPick ? "button" : "span", "event-customer", ev.project.customer_name);

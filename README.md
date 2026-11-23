@@ -445,9 +445,9 @@ The **⚙** icon at the top opens Settings, the place where configuration and cu
   - You can also switch between the two with the **button in the preview bar**, next to ✕. The height is adjusted
     by dragging the top edge of the preview (or with ↑/↓ when it is selected) and is remembered.
   - **Wider**: with the preview below, the **⇔ button** in its bar makes it as wide as the window (the project
-    column stops above it); it is remembered. The **⛶ button** (in the bar and among the buttons of each
-    intervention) shows the preview on the whole screen, over calendar and project column; a second click or
-    Esc brings it back.
+    column stops above it); it is remembered. The **⛶ button** in the same bar shows the preview on the whole
+    screen, over calendar and project column; a second click or Esc brings it back. Below the calendar the server
+    table is already editable, so «Full screen · edit» is shown only with the preview on the right.
 - **Theme**: same as the system, light or dark.
 - **Time format**: 24-hour (European, default) or 12-hour with AM/PM.
 - **Date and time in the top bar**: date and time (default), with seconds, date only, time only, or hidden.
