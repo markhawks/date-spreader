@@ -4,7 +4,7 @@ from datetime import date, time
 
 from pydantic import BaseModel
 
-from app import checks
+from app import checks, server_sort
 
 
 class EventSummary(BaseModel):
@@ -175,6 +175,7 @@ class EventDetail(BaseModel):
     check_worked_hours: float | None = None    # hours actually worked on the check (null = from its times)
     check_participants: list[UserRef] = []     # technicians of the check (empty = the participants)
     check_warning: bool = False
+    server_sort: str | None = None             # order of the servers, the same for everybody (app/server_sort.py)
 
     @classmethod
     def from_event(cls, e) -> EventDetail:
@@ -198,7 +199,8 @@ class EventDetail(BaseModel):
                 (UserRef(id=p.user.id, display_name=p.user.display_name) for p in e.participants),
                 key=lambda u: u.display_name,
             ),
-            servers=[ServerRow.from_link(link) for link in e.server_links],
+            servers=[ServerRow.from_link(link) for link in server_sort.sort_rows(e.server_links, e.server_sort)],
+            server_sort=e.server_sort,
             check_date=e.check_date,
             check_start_time=e.check_start_time,
             check_end_time=e.check_end_time,

@@ -130,6 +130,8 @@ class Event(VersionedMixin, TimestampMixin, Base):
     check_end_time: Mapped[time | None] = mapped_column(Time)
     # hours actually worked on the check (optional): when set, replaces check end − start in the reports
     check_worked_hours: Mapped[float | None] = mapped_column(Float)
+    # Order of the server rows, the same for everybody: "<field>" or "-<field>" (app/server_sort.py); None = insertion
+    server_sort: Mapped[str | None] = mapped_column(String(40))
 
     project: Mapped[Project] = relationship(back_populates="events")
     order: Mapped[CustomerOrder | None] = relationship()

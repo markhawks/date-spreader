@@ -293,7 +293,7 @@ def duplicate_event(session: Session, source: Event, data) -> Event:
     event = Event(
         project=source.project, event_date=data.event_date, title=source.title, event_type=source.event_type,
         status=statuses.EVENT_STATUSES[0], start_time=start, end_time=end, notes=source.notes,
-        order_id=source.order_id,
+        order_id=source.order_id, server_sort=source.server_sort,
     )
     if source.check_date:   # the pre-check keeps its distance from the intervention (e.g. the day before)
         event.check_date = data.event_date - (source.event_date - source.check_date)

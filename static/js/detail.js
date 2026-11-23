@@ -2,6 +2,7 @@
 // In sola lettura: la modifica in tabella arriva al punto 5.
 
 import { markOutdated } from "./osbaseline.js";
+import { markHeader, nextSort, saveSort, sortableHeader } from "./serversort.js";
 import { fetchDay, fetchEvent, patchEvent, setParticipants } from "./api.js";
 import { orderField } from "./projectdialog.js";
 import { paint } from "./colors.js";
@@ -115,6 +116,13 @@ function checkLineOf(ev, { highlight = false } = {}) {
   }
   return box;
 }
+
+/** Columns of the compact table → sort field (the first value of a stacked column). */
+const COMPACT_SORT = {
+  Server: "hostname", "Amb.": "environment", "SO · kernel": "operating_system", SO: "operating_system",
+  Check: "check_status", Migrazione: "migration_status", "Eseguito il": "executed_date", Tecnico: "assigned_user",
+  Note: "notes",
+};
 
 export class DetailPanel {
   /**
@@ -670,6 +678,16 @@ export class DetailPanel {
       const th = el("th", null, label === "Migrazione" ? stageLabel(ev) : COLUMN_LABELS[label]);
       th.dataset.col = label;
       if (label === "SO · kernel") th.title = t("detail.os_kernel_title");
+      const field = COMPACT_SORT[label];
+      if (field) {
+        sortableHeader(th, field, async (f) => {
+          try {
+            await saveSort(ev, nextSort(ev.server_sort, f), () => fetchEvent(ev.id));
+            await this.reload();
+          } catch (err) { this.toast(err.message); }
+        });
+        markHeader(th, ev.server_sort, field);
+      }
       hr.append(th);
     }
     thead.append(hr);

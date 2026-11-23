@@ -333,6 +333,16 @@ class EventPatch(BaseModel):
     check_start_time: time | None = None
     check_end_time: time | None = None
     check_worked_hours: float | None = Field(default=None, ge=0, le=1000)
+    # Order of the server rows for everybody, e.g. "ip_address" or "-executed_date" (null = insertion order)
+    server_sort: str | None = Field(default=None, max_length=40)
+
+    @field_validator("server_sort")
+    @classmethod
+    def _sort(cls, v):
+        from app import server_sort
+        if not server_sort.valid(v):
+            raise ValueError(tr("events.bad_server_sort"))
+        return v
 
     @field_validator("notes", "title", mode="before")
     @classmethod

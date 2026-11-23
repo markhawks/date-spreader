@@ -6,6 +6,7 @@
 // la riga li mostra e la cella viene segnalata, senza sovrascrivere nulla.
 
 import { loadBaselines, markOutdated } from "./osbaseline.js";
+import { SORT_FIELD, markHeader, nextSort, saveSort, sortableHeader } from "./serversort.js";
 import {
   addServerRow, deleteServerRow, fetchEvent, fetchOperatingSystems, fetchOptions, listServers, patchServerRow,
 } from "./api.js";
@@ -221,6 +222,7 @@ export class Sheet {
       const th = el("th", c.scope === "server" ? "scope-server" : null, c.label);
       th.dataset.col = c.field;
       th.title = [c.title, c.scope === "server" ? SERVER_HINT : null].filter(Boolean).join(". ");
+      if (SORT_FIELD[c.field]) sortableHeader(th, SORT_FIELD[c.field], (f) => this.#sortBy(f));
       hr.append(th);
     }
     hr.append(el("th", "col-actions"));
@@ -255,6 +257,7 @@ export class Sheet {
     if (this.suggestBox) this.root.append(this.suggestBox);
     wrap.addEventListener("scroll", () => this.hideSuggest?.(), { passive: true });
     this.resizer = makeResizable(table, { key: this.config ? "sheet-config" : "sheet" });
+    this.#showSort();
     for (const ta of this.tbody.querySelectorAll("textarea")) autoGrow(ta);
     this.#applyRowFilter();
     if (!this.embedded) this.tbody.querySelector("input, select")?.focus();
@@ -391,6 +394,29 @@ export class Sheet {
    * Non tocca le celle in modifica né le righe con un salvataggio in corso.
    * @returns {Promise<boolean>} true se qualcosa è cambiato
    */
+  /** ▲/▼ on the header of the column the servers are sorted by. */
+  #showSort() {
+    for (const th of this.root.querySelectorAll("thead th[data-col]")) {
+      markHeader(th, this.event.server_sort, SORT_FIELD[th.dataset.col]);
+    }
+  }
+
+  /** Header click: sorts the servers for everybody (saved on the intervention), then redraws the table. */
+  async #sortBy(field) {
+    if (this.pending > 0 || this.root.querySelector("td.dirty")) { this.toast(t("serversort.wait")); return; }
+    try {
+      this.event = await saveSort(this.event, nextSort(this.event.server_sort, field), () => fetchEvent(this.event.id));
+    } catch (err) {
+      this.toast(err.message);
+      return;
+    }
+    this.remoteVersion = this.event.version;
+    this.rows.clear();
+    this.#render();
+    this.changed = true;
+    this.onChange();
+  }
+
   async syncFromServer({ status = null } = {}) {
     if (!this.isOpen || !this.event || this.pending > 0) return false;
     let fresh;
@@ -401,7 +427,7 @@ export class Sheet {
     }
     if (!this.isOpen || this.pending > 0 || fresh.id !== this.event.id) return false;
     this.remoteVersion = fresh.version; // versione dell'intervento (non delle righe) vista sul server
-    if (fresh.event_type !== this.event.event_type) {
+    if (fresh.event_type !== this.event.event_type || (fresh.server_sort ?? null) !== (this.event.server_sort ?? null)) {
       // Tipo cambiato: in «Configurazione» cambiano le colonne, tra migrazione/upgrade/patching
       // il nome della colonna di stato e l'intestazione. Si ridisegna tutto.
       if (this.root.contains(document.activeElement)) return false; // non interrompere chi scrive

@@ -648,6 +648,12 @@ the left.
   Hostnames are stored in lowercase.
 - **Removing a server**: bin icon, confirmed with a second click. The server stays in the inventory and in the other
   interventions.
+- **Sorting the servers**: a click on a column header sorts the servers of the intervention by that column, a
+  second click reverses it. The order is **saved on the intervention**: colleagues see it too (within seconds),
+  servers added later fall into place, and the email follows it. Texts in alphabetical order, IPs numeric, OS and
+  kernels in natural order (RHEL 9.8 before 10.2), dates chronological, statuses in the order of the work; empty
+  values last. Also in the compact table of the preview on the right. Editing a cell of the sorted column does
+  not move the row while you work: it goes to its place at the next refresh.
 - **Underlined columns** (hostname, IP, OS, environment, location, SteamRoller Inventory, current kernel): they are **server** attributes, shared by
   all the interventions where it appears. The others apply to this intervention only.
 - **Work completed**: when a server becomes «Completed», «Executed on» takes today's date (if it is empty). If its

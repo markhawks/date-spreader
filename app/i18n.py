@@ -403,6 +403,10 @@ MESSAGES: dict[str, dict[str, str]] = {
         "en": "The intervention type is required.",
         "it": "Il tipo dell'intervento è obbligatorio.",
     },
+    "events.bad_server_sort": {
+        "en": "This column cannot be used to sort the servers.",
+        "it": "Questa colonna non si può usare per ordinare i server.",
+    },
     "events.check_after_event": {
         "en": "The check must be on the day of the intervention or before.",
         "it": "Il check deve essere nel giorno dell'intervento o prima.",
