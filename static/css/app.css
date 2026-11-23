@@ -324,6 +324,7 @@ h1, h2 { margin: 0; }
   --warn-bg: #fef3c7; --warn-fg: #92400e;
   --bad-bg: #fee2e2;  --bad-fg: #991b1b;
   --info-bg: #dbeafe; --info-fg: #1e40af;
+  --late-bg: #ede9fe; --late-fg: #5b21b6;   /* postponed: violet, visible among the completed ones */
   --neutral-bg: #eef0f3; --neutral-fg: #4b5563;
   --detail-w: min(52vw, 920px);
 }
@@ -332,6 +333,7 @@ h1, h2 { margin: 0; }
   --warn-bg: #3a2a0c; --warn-fg: #fcd34d;
   --bad-bg: #401717;  --bad-fg: #fca5a5;
   --info-bg: #172a4d; --info-fg: #93c5fd;
+  --late-bg: #2e1065; --late-fg: #c4b5fd;
   --neutral-bg: #2a2f39; --neutral-fg: #c3c9d4;
 }
 
@@ -379,6 +381,7 @@ h1, h2 { margin: 0; }
 .tone-warn { background: var(--warn-bg); color: var(--warn-fg); }
 .tone-bad { background: var(--bad-bg); color: var(--bad-fg); }
 .tone-info { background: var(--info-bg); color: var(--info-fg); }
+.tone-late { background: var(--late-bg); color: var(--late-fg); }
 .tone-neutral { background: var(--neutral-bg); color: var(--neutral-fg); }
 
 /* Selettore della data (progetti con più interventi) */
@@ -706,6 +709,7 @@ select.cell-input[data-tone="ok"] { color: var(--ok-fg); background: var(--ok-bg
 select.cell-input[data-tone="warn"] { color: var(--warn-fg); background: var(--warn-bg); font-weight: 600; }
 select.cell-input[data-tone="bad"] { color: var(--bad-fg); background: var(--bad-bg); font-weight: 600; }
 select.cell-input[data-tone="info"] { color: var(--info-fg); background: var(--info-bg); font-weight: 600; }
+select.cell-input[data-tone="late"] { color: var(--late-fg); background: var(--late-bg); font-weight: 600; }
 
 /* Stati della cella */
 td.dirty::after {
@@ -881,6 +885,7 @@ tr.added td { animation: cell-saved 1.6s ease-out; }
 .status-select[data-tone="warn"] { background: var(--warn-bg); color: var(--warn-fg); }
 .status-select[data-tone="bad"] { background: var(--bad-bg); color: var(--bad-fg); }
 .status-select[data-tone="info"] { background: var(--info-bg); color: var(--info-fg); }
+.status-select[data-tone="late"] { background: var(--late-bg); color: var(--late-fg); }
 .status-select[data-tone="neutral"] { background: var(--neutral-bg); color: var(--neutral-fg); }
 .status-select option { color: var(--text); background: var(--panel); font-weight: normal; }
 

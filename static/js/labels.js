@@ -26,10 +26,10 @@ export const CHECK_STATUS = labelsFor("labels.check_status", ["da_fare", "in_cor
 
 export const MIGRATION_STATUS = labelsFor("labels.migration_status", ["pianificata", "in_corso", "completata", "fallita", "rinviata", "annullata"]);
 
-// Tono del badge: ok (verde), warn (ambra), bad (rosso), info (blu), neutral (grigio).
+// Tono del badge: ok (verde), warn (ambra), bad (rosso), info (blu), late (viola), neutral (grigio).
 const TONE = {
   ok: "ok", completato: "ok", completata: "ok",
-  in_corso: "warn", confermato: "info", rinviato: "warn", rinviata: "warn",
+  in_corso: "warn", confermato: "info", rinviato: "late", rinviata: "late",
   ko: "bad", fallita: "bad",
   pianificato: "info", pianificata: "info",
   da_fare: "neutral", non_applicabile: "neutral", annullato: "neutral", annullata: "neutral",

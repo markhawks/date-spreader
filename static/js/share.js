@@ -28,7 +28,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 // Colori dei badge in versione "email" (sempre tema chiaro: chi riceve non ha i nostri stili)
 const TONES = {
   ok: ["#dcfce7", "#166534"], warn: ["#fef3c7", "#92400e"], bad: ["#fee2e2", "#991b1b"],
-  info: ["#dbeafe", "#1e40af"], neutral: ["#eef0f3", "#4b5563"],
+  info: ["#dbeafe", "#1e40af"], late: ["#ede9fe", "#5b21b6"], neutral: ["#eef0f3", "#4b5563"],
 };
 const badgeHtml = (status, labels) => {
   const [bg, fg] = TONES[toneOf(status)] ?? TONES.neutral;

@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Changed
+- **Postponed in violet**: the «Postponed» status of interventions and server rows now has its own violet color (it was amber like «In progress»), well visible among the completed ones: badges, status menus of the server table, Gantt (bar, blocks, legend), shared email and Excel.
+
 ### Added
 - **Bigger preview**: with the preview below the calendar, «⇔» in its bar makes it as wide as the window (the project column stops above it; personal preference `detail_full_width`); «⛶», in the bar and among the buttons of each intervention, shows the preview on the whole screen over calendar and project column (a second click or Esc brings it back). New tip of the day.
 

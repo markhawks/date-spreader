@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Modificato
+- **Rinviato in viola**: lo stato «Rinviato»/«Rinviata» di interventi e righe server ha ora un colore viola suo (prima era ambra come «In corso»), ben visibile in mezzo ai completati: etichette, menu di stato della tabella server, Gantt (barra, blocchi, legenda), email di condivisione ed Excel.
+
 ### Aggiunto
 - **Anteprima più grande**: con l'anteprima sotto il calendario, «⇔» nella sua barra la allarga quanto la finestra (la colonna progetti finisce sopra; preferenza personale `detail_full_width`); «⛶», nella barra e tra i pulsanti di ogni intervento, mostra l'anteprima a schermo intero sopra calendario e colonna progetti (un altro clic o Esc la riporta com'era). Nuovo suggerimento del giorno.
 
