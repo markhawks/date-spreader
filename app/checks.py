@@ -9,7 +9,8 @@ from __future__ import annotations
 from datetime import date
 
 PENDING = ("da_fare", "in_corso", "ko")      # check statuses that are not a good check (yet)
-DONE = ("ok", "ko", "non_applicabile")       # check statuses of a server whose check is over
+DONE = ("ok", "warning", "ko", "non_applicabile")   # check statuses of a server whose check is over
+# (a check with a warning was done: it does not count as missing)
 CLOSED_EVENT = ("completato", "annullato")   # interventions that no longer need a check
 
 

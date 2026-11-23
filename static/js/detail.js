@@ -99,7 +99,7 @@ function checkLineOf(ev, { highlight = false } = {}) {
   if (!ev.check_date) return null;
   const n = ev.servers.length;
   const ok = ev.servers.filter((s) => s.check_status === "ok").length;
-  const pending = ev.servers.filter((s) => ["da_fare", "in_corso", "ko"].includes(s.check_status)).length;
+  const pending = ev.servers.filter((s) => ["da_fare", "in_corso", "ko"].includes(s.check_status)).length; // warning = done
   const time = ev.check_start_time
     ? (ev.check_end_time
       ? t("detail.time_range", { start: formatTime(ev.check_start_time), end: formatTime(ev.check_end_time) })
@@ -633,6 +633,8 @@ export class DetailPanel {
       parts.push(t("detail.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n }));
     } else if (n) {
       parts.push(t("detail.summary_check_ok", { done: count("check_status", "ok"), n }));
+      const warn = count("check_status", "warning");
+      if (warn) parts.push(t("detail.summary_check_warning", { n: warn }));
       const ko = count("check_status", "ko");
       if (ko) parts.push(t("detail.summary_check_ko", { ko }));
       parts.push(t("detail.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n }));

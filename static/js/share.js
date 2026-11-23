@@ -28,7 +28,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 // Colori dei badge in versione "email" (sempre tema chiaro: chi riceve non ha i nostri stili)
 const TONES = {
   ok: ["#dcfce7", "#166534"], warn: ["#fef3c7", "#92400e"], bad: ["#fee2e2", "#991b1b"],
-  info: ["#dbeafe", "#1e40af"], late: ["#ede9fe", "#5b21b6"], neutral: ["#eef0f3", "#4b5563"],
+  info: ["#dbeafe", "#1e40af"], late: ["#ede9fe", "#5b21b6"], progress: ["#cffafe", "#155e75"], neutral: ["#eef0f3", "#4b5563"],
 };
 const badgeHtml = (status, labels) => {
   const [bg, fg] = TONES[toneOf(status)] ?? TONES.neutral;
@@ -74,6 +74,7 @@ export function buildEmail(ev, { servers = ev.servers, eventNotes = true, rowNot
   const summary = !n ? t("share.no_servers")
     : config ? [head, t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ")
     : [head, t("share.summary_check_ok", { ok: count("check_status", "ok"), n }),
+      ...(count("check_status", "warning") ? [t("share.summary_check_warning", { n: count("check_status", "warning") })] : []),
       ...(ko ? [t("share.summary_check_ko", { ko })] : []),
       t("share.summary_stage", { stage: stageDone(ev), done: count("migration_status", "completata"), n })].join(" · ");
 

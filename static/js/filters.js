@@ -67,7 +67,7 @@ export class FilterBar {
     if (s.statuses.length && !s.statuses.includes(ev.status)) return false;
     if (s.userId && !(ev.user_ids ?? []).includes(Number(s.userId))) return false;
     if (s.customerId && ev.customer_id !== Number(s.customerId)) return false;
-    if (s.problems && !(ev.check_ko > 0 || ev.migration_failed > 0)) return false;
+    if (s.problems && !(ev.check_ko > 0 || ev.check_warn > 0 || ev.migration_failed > 0)) return false;
     return true;
   }
 

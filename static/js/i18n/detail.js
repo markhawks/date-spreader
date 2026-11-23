@@ -1,6 +1,7 @@
 // Translations for detail.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "detail.summary_check_warning": "check Warning {n}",
     "detail.max_on": "Preview on the whole screen",
     "detail.max_off": "Back to the normal preview (Esc)",
     "detail.check_of_this": "Pre-check of this intervention",
@@ -59,7 +60,7 @@ export default {
     },
     "detail.summary_executed": "executed {done}/{n}",
     "detail.summary_check_ok": "check OK {done}/{n}",
-    "detail.summary_check_ko": "check KO {ko}",
+    "detail.summary_check_ko": "check FAIL {ko}",
     "detail.summary_stage": "{stage} {done}/{n}",
     "detail.table_unavailable": "Table not available: {message}",
     "detail.no_servers": "No servers assigned.",
@@ -78,6 +79,7 @@ export default {
     "detail.order_removed": "Commessa removed from the intervention."
   },
   "it": {
+    "detail.summary_check_warning": "check Attenzione {n}",
     "detail.max_on": "Anteprima a schermo intero",
     "detail.max_off": "Torna all'anteprima normale (Esc)",
     "detail.check_of_this": "Check pre-intervento di questo intervento",
@@ -136,7 +138,7 @@ export default {
     },
     "detail.summary_executed": "eseguiti {done}/{n}",
     "detail.summary_check_ok": "check OK {done}/{n}",
-    "detail.summary_check_ko": "check KO {ko}",
+    "detail.summary_check_ko": "check FAIL {ko}",
     "detail.summary_stage": "{stage} {done}/{n}",
     "detail.table_unavailable": "Tabella non disponibile: {message}",
     "detail.no_servers": "Nessun server associato.",

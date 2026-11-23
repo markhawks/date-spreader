@@ -335,9 +335,9 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
   - Calendario e vista Tecnici mostrano quel giorno una **voce gialla «CHECK»** (colore suo, striscia a sinistra nel colore del progetto, simbolo della cartellina): progetto, titolo (o tipo) dell'intervento, avanzamento del check («check 2/4 OK») e giorno dell'intervento («→ gio 26»). L'intervento mostra il simbolo con il giorno del suo check (rosso se il check manca). **Passando il mouse** sul check o sull'intervento si illuminano tutti e due.
   - Un clic sul check apre l'anteprima di quel giorno, con in cima «Check pre-intervento di questo intervento» in evidenza e il link all'intervento; nella scheda dell'intervento, «→ vai al giorno del check».
   - **Ore del check**: «Ore effettive del check» (facoltative) oppure il suo orario. Nel **Gantt** il check ha una sua riga gialla sotto l'intervento (giorno, tecnici, ore, ore-uomo) e un blocco giallo nel suo giorno; le ore di progetti, commesse e totale comprendono i check («di cui check» nel riepilogo) e contano per i tecnici del check. L'Excel ha la stessa riga «Check pre-intervento» con la cella gialla.
-  - Il check di ogni server è la colonna «Check» della tabella server; «check eseguito il» si compila da solo quando diventa OK o KO (si vede nell'anteprima e nel tooltip della tabella).
+  - Il check di ogni server è la colonna «Check» della tabella server; «check eseguito il» si compila da solo quando diventa OK, Attenzione o FAIL (si vede nell'anteprima e nel tooltip della tabella).
   - I tecnici del check impegnati altrove nello stesso orario sono un conflitto di pianificazione («Check» nell'elenco).
-  - **Avviso**: finito il giorno del check, se ci sono server con check ancora da fare o KO, l'intervento ha un'icona di avviso nel calendario e una riga gialla nella scheda.
+  - **Avviso**: finito il giorno del check, se ci sono server con check ancora da fare o FAIL, l'intervento ha un'icona di avviso nel calendario e una riga gialla nella scheda.
   - Spostando l'intervento, il check si sposta degli stessi giorni; «Duplica» mantiene la stessa distanza. Export/import e sincronizzazione tra installazioni portano anche il check.
 - **Duplicare un intervento** (pulsante **Duplica** nella scheda, tra «Condividi» e «Modifica»), per esempio quando va rieseguito: si sceglie la nuova data (proposta: una settimana dopo) e l'orario. Nello stesso progetto si crea un intervento «Pianificato» con tipo, titolo, note e tecnici dell'originale e, se si vuole, la stessa tabella server: restano target, tecnico e note di ogni riga, gli stati ripartono da capo (check «Da fare», migrazione «Pianificata», nessuna data di esecuzione). L'originale non cambia.
 - **Eliminare un intervento**: dal pulsante «Modifica» della scheda dell'intervento, o dal cestino nell'elenco della scheda progetto. Vengono tolte le sue righe server e i partecipanti; **i server restano in anagrafica**. Se contiene server serve il ruolo coordinatore o amministratore; i tecnici possono eliminare solo interventi vuoti. In alternativa si può segnare come «annullato» per conservarne lo storico.
@@ -360,7 +360,7 @@ Le preferenze sono salvate sul server, nella tabella `user_preferences`, e seguo
   - il clic apre l'intervento ed evidenzia la riga del server;
   - i caratteri `%` e `_` sono cercati alla lettera.
 - **Filtri del calendario** (pulsante **Filtri** in alto):
-  - stato dell'intervento (più scelte), tecnico (partecipante o assegnato a una riga) e **Solo con problemi** (almeno un check KO o una migrazione fallita);
+  - stato dell'intervento (più scelte), tecnico (partecipante o assegnato a una riga) e **Solo con problemi** (almeno un check FAIL o Attenzione, o una migrazione fallita);
   - valgono per tutti i mesi, anche quelli caricati scorrendo, e sono **ricordati nel browser**;
   - un giorno con interventi nascosti dai filtri ha il numero sottolineato a puntini.
 - **Filtro delle righe** nella tabella a tutto schermo: testo libero (hostname, IP, kernel, note, tecnico) e stato di check o migrazione. Una riga appena modificata o aggiunta resta visibile finché non si cambia il filtro.

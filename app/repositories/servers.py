@@ -15,7 +15,7 @@ from app.schemas.edit import ROW_FIELDS, SERVER_FIELDS, ProjectCreate, ServerRow
 
 
 COMPLETED = "completata"   # migration (or work) status of a row that is done
-CHECK_DONE = ("ok", "ko")  # check statuses of a check that has been done
+CHECK_DONE = ("ok", "warning", "ko")  # check statuses of a check that has been done
 
 
 class ValidationProblem(Exception):

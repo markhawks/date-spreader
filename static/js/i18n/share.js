@@ -1,6 +1,7 @@
 // Translations for share.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "share.summary_check_warning": "check Warning {n}",
     "share.subject_partial": {"one": "(partial update: 1 server)", "other": "(partial update: {n} servers)"},
     "share.server_count_partial": "Servers shared: {n} of {total}",
     "share.pick_title": "Servers to share: {n} of {total}",
@@ -25,7 +26,7 @@ export default {
     },
     "share.summary_executed": "executed {done}/{n}",
     "share.summary_check_ok": "check OK {ok}/{n}",
-    "share.summary_check_ko": "check KO {ko}",
+    "share.summary_check_ko": "check FAIL {ko}",
     "share.summary_stage": "{stage} {done}/{n}",
     "share.col_hostname": "Hostname",
     "share.col_ip": "IP",
@@ -87,6 +88,7 @@ export default {
     "share.order_short": "Commessa {code}"
   },
   "it": {
+    "share.summary_check_warning": "check Attenzione {n}",
     "share.subject_partial": {"one": "(aggiornamento parziale: 1 server)", "other": "(aggiornamento parziale: {n} server)"},
     "share.server_count_partial": "Server condivisi: {n} di {total}",
     "share.pick_title": "Server da condividere: {n} di {total}",
@@ -111,7 +113,7 @@ export default {
     },
     "share.summary_executed": "eseguiti {done}/{n}",
     "share.summary_check_ok": "check OK {ok}/{n}",
-    "share.summary_check_ko": "check KO {ko}",
+    "share.summary_check_ko": "check FAIL {ko}",
     "share.summary_stage": "{stage} {done}/{n}",
     "share.col_hostname": "Hostname",
     "share.col_ip": "IP",

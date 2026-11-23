@@ -533,9 +533,9 @@ new one:
     its day; the hours of projects, commesse and total include the checks («of which pre-checks» in the summary),
     and they count for the technicians of the check. The Excel has the same «Pre-check» row with a yellow cell.
   - The check of each server is the «Check» column of the server table; «check executed on» is filled in by
-    itself when it becomes OK or KO (shown in the preview and in the tooltip of the table).
+    itself when it becomes OK, Warning or FAIL (shown in the preview and in the tooltip of the table).
   - Technicians of the check busy elsewhere at the same time are a scheduling conflict («Check» in the list).
-  - **Warning**: when the check day is over and some servers still have the check to do or KO, the intervention
+  - **Warning**: when the check day is over and some servers still have the check to do or FAIL, the intervention
     has a warning icon in the calendar and a yellow line in its card.
   - Moving the intervention moves the check by the same number of days; «Duplicate» keeps the same distance.
     Export/import and the sync between installations carry the check.
@@ -573,7 +573,7 @@ new one:
   - the `%` and `_` characters are searched literally.
 - **Calendar filters** (**Filters** button at the top):
   - intervention status (multiple choice), technician (participant or assigned to a row) and **Problems only**
-    (at least one check KO or one failed migration);
+    (at least one check FAIL or Warning, or one failed migration);
   - they apply to all months, including those loaded while scrolling, and are **remembered in the browser**;
   - a day with interventions hidden by the filters has its number dotted-underlined.
 - **Row filter** in the full-screen table: free text (hostname, IP, kernel, notes, technician) and check or

@@ -12,7 +12,7 @@ EVENT_TYPES = ("migrazione", "upgrade", "patching", "configurazione", "altro")
 # Interventi di configurazione: niente kernel, check e migrazione; le note della riga sono il dettaglio
 CONFIG_EVENT_TYPE = "configurazione"
 
-CHECK_STATUSES = ("da_fare", "in_corso", "ok", "ko", "non_applicabile")
+CHECK_STATUSES = ("da_fare", "in_corso", "ok", "warning", "ko", "non_applicabile")  # "ko" is shown as FAIL
 MIGRATION_STATUSES = ("pianificata", "in_corso", "completata", "fallita", "rinviata", "annullata")
 
 ENVIRONMENTS = ("DEV", "TEST", "PROD", "ALTRO")

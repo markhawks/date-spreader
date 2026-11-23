@@ -18,7 +18,8 @@ class EventSummary(BaseModel):
     event_type: str
     status: str
     server_count: int
-    check_ko: int = 0           # righe con check KO
+    check_ko: int = 0           # righe con check KO (shown as FAIL)
+    check_warn: int = 0         # rows with check "warning"
     migration_failed: int = 0   # righe con migrazione fallita
     migrated: int = 0           # righe con migrazione completata
     executed: int = 0           # righe con data di esecuzione (interventi di configurazione)

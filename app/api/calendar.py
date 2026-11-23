@@ -64,7 +64,7 @@ def list_events(
         e = r["event"]
         common = dict(
             id=e.id, project_id=e.project_id, project_name=r["project_name"], title=e.title,
-            event_type=e.event_type, status=e.status, server_count=r["server_count"], check_ko=r["check_ko"],
+            event_type=e.event_type, status=e.status, server_count=r["server_count"], check_ko=r["check_ko"], check_warn=r["check_warning_rows"],
             migration_failed=r["migration_failed"], migrated=r["migrated"], executed=r["executed"],
             customer_id=r["customer_id"], customer_name=r["customer_name"], customer_color=r["customer_color"],
             order_code=r["order_code"], check_date=e.check_date, check_done=r["check_done"],

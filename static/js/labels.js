@@ -22,14 +22,14 @@ const stageKey = (ev) => (STAGED.includes(ev?.event_type) ? ev.event_type : "oth
 export const stageLabel = (ev) => t(`labels.stage.${stageKey(ev)}`);
 export const stageDone = (ev) => t(`labels.stage_done.${stageKey(ev)}`);
 
-export const CHECK_STATUS = labelsFor("labels.check_status", ["da_fare", "in_corso", "ok", "ko", "non_applicabile"]);
+export const CHECK_STATUS = labelsFor("labels.check_status", ["da_fare", "in_corso", "ok", "warning", "ko", "non_applicabile"]);
 
 export const MIGRATION_STATUS = labelsFor("labels.migration_status", ["pianificata", "in_corso", "completata", "fallita", "rinviata", "annullata"]);
 
-// Tono del badge: ok (verde), warn (ambra), bad (rosso), info (blu), late (viola), neutral (grigio).
+// Tono del badge: ok (verde), warn (giallo), bad (rosso), info (blu), progress (azzurro), late (viola), neutral (grigio).
 const TONE = {
-  ok: "ok", completato: "ok", completata: "ok",
-  in_corso: "warn", confermato: "info", rinviato: "late", rinviata: "late",
+  ok: "ok", completato: "ok", completata: "ok", warning: "warn",
+  in_corso: "progress", confermato: "info", rinviato: "late", rinviata: "late",
   ko: "bad", fallita: "bad",
   pianificato: "info", pianificata: "info",
   da_fare: "neutral", non_applicabile: "neutral", annullato: "neutral", annullata: "neutral",

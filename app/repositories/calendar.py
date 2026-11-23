@@ -49,6 +49,7 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             es.event_id,
             func.count().label("n"),
             func.sum(case((es.check_status == "ko", 1), else_=0)).label("ko"),
+            func.sum(case((es.check_status == "warning", 1), else_=0)).label("warn"),
             func.sum(case((es.migration_status == "fallita", 1), else_=0)).label("failed"),
             func.sum(case((es.migration_status == "completata", 1), else_=0)).label("done"),
             func.sum(case((es.executed_date.is_not(None), 1), else_=0)).label("executed"),
@@ -68,6 +69,7 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             Customer.color,
             func.coalesce(counts.c.n, 0),
             func.coalesce(counts.c.ko, 0),
+            func.coalesce(counts.c.warn, 0),
             func.coalesce(counts.c.failed, 0),
             func.coalesce(counts.c.done, 0),
             func.coalesce(counts.c.executed, 0),
@@ -112,6 +114,7 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             "project_name": name,
             "server_count": n,
             "check_ko": ko,
+            "check_warning_rows": warn,
             "migration_failed": failed,
             "migrated": done,
             "executed": executed,
@@ -126,7 +129,7 @@ def list_events_between(session: Session, start: date, end: date) -> list[dict]:
             # technicians of the check: its own, otherwise the participants of the intervention
             "check_user_ids": sorted(checkers[e.id] or participants[e.id]),
         }
-        for (e, name, customer_id, customer_name, customer_color, n, ko, failed, done, executed, order_code,
+        for (e, name, customer_id, customer_name, customer_color, n, ko, warn, failed, done, executed, order_code,
              check_ok, check_done, check_pending) in rows
     ]
 

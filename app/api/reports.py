@@ -64,7 +64,7 @@ def gantt_xlsx(
 # --- Excel ------------------------------------------------------------------------------------
 
 STATUS_FILL = {   # same tones as the badges of the portal
-    "completato": "86EFAC", "in_corso": "FCD34D", "confermato": "93C5FD", "pianificato": "BFDBFE",
+    "completato": "86EFAC", "in_corso": "A5F3FC",   # in progress: light blue "confermato": "93C5FD", "pianificato": "BFDBFE",
     "rinviato": "C4B5FD", "annullato": "D1D5DB",   # postponed: violet
 }
 CHECK_FILL = "FDE68A"   # pre-checks: yellow, as in the portal

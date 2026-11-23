@@ -10,7 +10,7 @@ export default {
     "filters.inactive_name": "{name} (deactivated)",
     "filters.customer_title": "Filter the calendar and the projects column",
     "filters.customer": "Customer:",
-    "filters.problems_title": "Interventions with at least one failed (KO) check or failed migration",
+    "filters.problems_title": "Interventions with at least one check FAIL or Warning, or a failed migration",
     "filters.problems": "Only with problems",
     "filters.clear": "Clear filters"
   },
@@ -24,7 +24,7 @@ export default {
     "filters.inactive_name": "{name} (disattivato)",
     "filters.customer_title": "Filtra calendario e colonna progetti",
     "filters.customer": "Cliente:",
-    "filters.problems_title": "Interventi con almeno un check KO o una migrazione fallita",
+    "filters.problems_title": "Interventi con almeno un check FAIL o Attenzione, o una migrazione fallita",
     "filters.problems": "Solo con problemi",
     "filters.clear": "Azzera filtri"
   }
