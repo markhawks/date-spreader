@@ -5,6 +5,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/it/1.1.0/) · Versioni: [
 Versione inglese: [CHANGELOG.md](CHANGELOG.md).
 
 ## [Non rilasciato]
+### Aggiunto
+- **Anteprima più grande**: con l'anteprima sotto il calendario, «⇔» nella sua barra la allarga quanto la finestra (la colonna progetti finisce sopra; preferenza personale `detail_full_width`); «⛶», nella barra e tra i pulsanti di ogni intervento, mostra l'anteprima a schermo intero sopra calendario e colonna progetti (un altro clic o Esc la riporta com'era). Nuovo suggerimento del giorno.
+
 
 ## [0.30.0] - 2026-11-17
 > Vedi chi sta lavorando sul portale prima di un riavvio, avvisi tutti con un messaggio e controlli le nuove versioni quando vuoi.

@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versions: [S
 Italian version: [CHANGELOG.it.md](CHANGELOG.it.md).
 
 ## [Unreleased]
+### Added
+- **Bigger preview**: with the preview below the calendar, «⇔» in its bar makes it as wide as the window (the project column stops above it; personal preference `detail_full_width`); «⛶», in the bar and among the buttons of each intervention, shows the preview on the whole screen over calendar and project column (a second click or Esc brings it back). New tip of the day.
+
 
 ## [0.30.0] - 2026-11-17
 > See who is working on the portal before a restart, warn everybody with one message, and check for new versions whenever you want.

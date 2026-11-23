@@ -1,5 +1,7 @@
 export default {
   "en": {
+    "index.preview_wide": "Preview as wide as the window",
+    "index.preview_max": "Preview on the whole screen",
     "index.online_title": "Users connected now",
     "index.version_title": "What's new in the portal (changelog)",
     "index.today_title": "Back to today",
@@ -58,6 +60,8 @@ export default {
     "index.recap_title": "Recap for smartphones"
   },
   "it": {
+    "index.preview_wide": "Anteprima larga quanto la finestra",
+    "index.preview_max": "Anteprima a schermo intero",
     "index.online_title": "Utenti connessi adesso",
     "index.version_title": "Novità del portale (changelog)",
     "index.today_title": "Torna a oggi",

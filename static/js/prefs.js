@@ -5,7 +5,7 @@ import { setTimeFormat } from "./dates.js";
 
 const THEME_KEY = "datespreader.theme"; // copia locale per applicare il tema prima del login
 const DEFAULTS = {
-  detail_position: "right", bottom_panel_height: 45, theme: "system",
+  detail_position: "right", bottom_panel_height: 45, detail_full_width: false, theme: "system",
   sidebar_width: 280, project_view: "grid", project_sort: "name", project_group: "none",
   time_format: "24h", gmail_account: "", gmail_choose_account: false, calendar_zoom: 1, calendar_zoom_x: 1, calendar_view: "month", topbar_clock: "date_time", language: "auto", calendar_days: "all",
   inventory_os_stats: true, whats_new: true, whats_new_seen: "", tips: true, tips_last_day: "", tips_seen: [],
@@ -27,6 +27,7 @@ function applyAll() {
   applyTheme(current.theme);
   setTimeFormat(current.time_format);
   document.body.classList.toggle("detail-bottom", current.detail_position === "bottom");
+  document.body.classList.toggle("detail-wide", Boolean(current.detail_full_width));
   document.documentElement.style.setProperty("--bottom-h", `${current.bottom_panel_height}%`);
   document.documentElement.style.setProperty("--sidebar-w", `${current.sidebar_width}px`);
 }

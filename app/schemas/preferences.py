@@ -23,6 +23,8 @@ class Preferences(BaseModel):
     detail_position: Literal["right", "bottom"] = "right"
     # Altezza del pannello in basso, in percentuale dell'area del calendario
     bottom_panel_height: int = Field(default=45, ge=20, le=80)
+    # Preview below the calendar as wide as the whole window (under the project column too)
+    detail_full_width: bool = False
     # Tema: come il sistema operativo, chiaro o scuro
     theme: Literal["system", "light", "dark"] = "system"
     # Colonna progetti: larghezza in pixel, vista a quadrati o a rettangoli (uno per riga), ordinamento
@@ -69,6 +71,7 @@ class PreferencesPatch(BaseModel):
 
     detail_position: Literal["right", "bottom"] | None = None
     bottom_panel_height: int | None = Field(default=None, ge=20, le=80)
+    detail_full_width: bool | None = None
     theme: Literal["system", "light", "dark"] | None = None
     sidebar_width: int | None = Field(default=None, ge=200, le=640)
     project_view: Literal["grid", "list"] | None = None

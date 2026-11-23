@@ -11,7 +11,7 @@ from tests.test_auth import ADMIN_PW, TECH_PW, accounts, login  # noqa: F401  (f
 def test_defaults_and_partial_update(anon, accounts):  # noqa: F811
     login(anon, "tecnico1", TECH_PW)
     assert anon.get("/api/me/preferences").json() == {
-        "detail_position": "right", "bottom_panel_height": 45, "theme": "system",
+        "detail_position": "right", "bottom_panel_height": 45, "detail_full_width": False, "theme": "system",
         "sidebar_width": 280, "project_view": "grid", "project_sort": "name", "project_group": "none",
         "time_format": "24h", "gmail_account": "", "gmail_choose_account": False, "calendar_zoom": 1.0, "calendar_zoom_x": 1.0, "calendar_view": "month", "topbar_clock": "date_time", "language": "auto", "calendar_days": "all", "inventory_os_stats": True, "whats_new": True, "whats_new_seen": "", "tips": True, "tips_last_day": "", "tips_seen": [], "update_notice": True, "update_dismissed": "",
     }

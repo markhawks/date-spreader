@@ -1,5 +1,7 @@
 export default {
   "en": {
+    "main.preview_wide_on": "Preview as wide as the window (also under the project column)",
+    "main.preview_wide_off": "Preview next to the project column again",
     "main.tip_of_the_day": "Tip of the day",
     "main.schema_outdated": "The database is not up to date. Run: {command}",
     "main.server_unavailable": "Server unavailable: {message}",
@@ -39,6 +41,8 @@ export default {
     "main.ctx_all_customers": "Show all customers"
   },
   "it": {
+    "main.preview_wide_on": "Anteprima larga quanto la finestra (anche sotto la colonna progetti)",
+    "main.preview_wide_off": "Anteprima di nuovo accanto alla colonna progetti",
     "main.tip_of_the_day": "Suggerimento del giorno",
     "main.schema_outdated": "Il database non è aggiornato. Esegui: {command}",
     "main.server_unavailable": "Server non disponibile: {message}",

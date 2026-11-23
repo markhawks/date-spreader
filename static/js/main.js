@@ -503,6 +503,23 @@ async function main() {
     prefs.set({ detail_position: next }).catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
   });
   prefs.onChange((p, changes) => { if ("detail_position" in changes) syncPositionBtn(p); });
+  // Preview as wide as the window (below the calendar only; personal preference)
+  const wideBtn = $("btn-detail-wide");
+  const syncWideBtn = (p) => {
+    const on = Boolean(p.detail_full_width);
+    wideBtn.setAttribute("aria-pressed", String(on));
+    const label = on ? t("main.preview_wide_off") : t("main.preview_wide_on");
+    wideBtn.title = label;
+    wideBtn.setAttribute("aria-label", label);
+  };
+  syncWideBtn(prefs.get());
+  wideBtn.addEventListener("click", () => {
+    prefs.set({ detail_full_width: !prefs.get().detail_full_width })
+      .catch((err) => toast(t("main.pref_not_saved", { message: err.message })));
+  });
+  prefs.onChange((p, changes) => { if ("detail_full_width" in changes) syncWideBtn(p); });
+  // Preview on the whole screen (not remembered: it always opens normal)
+  $("btn-detail-max").addEventListener("click", () => detail.setMaximized(!detail.maximized));
 
   // Cambio di posizione dell'anteprima: ridisegna subito quella aperta.
   prefs.onChange((_, changes) => {

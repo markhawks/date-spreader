@@ -155,12 +155,28 @@ export class DetailPanel {
       // la tabella a tutto schermo o l'anagrafica (che chiamano preventDefault). Attenzione: tra un
       // gestore e l'altro il browser esegue i microtask, quindi la tabella può essere già chiusa qui.
       if (e.key === "Escape" && this.isOpen && !e.defaultPrevented && !document.querySelector(".chooser, dialog[open]")
-          && !document.body.classList.contains("sheet-open")) this.close();
+          && !document.body.classList.contains("sheet-open")) {
+        if (this.maximized) this.setMaximized(false); // first Esc: back to the normal size
+        else this.close();
+      }
     });
   }
 
   get isOpen() {
     return !this.root.hidden;
+  }
+
+  get maximized() { return document.body.classList.contains("detail-max"); }
+
+  /** Preview on the whole screen (over calendar and project column), or back to normal. */
+  setMaximized(on) {
+    document.body.classList.toggle("detail-max", Boolean(on));
+    const label = on ? t("detail.max_off") : t("detail.max_on");
+    for (const b of document.querySelectorAll("#btn-detail-max, .max-btn")) {
+      b.setAttribute("aria-pressed", String(Boolean(on)));
+      b.title = label;
+      b.setAttribute("aria-label", label);
+    }
   }
 
   /** Anteprima in basso (estesa e modificabile) invece che a destra. */
@@ -327,6 +343,7 @@ export class DetailPanel {
     this.#releaseEmbedded();
     this.request++;
     this.root.hidden = true;
+    this.setMaximized(false);
     document.body.classList.remove("detail-open");
     this.onClose();
     this.returnFocus?.focus?.();
@@ -486,6 +503,16 @@ export class DetailPanel {
       tools.append(b);
     }
     tools.append(expand);
+    // the preview on the whole screen (same as the button in the preview bar)
+    const max = el("button", "btn btn-small icon-only max-btn");
+    max.type = "button";
+    max.innerHTML = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const maxLabel = this.maximized ? t("detail.max_off") : t("detail.max_on");
+    max.title = maxLabel;
+    max.setAttribute("aria-label", maxLabel);
+    max.setAttribute("aria-pressed", String(this.maximized));
+    max.addEventListener("click", () => this.setMaximized(!this.maximized));
+    tools.append(max);
     const projTitle = el("h3", "event-project", ev.project.name);
     if (ev.project.customer_name) {
       const cust = el(ev.project.customer_id != null && this.onCustomerPick ? "button" : "span", "event-customer", ev.project.customer_name);

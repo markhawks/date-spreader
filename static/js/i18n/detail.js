@@ -1,6 +1,8 @@
 // Translations for detail.js (index = static/index.html, common = shared words). Format: see static/js/i18n.js.
 export default {
   "en": {
+    "detail.max_on": "Preview on the whole screen",
+    "detail.max_off": "Back to the normal preview (Esc)",
     "detail.check_of_this": "Pre-check of this intervention",
     "detail.check_go_event": "→ intervention on {date}",
     "detail.check_go_day": "→ go to the check day",
@@ -76,6 +78,8 @@ export default {
     "detail.order_removed": "Commessa removed from the intervention."
   },
   "it": {
+    "detail.max_on": "Anteprima a schermo intero",
+    "detail.max_off": "Torna all'anteprima normale (Esc)",
     "detail.check_of_this": "Check pre-intervento di questo intervento",
     "detail.check_go_event": "→ intervento il {date}",
     "detail.check_go_day": "→ vai al giorno del check",

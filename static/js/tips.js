@@ -64,6 +64,7 @@ export const TIPS = [
   { id: "check_gantt", action: "gantt" },
   { id: "check_done" },
   { id: "online_users" },
+  { id: "preview_wide" },
 ];
 
 const el = (tag, className, text) => {
