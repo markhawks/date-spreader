@@ -654,6 +654,9 @@ the left.
   Hostnames are stored in lowercase.
 - **Removing a server**: bin icon, confirmed with a second click. The server stays in the inventory and in the other
   interventions.
+- **Notes that say FAIL or WARNING** (e.g. copied from the SteamRoller check) have the cell in the colors of that
+  check result, red or yellow (FAIL wins), also while typing and in the compact table: whole words in any case
+  (FAIL, failed, WARNING, warn…; «failover» does not count).
 - **Sorting the servers**: a click on a column header sorts the servers of the intervention by that column, a
   second click reverses it. The order is **saved on the intervention**: colleagues see it too (within seconds),
   servers added later fall into place, and the email follows it. Texts in alphabetical order, IPs numeric, OS and

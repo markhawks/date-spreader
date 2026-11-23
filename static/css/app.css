@@ -2786,3 +2786,11 @@ th .th-sort-mark { font-size: 0.7em; color: var(--accent); }
 .share-notes-mode { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
 .share-notes-mode select { font: inherit; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text); }
 .share-notes-mode select option { color: var(--text); background: var(--panel); }
+
+/* Notes that say FAIL or WARNING (e.g. from the SteamRoller check): the colors of that check result */
+td.note-bad, .note-text.note-bad, .config-notes.note-bad { background: var(--bad-bg); color: var(--bad-fg); }
+td.note-warn, .note-text.note-warn, .config-notes.note-warn { background: var(--warn-bg); color: var(--warn-fg); }
+td.note-bad .cell-input, td.note-bad textarea { color: var(--bad-fg); background: transparent; }
+td.note-warn .cell-input, td.note-warn textarea { color: var(--warn-fg); background: transparent; }
+.note-text.note-bad, .note-text.note-warn { display: inline-block; padding: 1px 6px; border-radius: 4px; }
+.config-notes.note-bad, .config-notes.note-warn { padding: 4px 8px; border-radius: 6px; }

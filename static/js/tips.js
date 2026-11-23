@@ -68,6 +68,7 @@ export const TIPS = [
   { id: "steamroller" },
   { id: "server_sort" },
   { id: "share_pick" },
+  { id: "note_colors" },
 ];
 
 const el = (tag, className, text) => {

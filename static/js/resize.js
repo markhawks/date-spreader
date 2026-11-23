@@ -68,8 +68,10 @@ export function makeResizable(table, { key, min = 56, skip = [] }) {
   if (ths.some((th) => widths[th.dataset.col])) {
     freeze();
     ths.forEach((th, i) => { if (widths[th.dataset.col] && i !== lastIdx) cols[i].style.width = `${widths[th.dataset.col]}px`; });
-    requestAnimationFrame(updateMinWidth);
   }
+  // Always: the table is at least as wide as its columns plus room for the elastic last one (otherwise,
+  // with many columns, the last one, e.g. Notes, is squeezed to nothing)
+  requestAnimationFrame(updateMinWidth);
 
   ths.forEach((th, i) => {
     if (i === lastIdx || !th.dataset.col || skip.includes(th.dataset.col)) return;

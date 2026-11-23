@@ -67,7 +67,8 @@ export default {
     "tips.tip.preview_wide": "More room for the server table: with the preview below, ⇔ in its bar makes it as wide as the window; ⛶ shows it on the whole screen (Esc to go back).",
     "tips.tip.steamroller": "The «SteamRoller Inventory» column of the server table belongs to the server: write it once and it is the same in all its interventions; the values already used are proposed in a list.",
     "tips.tip.server_sort": "Click a column header of the server table to sort the servers (IP numeric, versions natural, dates chronological); click again to reverse. The order is saved: colleagues see it too.",
-    "tips.tip.share_pick": "In «Share» you choose the servers for the customer (e.g. only the completed ones, with a click on the status) and which notes they see: by default none."
+    "tips.tip.share_pick": "In «Share» you choose the servers for the customer (e.g. only the completed ones, with a click on the status) and which notes they see: by default none.",
+    "tips.tip.note_colors": "Write FAIL or WARNING in the notes of a server (or paste the result of the SteamRoller check): the cell turns red or yellow, like the Check column."
   },
   "it": {
     "tips.title": "Suggerimento del giorno",
@@ -136,6 +137,7 @@ export default {
     "tips.tip.preview_wide": "Più spazio per la tabella server: con l'anteprima in basso, ⇔ nella sua barra la allarga quanto la finestra; ⛶ la mostra a schermo intero (Esc per tornare).",
     "tips.tip.steamroller": "La colonna «SteamRoller Inventory» della tabella server è un dato del server: la scrivi una volta e vale in tutti i suoi interventi; i valori già usati sono proposti in un elenco.",
     "tips.tip.server_sort": "Clic sull'intestazione di una colonna della tabella server per ordinare i server (IP numerico, versioni naturali, date cronologiche); un altro clic inverte. L'ordine è salvato: lo vedono anche i colleghi.",
-    "tips.tip.share_pick": "In «Condividi» scegli i server da mandare al cliente (es. solo i completati, con un clic sullo stato) e quali note può vedere: di default nessuna."
+    "tips.tip.share_pick": "In «Condividi» scegli i server da mandare al cliente (es. solo i completati, con un clic sullo stato) e quali note può vedere: di default nessuna.",
+    "tips.tip.note_colors": "Scrivi FAIL o WARNING nelle note di un server (o incolla l'esito del check di SteamRoller): la cella diventa rossa o gialla, come la colonna Check."
   }
 };

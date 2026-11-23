@@ -13,9 +13,7 @@ import { Sheet } from "./sheet.js";
 import { checkIcon, conflictBox, warnIcon } from "./conflicts.js";
 import { formatLongDate, formatMediumDate, formatShortDate, formatTime } from "./dates.js";
 import { t } from "./i18n.js";
-import {
-  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent, stageDone, stageLabel,
-} from "./labels.js";
+import { CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, badge, isConfigEvent, stageDone, stageLabel, markNote } from "./labels.js";
 
 const el = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -77,7 +75,7 @@ const COLUMNS = [
     s.executed_date ? t("detail.executed_on", { date: formatShortDate(s.executed_date) }) : null,
   )],
   ["Tecnico", (s) => s.assigned_user?.display_name ?? el("span", "muted", "—")],
-  ["Note", (s) => s.notes ?? ""],
+  ["Note", (s) => (s.notes ? markNote(el("span", "note-text", s.notes), s.notes) : "")],
 ];
 
 // Interventi di «Configurazione»: niente kernel, check e migrazione; le note stanno in una riga sotto il server.
@@ -712,7 +710,7 @@ export class DetailPanel {
         nr.dataset.notesFor = s.id;
         const td = el("td", "notes-cell");
         td.colSpan = columns.length;
-        td.append(s.notes ? el("div", "config-notes", s.notes) : el("span", "muted", t("detail.no_notes")));
+        td.append(s.notes ? markNote(el("div", "config-notes", s.notes), s.notes) : el("span", "muted", t("detail.no_notes")));
         nr.append(td);
         tbody.append(nr);
       }

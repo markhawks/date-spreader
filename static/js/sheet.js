@@ -21,7 +21,7 @@ import { makeResizable } from "./resize.js";
 import { formatLongDate, formatShortDate, formatTime } from "./dates.js";
 import { locale, t } from "./i18n.js";
 import {
-  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, stageLabel, toneOf,
+  CHECK_STATUS, EVENT_TYPE, MIGRATION_STATUS, isConfigEvent, shortOs, stageLabel, toneOf, markNote,
 } from "./labels.js";
 
 /** Minuscolo e senza accenti, per il filtro delle righe. */
@@ -494,7 +494,7 @@ export class Sheet {
     ta.setAttribute("aria-label", t("sheet.config_notes_label", { hostname: state.data.hostname }));
     ta.spellcheck = true;
     ta.value = controlValue(state.data, "notes");
-    ta.addEventListener("input", () => { td.classList.add("dirty"); autoGrow(ta); });
+    ta.addEventListener("input", () => { td.classList.add("dirty"); autoGrow(ta); markNote(td, ta.value); });
     ta.addEventListener("change", () => this.#commit(state, NOTES_COLUMN, ta));
     ta.addEventListener("keydown", (e) => this.#onKey(e, state, NOTES_COLUMN, ta));
     td.append(ta);
@@ -570,7 +570,10 @@ export class Sheet {
     if (col.kind === "text") control.title = control.value;
     if (col.kind === "combo" && control.value) control.title = `${control.value} — ${col.title}`;
 
-    control.addEventListener("input", () => control.parentElement.classList.add("dirty"));
+    control.addEventListener("input", () => {
+      control.parentElement.classList.add("dirty");
+      if (col.field === "notes") markNote(control.parentElement, control.value); // color while typing
+    });
     control.addEventListener("change", () => this.#commit(state, col, control));
     control.addEventListener("keydown", (e) => this.#onKey(e, state, col, control));
     return control;
@@ -1047,6 +1050,9 @@ export class Sheet {
 
   /** Colore delle select di stato, come i badge. */
   #tone(tr, data) {
+    // notes that say FAIL or WARNING: the cell takes the color of that check result
+    const notesTd = tr.querySelector('td[data-field="notes"]') ?? this.rows.get(data.id)?.notesTr?.querySelector("td.notes-cell");
+    if (notesTd) markNote(notesTd, data.notes);
     const os = tr.querySelector('select[data-field="operating_system"]');
     if (os) markOutdated(os, data.operating_system);
     const check = tr.querySelector('select[data-field="check_status"]');

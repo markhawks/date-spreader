@@ -49,3 +49,23 @@ export const PROJECT_STATUS = labelsFor("labels.project_status", ["attivo", "sos
 
 /** "Red Hat Enterprise Linux 9.8" → "RHEL 9.8" (il nome completo resta nel valore/tooltip). */
 export const shortOs = (os) => (os ?? "").replace(/^Red Hat Enterprise Linux/i, "RHEL");
+
+/**
+ * Tone of a server note from its words (as written by the SteamRoller check): "bad" with FAIL/FAILED/
+ * FAILURE, otherwise "warn" with WARNING/WARN, otherwise null. Whole words, any case ("failover" does not
+ * count). Same colors as FAIL and «Warning» in the Check column.
+ */
+export function noteTone(text) {
+  if (!text) return null;
+  if (/\bfail(ed|ure|s)?\b/i.test(text)) return "bad";
+  if (/\bwarn(ing|ings)?\b/i.test(text)) return "warn";
+  return null;
+}
+
+/** Colors a cell (or a field) like the Check column when its note says FAIL or WARNING. */
+export function markNote(node, text) {
+  node.classList.remove("note-bad", "note-warn");
+  const tone = noteTone(text);
+  if (tone) node.classList.add(`note-${tone}`);
+  return node;
+}
